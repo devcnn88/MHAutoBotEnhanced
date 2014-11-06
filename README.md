@@ -29,7 +29,7 @@ This script is tested under Chrome 37. It may not work at Firefox.
 
 Download Link
 
-1. Dropbox – https://www.dropbox.com/s/r2vt513q6tbzk1e/MH_Enhanced.user.js?dl=0
+1. Dropbox – https://www.dropbox.com/s/1fnzeedmc9hp0wx/MH_Enhanced.user.js?dl=0
 
 2. Greasyfork – https://greasyfork.org/scripts/5705-mousehunt-autobot-enhanced-edition
 
