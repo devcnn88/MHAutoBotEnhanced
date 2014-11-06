@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.28.8
+// @version    	1.28.9
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -112,7 +112,7 @@ var spongeCharm = ['Double Sponge', 'Sponge'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.28.8 Enhanced Edition";
+var scriptVersion = "1.28.9 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -574,13 +574,13 @@ function livingGarden() {
         console.debug('Estimate Hunt: ' + estimateHunt);
         if (estimateHunt >= 35)
         {
-            if (getPageVariableForChrome('user.trinket_name').indexOf('Sponge') > -1)
-            {
-                console.debug('Going to click Pour...');
-				var pourButton = document.getElementsByClassName('pour')[0];								
-				fireEvent(pourButton, 'click');
-				var confirmButton = document.getElementsByClassName('confirm button')[0];
-				fireEvent(confirmButton, 'click');
+            console.debug('Going to click Pour...');
+			var pourButton = document.getElementsByClassName('pour')[0];								
+			fireEvent(pourButton, 'click');
+			var confirmButton = document.getElementsByClassName('confirm button')[0];
+			fireEvent(confirmButton, 'click');
+			if (getPageVariableForChrome('user.trinket_name').indexOf('Sponge') > -1)
+            {                
 				console.debug('Going to disarm');
 				disarmTrap('trinket');
             }
