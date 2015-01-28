@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.28.14
+// @version    	1.28.9
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -45,7 +45,7 @@ var checkTimeDelayMax = 10;
 // // Play sound when encounter king's reward (true/false)
 var isKingWarningSound = false;
 
-// // Reload the the page according to kingPauseTimeMax when encounter King Reward. (true/false)
+// // Reload the the page according to kingPauseTimeMax when encount King Reward. (true/false)
 // // Note: No matter how many time you refresh, the King's Reward won't go away unless you resolve it manually.
 var reloadKingReward = false;
 
@@ -81,13 +81,13 @@ var showLastPageLoadTime = true;
 // // Default time to reload the page when bot encounter error. (in seconds)
 var errorReloadTime = 60;
 
-// // Time interval for script timer to update the time. May affect timer accuracy if set too high value. (in seconds)
-var timerRefreshInterval = 1;
+// // Time interval for script timer to update the time. May affact timer accuracy if set too high value. (in seconds)
+var timerRefreshInterval = 5;
 
 // // Best weapon/base pre-determined by user. Edit ur best weapon/trap in ascending order. e.g. [best, better, good]
 var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel'];
 var bestTactical = ['Sphynx Wrath'];
-var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap'];
+var bestHydro = ['Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap'];
 var bestArcane = ['Grand Arcanum Trap', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
 var bestShadow = ['Clockwork Portal Trap', 'Reaper\'s Perch', 'Clockapult of Time', 'Clockapult of Winter Past'];
 var bestForgotten = ['Tarannosaurus Rex Trap', 'The Forgotten Art of Dance'];
@@ -112,7 +112,7 @@ var spongeCharm = ['Double Sponge', 'Sponge'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.28.14 Enhanced Edition";
+var scriptVersion = "1.28.9 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -129,8 +129,8 @@ var baitQuantity = -1;
 var huntLocation;
 var currentLocation;
 var today = new Date();
-var checkTime;// = (today.getMinutes() >= trapCheckTimeDiff) ? 3600 + (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds()) : (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds());
-// today = undefined;
+var checkTime = (today.getMinutes() >= trapCheckTimeDiff) ? 3600 + (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds()) : (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds());
+today = undefined;
 var hornRetryMax = 10;
 var hornRetry = 0;
 var nextActiveTime = 900;
@@ -152,44 +152,26 @@ var optionElement;
 var travelElement;
 var strHornButton = 'hornbutton';
 var strCampButton = 'campbutton';
-var isNewUI = false;
 
 // start executing script
-// var test = (window.top != window.self);
-// var browser = browserDetection();
-// if (browser == 'firefox') {
-	// console.debug(test);
-	// if (test) {
-		// return;
-	// }
-// }
-//window.addEventListener("load", exeScript, false);
 exeScript();
 
 function exeScript() {
-	console.debug("exeScript() Start");
     // check the trap check setting first
-	browser = browserDetection();
-	trapCheckTimeDiff = GetTrapCheckTime();
-	// try {
-		// var passiveElement = document.getElementsByClassName('passive');
-		// if (passiveElement.length > 0) {
-			// var time = passiveElement[0].textContent;			
-			// time = time.substr(time.indexOf('m -') - 4, 2);				
-			// trapCheckTimeDiff = parseInt(time);				
-			// setStorage("TrapCheckTimeOffset", time);			
-		// }
-		// else throw 'passiveElement not found'
-	// }
-	// catch (e) {
-		// console.debug(e);
-		// var tempStorage = getStorage('TrapCheckTimeOffset');
-		// if (tempStorage == null) {
-		    // tempStorage = 00;		    
-			// setStorage("TrapCheckTimeOffset", tempStorage);
-		// }
-		// trapCheckTimeDiff = 00;
-	// }    
+    try {
+        var time = document.getElementsByClassName('passive')[0].getElementsByClassName('journaldate')[0].innerHTML;
+        time = time.substr(time.indexOf(':') + 1, 2);
+        trapCheckTimeDiff = parseInt(time);
+        setStorage("TrapCheckTimeOffset", trapCheckTimeDiff);
+    }
+    catch (e) {
+        console.debug('Class element "passive" not found');
+        trapCheckTimeDiff = getStorage('TrapCheckTimeOffset');
+        if (trapCheckTimeDiff == null) {
+            trapCheckTimeDiff = 00;
+            setStorage("TrapCheckTimeOffset", trapCheckTimeDiff);
+        }
+    }
     if (trapCheckTimeDiff == 60 || trapCheckTimeDiff == 0) {
         trapCheckTimeDiff = 00;
     }    
@@ -254,8 +236,6 @@ function exeScript() {
     }
 
     if (fbPlatform) {
-		// alert("This script doesnt work under Facebook MH at this moment");
-		// return;
         if (window.location.href == "http://www.mousehuntgame.com/canvas/" ||
 			window.location.href == "http://www.mousehuntgame.com/canvas/#" ||
 			window.location.href == "https://www.mousehuntgame.com/canvas/" ||
@@ -327,15 +307,16 @@ function exeScript() {
         }
     }
     else if (mhMobilePlatform) {
-        // execute at all page of mobile version        
-		// page to execute the script!
+        // execute at all page of mobile version
+        if (true) {
+            // page to execute the script!
 
-		// make sure all the preference already loaded
-		loadPreferenceSettingFromStorage();
+            // make sure all the preference already loaded
+            loadPreferenceSettingFromStorage();
 
-		// embed a place where timer show
-		embedTimer(false);
-        
+            // embed a place where timer show
+            embedTimer(false);
+        }
     }
     else if (hiFivePlatform) {
         if (window.location.href == "http://mousehunt.hi5.hitgrab.com/#" ||
@@ -370,30 +351,6 @@ function exeScript() {
             embedTimer(false);
         }
     }
-	console.debug("exeScript() End");
-	return;
-}
-
-function GetTrapCheckTime() {	
-	try {
-		var passiveElement = document.getElementsByClassName('passive');
-		if (passiveElement.length > 0) {
-			var time = passiveElement[0].textContent;			
-			time = time.substr(time.indexOf('m -') - 4, 2);				
-			setStorage("TrapCheckTimeOffset", time);
-			return parseInt(time);				
-		}
-		else throw 'passiveElement not found'
-	}
-	catch (e) {
-		console.debug(e);
-		var tempStorage = getStorage('TrapCheckTimeOffset');
-		if (tempStorage == null) {
-		    tempStorage = 00;		    
-			setStorage("TrapCheckTimeOffset", tempStorage);
-		}
-		return parseInt(tempStorage);
-	}
 }
 
 function checkIntroContainer() {
@@ -484,8 +441,8 @@ function ZTalgo() {
     return;
 }
 
-function eventLocationCheck(caller) {
-    console.debug('Algorithm Selected: ' + eventLocation + ' Call From: ' + caller);
+function eventLocationCheck() {
+    console.debug(eventLocation);
     switch (eventLocation)
     {
         case 'Charge Egg 2014':
@@ -505,11 +462,12 @@ function eventLocationCheck(caller) {
         default:
             break;
     }
+    return;
 }
 
 function Halloween2014()
 {
-	var currentLocation = getPageVariable("user.location");
+	var currentLocation = getPageVariableForChrome("user.location");
 	console.debug(currentLocation);
 	if (currentLocation.indexOf("Haunted Terrortories") > -1)
 	{
@@ -543,7 +501,7 @@ function BurroughRift(minMist, maxMist)
 	//Tier 3/Red: 19-20 Mist Canisters
 	
 	var currentMistQuantity = parseInt(document.getElementsByClassName('mistQuantity')[0].innerText);
-	var isMisting = getPageVariable('user.quests.QuestRiftBurroughs.is_misting');
+	var isMisting = getPageVariableForChrome('user.quests.QuestRiftBurroughs.is_misting');
 	var mistButton = document.getElementsByClassName('mistButton')[0];
 	console.debug('Current Mist Quantity: ' + currentMistQuantity);
 	console.debug('Is Misting: ' + isMisting);
@@ -562,7 +520,7 @@ function BurroughRift(minMist, maxMist)
 }
 
 function general() {
-    var location = getPageVariable('user.location');
+    var location = getPageVariableForChrome('user.location');
     console.debug('Current Location: ' + location);
     switch (location)
     {        
@@ -612,7 +570,6 @@ function livingGarden() {
     if (pourEstimate.innerText != "")
     {
         // Not pouring
-		console.debug('Filling...');
         var estimateHunt = parseInt(pourEstimate.innerText);
         console.debug('Estimate Hunt: ' + estimateHunt);
         if (estimateHunt >= 35)
@@ -622,15 +579,15 @@ function livingGarden() {
 			fireEvent(pourButton, 'click');
 			var confirmButton = document.getElementsByClassName('confirm button')[0];
 			fireEvent(confirmButton, 'click');
-			if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
+			if (getPageVariableForChrome('user.trinket_name').indexOf('Sponge') > -1)
             {                
 				console.debug('Going to disarm');
 				disarmTrap('trinket');
             }
         }
-		else if (estimateHunt >= 28)
+		else if (estimateHunt == 34)
 		{
-			checkThenArm(null, 'trinket', 'Sponge');
+			checkThenArm('best', 'trinket', 'Sponge');
 		}
         else
         {
@@ -640,8 +597,7 @@ function livingGarden() {
     else
     {
         // Pouring
-		console.debug('Pouring...');
-        if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
+        if (getPageVariableForChrome('user.trinket_name').indexOf('Sponge') > -1)
         {
             disarmTrap('trinket');
         }
@@ -650,12 +606,12 @@ function livingGarden() {
 }
 
 function lostCity() {
-	var isCursed = (document.getElementsByClassName('stateBlessed hidden').length > 0);
+	var isCursed = (document.getElementsByClassName('stateBlessed hidden').length > 0) ? true : false;
     console.debug('Cursed = ' + isCursed);
     
 	//disarm searcher charm when cursed is lifted    
     if (!isCursed) {
-        if (getPageVariable('user.trinket_name').indexOf('Searcher') > -1) {
+        if (getPageVariableForChrome('user.trinket_name').indexOf('Searcher') > -1) {
             disarmTrap('trinket');
         }
     }
@@ -667,13 +623,13 @@ function lostCity() {
 }
 
 function sandDunes() {
-    var hasStampede = getPageVariable('user.quests.QuestSandDunes.minigame.has_stampede');
+    var hasStampede = getPageVariableForChrome('user.quests.QuestSandDunes.minigame.has_stampede');
     console.debug('Has Stampede = ' + hasStampede);
 
     //disarm grubling chow charm when there is no stampede
     if (hasStampede == 'false')
     {
-        if (getPageVariable('user.trinket_name').indexOf('Chow') > -1) {
+        if (getPageVariableForChrome('user.trinket_name').indexOf('Chow') > -1) {
             disarmTrap('trinket');
         }
     }
@@ -687,7 +643,7 @@ function sandDunes() {
 function twistedGarden() {
     var red = parseInt(document.getElementsByClassName('itemImage red')[0].innerText);
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
-    var charmArmed = getPageVariable('user.trinket_name');
+    var charmArmed = getPageVariableForChrome('user.trinket_name');
     console.debug('Red: ' + red + ' Yellow: ' + yellow);
     if (red < 10)
     {
@@ -717,9 +673,9 @@ function twistedGarden() {
 }
 
 function cursedCity() {
-    var cursed = getPageVariable('user.quests.QuestLostCity.minigame.is_cursed');
+    var cursed = getPageVariableForChrome('user.quests.QuestLostCity.minigame.is_cursed');
     var curses = [];
-    var charmArmed = getPageVariable('user.trinket_name');
+    var charmArmed = getPageVariableForChrome('user.trinket_name');
     if (cursed == 'false')
     {
         if (charmArmed.indexOf('Bravery') > -1 || charmArmed.indexOf('Shine') > -1 || charmArmed.indexOf('Clarity') > -1) {
@@ -731,7 +687,7 @@ function cursedCity() {
     {
         for (var i = 0; i < 3; ++i)
         {
-            curses[i] = getPageVariable('user.quests.QuestLostCity.minigame.curses[' + i + '].active');
+            curses[i] = getPageVariableForChrome('user.quests.QuestLostCity.minigame.curses[' + i + '].active');
             if (curses[i] == 'true')
             {
                 switch (i)
@@ -843,7 +799,7 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
     }
 
     var trapArmed;
-    var userVariable = getPageVariable("user." + category + "_name");
+    var userVariable = getPageVariableForChrome("user." + category + "_name");
     if (sort == 'best')
     {
         for (var i = 0; i < name.length; i++)
@@ -978,298 +934,270 @@ function objToString(obj, str) {
 }
 
 function retrieveDataFirst() {
-    console.debug("retrieveDataFirst() Start");
-	try {
-		var gotHornTime = false;
-		var gotPuzzle = false;
-		var gotBaitQuantity = false;
-		var retrieveSuccess = false;
+    var gotHornTime = false;
+    var gotPuzzle = false;
+    var gotBaitQuantity = false;
+    var retrieveSuccess = false;
 
-		var scriptElementList = document.getElementsByTagName('script');
-		
-		if (scriptElementList) {
-			console.debug(GetHornTime());
-			var i;
-			for (i = 0; i < scriptElementList.length; ++i) {
-				var scriptString = scriptElementList[i].innerHTML;
+    var scriptElementList = document.getElementsByTagName('script');
+    if (scriptElementList) {
+        var i;
+        for (i = 0; i < scriptElementList.length; ++i) {
+            var scriptString = scriptElementList[i].innerHTML;
 
-				// get next horn time
-				var hornTimeStartIndex = scriptString.indexOf("next_activeturn_seconds");
-				if (hornTimeStartIndex >= 0) {
-					var nextActiveTime = 900;
-					hornTimeStartIndex += 25;
-					var hornTimeEndIndex = scriptString.indexOf(",", hornTimeStartIndex);
-					var hornTimerString = scriptString.substring(hornTimeStartIndex, hornTimeEndIndex);
-					nextActiveTime = parseInt(hornTimerString);
+            // get next horn time
+            var hornTimeStartIndex = scriptString.indexOf("next_activeturn_seconds");
+            if (hornTimeStartIndex >= 0) {
+                var nextActiveTime = 900;
+                hornTimeStartIndex += 25;
+                var hornTimeEndIndex = scriptString.indexOf(",", hornTimeStartIndex);
+                var hornTimerString = scriptString.substring(hornTimeStartIndex, hornTimeEndIndex);
+                nextActiveTime = parseInt(hornTimerString);
 
-					hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
+                hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
 
-					if (!aggressiveMode) {
-						// calculation base on the js in Mousehunt
-						var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
+                if (!aggressiveMode) {
+                    // calculation base on the js in Mousehunt
+                    var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
 
-						// need to found out the mousehunt provided timer interval to determine the additional delay
-						var timerIntervalStartIndex = scriptString.indexOf("hud.timer_interval");
-						if (timerIntervalStartIndex >= 0) {
-							timerIntervalStartIndex += 21;
-							var timerIntervalEndIndex = scriptString.indexOf(";", timerIntervalStartIndex);
-							var timerIntervalString = scriptString.substring(timerIntervalStartIndex, timerIntervalEndIndex);
-							var timerInterval = parseInt(timerIntervalString);
+                    // need to found out the mousehunt provided timer interval to determine the additional delay
+                    var timerIntervalStartIndex = scriptString.indexOf("hud.timer_interval");
+                    if (timerIntervalStartIndex >= 0) {
+                        timerIntervalStartIndex += 21;
+                        var timerIntervalEndIndex = scriptString.indexOf(";", timerIntervalStartIndex);
+                        var timerIntervalString = scriptString.substring(timerIntervalStartIndex, timerIntervalEndIndex);
+                        var timerInterval = parseInt(timerIntervalString);
 
-							// calculation base on the js in Mousehunt
-							if (timerInterval == 1) {
-								additionalDelayTime = 2;
-							}
+                        // calculation base on the js in Mousehunt
+                        if (timerInterval == 1) {
+                            additionalDelayTime = 2;
+                        }
 
-							timerIntervalStartIndex = undefined;
-							timerIntervalEndIndex = undefined;
-							timerIntervalString = undefined;
-							timerInterval = undefined;
-						}
+                        timerIntervalStartIndex = undefined;
+                        timerIntervalEndIndex = undefined;
+                        timerIntervalString = undefined;
+                        timerInterval = undefined;
+                    }
 
-						// safety mode, include extra delay like time in horn image appear
-						//hornTime = nextActiveTime + additionalDelayTime + hornTimeDelay;
-						hornTime = nextActiveTime + hornTimeDelay;
-						lastDateRecorded = undefined;
-						lastDateRecorded = new Date();
+                    // safety mode, include extra delay like time in horn image appear
+                    //hornTime = nextActiveTime + additionalDelayTime + hornTimeDelay;
+                    hornTime = nextActiveTime + hornTimeDelay;
+                    lastDateRecorded = undefined;
+                    lastDateRecorded = new Date();
 
-						additionalDelayTime = undefined;
-					}
-					else {
-						// aggressive mode, no extra delay like time in horn image appear
-						hornTime = nextActiveTime;
-						lastDateRecorded = undefined;
-						lastDateRecorded = new Date();
-					}
+                    additionalDelayTime = undefined;
+                }
+                else {
+                    // aggressive mode, no extra delay like time in horn image appear
+                    hornTime = nextActiveTime;
+                    lastDateRecorded = undefined;
+                    lastDateRecorded = new Date();
+                }
 
-					gotHornTime = true;
+                gotHornTime = true;
 
-					hornTimeStartIndex = undefined;
-					hornTimeEndIndex = undefined;
-					hornTimerString = undefined;
-					nextActiveTime = undefined;
-				}
+                hornTimeStartIndex = undefined;
+                hornTimeEndIndex = undefined;
+                hornTimerString = undefined;
+                nextActiveTime = undefined;
+            }
 
-				// get is king's reward or not
-				var hasPuzzleStartIndex = scriptString.indexOf("has_puzzle");
-				if (hasPuzzleStartIndex >= 0) {
-					hasPuzzleStartIndex += 12;
-					var hasPuzzleEndIndex = scriptString.indexOf(",", hasPuzzleStartIndex);
-					var hasPuzzleString = scriptString.substring(hasPuzzleStartIndex, hasPuzzleEndIndex);
-					isKingReward = (hasPuzzleString == 'false') ? false : true;
+            // get is king's reward or not
+            var hasPuzzleStartIndex = scriptString.indexOf("has_puzzle");
+            if (hasPuzzleStartIndex >= 0) {
+                hasPuzzleStartIndex += 12;
+                var hasPuzzleEndIndex = scriptString.indexOf(",", hasPuzzleStartIndex);
+                var hasPuzzleString = scriptString.substring(hasPuzzleStartIndex, hasPuzzleEndIndex);
+                isKingReward = (hasPuzzleString == 'false') ? false : true;
 
-					gotPuzzle = true;
+                gotPuzzle = true;
 
-					hasPuzzleStartIndex = undefined;
-					hasPuzzleEndIndex = undefined;
-					hasPuzzleString = undefined;
-				}
+                hasPuzzleStartIndex = undefined;
+                hasPuzzleEndIndex = undefined;
+                hasPuzzleString = undefined;
+            }
 
-				// get cheese quantity
-				var baitQuantityStartIndex = scriptString.indexOf("bait_quantity");
-				if (baitQuantityStartIndex >= 0) {
-					baitQuantityStartIndex += 15;
-					var baitQuantityEndIndex = scriptString.indexOf(",", baitQuantityStartIndex);
-					var baitQuantityString = scriptString.substring(baitQuantityStartIndex, baitQuantityEndIndex);
-					baitQuantity = parseInt(baitQuantityString);
+            // get cheese quantity
+            var baitQuantityStartIndex = scriptString.indexOf("bait_quantity");
+            if (baitQuantityStartIndex >= 0) {
+                baitQuantityStartIndex += 15;
+                var baitQuantityEndIndex = scriptString.indexOf(",", baitQuantityStartIndex);
+                var baitQuantityString = scriptString.substring(baitQuantityStartIndex, baitQuantityEndIndex);
+                baitQuantity = parseInt(baitQuantityString);
 
-					gotBaitQuantity = true;
+                gotBaitQuantity = true;
 
-					baitQuantityStartIndex = undefined;
-					baitQuantityEndIndex = undefined;
-					baitQuantityString = undefined;
-				}
+                baitQuantityStartIndex = undefined;
+                baitQuantityEndIndex = undefined;
+                baitQuantityString = undefined;
+            }
 
-				var locationStartIndex;
-				var locationEndIndex;
-				locationStartIndex = scriptString.indexOf("location\":\"");
-				if (locationStartIndex >= 0) {
-					locationStartIndex += 11;
-					locationEndIndex = scriptString.indexOf("\"", locationStartIndex);
-					var locationString = scriptString.substring(locationStartIndex, locationEndIndex);
-					currentLocation = locationString;
+            var locationStartIndex;
+            var locationEndIndex;
+            locationStartIndex = scriptString.indexOf("location\":\"");
+            if (locationStartIndex >= 0) {
+                locationStartIndex += 11;
+                locationEndIndex = scriptString.indexOf("\"", locationStartIndex);
+                var locationString = scriptString.substring(locationStartIndex, locationEndIndex);
+                currentLocation = locationString;
 
-					locationStartIndex = undefined;
-					locationEndIndex = undefined;
-					locationString = undefined;
-				}
+                locationStartIndex = undefined;
+                locationEndIndex = undefined;
+                locationString = undefined;
+            }
 
-				scriptString = undefined;
-			}
-			i = undefined;
-		}
-		scriptElementList = undefined;
+            scriptString = undefined;
+        }
+        i = undefined;
+    }
+    scriptElementList = undefined;
 
-		if (gotHornTime && gotPuzzle && gotBaitQuantity) {
-			// get trap check time
-			CalculateNextTrapCheckInMinute();        
+    if (gotHornTime && gotPuzzle && gotBaitQuantity) {
+        // get trap check time
+        if (enableTrapCheck) {            
+            var today = new Date();
+            checkTimeDelay = checkTimeDelayMin + Math.round(Math.random() * (checkTimeDelayMax - checkTimeDelayMin));
+            checkTime = (today.getMinutes() >= trapCheckTimeDiff) ? 3600 + (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds()) : (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds());
+            checkTime += checkTimeDelay;
+            today = undefined;
+            time = undefined;
+        }
 
-			// get last location
-			var huntLocationCookie = getStorage("huntLocation");
-			if (huntLocationCookie == undefined || huntLocationCookie == null) {
-				huntLocation = currentLocation;
-				setStorage("huntLocation", currentLocation);
-			}
-			else {
-				huntLocation = huntLocationCookie;
-				setStorage("huntLocation", huntLocation);
-			}
-			huntLocationCookie = undefined;
+        // get last location
+        var huntLocationCookie = getStorage("huntLocation");
+        if (huntLocationCookie == undefined || huntLocationCookie == null) {
+            huntLocation = currentLocation;
+            setStorage("huntLocation", currentLocation);
+        }
+        else {
+            huntLocation = huntLocationCookie;
+            setStorage("huntLocation", huntLocation);
+        }
+        huntLocationCookie = undefined;
 
-			// get last king reward time
-			var lastKingRewardDate = getStorage("lastKingRewardDate");
-			if (lastKingRewardDate == undefined || lastKingRewardDate == null) {
-				lastKingRewardSumTime = -1;
-			}
-			else {
-				var lastDate = new Date(lastKingRewardDate);
-				lastKingRewardSumTime = parseInt((new Date() - lastDate) / 1000);
-				lastDate = undefined;
-			}
-			lastKingRewardDate = undefined;
+        // get last king reward time
+        var lastKingRewardDate = getStorage("lastKingRewardDate");
+        if (lastKingRewardDate == undefined || lastKingRewardDate == null) {
+            lastKingRewardSumTime = -1;
+        }
+        else {
+            var lastDate = new Date(lastKingRewardDate);
+            lastKingRewardSumTime = parseInt((new Date() - lastDate) / 1000);
+            lastDate = undefined;
+        }
+        lastKingRewardDate = undefined;
 
-			retrieveSuccess = true;
-		}
-		else {
-			retrieveSuccess = false;
-		}
+        retrieveSuccess = true;
+    }
+    else {
+        retrieveSuccess = false;
+    }
 
-		// clean up
-		gotHornTime = undefined;
-		gotPuzzle = undefined;
-		gotBaitQuantity = undefined;
-		console.debug("retrieveDataFirst() End - " + retrieveSuccess);
-		return (retrieveSuccess);
-	}
-	catch (e) {
-		console.debug("Error - " + e);
-	}
-	finally {
-		retrieveSuccess = undefined;
-	}	
-}
-
-function GetHornTime() {
-	var huntTimerElement = document.getElementById('huntTimer');
-	if (huntTimerElement != null) {
-		huntTimerElement = huntTimerElement.textContent;
-		if (huntTimerElement.length == 4) huntTimerElement = '0' + huntTimerElement;
-		var totalSec;
-		if (isNewUI) {
-			var strTemp = new Date().toDateString() + ' 00:' + huntTimerElement;
-			var huntingTime = new Date(strTemp);
-			totalSec = huntingTime.getMinutes() * 60 + huntingTime.getSeconds();
-		}
-		else {
-			var temp = parseInt(huntTimerElement);			
-			if (!isNaN(temp)) {
-				totalSec = temp * 60;
-			}
-			else {
-				totalSec = 0;				
-			}			
-		}
-		return totalSec;
-	}
-	else {
-		return 900;	
-	}
-}
-
-function getKingRewardStatus() {
-	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
-	if (header != null && header.textContent.indexOf('reward') > -1) {
-		return true;
-	}
-	else return false;
-}
-
-function getBaitQuantity() {	
-	var hudBaitQuantity = document.getElementById('hud_baitQuantity');
-	if (hudBaitQuantity != null) {
-		return parseInt(hudBaitQuantity.textContent);
-	}
-	else {
-		return 0;
-	}
-}
-
-function getCurrentLocation() {
-	var tempLocation;
-	if (isNewUI) {
-		tempLocation = document.getElementsByClassName('mousehuntHud-environmentName');
-		if (tempLocation.length > 0) {
-			return tempLocation[0].textContent;
-		}
-		else return "";
-	}
-	else {
-		tempLocation = document.getElementById('hud_location');
-		if (tempLocation != null) {
-			return tempLocation.textContent;
-		}
-		else return "";
-		
-	}
+    // clean up
+    gotHornTime = undefined;
+    gotPuzzle = undefined;
+    gotBaitQuantity = undefined;
+    try {
+        return (retrieveSuccess);
+    }
+    finally {
+        retrieveSuccess = undefined;
+    }
 }
 
 function retrieveData() {
-	try {
-		// get next horn time
-		console.debug("retrieveData() Start");
-		browser = browserDetection();
-		if (!(browser == 'firefox' || browser == 'opera' || browser == 'chrome')) {
-			window.setTimeout(function () { reloadWithMessage("Browser not supported. Reloading...", false); }, 60000);
-		}
-		
-		currentLocation = getCurrentLocation();
-		isKingReward = getKingRewardStatus();
-		baitQuantity = getBaitQuantity();
-		nextActiveTime = GetHornTime();
+    var browser = browserDetection();
 
-		if (nextActiveTime == "" || isNaN(nextActiveTime)) {
-			// fail to retrieve data, might be due to slow network
+    // get next horn time
+    if (browser == "firefox") {
+        nextActiveTime = unsafeWindow.user.next_activeturn_seconds;
+        isKingReward = unsafeWindow.user.has_puzzle;
+        baitQuantity = unsafeWindow.user.bait_quantity;
+        currentLocation = unsafeWindow.user.location;
+    }
+    else if (browser == "opera") {
+        nextActiveTime = user.next_activeturn_seconds;
+        isKingReward = user.has_puzzle;
+        baitQuantity = user.bait_quantity;
+        currentLocation = user.location;
+    }
+    else if (browser == "chrome") {
+        nextActiveTime = parseInt(getPageVariableForChrome("user.next_activeturn_seconds"));
+        isKingReward = (getPageVariableForChrome("user.has_puzzle").toString() == "false") ? false : true;
+        baitQuantity = parseInt(getPageVariableForChrome("user.bait_quantity"));
+        currentLocation = getPageVariableForChrome("user.location");
+    }
+    else {
+        window.setTimeout(function () { reloadWithMessage("Browser not supported. Reloading...", false); }, 60000);
+    }
 
-			// reload the page to see it fix the problem
-			window.setTimeout(function () { reloadWithMessage("Fail to retrieve data. Reloading...", false); }, 5000);
-		}
-		else {
-			// got the timer right!
+    browser = undefined;
 
-			// calculate the delay
-			hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
+    if (nextActiveTime == "" || isNaN(nextActiveTime)) {
+        // fail to retrieve data, might be due to slow network
 
-			if (!aggressiveMode) {
-				// calculation base on the js in Mousehunt
-				var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
-				if (timerInterval != "" && !isNaN(timerInterval) && timerInterval == 1) {
-					additionalDelayTime = 2;
-				}
+        // reload the page to see it fix the problem
+        window.setTimeout(function () { reloadWithMessage("Fail to retrieve data. Reloading...", false); }, 5000);
+    }
+    else {
+        // got the timer right!
 
-				// safety mode, include extra delay like time in horn image appear
-				//hornTime = nextActiveTime + additionalDelayTime + hornTimeDelay;
-				hornTime = nextActiveTime + hornTimeDelay;
-				lastDateRecorded = undefined;
-				lastDateRecorded = new Date();
+        // calculate the delay
+        hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
 
-				additionalDelayTime = undefined;
-			}
-			else {
-				// aggressive mode, no extra delay like time in horn image appear
-				hornTime = nextActiveTime;
-				lastDateRecorded = undefined;
-				lastDateRecorded = new Date();
-			}
-		}
+        if (!aggressiveMode) {
+            // calculation base on the js in Mousehunt
+            var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
+            if (timerInterval != "" && !isNaN(timerInterval) && timerInterval == 1) {
+                additionalDelayTime = 2;
+            }
 
-		// get trap check time
-		CalculateNextTrapCheckInMinute();
-		eventLocationCheck('retrieveData()');
-		console.debug("retrieveData() End");
-	}
-	catch (e) {
-		console.debug(e);
-	}    
+            // safety mode, include extra delay like time in horn image appear
+            //hornTime = nextActiveTime + additionalDelayTime + hornTimeDelay;
+            hornTime = nextActiveTime + hornTimeDelay;
+            lastDateRecorded = undefined;
+            lastDateRecorded = new Date();
+
+            additionalDelayTime = undefined;
+        }
+        else {
+            // aggressive mode, no extra delay like time in horn image appear
+            hornTime = nextActiveTime;
+            lastDateRecorded = undefined;
+            lastDateRecorded = new Date();
+        }
+    }
+
+    // get trap check time
+    if (enableTrapCheck) {
+        var today = new Date();
+        checkTimeDelay = checkTimeDelayMin + Math.round(Math.random() * (checkTimeDelayMax - checkTimeDelayMin));
+        checkTime = (today.getMinutes() >= trapCheckTimeDiff) ? 3600 + (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds()) : (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds());
+        checkTime += checkTimeDelay;
+        today = undefined;
+    }
+    eventLocationCheck();
+}
+
+function getPageVariable(name, value) {
+    if (name == "user.next_activeturn_seconds") {
+        nextActiveTime = parseInt(value);
+    }
+    else if (name == "hud.timer_interval") {
+        timerInterval = parseInt(value);
+    }
+    else if (name == "user.has_puzzle") {
+        isKingReward = (value.toString() == true) ? true : false;
+    }
+    else if (name == "user.bait_quantity") {
+        baitQuantity = parseInt(value);
+    }
+    else if (name == "user.location") {
+        currentLocation = value.toString();
+    }
+
+    name = undefined;
+    value = undefined;
 }
 
 function checkJournalDate() {
@@ -1327,7 +1255,7 @@ function checkJournalDate() {
 function action() {
     if (isKingReward) {
         kingRewardAction();
-        notifyMe('King\'s Reward - ' + getPageVariable('user.username'));        
+        notifyMe('King\'s Reward - ' + getPageVariableForChrome('user.username'));        
     }
     else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
         // update timer
@@ -1377,10 +1305,9 @@ function action() {
         var isHornSounding = false;
 
         // check if the horn image is visible
-        var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('header');
+        var headerElement = (strHornButton == 'hornbutton') ? document.getElementById('header') : headerElement = document.getElementById('mousehuntHud').firstChild;
         if (headerElement) {
             var headerStatus = headerElement.getAttribute('class');
-			headerStatus = headerStatus.toLowerCase();
             if (headerStatus.indexOf("hornready") != -1) {
                 // if the horn image is visible, why do we need to wait any more, sound the horn!
                 soundHorn();
@@ -1399,165 +1326,166 @@ function action() {
 
         isHornSounding = undefined;
     }
-    eventLocationCheck('action()');
+    eventLocationCheck();
 }
 
 function countdownTimer() {
-	try {
-		if (isKingReward) {
-			// update timer
-			displayTimer("King's Reward!", "King's Reward!", "King's Reward");
-			displayKingRewardSumTime("Now");
+    if (isKingReward) {
+        // update timer
+        displayTimer("King's Reward!", "King's Reward!", "King's Reward");
+        displayKingRewardSumTime("Now");
 
-			// record last king's reward time
-			var nowDate = new Date();
-			setStorage("lastKingRewardDate", nowDate.toString());
-			nowDate = undefined;
-			lastKingRewardSumTime = 0;
+        // record last king's reward time
+        var nowDate = new Date();
+        setStorage("lastKingRewardDate", nowDate.toString());
+        nowDate = undefined;
+        lastKingRewardSumTime = 0;
 
-			// reload the page so that the sound can be play
-			// simulate mouse click on the camp button
-			fireEvent(document.getElementsByClassName(strCampButton)[0].firstChild, 'click');
+        // reload the page so that the sound can be play
+        // simulate mouse click on the camp button
+        fireEvent(document.getElementsByClassName(strCampButton)[0].firstChild, 'click');
 
-			// reload the page if click on camp button fail
-			window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
-		}
-		else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
-			// update timer
-			displayTimer("Out of pre-defined hunting location...", "Out of pre-defined hunting location...", "Out of pre-defined hunting location...");
-			if (fbPlatform) {
-				if (secureConnection) {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-				else {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-			}
-			else if (hiFivePlatform) {
-				if (secureConnection) {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-				else {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-			}
-			else if (mhPlatform) {
-				if (secureConnection) {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-				else {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-			}
-			displayKingRewardSumTime(null);
+        // reload the page if click on camp button fail
+        window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
+    }
+    else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
+        // update timer
+        displayTimer("Out of pre-defined hunting location...", "Out of pre-defined hunting location...", "Out of pre-defined hunting location...");
+        if (fbPlatform) {
+            if (secureConnection) {
+                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+            }
+            else {
+                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+            }
+        }
+        else if (hiFivePlatform) {
+            if (secureConnection) {
+                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+            }
+            else {
+                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+            }
+        }
+        else if (mhPlatform) {
+            if (secureConnection) {
+                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+            }
+            else {
+                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+            }
+        }
+        displayKingRewardSumTime(null);
 
-			// pause script
-		}
-		else if (baitQuantity == 0) {
-			// update timer
-			displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
-			displayLocation(huntLocation);
-			displayKingRewardSumTime(null);
+        // pause script
+    }
+    else if (baitQuantity == 0) {
+        // update timer
+        displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
+        displayLocation(huntLocation);
+        displayKingRewardSumTime(null);
 
-			// pause the script
-		}
-		else {
-			var dateNow = new Date();
-			var intervalTime = timeElapsed(lastDateRecorded, dateNow);
-			lastDateRecorded = undefined;
-			lastDateRecorded = dateNow;
-			dateNow = undefined;
+        // pause the script
+    }
+    else {
+        var dateNow = new Date();
+        var intervalTime = timeElapsed(lastDateRecorded, dateNow);
+        lastDateRecorded = undefined;
+        lastDateRecorded = dateNow;
+        dateNow = undefined;
 
-			if (enableTrapCheck) checkTime -= intervalTime;            
-			
-			// update time
-			hornTime -= intervalTime;
-			if (lastKingRewardSumTime != -1) {
-				lastKingRewardSumTime += intervalTime;
-			}
-			
-			intervalTime = undefined;
+        if (enableTrapCheck) {
+            // update time
+            hornTime -= intervalTime;
+            checkTime -= intervalTime;
+            if (lastKingRewardSumTime != -1) {
+                lastKingRewardSumTime += intervalTime;
+            }
+        }
+        else {
+            // update time
+            hornTime -= intervalTime;
+            if (lastKingRewardSumTime != -1) {
+                lastKingRewardSumTime += intervalTime;
+            }
+        }
 
-			if (hornTime <= 0) {
-				// blow the horn!
-				hornTime = 0;
-				soundHorn();
-			}
-			else if (enableTrapCheck && checkTime <= 0) {
-				// trap check!
-				trapCheck();
-			}
-			else {
-				if (enableTrapCheck) {
-					// update timer
-					if (!aggressiveMode) {
-						displayTimer("Horn: " + timeformat(hornTime) + " | Check: " + timeformat(checkTime),
-							timeformat(hornTime) + "  <i>(included extra " + timeformat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
-							timeformat(checkTime) + "  <i>(included extra " + timeformat(checkTimeDelay) + " delay)</i>");
-					}
-					else {
-						displayTimer("Horn: " + timeformat(hornTime) + " | Check: " + timeformat(checkTime),
-							timeformat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
-							timeformat(checkTime) + "  <i>(included extra " + timeformat(checkTimeDelay) + " delay)</i>");
-					}
-				}
-				else {
-					// update timer
-					if (!aggressiveMode) {
-						displayTimer("Horn: " + timeformat(hornTime),
-							timeformat(hornTime) + "  <i>(included extra " + timeformat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
-							"-");
+        intervalTime = undefined;
 
-						// check if user manaually sounded the horn
-						var scriptNode = document.getElementById("scriptNode");
-						if (scriptNode) {
-							var isHornSounded = scriptNode.getAttribute("soundedHornAtt");
-							if (isHornSounded == "true") {
-								// sound horn function do the rest
-								soundHorn();
+        if (hornTime <= 0) {
+            // blow the horn!
+            soundHorn();
+        }
+        else if (enableTrapCheck && checkTime <= 0) {
+            // trap check!
+            trapCheck();
+        }
+        else {
+            if (enableTrapCheck) {
+                // update timer
+                if (!aggressiveMode) {
+                    displayTimer("Horn: " + timeformat(hornTime) + " | Check: " + timeformat(checkTime),
+						timeformat(hornTime) + "  <i>(included extra " + timeformat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
+						timeformat(checkTime) + "  <i>(included extra " + timeformat(checkTimeDelay) + " delay)</i>");
+                }
+                else {
+                    displayTimer("Horn: " + timeformat(hornTime) + " | Check: " + timeformat(checkTime),
+						timeformat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
+						timeformat(checkTime) + "  <i>(included extra " + timeformat(checkTimeDelay) + " delay)</i>");
+                }
+            }
+            else {
+                // update timer
+                if (!aggressiveMode) {
+                    displayTimer("Horn: " + timeformat(hornTime),
+						timeformat(hornTime) + "  <i>(included extra " + timeformat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
+						"-");
 
-								// stop loopping
-								return;
-							}
-							isHornSounded = undefined;
-						}
-						scriptNode = undefined;
-					}
-					else {
-						displayTimer("Horn: " + timeformat(hornTime),
-							timeformat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
-							"-");
+                    // check if user manaually sounded the horn
+                    var scriptNode = document.getElementById("scriptNode");
+                    if (scriptNode) {
+                        var isHornSounded = scriptNode.getAttribute("soundedHornAtt");
+                        if (isHornSounded == "true") {
+                            // sound horn function do the rest
+                            soundHorn();
 
-						// agressive mode should sound the horn whenever it is possible to do so.
-						var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('header');
-						if (headerElement) {
-							var headerStatus = headerElement.getAttribute('class');
-							headerStatus = headerStatus.toLowerCase();
-							// the horn image appear before the timer end
-							if (headerStatus.indexOf("hornready") != -1) {
-								// who care, blow the horn first!
-								soundHorn();
+                            // stop loopping
+                            return;
+                        }
+                        isHornSounded = undefined;
+                    }
+                    scriptNode = undefined;
+                }
+                else {
+                    displayTimer("Horn: " + timeformat(hornTime),
+						timeformat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
+						"-");
 
-								headerElement = undefined;
+                    // agressive mode should sound the horn whenever it is possible to do so.
+                    var headerElement = (strHornButton == 'hornbutton') ? document.getElementById('header') : headerElement = document.getElementById('mousehuntHud').firstChild;
+                    if (headerElement) {
+                        // the horn image appear before the timer end
+                        if (headerElement.getAttribute('class').indexOf("hornready") != -1) {
+                            // who care, blow the horn first!
+                            soundHorn();
 
-								// skip all the code below
-								return;
-							}
-						}
-						headerElement = undefined;
-					}
-				}
+                            headerElement = undefined;
 
-				// set king reward sum time
-				displayKingRewardSumTime(timeFormatLong(lastKingRewardSumTime));
+                            // skip all the code below
+                            return;
+                        }
+                    }
+                    headerElement = undefined;
+                }
+            }
 
-				window.setTimeout(function () { (countdownTimer)() }, timerRefreshInterval * 1000);
-			}
-		}
-	}
-	catch (e) {
-		console.debug(e);
-	}
+            // set king reward sum time
+            displayKingRewardSumTime(timeFormatLong(lastKingRewardSumTime));
+
+            window.setTimeout(function () { (countdownTimer)() }, timerRefreshInterval * 1000);
+            //eventLocationCheck();
+        }
+    }
 }
 
 function reloadPage(soundHorn) {
@@ -2287,14 +2215,7 @@ function addGoogleAd() {
 // ################################################################################################
 
 function soundHorn() {
-	var isAtCampPage = (isNewUI)? (document.getElementById('journalContainer') != null) : (document.getElementById('huntingTips') != null) ;
-	console.debug("At Camp Page: " + isAtCampPage);
-	if (!isAtCampPage) {
-		displayTimer("Not At Camp Page", "Not At Camp Page", "Not At Camp Page");
-		return;
-	}
-	
-	// update timer
+    // update timer
     displayTimer("Ready to Blow The Horn...", "Ready to Blow The Horn...", "Ready to Blow The Horn...");
 
     var scriptNode = document.getElementById("scriptNode");
@@ -2305,11 +2226,10 @@ function soundHorn() {
 
     if (!aggressiveMode) {
         // safety mode, check the horn image is there or not before sound the horn
-        var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('header');
+        var headerElement = (strHornButton == 'hornbutton') ? document.getElementById('header') : headerElement = document.getElementById('mousehuntHud').firstChild;
         if (headerElement) {
             // need to make sure that the horn image is ready before we can click on it
             var headerStatus = headerElement.getAttribute('class');
-			headerStatus = headerStatus.toLowerCase();
             if (headerStatus.indexOf("hornready") != -1) {
                 // found the horn image, let's sound the horn!
 
@@ -2407,11 +2327,10 @@ function afterSoundingHorn() {
     }
     scriptNode = null;
 
-    var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('header');
+    var headerElement = (strHornButton == 'hornbutton') ? document.getElementById('header') : headerElement = document.getElementById('mousehuntHud').firstChild;
     if (headerElement) {
         // double check if the horn image is still visible after the script already sound it
         var headerStatus = headerElement.getAttribute('class');
-		headerStatus = headerStatus.toLowerCase();
         if (headerStatus.indexOf("hornready") != -1) {
             // seen like the horn is not functioning well
 
@@ -2485,7 +2404,8 @@ function afterSoundingHorn() {
             hornRetry = 0;
         }
     }
-    // eventLocationCheck('afterSoundingHorn()');
+    eventLocationCheck();
+
 }
 
 function embedScript() {
@@ -2519,30 +2439,15 @@ function embedScript() {
     headerElement = null;
 
     // change the function call of horn
-	var testNewUI = document.getElementById('header');
-	if (testNewUI != null) {
-		// old UI
-		isNewUI = false;
-		strHornButton = 'hornbutton';
-		strCampButton = 'campbutton';
-	}
-	else {
-		// new UI
-		isNewUI = true;
-		strHornButton = 'mousehuntHud-huntersHorn-container';
-        strCampButton = 'camp';
-		alert("New UI might not work properly with this script. Use at your own risk");
-	}
-	var hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
-	
-    /* if (hornButtonLink.length > 0) {
+    var hornButtonLink = document.getElementsByClassName(strHornButton);
+    if (hornButtonLink.length > 0) {
         hornButtonLink = hornButtonLink[0].firstChild;
     }
     else {
         strHornButton = 'mousehuntHud-huntersHorn-container';
         strCampButton = 'camp active';
         hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
-    } */
+    }
     
     var oriStr = hornButtonLink.getAttribute('onclick').toString();
     var index = oriStr.indexOf('return false;');
@@ -2603,6 +2508,8 @@ function kingRewardAction() {
 
 function playKingRewardSound() {
     if (isKingWarningSound) {
+        var browser = browserDetection();
+
         if (browser == "") {
             // The code below are no longer needed
             /* 
@@ -2651,6 +2558,8 @@ function playKingRewardSound() {
             // since opera cannot loop the king reward music, then we play it again.
             window.setTimeout(function () { playKingRewardSound() }, 214000);
         }
+
+        browser = null;
     }
 }
 
@@ -2759,22 +2668,8 @@ function trapCheck() {
     campElement = null;
 
     // reload the page if click on camp button fail
-    // window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
-	retrieveData();
-	window.setTimeout(function () { countdownTimer() }, timerRefreshInterval * 1000);
-    // eventLocationCheck();
-}
-
-function CalculateNextTrapCheckInMinute() {   
-    if (enableTrapCheck) {
-        var now = new Date();
-        var temp = (trapCheckTimeDiff * 60) - (now.getMinutes() * 60 + now.getSeconds());
-        checkTimeDelay = checkTimeDelayMin + Math.round(Math.random() * (checkTimeDelayMax - checkTimeDelayMin));
-        checkTime = (now.getMinutes() >= trapCheckTimeDiff) ? 3600 + temp : temp;
-        checkTime += checkTimeDelay;
-        now = undefined;
-        temp = undefined;
-    }
+    window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
+    //eventLocationCheck();
 }
 
 // ################################################################################################
@@ -2916,31 +2811,25 @@ function fireEvent(element, event) {
     }
 }
 
-function getPageVariable(variableName) {
-    var value;
-	try {
-		if (browser == 'chrome') {
-			// google chrome only
-			var scriptElement = document.createElement("script");
-			scriptElement.setAttribute('id', "scriptElement");
-			scriptElement.setAttribute('type', "text/javascript");
-			scriptElement.innerHTML = "document.getElementById('scriptElement').innerText=" + variableName + ";";
-			document.body.appendChild(scriptElement);
+function getPageVariableForChrome(variableName) {
+    // google chrome only
+    var scriptElement = document.createElement("script");
+    scriptElement.setAttribute('id', "scriptElement");
+    scriptElement.setAttribute('type', "text/javascript");
+    scriptElement.innerHTML = "document.getElementById('scriptElement').innerText=" + variableName + ";";
+    document.body.appendChild(scriptElement);
 
-			value = scriptElement.innerHTML;
-			document.body.removeChild(scriptElement);
-			scriptElement = null;
-			variableName = null;
-		}
-		else {
-			value = eval(variableName + ';');
-		}
-		return value;
-	}
-	catch (e) {
-		console.debug('Error getPageVariable - ' + e.message);
-		return "";
-	}	
+    var value = scriptElement.innerHTML;
+    document.body.removeChild(scriptElement);
+    scriptElement = null;
+    variableName = null;
+
+    try {
+        return (value);
+    }
+    finally {
+        value = null;
+    }
 }
 
 function timeElapsed(dateA, dateB) {
@@ -3027,6 +2916,7 @@ function timeFormatLong(time) {
         timeString = null;
     }
 }
+
 // ################################################################################################
 //   General Function - End
 // ################################################################################################
