@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.28.14
+// @version    	1.28.15
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -102,6 +102,7 @@ var wasteCharm = ['Tarnished', 'Wealth'];
 var redSpongeCharm = ['Red Double', 'Red Sponge'];
 var yellowSpongeCharm = ['Yellow Double', 'Yellow Sponge'];
 var spongeCharm = ['Double Sponge', 'Sponge'];
+var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 
 // == Advance User Preference Setting (End) ==
 
@@ -112,7 +113,7 @@ var spongeCharm = ['Double Sponge', 'Sponge'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.28.14 Enhanced Edition";
+var scriptVersion = "1.28.15 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -488,9 +489,9 @@ function eventLocationCheck(caller) {
     console.debug('Algorithm Selected: ' + eventLocation + ' Call From: ' + caller);
     switch (eventLocation)
     {
-        case 'Charge Egg 2014':
+        case 'Charge Egg 2015':
             checkCharge(12); break;
-        case 'Charge Egg 2014(17)':
+        case 'Charge Egg 2015(17)':
             checkCharge(17); break;
 		case 'Burroughs Rift(Red)':
 			BurroughRift(19, 20); break;
@@ -810,24 +811,37 @@ function checkMouse(mouseName) {
 function checkCharge(stopDischargeAt) {
     try {
         var charge = parseInt(document.getElementsByClassName("chargeQuantity")[0].innerText);
-
+		console.debug('Current Charge: ' + charge);
         if (charge == 20) {
             setStorage("discharge", true.toString());
-            checkThenArm(null, "trinket", "Eggstra");
+            checkThenArm(null, "trinket", "Eggstra Charm");
         }
 
         else if (charge < 20 && charge > stopDischargeAt) {
             if (getStorage("discharge") == "true") {
-                checkThenArm(null, "trinket", "Eggstra");
+                checkThenArm(null, "trinket", "Eggstra Charm");
             }
             else {
-                checkThenArm(null, "trinket", "Eggscavator");
+				if (stopDischargeAt == 17) {
+					checkThenArm('best', "trinket", chargeCharm);
+				}
+				else {
+					checkThenArm(null, "trinket", "Eggscavator");
+				}
             }
         }
-
-        else if (charge <= stopDischargeAt) {
+		else if (charge == stopDischargeAt) {
+			if (stopDischargeAt == 17) {
+				checkThenArm('best', "trinket", chargeCharm);
+			}
+			else {
+				checkThenArm(null, "trinket", "Eggscavator");
+			}
+			setStorage("discharge", false.toString());
+		}
+        else if (charge < stopDischargeAt) {
             setStorage("discharge", false.toString());
-            checkThenArm(null, "trinket", "Eggscavator");
+			checkThenArm(null, "trinket", "Eggscavator");
         }
         return;
     }
@@ -2005,8 +2019,8 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select name="algo" onChange="window.localStorage.setItem(\'eventLocation\', value); document.getElementById(\'event\').value=window.localStorage.getItem(\'eventLocation\');">';
             preferenceHTMLStr += '<option value="None" selected>None</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2014">Charge Egg 2014</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2014(17)">Charge Egg 2014(17)</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2015">Charge Egg 2015</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Halloween 2014">Halloween 2014</option>';
