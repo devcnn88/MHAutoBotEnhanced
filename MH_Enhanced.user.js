@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.28.17
+// @version    	1.28.18
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -113,7 +113,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.28.17 Enhanced Edition";
+var scriptVersion = "1.28.18 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -497,6 +497,8 @@ function eventLocationCheck(caller) {
 			BurroughRift(19, 20); break;
 		case 'Burroughs Rift(Green)':
 			BurroughRift(6, 18); break;  
+		case 'Burroughs Rift(Yellow)':
+			BurroughRift(1, 5); break;  
 		case 'Halloween 2014':
 			Halloween2014(); break;	 
 		case 'All LG Area':
@@ -2025,6 +2027,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
+			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
 			preferenceHTMLStr += '<option value="Halloween 2014">Halloween 2014</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
