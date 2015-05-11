@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.28.18
+// @version    	1.28.19
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -94,7 +94,7 @@ var bestForgotten = ['Tarannosaurus Rex Trap', 'The Forgotten Art of Dance'];
 var bestDraconic = ['Dragon Lance', 'Ice Maiden'];
 var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
 var bestRiftPower = ['Focused Crystal Laser', 'Crystal Tower'];
-var bestPowerBase = ['Golden Tournament Base', 'Spellbook Base'];
+var bestPowerBase = ['Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
 var bestLuckBase = ['Rift Base', 'Horse Jade Base'];
 var bestAttBasae = ['Birthday Drag', 'Cheesecake Base'];
 var bestSalt = ['Super Salt', 'Grub Salt'];
@@ -113,7 +113,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.28.18 Enhanced Edition";
+var scriptVersion = "1.28.19 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -730,7 +730,6 @@ function cursedCity() {
         if (charmArmed.indexOf('Bravery') > -1 || charmArmed.indexOf('Shine') > -1 || charmArmed.indexOf('Clarity') > -1) {
             disarmTrap('trinket');
         }
-        checkThenArm(null, "trinket", "Super Luck");
     }
     else
     {
