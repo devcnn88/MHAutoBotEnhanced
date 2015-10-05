@@ -1,10 +1,5 @@
 {
   "manifest_version": 2,
-
-  "browser_action":
-  {
-	"default_icon": "mht48.png",
-	"default_title" : "MH AutoBot Enhanced" },
 	
 	"icons" : {
     "19" : "mht19.png",
@@ -30,5 +25,5 @@
    I have enhanced it in such a way that the script works based on selected algorithm of event or location.
    PRECAUTION: Use this script at your own risk as this is against the rule of Mousehunt.",
    "name": "MouseHunt AutoBot Enhanced Edition",
-   "version": "1.28.19"
+   "version": "1.28.20"
 }
