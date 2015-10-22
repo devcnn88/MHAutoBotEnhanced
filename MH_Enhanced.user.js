@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.28.19
+// @version    	1.28.23
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -113,7 +113,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.28.19 Enhanced Edition";
+var scriptVersion = "1.28.23 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -130,8 +130,7 @@ var baitQuantity = -1;
 var huntLocation;
 var currentLocation;
 var today = new Date();
-var checkTime;// = (today.getMinutes() >= trapCheckTimeDiff) ? 3600 + (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds()) : (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds());
-// today = undefined;
+var checkTime;
 var hornRetryMax = 10;
 var hornRetry = 0;
 var nextActiveTime = 900;
@@ -155,16 +154,6 @@ var strHornButton = 'hornbutton';
 var strCampButton = 'campbutton';
 var isNewUI = false;
 
-// start executing script
-// var test = (window.top != window.self);
-// var browser = browserDetection();
-// if (browser == 'firefox') {
-	// console.debug(test);
-	// if (test) {
-		// return;
-	// }
-// }
-//window.addEventListener("load", exeScript, false);
 exeScript();
 
 function exeScript() {
@@ -172,25 +161,7 @@ function exeScript() {
     // check the trap check setting first
 	browser = browserDetection();
 	trapCheckTimeDiff = GetTrapCheckTime();
-	// try {
-		// var passiveElement = document.getElementsByClassName('passive');
-		// if (passiveElement.length > 0) {
-			// var time = passiveElement[0].textContent;			
-			// time = time.substr(time.indexOf('m -') - 4, 2);				
-			// trapCheckTimeDiff = parseInt(time);				
-			// setStorage("TrapCheckTimeOffset", time);			
-		// }
-		// else throw 'passiveElement not found'
-	// }
-	// catch (e) {
-		// console.debug(e);
-		// var tempStorage = getStorage('TrapCheckTimeOffset');
-		// if (tempStorage == null) {
-		    // tempStorage = 00;		    
-			// setStorage("TrapCheckTimeOffset", tempStorage);
-		// }
-		// trapCheckTimeDiff = 00;
-	// }    
+	   
     if (trapCheckTimeDiff == 60 || trapCheckTimeDiff == 0) {
         trapCheckTimeDiff = 00;
     }    
@@ -499,8 +470,8 @@ function eventLocationCheck(caller) {
 			BurroughRift(6, 18); break;  
 		case 'Burroughs Rift(Yellow)':
 			BurroughRift(1, 5); break;  
-		case 'Halloween 2014':
-			Halloween2014(); break;	 
+		case 'Halloween 2015':
+			Halloween2015(); break;	 
 		case 'All LG Area':
 			general(); break;
 		case 'Sunken City':
@@ -510,20 +481,20 @@ function eventLocationCheck(caller) {
     }
 }
 
-function Halloween2014()
+function Halloween2015()
 {
 	var currentLocation = getPageVariable("user.location");
 	console.debug(currentLocation);
 	if (currentLocation.indexOf("Haunted Terrortories") > -1)
 	{
-		var areaName = document.getElementsByClassName('halloween2014Hud-areaDetails-name')[0].innerHTML;
-		var warning = document.getElementsByClassName('halloween2014Hud-areaDetails-warning active').length;
+		var areaName = document.getElementsByClassName('halloweenHud-areaDetails-name')[0].innerHTML;
+		var warning = document.getElementsByClassName('halloweenHud-areaDetails-warning active').length;
 		var isWarning = (warning > 0) ? true : false;
 		console.debug('Current Area Name: ' + areaName + " Warning: " + isWarning);
 		if (isWarning)
 		{
-			var trickContainer = document.getElementsByClassName('halloween2014Hud-bait trick_cheese clear-block')[0];
-			var treatContainer = document.getElementsByClassName('halloween2014Hud-bait treat_cheese clear-block')[0];
+			var trickContainer = document.getElementsByClassName('halloweenHud-bait trick_cheese clear-block')[0];
+			var treatContainer = document.getElementsByClassName('halloweenHud-bait treat_cheese clear-block')[0];
 			if (trickContainer.children[2].getAttribute('class') == 'armNow active')
 			{
 				console.debug('Currently armed: Trick cheese, Going to arm Treat cheese');
@@ -2027,7 +1998,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
-			preferenceHTMLStr += '<option value="Halloween 2014">Halloween 2014</option>';
+			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
