@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.28.23
+// @version    	1.28.24
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -24,7 +24,7 @@ var hornTimeDelayMin = 10;
 var hornTimeDelayMax = 30;
 
 // // Bot aggressively by ignore all safety measure such as check horn image visible before sounding it. (true/false)
-// // Note: Highly recommended to turn off because it increase the chances of getting caugh in botting.
+// // Note: Highly recommended to turn off because it increase the chances of getting caught in botting.
 // // Note: It will ignore the hornTimeDelayMin and hornTimeDelayMax.
 // // Note: It may take a little bit extra of CPU processing power.
 var aggressiveMode = false;
@@ -57,6 +57,9 @@ var kingPauseTimeMax = 3600;
 // // Note: Make sure you set showTimerInPage to true in order to know what is happening.
 var pauseAtInvalidLocation = false;
 
+// // Time to wait after trap selector clicked (in second)
+var secWait = 7;
+
 // == Basic User Preference Setting (End) ==
 
 
@@ -85,9 +88,9 @@ var errorReloadTime = 60;
 var timerRefreshInterval = 1;
 
 // // Best weapon/base pre-determined by user. Edit ur best weapon/trap in ascending order. e.g. [best, better, good]
-var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel'];
-var bestTactical = ['Sphynx Wrath'];
-var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap'];
+var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
+var bestTactical = ['Chrome Sphynx Wrath', 'Sphynx Wrath'];
+var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap', 'Chrome Sphynx Wrath'];
 var bestArcane = ['Grand Arcanum Trap', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
 var bestShadow = ['Clockwork Portal Trap', 'Reaper\'s Perch', 'Clockapult of Time', 'Clockapult of Winter Past'];
 var bestForgotten = ['Tarannosaurus Rex Trap', 'The Forgotten Art of Dance'];
@@ -95,14 +98,16 @@ var bestDraconic = ['Dragon Lance', 'Ice Maiden'];
 var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
 var bestRiftPower = ['Focused Crystal Laser', 'Crystal Tower'];
 var bestPowerBase = ['Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
-var bestLuckBase = ['Rift Base', 'Horse Jade Base'];
+var bestLuckBase = ['Fissure Base', 'Rift Base', 'Sheep Jade Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Papyrus Base'];
 var bestAttBasae = ['Birthday Drag', 'Cheesecake Base'];
 var bestSalt = ['Super Salt', 'Grub Salt'];
+var bestFWWave4Weapon = ['Warden Slayer Trap', 'Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
 var wasteCharm = ['Tarnished', 'Wealth'];
 var redSpongeCharm = ['Red Double', 'Red Sponge'];
 var yellowSpongeCharm = ['Yellow Double', 'Yellow Sponge'];
 var spongeCharm = ['Double Sponge', 'Sponge'];
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
+var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
 
 // == Advance User Preference Setting (End) ==
 
@@ -113,7 +118,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.28.23 Enhanced Edition";
+var scriptVersion = "1.28.24 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -158,8 +163,8 @@ exeScript();
 
 function exeScript() {
 	console.debug("exeScript() Start");
-    // check the trap check setting first
 	browser = browserDetection();
+    // check the trap check setting first	
 	trapCheckTimeDiff = GetTrapCheckTime();
 	   
     if (trapCheckTimeDiff == 60 || trapCheckTimeDiff == 0) {
@@ -473,7 +478,7 @@ function eventLocationCheck(caller) {
 		case 'Halloween 2015':
 			Halloween2015(); break;	 
 		case 'All LG Area':
-			general(); break;
+			LGGeneral(); break;
 		case 'Sunken City':
 			SunkenCity(); break;
         default:
@@ -481,15 +486,31 @@ function eventLocationCheck(caller) {
     }
 }
 
-function Halloween2015()
+function GetCurrentLocation()
 {
-	var currentLocation = getPageVariable("user.location");
-	console.debug(currentLocation);
-	if (currentLocation.indexOf("Haunted Terrortories") > -1)
+	var location = getPageVariable('user.location');
+    console.debug('Current Location: ' + location);
+	return location;
+}
+
+function GetMaxPopulation(population)
+{
+    var max = 0;
+    for (var i = 0; i < population.length; i++)
+    {
+        if (population[i] > max)
+            max = population[i];        
+    }
+    return max;
+}
+
+function Halloween2015()
+{	
+	if (GetCurrentLocation().indexOf("Haunted Terrortories") > -1)
 	{
 		var areaName = document.getElementsByClassName('halloweenHud-areaDetails-name')[0].innerHTML;
 		var warning = document.getElementsByClassName('halloweenHud-areaDetails-warning active').length;
-		var isWarning = (warning > 0) ? true : false;
+		var isWarning = (warning > 0);
 		console.debug('Current Area Name: ' + areaName + " Warning: " + isWarning);
 		if (isWarning)
 		{
@@ -506,7 +527,7 @@ function Halloween2015()
 				fireEvent(trickContainer.children[2], 'click');
 			}
 		}
-	}	
+	}
 }
 
 function BurroughRift(minMist, maxMist)
@@ -535,10 +556,8 @@ function BurroughRift(minMist, maxMist)
 	return;
 }
 
-function general() {
-    var location = getPageVariable('user.location');
-    console.debug('Current Location: ' + location);
-    switch (location)
+function LGGeneral() {
+    switch (GetCurrentLocation())
     {        
         case 'Living Garden':
             livingGarden(); break;
@@ -746,7 +765,7 @@ function sandCrypts() {
 
 function retrieveMouseList() {
     fireEvent(document.getElementById('effectiveness'), 'click');
-    var sec = 5;
+    var sec = secWait;
     var intervalRML = setInterval(
         function () {
             if (document.getElementsByClassName('thumb').length > 0)
@@ -766,7 +785,7 @@ function retrieveMouseList() {
                 --sec;
                 if (sec <= 0) {
                     fireEvent(document.getElementById('effectiveness'), 'click');
-                    sec = 5;
+                    sec = secWait;
                 }
             }
         }, 1000);
@@ -869,7 +888,7 @@ function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attracti
 {
     clickTrapSelector(trap);
     var index;
-    var sec = 5;
+    var sec = secWait;
     var intervalCTATI = setInterval(
         function ()
         {
@@ -886,7 +905,7 @@ function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attracti
                 if (sec <= 0)
                 {
                     clickTrapSelector(trap);
-                    sec = 5;
+                    sec = secWait;
                 }
             }
         }, 1000);
@@ -975,8 +994,7 @@ function retrieveDataFirst() {
 
 		var scriptElementList = document.getElementsByTagName('script');
 		
-		if (scriptElementList) {
-			console.debug(GetHornTime());
+		if (scriptElementList) {			
 			var i;
 			for (i = 0; i < scriptElementList.length; ++i) {
 				var scriptString = scriptElementList[i].innerHTML;
@@ -2522,17 +2540,8 @@ function embedScript() {
         strCampButton = 'camp';
 		alert("New UI might not work properly with this script. Use at your own risk");
 	}
-	var hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
 	
-    /* if (hornButtonLink.length > 0) {
-        hornButtonLink = hornButtonLink[0].firstChild;
-    }
-    else {
-        strHornButton = 'mousehuntHud-huntersHorn-container';
-        strCampButton = 'camp active';
-        hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
-    } */
-    
+	var hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
     var oriStr = hornButtonLink.getAttribute('onclick').toString();
     var index = oriStr.indexOf('return false;');
     var modStr = oriStr.substring(0, index) + 'soundedHorn();' + oriStr.substring(index);
@@ -2820,6 +2829,7 @@ function disarmTrap(trapSelector) {
                 for (var i = 0; i < x.length; ++i) {
                     if (x[i].getAttribute('title').indexOf('Click to disarm') > -1) {
                         fireEvent(x[i], 'click');
+						arming = false;
                         clearInterval(intervalDT);
                         intervalDT = null;
                         return (console.debug('Disarmed'));
