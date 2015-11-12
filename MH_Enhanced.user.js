@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.28.24
+// @version    	1.29.24
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -45,13 +45,27 @@ var checkTimeDelayMax = 10;
 // // Play sound when encounter king's reward (true/false)
 var isKingWarningSound = false;
 
-// // Reload the the page according to kingPauseTimeMax when encounter King Reward. (true/false)
-// // Note: No matter how many time you refresh, the King's Reward won't go away unless you resolve it manually.
-var reloadKingReward = false;
+// // Auto solve KR
+var isAutoSolve = false;
 
-// // Duration of pausing the script before reload the King's Reward page (in seconds)
-// // Note: It only take effect if reloadKingReward = true;
-var kingPauseTimeMax = 3600;
+// // Extra delay time before solving KR. (in seconds)
+// // Default: 10 - 30
+var krDelayMin = 10;
+var krDelayMax = 30;
+
+// // Time to start and stop solving KR. (in hours, 24-hour format)
+// // Example: Script would not auto solve KR between 00:00 - 6:00 when krStopHour = 0 & krStartHour = 6;
+// // To disable this feature, set both to the same value.
+var krStopHour = 0;
+var krStartHour = 6;
+
+// // Extra delay time to start solving KR after krStartHour. (in minutes)
+var krStartHourDelayMin = 10;
+var krStartHourDelayMax = 30;
+
+// // Maximum retry of solving KR.
+// // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
+var kingsRewardRetryMax = 3;
 
 // // The script will pause if player at different location that hunt location set before. (true/false)
 // // Note: Make sure you set showTimerInPage to true in order to know what is happening.
@@ -118,7 +132,7 @@ var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.28.24 Enhanced Edition";
+var scriptVersion = "1.29.24 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -130,7 +144,6 @@ var hornTimeDelay = 0;
 var checkTimeDelay = 0;
 var isKingReward = false;
 var lastKingRewardSumTime;
-var kingPauseTime;
 var baitQuantity = -1;
 var huntLocation;
 var currentLocation;
@@ -142,10 +155,12 @@ var nextActiveTime = 900;
 var timerInterval = 2;
 var checkMouseResult = null;
 var mouseList = [];
-var eventLocation;
+var eventLocation = "None";
+var discharge = false;
 var arming = false;
 var best = 0;
 var maxSaltCharged = 24;
+var kingsRewardRetry = 0;
 
 // element in page
 var titleElement;
@@ -158,7 +173,87 @@ var travelElement;
 var strHornButton = 'hornbutton';
 var strCampButton = 'campbutton';
 var isNewUI = false;
+var debugKR = false;
 
+function FinalizePuzzleImageAnswer(answer)
+{
+	if (answer.length != 5)
+    {
+	    //Get a new puzzle
+	    if (kingsRewardRetry > kingsRewardRetryMax)
+	    {
+	        kingsRewardRetry = 0;
+			setStorage("KingsRewardRetry", kingsRewardRetry);
+			alert('Max retry. Pls solve it manually.');
+			return;
+	    }
+	    else
+	    {
+	        ++kingsRewardRetry;
+			setStorage("KingsRewardRetry", kingsRewardRetry);
+	        var tagName = document.getElementsByTagName("a");
+            for (var i = 0; i < tagName.length; i++)
+            {
+                if (tagName[i].innerText == "Click here to get a new one!")
+                {                    					
+					fireEvent(tagName[i], 'click');
+                    return;
+                }
+            }
+	    }	    
+    }
+    else
+    {        
+		//Submit answer		
+        var puzzleAns = document.getElementById("puzzle_answer");		
+		if (!puzzleAns)
+		{
+			console.debug("puzzleAns: " + puzzleAns);
+			return;
+		}
+		puzzleAns.value = "";
+        puzzleAns.value = answer;
+        var puzzleSubmit = document.getElementById("puzzle_submit");
+		if (!puzzleSubmit)
+		{
+			console.debug("puzzleSubmit: " + puzzleSubmit);
+			return;
+		}
+		
+		fireEvent(puzzleSubmit, 'click');
+		kingsRewardRetry = 0;		
+		setStorage("KingsRewardRetry", kingsRewardRetry);
+		var myFrame = document.getElementById('myFrame');
+		if (myFrame)
+			document.body.removeChild(myFrame);
+		window.setTimeout(function () { CheckKRAnswerCorrectness(); }, 5000);
+    }
+}
+
+function receiveMessage(event)
+{  
+	console.debug("Event origin: " + event.origin);	
+
+	if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1)
+	{
+		if (event.data.indexOf("~") > -1)
+		{						
+			var result = event.data.substring(0, event.data.indexOf("~"));			
+			var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);			
+			var now = new Date();
+			var strKR = "KR-" + now.toLocaleString();
+			strKR = strKR.replace(", ", "-");
+			strKR = strKR.replace(" ", "-");
+			strKR += "-" + result;
+			setStorage(strKR, processedImg);
+			FinalizePuzzleImageAnswer(result);
+		}		
+	}		
+}
+
+window.addEventListener("message", receiveMessage, false);
+if (debugKR)
+	CallKRSolver();
 exeScript();
 
 function exeScript() {
@@ -239,6 +334,7 @@ function exeScript() {
 			window.location.href == "https://www.mousehuntgame.com/canvas/#" ||
 			window.location.href.indexOf("mousehuntgame.com/canvas/index.php") != -1 ||
 			window.location.href.indexOf("mousehuntgame.com/canvas/turn.php") != -1 ||
+			window.location.href.indexOf("mousehuntgame.com/canvas/?newpuzzle") != -1 ||
 			window.location.href.indexOf("mousehuntgame.com/canvas/?") != -1) {
             // page to execute the script!
 
@@ -275,6 +371,7 @@ function exeScript() {
 			window.location.href == "https://www.mousehuntgame.com/#" ||
 			window.location.href == "https://www.mousehuntgame.com/?switch_to=standard" ||
 			window.location.href.indexOf("mousehuntgame.com/turn.php") != -1 ||
+			window.location.href.indexOf("mousehuntgame.com/?newpuzzle") != -1 ||
 			window.location.href.indexOf("mousehuntgame.com/index.php") != -1) {
             // page to execute the script!
 
@@ -319,6 +416,7 @@ function exeScript() {
 			window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/?") != -1 ||
 			window.location.href == "http://mousehunt.hi5.hitgrab.com/" ||
 			window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/turn.php") != -1 ||
+			window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/?newpuzzle") != -1 ||
 			window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/index.php") != -1) {
             // page to execute the script!
 
@@ -1333,7 +1431,6 @@ function checkJournalDate() {
 function action() {
     if (isKingReward) {
         kingRewardAction();
-        notifyMe('King\'s Reward - ' + getPageVariable('user.username'), 'https://raw.githubusercontent.com/devcnn88/MHAutoBotEnhanced/master/mht48.png', 'King Reward');
     }
     else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
         // update timer
@@ -1906,6 +2003,7 @@ function embedTimer(targetPage) {
                 preferenceHTMLStr += '</td>';
                 preferenceHTMLStr += '</tr>';
             }
+			
             if (isKingWarningSound) {
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -1932,50 +2030,44 @@ function embedTimer(targetPage) {
                 preferenceHTMLStr += '</td>';
                 preferenceHTMLStr += '</tr>';
             }
-            if (reloadKingReward) {
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Reload the the page according to King Reward Resume Time when encount King Reward"><b>King Reward Resume</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="radio" id="KingRewardResumeInputTrue" name="KingRewardResumeInput" value="true" onchange="if (document.getElementById(\'KingRewardResumeInputTrue\').checked == true) { document.getElementById(\'KingRewardResumeTimeInput\').disabled=\'\'; }" checked="checked"/> True';
+			
+            preferenceHTMLStr += '<tr>';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Solve King Reward automatically"><b>Auto Solve King Reward</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			if (isAutoSolve) {
+				preferenceHTMLStr += '<input type="radio" id="AutoSolveKRInputTrue" name="AutoSolveKRInput" value="true" onchange="if (document.getElementById(\'AutoSolveKRInputTrue\').checked == true) { document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=\'\'; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=\'\';}" checked="checked"/> True';
                 preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="KingRewardResumeInputFalse" name="KingRewardResumeInput" value="false" onchange="if (document.getElementById(\'KingRewardResumeInputFalse\').checked == true) { document.getElementById(\'KingRewardResumeTimeInput\').disabled=\'disabled\'; }"/> False';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Duration of pausing the script before reload the King\'s Reward page (in seconds)"><b>King Reward Resume Time</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="text" id="KingRewardResumeTimeInput" name="KingRewardResumeTimeInput" value="' + kingPauseTimeMax.toString() + '"/> seconds';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
+                preferenceHTMLStr += '<input type="radio" id="AutoSolveKRInputFalse" name="AutoSolveKRInput" value="false" onchange="if (document.getElementById(\'AutoSolveKRInputFalse\').checked == true) { document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=\'disabled\'; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=\'disabled\';}"/> False';
             }
             else {
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Reload the the page according to King Reward Resume Time when encounter King Reward"><b>King Reward Resume</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="radio" id="KingRewardResumeInputTrue" name="KingRewardResumeInput" value="true" onchange="if (document.getElementById(\'KingRewardResumeInputTrue\').checked == true) { document.getElementById(\'KingRewardResumeTimeInput\').disabled=\'\'; }"/> True';
+                preferenceHTMLStr += '<input type="radio" id="AutoSolveKRInputTrue" name="AutoSolveKRInput" value="true" onchange="if (document.getElementById(\'AutoSolveKRInputTrue\').checked == true) { document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=\'\'; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=\'\';}"/> True';
                 preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="KingRewardResumeInputFalse" name="KingRewardResumeInput" value="false" onchange="if (document.getElementById(\'KingRewardResumeInputFalse\').checked == true) { document.getElementById(\'KingRewardResumeTimeInput\').disabled=\'disabled\'; }" checked="checked"/> False';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Duration of pausing the script before reload the King\'s Reward page (in seconds)"><b>King Reward Resume Time</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="text" id="KingRewardResumeTimeInput" name="KingRewardResumeTimeInput" disabled="disabled" value="' + kingPauseTimeMax.toString() + '"/> seconds';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
+                preferenceHTMLStr += '<input type="radio" id="AutoSolveKRInputFalse" name="AutoSolveKRInput" value="false" onchange="if (document.getElementById(\'AutoSolveKRInputFalse\').checked == true) { document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=\'disabled\'; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=\'disabled\';}" checked="checked"/> False';                
             }
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+            preferenceHTMLStr += '<tr>';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Extra delay time to solve King Reward (in seconds)"><b>Auto Solve King Reward Delay</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			if (isAutoSolve) {
+                preferenceHTMLStr += '<input type="text" id="AutoSolveKRDelayMinInput" name="AutoSolveKRDelayMinInput" value="' + krDelayMin.toString() + '"/> seconds';
+                preferenceHTMLStr += ' ~ ';
+                preferenceHTMLStr += '<input type="text" id="AutoSolveKRDelayMaxInput" name="AutoSolveKRDelayMaxInput" value="' + krDelayMax.toString() + '"/> seconds';                
+            }
+            else {
+                preferenceHTMLStr += '<input type="text" id="AutoSolveKRDelayMinInput" name="AutoSolveKRDelayMinInput" disabled="disabled" value="' + krDelayMin.toString() + '"/> seconds';
+                preferenceHTMLStr += ' ~ ';
+                preferenceHTMLStr += '<input type="text" id="AutoSolveKRDelayMaxInput" name="AutoSolveKRDelayMaxInput" disabled="disabled" value="' + krDelayMax.toString() + '"/> seconds';
+            }
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
             if (pauseAtInvalidLocation) {
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -2033,8 +2125,8 @@ function embedTimer(targetPage) {
 				if (document.getElementById(\'TrapCheckInputTrue\').checked == true) { window.localStorage.setItem(\'TrapCheck\', \'true\'); } else { window.localStorage.setItem(\'TrapCheck\', \'false\'); }	\
 				window.localStorage.setItem(\'TrapCheckTimeDelayMin\', document.getElementById(\'TrapCheckTimeDelayMinInput\').value); window.localStorage.setItem(\'TrapCheckTimeDelayMax\', document.getElementById(\'TrapCheckTimeDelayMaxInput\').value);	\
 				if (document.getElementById(\'PlayKingRewardSoundInputTrue\').checked == true) { window.localStorage.setItem(\'PlayKingRewardSound\', \'true\'); } else { window.localStorage.setItem(\'PlayKingRewardSound\', \'false\'); }	\
-				if (document.getElementById(\'KingRewardResumeInputTrue\').checked == true) { window.localStorage.setItem(\'KingRewardResume\', \'true\'); } else { window.localStorage.setItem(\'KingRewardResume\', \'false\'); }	\
-				window.localStorage.setItem(\'KingRewardResumeTime\', document.getElementById(\'KingRewardResumeTimeInput\').value);	\
+				if (document.getElementById(\'AutoSolveKRInputTrue\').checked == true) { window.localStorage.setItem(\'AutoSolveKR\', \'true\'); } else { window.localStorage.setItem(\'AutoSolveKR\', \'false\'); }	\
+				window.localStorage.setItem(\'AutoSolveKRDelayMin\', document.getElementById(\'AutoSolveKRDelayMinInput\').value); window.localStorage.setItem(\'AutoSolveKRDelayMax\', document.getElementById(\'AutoSolveKRDelayMaxInput\').value);	\
 				if (document.getElementById(\'PauseLocationInputTrue\').checked == true) { window.localStorage.setItem(\'PauseLocation\', \'true\'); } else { window.localStorage.setItem(\'PauseLocation\', \'false\'); }	\
 				';
             if (fbPlatform) {
@@ -2088,120 +2180,58 @@ function embedTimer(targetPage) {
 }
 
 function loadPreferenceSettingFromStorage() {
-    var aggressiveModeTemp = getStorage("AggressiveMode");
-    if (aggressiveModeTemp == undefined || aggressiveModeTemp == null) {
-        setStorage("AggressiveMode", aggressiveMode.toString());
-    }
-    else if (aggressiveModeTemp == true || aggressiveModeTemp.toLowerCase() == "true") {
-        aggressiveMode = true;
+    aggressiveMode = getStorageToVariableBool("AggressiveMode", aggressiveMode);
+	hornTimeDelayMin = getStorageToVariableInt("HornTimeDelayMin", hornTimeDelayMin);
+	hornTimeDelayMax = getStorageToVariableInt("HornTimeDelayMax", hornTimeDelayMax);
+	enableTrapCheck = getStorageToVariableBool("TrapCheck", enableTrapCheck);
+	checkTimeDelayMin = getStorageToVariableInt("TrapCheckTimeDelayMin", checkTimeDelayMin);
+	checkTimeDelayMiax = getStorageToVariableInt("TrapCheckTimeDelayMax", checkTimeDelayMax);	
+	isKingWarningSound = getStorageToVariableBool("PlayKingRewardSound", isKingWarningSound);
+	isAutoSolve = getStorageToVariableBool("AutoSolveKR", isAutoSolve);
+	krDelayMin = getStorageToVariableInt("AutoSolveKRDelayMin", krDelayMin);
+	krDelayMax = getStorageToVariableInt("AutoSolveKRDelayMax", krDelayMax);	
+	kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);	
+	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
+    discharge = getStorageToVariableBool("discharge", discharge);
+	eventLocation = getStorageToVariableStr("eventLocation", "None");
+}
+
+function getStorageToVariableInt(storageName, defaultInt)
+{
+	var temp = getStorage(storageName);    
+	var tempInt = defaultInt;
+    if (temp == undefined || temp == null) {
+        setStorage(storageName, defaultInt);        
     }
     else {
-        aggressiveMode = false;
+        tempInt = parseInt(temp);        
     }
-    aggressiveModeTemp = undefined;
+	return tempInt;    
+}
 
-    var hornTimeDelayMinTemp = getStorage("HornTimeDelayMin");
-    var hornTimeDelayMaxTemp = getStorage("HornTimeDelayMax");
-    if (hornTimeDelayMinTemp == undefined || hornTimeDelayMinTemp == null || hornTimeDelayMaxTemp == undefined || hornTimeDelayMaxTemp == null) {
-        setStorage("HornTimeDelayMin", hornTimeDelayMin);
-        setStorage("HornTimeDelayMax", hornTimeDelayMax);
+function getStorageToVariableStr(storageName, defaultStr)
+{
+	var temp = getStorage(storageName);
+    if (temp == undefined || temp == null) {
+        setStorage(storageName, defaultStr);
+        temp = defaultStr;
+    }
+    return temp;    
+}
+
+function getStorageToVariableBool(storageName, defaultBool)
+{
+	var temp = getStorage(storageName);
+    if (temp == undefined || temp == null) {
+        setStorage(storageName, defaultBool.toString());
+		return defaultBool;
+    }
+    else if (temp == true || temp.toLowerCase() == "true") {
+        return true;
     }
     else {
-        hornTimeDelayMin = parseInt(hornTimeDelayMinTemp);
-        hornTimeDelayMax = parseInt(hornTimeDelayMaxTemp);
+        return false;
     }
-    hornTimeDelayMinTemp = undefined;
-    hornTimeDelayMaxTemp = undefined;
-
-    var trapCheckTemp = getStorage("TrapCheck");
-    if (trapCheckTemp == undefined || trapCheckTemp == null) {
-        setStorage("TrapCheck", enableTrapCheck.toString());
-    }
-    else if (trapCheckTemp == true || trapCheckTemp.toLowerCase() == "true") {
-        enableTrapCheck = true;
-    }
-    else {
-        enableTrapCheck = false;
-    }
-    trapCheckTemp = undefined;
-
-    var trapCheckTimeDelayMinTemp = getStorage("TrapCheckTimeDelayMin");
-    var trapCheckTimeDelayMaxTemp = getStorage("TrapCheckTimeDelayMax");
-    if (trapCheckTimeDelayMinTemp == undefined || trapCheckTimeDelayMinTemp == null || trapCheckTimeDelayMaxTemp == undefined || trapCheckTimeDelayMaxTemp == null) {
-        setStorage("TrapCheckTimeDelayMin", checkTimeDelayMin);
-        setStorage("TrapCheckTimeDelayMax", checkTimeDelayMax);
-    }
-    else {
-        checkTimeDelayMin = parseInt(trapCheckTimeDelayMinTemp);
-        checkTimeDelayMax = parseInt(trapCheckTimeDelayMaxTemp);
-    }
-    trapCheckTimeDelayMinTemp = undefined;
-    trapCheckTimeDelayMaxTemp = undefined;
-
-    var playKingRewardSoundTemp = getStorage("PlayKingRewardSound");
-    if (playKingRewardSoundTemp == undefined || playKingRewardSoundTemp == null) {
-        setStorage("PlayKingRewardSound", isKingWarningSound.toString());
-    }
-    else if (playKingRewardSoundTemp == true || playKingRewardSoundTemp.toLowerCase() == "true") {
-        isKingWarningSound = true;
-    }
-    else {
-        isKingWarningSound = false;
-    }
-    playKingRewardSoundTemp = undefined;
-
-    var kingRewardResumeTemp = getStorage("KingRewardResume");
-    if (kingRewardResumeTemp == undefined || kingRewardResumeTemp == null) {
-        setStorage("KingRewardResume", reloadKingReward.toString());
-    }
-    else if (kingRewardResumeTemp == true || kingRewardResumeTemp.toLowerCase() == "true") {
-        reloadKingReward = true;
-    }
-    else {
-        reloadKingReward = false;
-    }
-    kingRewardResumeTemp = undefined;
-
-    var kingRewardResumeTimeTemp = getStorage("KingRewardResumeTime");
-    if (kingRewardResumeTimeTemp == undefined || kingRewardResumeTimeTemp == null) {
-        setStorage("KingRewardResumeTime", kingPauseTimeMax);
-    }
-    else {
-        kingPauseTimeMax = parseInt(kingRewardResumeTimeTemp);
-    }
-    kingRewardResumeTimeTemp = undefined;
-
-    var pauseLocationTemp = getStorage("PauseLocation");
-    if (pauseLocationTemp == undefined || pauseLocationTemp == null) {
-        setStorage("PauseLocation", pauseAtInvalidLocation.toString());
-    }
-    else if (pauseLocationTemp == true || pauseLocationTemp.toLowerCase() == "true") {
-        pauseAtInvalidLocation = true;
-    }
-    else {
-        pauseAtInvalidLocation = false;
-    }
-    pauseLocationTemp = undefined;
-
-    var dischargeTemp = getStorage("discharge");
-    if (dischargeTemp == undefined || dischargeTemp == null) {
-        setStorage("discharge", true.toString());
-    }
-    else if (dischargeTemp == true || dischargeTemp.toLowerCase() == "true") {
-        discharge = true;
-    }
-    else {
-        discharge = false;
-    }
-    dischargeTemp = undefined;
-
-    var eventTemp = getStorage('eventLocation');
-    if (eventTemp == undefined || eventTemp == null) {
-        setStorage('eventLocation', 'None');
-        eventTemp = getStorage('eventLocation');
-    }
-    eventLocation = eventTemp;
-    eventTemp = undefined;
 }
 
 function displayTimer(title, nextHornTime, checkTime) {
@@ -2243,51 +2273,6 @@ function displayKingRewardSumTime(timeStr) {
 // ################################################################################################
 //   Timer Function - End
 // ################################################################################################
-
-
-
-// ################################################################################################
-//   Ad Function - Start
-// ################################################################################################
-
-function addGoogleAd() {
-    // search for existing ad element and remove it
-    var existingAutoBotAdElement = document.getElementById('autoBotAdDiv');
-    if (existingAutoBotAdElement) {
-        existingAutoBotAdElement.parentNode.removeChild(existingAutoBotAdElement);
-        existingAutoBotAdElement = null;
-    }
-
-    // add a new ad element
-    var headerElement;
-    if (fbPlatform || hiFivePlatform || mhPlatform) {
-        headerElement = document.getElementById('noscript');
-    }
-    else if (mhMobilePlatform) {
-        headerElement = document.getElementById('mobileHorn');
-    }
-
-    if (headerElement) {
-        var autoBotAdDivElement = document.createElement('div');
-        autoBotAdDivElement.setAttribute('id', 'autoBotAdDiv');
-        autoBotAdDivElement.innerHTML = '<script type="text/javascript"><!-- \
-			google_ad_client = "ca-pub-0646444153861496"; \
-			google_ad_slot = "5069542056"; \
-			google_ad_width = 728;google_ad_height = 90; \
-			//--> \
-			</script> \
-			<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>';
-
-        headerElement.parentNode.insertBefore(autoBotAdDivElement, headerElement);
-        timerDivElement = null;
-    }
-}
-
-// ################################################################################################
-//   Ad Function - End
-// ################################################################################################
-
-
 
 // ################################################################################################
 //   Horn Function - Start
@@ -2589,18 +2574,40 @@ function kingRewardAction() {
     // record last king's reward time
     var nowDate = new Date();
     setStorage("lastKingRewardDate", nowDate.toString());
-    nowDate = null;
 
-    if (kingPauseTimeMax <= 0) {
-        kingPauseTimeMax = 1;
+	if (!isAutoSolve)
+		return;
+	
+	var krDelaySec = krDelayMin + Math.floor(Math.random() * (krDelayMax - krDelayMin));		
+	var krStopHourNormalized = krStopHour;
+	var krStartHourNormalized = krStartHour;
+	if (krStopHour > krStartHour) // e.g. Stop to Start => 22 to 06
+	{
+		var offset = 24 - krStopHour;
+		krStartHourNormalized = krStartHour + offset;
+		krStopHourNormalized = 0;		
+		nowDate.setHours(nowDate.getHours() + offset);
     }
 
-    kingPauseTime = kingPauseTimeMax;
-    kingRewardCountdownTimer();
+	if (nowDate.getHours() >= krStopHourNormalized && nowDate.getHours() < krStartHourNormalized)
+	{
+		var krDelayMinute = krStartHourDelayMin + Math.floor(Math.random() * (krStartHourDelayMax - krStartHourDelayMin));
+		krDelaySec += krStartHour * 3600 - (nowDate.getHours() * 3600 + nowDate.getMinutes() * 60 + nowDate.getSeconds());
+		krDelaySec += krDelayMinute * 60;
+		var timeNow = new Date();
+		setStorage("Time to start delay", timeNow.toString());
+		setStorage("Delay time", timeformat(krDelaySec))
+		kingRewardCountdownTimer(krDelaySec, true);
+	}
+	else
+	{
+		if (kingsRewardRetry > kingsRewardRetryMax)
+			krDelaySec /= (kingsRewardRetry * 2);
+		kingRewardCountdownTimer(krDelaySec, false);		
+	}		
 }
 
 function playKingRewardSound() {
-	console.debug('isKingWarningSound: ' + isKingWarningSound);
     if (isKingWarningSound) {
 		unsafeWindow.hornAudio = new Audio('https://raw.githubusercontent.com/devcnn88/MHAutoBotEnhanced/master/resources/Girtab.mp3');
 		hornAudio.loop = true;
@@ -2608,27 +2615,17 @@ function playKingRewardSound() {
     }
 }
 
-function kingRewardCountdownTimer() {
-    var dateNow = new Date();
-    var intervalTime = timeElapsed(lastDateRecorded, dateNow);
-    lastDateRecorded = null;
-    lastDateRecorded = dateNow;
-    dateNow = null;
-
-    if (reloadKingReward) {
-        kingPauseTime -= intervalTime;
-    }
-
-    if (lastKingRewardSumTime != -1) {
-        lastKingRewardSumTime += intervalTime;
-    }
-
-    intervalTime = null;
-
-    if (kingPauseTime <= 0) {
-        // update timer
-        displayTimer("King's Reward - Reloading...", "Reloading...", "Reloading...");
-
+function kingRewardCountdownTimer(interval, isReloadToSolve)
+{   	
+	var strTemp = (isReloadToSolve) ? "Reload to solve KR in " : "Solve KR in (extra few sec delay) ";
+	strTemp = strTemp + timeformat(interval);	
+	displayTimer(strTemp, strTemp, strTemp);
+	strTemp = null;
+	interval -= timerRefreshInterval;
+	if (interval < 0)
+	{
+		if (isReloadToSolve)
+		{
         // simulate mouse click on the camp button
         var campElement = document.getElementsByClassName(strCampButton)[0].firstChild;
         fireEvent(campElement, 'click');
@@ -2637,19 +2634,25 @@ function kingRewardCountdownTimer() {
         // reload the page if click on the camp button fail
         window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
     }
-    else {
-        if (reloadKingReward) {
-            // update timer
-            displayTimer("King's Reward - Reload in " + timeformat(kingPauseTime),
-				"Reloading in " + timeformat(kingPauseTime),
-				"Reloading in " + timeformat(kingPauseTime));
-        }
-
-        // set king reward sum time
-        displayKingRewardSumTime(timeFormatLong(lastKingRewardSumTime));
-
+		else
+		{
+			var intervalCRB = setInterval(
+				function ()
+				{
+					if (checkResumeButton())
+					{
+						clearInterval(intervalCRB);
+						intervalCRB = null;
+						return;
+					}
+				}, 1000);   
+			CallKRSolver();
+		}		
+	}
+	else
+	{		
         if (!checkResumeButton()) {
-            window.setTimeout(function () { (kingRewardCountdownTimer)() }, timerRefreshInterval * 1000);
+            window.setTimeout(function () { kingRewardCountdownTimer(interval, isReloadToSolve); }, timerRefreshInterval * 1000);
         }
     }
 }
@@ -2691,6 +2694,38 @@ function checkResumeButton() {
     finally {
         found = null;
     }
+}
+
+function CallKRSolver()
+{
+	var frame = document.createElement('iframe');
+	frame.setAttribute("id", "myFrame");
+	var img = document.getElementById('puzzleImage');	
+	if (debugKR)
+		frame.src = "https://photos-4.dropbox.com/t/2/AAArkp_yNcE-_gLkppu3xeeV2p-y0q0Ml0AhZ0RfCIlYpQ/12/127673959/png/32x32/1/_/1/2/download.png/EM-6pmIYjboGIAcoBw/VXDBwjXQ2NNK6ShussiKls1sCUQSTjvkn3wM5g4Jcro?size=640x480&size_mode=2";
+	else
+		frame.src = img.src;	
+	document.body.appendChild(frame);	
+}
+
+function CheckKRAnswerCorrectness()
+{	
+	var pageMsg = document.getElementById('pagemessage');
+	if (pageMsg && pageMsg.innerText.toLowerCase().indexOf("unable to claim reward") > -1) // KR answer not correct, re-run OCR
+	{
+		if (kingsRewardRetry > kingsRewardRetryMax)
+	    {
+	        kingsRewardRetry = 0;
+			setStorage("KingsRewardRetry", kingsRewardRetry);			
+			alert('Max retry. Pls solve it manually.');
+			return;
+	    }
+		++kingsRewardRetry;
+		setStorage("KingsRewardRetry", kingsRewardRetry);
+		CallKRSolver();
+	}
+	else
+		window.setTimeout(function () { CheckKRAnswerCorrectness(); }, 1000);
 }
 
 // ################################################################################################
