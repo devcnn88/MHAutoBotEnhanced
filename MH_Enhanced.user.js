@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.24
+// @version    	1.29.25
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -113,6 +113,8 @@ var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
 var bestRiftPower = ['Focused Crystal Laser', 'Crystal Tower'];
 var bestPowerBase = ['Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
 var bestLuckBase = ['Fissure Base', 'Rift Base', 'Sheep Jade Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Papyrus Base'];
+var bestLGBase = ['Hothouse Base'];
+bestLGBase = bestLGBase.concat(bestLuckBase);
 var bestAttBasae = ['Birthday Drag', 'Cheesecake Base'];
 var bestSalt = ['Super Salt', 'Grub Salt'];
 var bestFWWave4Weapon = ['Warden Slayer Trap', 'Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
@@ -123,6 +125,9 @@ var spongeCharm = ['Double Sponge', 'Sponge'];
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
 
+// // Sand Crypts maximum salt for King Grub
+var maxSaltCharged = 25;
+
 // == Advance User Preference Setting (End) ==
 
 
@@ -132,7 +137,7 @@ var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.24 Enhanced Edition";
+var scriptVersion = "1.29.25 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -159,7 +164,6 @@ var eventLocation = "None";
 var discharge = false;
 var arming = false;
 var best = 0;
-var maxSaltCharged = 24;
 var kingsRewardRetry = 0;
 
 // element in page
@@ -722,23 +726,19 @@ function livingGarden() {
             }
         }
 		else if (estimateHunt >= 28)
-		{
 			checkThenArm(null, 'trinket', 'Sponge');
-		}
         else
-        {
             checkThenArm('best', 'trinket', spongeCharm);
-        }
     }
     else
     {
         // Pouring
 		console.debug('Pouring...');
         if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
-        {
             disarmTrap('trinket');
-        }
-    }    
+    }
+	checkThenArm('best', 'weapon', bestHydro);
+	checkThenArm('best', 'base', bestLGBase);
     return;
 }
 
@@ -748,14 +748,14 @@ function lostCity() {
     
 	//disarm searcher charm when cursed is lifted    
     if (!isCursed) {
-        if (getPageVariable('user.trinket_name').indexOf('Searcher') > -1) {
+        if (getPageVariable('user.trinket_name').indexOf('Searcher') > -1)
             disarmTrap('trinket');
-        }
     }
-    else {
+    else
         checkThenArm(null, 'trinket', 'Searcher');
-    }
+	
 	checkThenArm('best', 'weapon', bestArcane);
+	checkThenArm('best', 'base', bestLGBase);
     return;
 }
 
@@ -766,14 +766,14 @@ function sandDunes() {
     //disarm grubling chow charm when there is no stampede
     if (hasStampede == 'false')
     {
-        if (getPageVariable('user.trinket_name').indexOf('Chow') > -1) {
+        if (getPageVariable('user.trinket_name').indexOf('Chow') > -1)
             disarmTrap('trinket');
-        }
     }
-    else {
+    else
         checkThenArm(null, 'trinket', 'Grubling Chow');
-    }
+	
 	checkThenArm('best', 'weapon', bestShadow);
+	checkThenArm('best', 'base', bestLGBase);
     return;
 }
 
@@ -784,28 +784,25 @@ function twistedGarden() {
     console.debug('Red: ' + red + ' Yellow: ' + yellow);
     if (red < 10)
     {
-        if (red <= 8) {
+        if (red <= 8)
             checkThenArm('best', 'trinket', redSpongeCharm);
-        }
-        else {
+        else
             checkThenArm(null, 'trinket', 'Red Sponge');
-        }
     }
     else if (red == 10 && yellow < 10)
     {
-        if (yellow <=8) {
+        if (yellow <=8)
             checkThenArm('best', 'trinket', yellowSpongeCharm);
-        }
-        else {
+        else
             checkThenArm(null, 'trinket', 'Yellow Sponge');
-        }
     }
     else {
-        if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1) {
+        if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
             disarmTrap('trinket');
-        }
     }
+	
 	checkThenArm('best', 'weapon', bestHydro);
+	checkThenArm('best', 'base', bestLGBase);
     return;
 }
 
@@ -815,9 +812,8 @@ function cursedCity() {
     var charmArmed = getPageVariable('user.trinket_name');
     if (cursed == 'false')
     {
-        if (charmArmed.indexOf('Bravery') > -1 || charmArmed.indexOf('Shine') > -1 || charmArmed.indexOf('Clarity') > -1) {
+        if (charmArmed.indexOf('Bravery') > -1 || charmArmed.indexOf('Shine') > -1 || charmArmed.indexOf('Clarity') > -1)
             disarmTrap('trinket');
-        }
     }
     else
     {
@@ -844,20 +840,26 @@ function cursedCity() {
             }
         }
     }
+	
 	checkThenArm('best', 'weapon', bestArcane);
+	checkThenArm('best', 'base', bestLGBase);
     return;
 }
 
 function sandCrypts() {
     var salt = parseInt(document.getElementsByClassName('salt_charms')[0].innerText);
     console.debug('Salted: ' + salt);
-    if (salt >= maxSaltCharged) {        
+    if (salt >= maxSaltCharged)
         checkThenArm(null, 'trinket', 'Grub Scent');
-    }
     else {
-        checkThenArm('best', 'trinket', bestSalt);
+		if ((maxSaltCharged - salt) == 1)
+			checkThenArm(null, 'trinket', 'Grub Salt');		
+		else
+			checkThenArm('best', 'trinket', bestSalt);
     }
+	
 	checkThenArm('best', 'weapon', bestShadow);
+	checkThenArm('best', 'base', bestLGBase);
     return;
 }
 
@@ -977,7 +979,7 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
                     intervalCTA = null;
                     return;
                 }
-            }, 1000);        
+            }, 1000);
     }
     return;
 }
