@@ -802,7 +802,6 @@ function twistedGarden() {
     }
 	
 	checkThenArm('best', 'weapon', bestHydro);
-	checkThenArm('best', 'base', bestLGBase);
     return;
 }
 
