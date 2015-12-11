@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.25
+// @version    	1.29.26
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -124,6 +124,7 @@ var yellowSpongeCharm = ['Yellow Double', 'Yellow Sponge'];
 var spongeCharm = ['Double Sponge', 'Sponge'];
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
+var scOxyBait = ['Fishy Fromage', 'Gouda'];
 
 // // Sand Crypts maximum salt for King Grub
 var maxSaltCharged = 25;
@@ -137,7 +138,7 @@ var maxSaltCharged = 25;
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.25 Enhanced Edition";
+var scriptVersion = "1.29.26 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -582,7 +583,9 @@ function eventLocationCheck(caller) {
 		case 'All LG Area':
 			LGGeneral(); break;
 		case 'Sunken City':
-			SunkenCity(); break;
+			SunkenCity(false); break;
+		case 'Sunken City Aggro':
+			SunkenCity(true); break;
         default:
             break;
     }
@@ -678,29 +681,96 @@ function LGGeneral() {
     }
 }
 
-function SunkenCity() {
+function SunkenCity(isAggro) {
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
+	var isDefaultZone = false;
+	var isLootZone = false;
+	var isTreasureZone = false;
+	var isDangerZone = false;
+	var isOxygenZone = false;
+	var isDived = true;	
 	console.debug('Current Zone: ' + zone);
 	switch (zone)
 	{
 		case 'Sand Dollar Sea Bar':
 		case 'Pearl Patch':
 		case 'Sunken Treasure':
+			isTreasureZone = true;
+			break;
+		case 'Feeding Grounds':
+		case 'Carnivore Cove':
 		case 'Monster Trench':
 		case 'Lair of the Ancients':
+			isDangerZone = true;
+			break;
 		case 'Deep Oxygen Stream':
 		case 'Oxygen Stream':
 		case 'Magma Flow':
-			checkThenArm(null, 'trinket', 'Empowered Anchor' );
-			checkThenArm(null, 'bait', 'SUPER');
+			isOxygenZone = true;
 			break;
 		case 'Sunken City':
-			checkThenArm(null, 'bait', 'Fishy Fromage');
+			isDived = false;
 			break;
-		default:			
-			checkThenArm('best', 'trinket', wasteCharm);
+		case 'Coral Reef':
+		case 'Coral Garden':
+		case 'Coral Castle':
+		case 'School of Mice':
+		case 'Mermouse Den':
+		case 'Lost Ruins':
+		case 'Rocky Outcrop':
+		case 'Shipwreck':
+		case 'Haunted Shipwreck':
+			isLootZone = true;
+			break;
+		case 'Shallow Shoals':
+		case 'Sea Floor':
+		case 'Murky Depths':
+			isDefaultZone = true;
+			break;
+		default:
+			isDived = false;			
+			break;
+	}
+	
+	if (!isDived)
+	{
+		checkThenArm(best, 'bait', scOxyBait);
+		checkThenArm('best', 'weapon', bestHydro);
+		return;
+	}
+		
+	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
+	console.debug('Dive Distance(m): ' + distance);
+	var charmElement = document.getElementsByClassName('charm');
+	if (isTreasureZone || isOxygenZone)
+	{
+		// arm Empowered Anchor Charm
+		if (parseInt(charmElement[0].innerText) > 0)
+			fireEvent(charmElement[0], 'click');
+		checkThenArm(null, 'bait', 'SUPER');
+	}
+	else if (isDangerZone)
+	{		
+		if (distance >= 10000)
+			checkThenArm(null, 'bait', 'SUPER');
+		else
 			checkThenArm(null, 'bait', 'Gouda');
-			break;
+	}
+	else if (isDefaultZone && isAggro)
+	{
+		var activeZone = parseInt(getPageVariable('user.quests.QuestSunkenCity.active_zone'));				
+		var depth = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + activeZone + '].length'));
+		if (depth >= 500)
+		{			
+			// arm Water Jet Charm
+			if (parseInt(charmElement[1].innerText) > 0)
+				fireEvent(charmElement[1], 'click');
+		}
+	}
+	else
+	{
+		checkThenArm(null, 'bait', 'Gouda');
+		checkThenArm('best', 'trinket', wasteCharm);
 	}
 }
 
@@ -2111,6 +2181,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
+			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
             preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + eventLocation + '"/>';
