@@ -758,8 +758,8 @@ function SunkenCity(isAggro) {
 	}
 	else if (isDefaultZone && isAggro)
 	{
-		var activeZone = parseInt(getPageVariable('user.quests.QuestSunkenCity.active_zone'));				
-		var depth = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + activeZone + '].length'));
+		var activeZone = parseInt(getPageVariable('user.quests.QuestSunkenCity.active_zone'));
+		var depth = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[1].length'));
 		if (depth >= 500)
 		{			
 			// arm Water Jet Charm
