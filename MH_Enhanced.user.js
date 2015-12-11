@@ -129,6 +129,14 @@ var scOxyBait = ['Fishy Fromage', 'Gouda'];
 // // Sand Crypts maximum salt for King Grub
 var maxSaltCharged = 25;
 
+// // Sunken City constant variables.
+// // DON'T edit this variable if you don't know what are you editing
+var ZONE_DEFAULT = 1;
+var ZONE_LOOT = 2;
+var ZONE_TREASURE = 4;
+var ZONE_DANGER = 8;
+var ZONE_OXYGEN = 16;
+
 // == Advance User Preference Setting (End) ==
 
 
@@ -682,57 +690,11 @@ function LGGeneral() {
 }
 
 function SunkenCity(isAggro) {
-	var zone = document.getElementsByClassName('zoneName')[0].innerText;
-	var isDefaultZone = false;
-	var isLootZone = false;
-	var isTreasureZone = false;
-	var isDangerZone = false;
-	var isOxygenZone = false;
-	var isDived = true;	
+	var zone = document.getElementsByClassName('zoneName')[0].innerText;	
 	console.debug('Current Zone: ' + zone);
-	switch (zone)
-	{
-		case 'Sand Dollar Sea Bar':
-		case 'Pearl Patch':
-		case 'Sunken Treasure':
-			isTreasureZone = true;
-			break;
-		case 'Feeding Grounds':
-		case 'Carnivore Cove':
-		case 'Monster Trench':
-		case 'Lair of the Ancients':
-			isDangerZone = true;
-			break;
-		case 'Deep Oxygen Stream':
-		case 'Oxygen Stream':
-		case 'Magma Flow':
-			isOxygenZone = true;
-			break;
-		case 'Sunken City':
-			isDived = false;
-			break;
-		case 'Coral Reef':
-		case 'Coral Garden':
-		case 'Coral Castle':
-		case 'School of Mice':
-		case 'Mermouse Den':
-		case 'Lost Ruins':
-		case 'Rocky Outcrop':
-		case 'Shipwreck':
-		case 'Haunted Shipwreck':
-			isLootZone = true;
-			break;
-		case 'Shallow Shoals':
-		case 'Sea Floor':
-		case 'Murky Depths':
-			isDefaultZone = true;
-			break;
-		default:
-			isDived = false;			
-			break;
-	}
+	var currentZone = GetSunkenCityZone(zone);	
 	
-	if (!isDived)
+	if (currentZone == 0)
 	{
 		checkThenArm(best, 'bait', scOxyBait);
 		checkThenArm('best', 'weapon', bestHydro);
@@ -742,36 +704,110 @@ function SunkenCity(isAggro) {
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.debug('Dive Distance(m): ' + distance);
 	var charmElement = document.getElementsByClassName('charm');
-	if (isTreasureZone || isOxygenZone)
+	if (currentZone == ZONE_TREASURE || currentZone == ZONE_OXYGEN)
 	{
 		// arm Empowered Anchor Charm
-		if (parseInt(charmElement[0].innerText) > 0)
-			fireEvent(charmElement[0], 'click');
+		if (charmElement[0].getAttribute('class').indexOf('active') < 0)
+		{
+			if (parseInt(charmElement[0].innerText) > 0)
+				fireEvent(charmElement[0], 'click');
+		}		
 		checkThenArm(null, 'bait', 'SUPER');
 	}
-	else if (isDangerZone)
+	else if (currentZone == ZONE_DANGER)
 	{		
 		if (distance >= 10000)
+		{
+			// arm Empowered Anchor Charm
+			if (charmElement[0].getAttribute('class').indexOf('active') < 0)
+			{
+				if (parseInt(charmElement[0].innerText) > 0)
+					fireEvent(charmElement[0], 'click');
+			}		
 			checkThenArm(null, 'bait', 'SUPER');
+		}
 		else
+		{
+			checkThenArm('best', 'trinket', wasteCharm);
 			checkThenArm(null, 'bait', 'Gouda');
+		}			
 	}
-	else if (isDefaultZone && isAggro)
+	else if ((currentZone == ZONE_DEFAULT) && isAggro)
 	{
 		var activeZone = parseInt(getPageVariable('user.quests.QuestSunkenCity.active_zone'));
 		var depth = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[1].length'));
 		if (depth >= 500)
 		{			
-			// arm Water Jet Charm
-			if (parseInt(charmElement[1].innerText) > 0)
-				fireEvent(charmElement[1], 'click');
+			var nextZoneName = getPageVariable('user.quests.QuestSunkenCity.zones[2].name');
+			var nextZoneLeft = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[2].left'));
+			var nextZone = GetSunkenCityZone(nextZoneName);
+			var distanceToNextZone = parseInt((nextZoneLeft - 80) / 0.6);
+			console.debug('Distance to next zone(m): ' + distanceToNextZone);
+			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == ZONE_DEFAULT))
+			{
+				// arm Water Jet Charm
+				if (charmElement[1].getAttribute('class').indexOf('active') < 0)
+				{
+					if (parseInt(charmElement[1].innerText) > 0)
+						fireEvent(charmElement[1], 'click');
+				}
+			}			
+			else
+			{
+				checkThenArm('best', 'trinket', wasteCharm);
+			}
 		}
+		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else
 	{
 		checkThenArm(null, 'bait', 'Gouda');
 		checkThenArm('best', 'trinket', wasteCharm);
 	}
+}
+
+function GetSunkenCityZone(zoneName)
+{
+	var returnZone = 0;
+	switch (zoneName)
+	{
+		case 'Sand Dollar Sea Bar':
+		case 'Pearl Patch':
+		case 'Sunken Treasure':
+			returnZone = ZONE_TREASURE;
+			break;
+		case 'Feeding Grounds':
+		case 'Carnivore Cove':
+		case 'Monster Trench':
+		case 'Lair of the Ancients':
+			returnZone = ZONE_DANGER;
+			break;
+		case 'Deep Oxygen Stream':
+		case 'Oxygen Stream':
+		case 'Magma Flow':
+			returnZone = ZONE_OXYGEN;
+			break;		
+		case 'Coral Reef':
+		case 'Coral Garden':
+		case 'Coral Castle':
+		case 'School of Mice':
+		case 'Mermouse Den':
+		case 'Lost Ruins':
+		case 'Rocky Outcrop':
+		case 'Shipwreck':
+		case 'Haunted Shipwreck':
+			returnZone = ZONE_LOOT;
+			break;
+		case 'Shallow Shoals':
+		case 'Sea Floor':
+		case 'Murky Depths':
+			returnZone = ZONE_DEFAULT;
+			break;
+		default:
+			returnZone = 0;			
+			break;
+	}
+	return returnZone;
 }
 
 function livingGarden() {
