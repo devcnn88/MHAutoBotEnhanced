@@ -690,6 +690,9 @@ function LGGeneral() {
 }
 
 function SunkenCity(isAggro) {
+	if (GetCurrentLocation().indexOf("Sunken City") < 0)
+		return;
+	
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;	
 	console.debug('Current Zone: ' + zone);
 	var currentZone = GetSunkenCityZone(zone);	
@@ -1409,18 +1412,17 @@ function getCurrentLocation() {
 	var tempLocation;
 	if (isNewUI) {
 		tempLocation = document.getElementsByClassName('mousehuntHud-environmentName');
-		if (tempLocation.length > 0) {
+		if (tempLocation.length > 0)
 			return tempLocation[0].textContent;
-		}
-		else return "";
+		else
+			return "";
 	}
 	else {
 		tempLocation = document.getElementById('hud_location');
-		if (tempLocation != null) {
+		if (tempLocation != null)
 			return tempLocation.textContent;
-		}
-		else return "";
-		
+		else
+			return "";
 	}
 }
 
