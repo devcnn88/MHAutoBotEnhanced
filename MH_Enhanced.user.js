@@ -699,7 +699,7 @@ function SunkenCity(isAggro) {
 	
 	if (currentZone == 0)
 	{
-		checkThenArm(best, 'bait', scOxyBait);
+		checkThenArm('best', 'bait', scOxyBait);
 		checkThenArm('best', 'weapon', bestHydro);
 		return;
 	}
@@ -707,10 +707,12 @@ function SunkenCity(isAggro) {
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.debug('Dive Distance(m): ' + distance);
 	var charmElement = document.getElementsByClassName('charm');
+	var isEACArmed = (charmElement[0].getAttribute('class').indexOf('active') != -1);
+	var isWJCArmed = (charmElement[1].getAttribute('class').indexOf('active') != -1);	
 	if (currentZone == ZONE_TREASURE || currentZone == ZONE_OXYGEN)
 	{
 		// arm Empowered Anchor Charm
-		if (charmElement[0].getAttribute('class').indexOf('active') < 0)
+		if (!isEACArmed)
 		{
 			if (parseInt(charmElement[0].innerText) > 0)
 				fireEvent(charmElement[0], 'click');
@@ -722,7 +724,7 @@ function SunkenCity(isAggro) {
 		if (distance >= 10000)
 		{
 			// arm Empowered Anchor Charm
-			if (charmElement[0].getAttribute('class').indexOf('active') < 0)
+			if (!isEACArmed)
 			{
 				if (parseInt(charmElement[0].innerText) > 0)
 					fireEvent(charmElement[0], 'click');
@@ -731,7 +733,11 @@ function SunkenCity(isAggro) {
 		}
 		else
 		{
-			checkThenArm('best', 'trinket', wasteCharm);
+			if (isEACArmed)
+				fireEvent(charmElement[0], 'click');
+			else if (isWJCArmed)
+				fireEvent(charmElement[1], 'click');
+			
 			checkThenArm(null, 'bait', 'Gouda');
 		}			
 	}
@@ -749,7 +755,7 @@ function SunkenCity(isAggro) {
 			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == ZONE_DEFAULT))
 			{
 				// arm Water Jet Charm
-				if (charmElement[1].getAttribute('class').indexOf('active') < 0)
+				if (!isWJCArmed)
 				{
 					if (parseInt(charmElement[1].innerText) > 0)
 						fireEvent(charmElement[1], 'click');
@@ -757,15 +763,22 @@ function SunkenCity(isAggro) {
 			}			
 			else
 			{
-				checkThenArm('best', 'trinket', wasteCharm);
+				if (isEACArmed)
+					fireEvent(charmElement[0], 'click');
+				else if (isWJCArmed)
+					fireEvent(charmElement[1], 'click');
 			}
 		}
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else
-	{
+	{		
+		if (isEACArmed)
+			fireEvent(charmElement[0], 'click');
+		else if (isWJCArmed)
+			fireEvent(charmElement[1], 'click');
+		
 		checkThenArm(null, 'bait', 'Gouda');
-		checkThenArm('best', 'trinket', wasteCharm);
 	}
 }
 
