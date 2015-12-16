@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.25
+// @version    	1.29.26
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -12,6 +12,7 @@
 // @include		https://apps.facebook.com/mousehunt/*
 // @include		http://hi5.com/friend/games/MouseHunt*
 // @include		http://mousehunt.hi5.hitgrab.com/*
+// @grant		unsafeWindow
 // ==/UserScript==
 
 // == Basic User Preference Setting (Begin) ==
@@ -124,9 +125,18 @@ var yellowSpongeCharm = ['Yellow Double', 'Yellow Sponge'];
 var spongeCharm = ['Double Sponge', 'Sponge'];
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
+var scOxyBait = ['Fishy Fromage', 'Gouda'];
 
 // // Sand Crypts maximum salt for King Grub
 var maxSaltCharged = 25;
+
+// // Sunken City constant variables.
+// // DON'T edit this variable if you don't know what are you editing
+var ZONE_DEFAULT = 1;
+var ZONE_LOOT = 2;
+var ZONE_TREASURE = 4;
+var ZONE_DANGER = 8;
+var ZONE_OXYGEN = 16;
 
 // == Advance User Preference Setting (End) ==
 
@@ -137,7 +147,7 @@ var maxSaltCharged = 25;
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.25 Enhanced Edition";
+var scriptVersion = "1.29.26 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -258,6 +268,7 @@ function receiveMessage(event)
 window.addEventListener("message", receiveMessage, false);
 if (debugKR)
 	CallKRSolver();
+
 exeScript();
 
 function exeScript() {
@@ -582,7 +593,9 @@ function eventLocationCheck(caller) {
 		case 'All LG Area':
 			LGGeneral(); break;
 		case 'Sunken City':
-			SunkenCity(); break;
+			SunkenCity(false); break;
+		case 'Sunken City Aggro':
+			SunkenCity(true); break;
         default:
             break;
     }
@@ -678,30 +691,141 @@ function LGGeneral() {
     }
 }
 
-function SunkenCity() {
-	var zone = document.getElementsByClassName('zoneName')[0].innerText;
+function SunkenCity(isAggro) {
+	if (GetCurrentLocation().indexOf("Sunken City") < 0)
+		return;
+	
+	var zone = document.getElementsByClassName('zoneName')[0].innerText;	
 	console.debug('Current Zone: ' + zone);
-	switch (zone)
+	var currentZone = GetSunkenCityZone(zone);	
+	
+	if (currentZone == 0)
+	{
+		checkThenArm('best', 'bait', scOxyBait);
+		checkThenArm('best', 'weapon', bestHydro);
+		return;
+	}
+		
+	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
+	console.debug('Dive Distance(m): ' + distance);
+	var charmElement = document.getElementsByClassName('charm');
+	var isEACArmed = (charmElement[0].getAttribute('class').indexOf('active') != -1);
+	var isWJCArmed = (charmElement[1].getAttribute('class').indexOf('active') != -1);	
+	if (currentZone == ZONE_TREASURE || currentZone == ZONE_OXYGEN)
+	{
+		// arm Empowered Anchor Charm
+		if (!isEACArmed)
+		{
+			if (parseInt(charmElement[0].innerText) > 0)
+				fireEvent(charmElement[0], 'click');
+		}		
+		checkThenArm(null, 'bait', 'SUPER');
+	}
+	else if (currentZone == ZONE_DANGER)
+	{		
+		if (distance >= 10000)
+		{
+			// arm Empowered Anchor Charm
+			if (!isEACArmed)
+			{
+				if (parseInt(charmElement[0].innerText) > 0)
+					fireEvent(charmElement[0], 'click');
+			}		
+			checkThenArm(null, 'bait', 'SUPER');
+		}
+		else
+		{
+			if (isEACArmed)
+				fireEvent(charmElement[0], 'click');
+			else if (isWJCArmed)
+				fireEvent(charmElement[1], 'click');
+			
+			checkThenArm(null, 'bait', 'Gouda');
+		}			
+	}
+	else if ((currentZone == ZONE_DEFAULT) && isAggro)
+	{
+		var activeZone = parseInt(getPageVariable('user.quests.QuestSunkenCity.active_zone'));
+		var depth = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[1].length'));
+		if (depth >= 500)
+		{			
+			var nextZoneName = getPageVariable('user.quests.QuestSunkenCity.zones[2].name');
+			var nextZoneLeft = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[2].left'));
+			var nextZone = GetSunkenCityZone(nextZoneName);
+			var distanceToNextZone = parseInt((nextZoneLeft - 80) / 0.6);
+			console.debug('Distance to next zone(m): ' + distanceToNextZone);
+			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == ZONE_DEFAULT))
+			{
+				// arm Water Jet Charm
+				if (!isWJCArmed)
+				{
+					if (parseInt(charmElement[1].innerText) > 0)
+						fireEvent(charmElement[1], 'click');
+				}
+			}			
+			else
+			{
+				if (isEACArmed)
+					fireEvent(charmElement[0], 'click');
+				else if (isWJCArmed)
+					fireEvent(charmElement[1], 'click');
+			}
+		}
+		checkThenArm(null, 'bait', 'Gouda');
+	}
+	else
+	{		
+		if (isEACArmed)
+			fireEvent(charmElement[0], 'click');
+		else if (isWJCArmed)
+			fireEvent(charmElement[1], 'click');
+		
+		checkThenArm(null, 'bait', 'Gouda');
+	}
+}
+
+function GetSunkenCityZone(zoneName)
+{
+	var returnZone = 0;
+	switch (zoneName)
 	{
 		case 'Sand Dollar Sea Bar':
 		case 'Pearl Patch':
 		case 'Sunken Treasure':
+			returnZone = ZONE_TREASURE;
+			break;
+		case 'Feeding Grounds':
+		case 'Carnivore Cove':
 		case 'Monster Trench':
 		case 'Lair of the Ancients':
+			returnZone = ZONE_DANGER;
+			break;
 		case 'Deep Oxygen Stream':
 		case 'Oxygen Stream':
 		case 'Magma Flow':
-			checkThenArm(null, 'trinket', 'Empowered Anchor' );
-			checkThenArm(null, 'bait', 'SUPER');
+			returnZone = ZONE_OXYGEN;
+			break;		
+		case 'Coral Reef':
+		case 'Coral Garden':
+		case 'Coral Castle':
+		case 'School of Mice':
+		case 'Mermouse Den':
+		case 'Lost Ruins':
+		case 'Rocky Outcrop':
+		case 'Shipwreck':
+		case 'Haunted Shipwreck':
+			returnZone = ZONE_LOOT;
 			break;
-		case 'Sunken City':
-			checkThenArm(null, 'bait', 'Fishy Fromage');
+		case 'Shallow Shoals':
+		case 'Sea Floor':
+		case 'Murky Depths':
+			returnZone = ZONE_DEFAULT;
 			break;
-		default:			
-			checkThenArm('best', 'trinket', wasteCharm);
-			checkThenArm(null, 'bait', 'Gouda');
+		default:
+			returnZone = 0;			
 			break;
 	}
+	return returnZone;
 }
 
 function livingGarden() {
@@ -1161,7 +1285,7 @@ function retrieveDataFirst() {
 					hasPuzzleStartIndex += 12;
 					var hasPuzzleEndIndex = scriptString.indexOf(",", hasPuzzleStartIndex);
 					var hasPuzzleString = scriptString.substring(hasPuzzleStartIndex, hasPuzzleEndIndex);
-					isKingReward = (hasPuzzleString == 'false') ? false : true;
+					isKingReward = !(hasPuzzleString == 'false');
 
 					gotPuzzle = true;
 
@@ -1283,10 +1407,18 @@ function GetHornTime() {
 
 function getKingRewardStatus() {
 	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
-	if (header != null && header.textContent.indexOf('reward') > -1) {
-		return true;
+	if (header != null) {
+		var textContentLowerCase = header.textContent.toLowerCase();
+		if (textContentLowerCase.indexOf("king reward") > -1 ||
+			textContentLowerCase.indexOf("king's reward") > -1 ||
+			textContentLowerCase.indexOf("kings reward") > -1 ||) {
+			return true;
+		}
+		else
+			return (getPageVariable('user.has_puzzle') == 'true');		
 	}
-	else return false;
+	else
+		return false;
 }
 
 function getBaitQuantity() {	
@@ -1303,18 +1435,17 @@ function getCurrentLocation() {
 	var tempLocation;
 	if (isNewUI) {
 		tempLocation = document.getElementsByClassName('mousehuntHud-environmentName');
-		if (tempLocation.length > 0) {
+		if (tempLocation.length > 0)
 			return tempLocation[0].textContent;
-		}
-		else return "";
+		else
+			return "";
 	}
 	else {
 		tempLocation = document.getElementById('hud_location');
-		if (tempLocation != null) {
+		if (tempLocation != null)
 			return tempLocation.textContent;
-		}
-		else return "";
-		
+		else
+			return "";
 	}
 }
 
@@ -2111,6 +2242,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
+			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
             preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + eventLocation + '"/>';
