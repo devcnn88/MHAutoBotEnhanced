@@ -12,6 +12,7 @@
 // @include		https://apps.facebook.com/mousehunt/*
 // @include		http://hi5.com/friend/games/MouseHunt*
 // @include		http://mousehunt.hi5.hitgrab.com/*
+// @grant		unsafeWindow
 // ==/UserScript==
 
 // == Basic User Preference Setting (Begin) ==
@@ -267,6 +268,7 @@ function receiveMessage(event)
 window.addEventListener("message", receiveMessage, false);
 if (debugKR)
 	CallKRSolver();
+
 exeScript();
 
 function exeScript() {
@@ -1283,7 +1285,7 @@ function retrieveDataFirst() {
 					hasPuzzleStartIndex += 12;
 					var hasPuzzleEndIndex = scriptString.indexOf(",", hasPuzzleStartIndex);
 					var hasPuzzleString = scriptString.substring(hasPuzzleStartIndex, hasPuzzleEndIndex);
-					isKingReward = (hasPuzzleString == 'false') ? false : true;
+					isKingReward = !(hasPuzzleString == 'false');
 
 					gotPuzzle = true;
 
@@ -1405,10 +1407,18 @@ function GetHornTime() {
 
 function getKingRewardStatus() {
 	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
-	if (header != null && header.textContent.indexOf('reward') > -1) {
-		return true;
+	if (header != null) {
+		var textContentLowerCase = header.textContent.toLowerCase();
+		if (textContentLowerCase.indexOf("king reward") > -1 ||
+			textContentLowerCase.indexOf("king's reward") > -1 ||
+			textContentLowerCase.indexOf("kings reward") > -1 ||) {
+			return true;
+		}
+		else
+			return (getPageVariable('user.has_puzzle') == 'true');		
 	}
-	else return false;
+	else
+		return false;
 }
 
 function getBaitQuantity() {	
