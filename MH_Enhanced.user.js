@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.26
+// @version    	1.29.27
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -102,7 +102,7 @@ var errorReloadTime = 60;
 // // Time interval for script timer to update the time. May affect timer accuracy if set too high value. (in seconds)
 var timerRefreshInterval = 1;
 
-// // Best weapon/base pre-determined by user. Edit ur best weapon/trap in ascending order. e.g. [best, better, good]
+// // Best weapon/base/charm/bait pre-determined by user. Edit ur best weapon/base/charm/bait in ascending order. e.g. [best, better, good]
 var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
 var bestTactical = ['Chrome Sphynx Wrath', 'Sphynx Wrath'];
 var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap', 'Chrome Sphynx Wrath'];
@@ -114,21 +114,32 @@ var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
 var bestRiftPower = ['Focused Crystal Laser', 'Crystal Tower'];
 var bestPowerBase = ['Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
 var bestLuckBase = ['Fissure Base', 'Rift Base', 'Sheep Jade Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Papyrus Base'];
+var bestAttBasae = ['Birthday Drag', 'Cheesecake Base'];
+var wasteCharm = ['Tarnished', 'Wealth'];
+
+// // Fiery Warpath Preference
+var bestFWWave4Weapon = ['Warden Slayer Trap', 'Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
+var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
+
+// // Living Garden Preference
 var bestLGBase = ['Hothouse Base'];
 bestLGBase = bestLGBase.concat(bestLuckBase);
-var bestAttBasae = ['Birthday Drag', 'Cheesecake Base'];
 var bestSalt = ['Super Salt', 'Grub Salt'];
-var bestFWWave4Weapon = ['Warden Slayer Trap', 'Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
-var wasteCharm = ['Tarnished', 'Wealth'];
 var redSpongeCharm = ['Red Double', 'Red Sponge'];
 var yellowSpongeCharm = ['Yellow Double', 'Yellow Sponge'];
 var spongeCharm = ['Double Sponge', 'Sponge'];
-var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
-var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
-var scOxyBait = ['Fishy Fromage', 'Gouda'];
+var maxSaltCharged = 25;	// Sand Crypts maximum salt for King Grub
 
-// // Sand Crypts maximum salt for King Grub
-var maxSaltCharged = 25;
+// // Sunken City Preference
+var bestSCBase = ['Depth Charge Base'];
+bestSCBase = bestSCBase.concat(bestLuckBase);
+var scOxyBait = ['Fishy Fromage', 'Gouda'];
+var scAnchorTreasure = ['Golden Anchor', 'Empowered Anchor'];
+var scAnchorDanger = ['Spiked Anchor', 'Empowered Anchor'];
+var scOxygen = ['Oxygen Burst', 'Empowered Anchor'];
+
+// // Spring Egg Hunt 
+var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 
 // // Sunken City constant variables.
 // // DON'T edit this variable if you don't know what are you editing
@@ -142,12 +153,10 @@ var ZONE_OXYGEN = 16;
 
 
 
-
-
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.26 Enhanced Edition";
+var scriptVersion = "1.29.27 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -708,22 +717,13 @@ function SunkenCity(isAggro) {
 		
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.debug('Dive Distance(m): ' + distance);
-	var charmElement = document.getElementsByClassName('charm');
-	var isEACArmed = (charmElement[0].getAttribute('class').indexOf('active') != -1);
-	var isWJCArmed = (charmElement[1].getAttribute('class').indexOf('active') != -1);	
-	if (currentZone == ZONE_TREASURE || currentZone == ZONE_OXYGEN)
+	var charmArmed = getPageVariable("user.trinket_name");
+	var charmElement = document.getElementsByClassName('charm');	
+	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);	
+	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);	
+	if (currentZone == ZONE_OXYGEN || currentZone == ZONE_TREASURE)
 	{
-		// arm Empowered Anchor Charm
-		if (!isEACArmed)
-		{
-			if (parseInt(charmElement[0].innerText) > 0)
-				fireEvent(charmElement[0], 'click');
-		}		
-		checkThenArm(null, 'bait', 'SUPER');
-	}
-	else if (currentZone == ZONE_DANGER)
-	{		
-		if (distance >= 10000)
+		if (!isAggro)
 		{
 			// arm Empowered Anchor Charm
 			if (!isEACArmed)
@@ -731,6 +731,33 @@ function SunkenCity(isAggro) {
 				if (parseInt(charmElement[0].innerText) > 0)
 					fireEvent(charmElement[0], 'click');
 			}		
+		}
+		else
+		{
+			if (currentZone == ZONE_OXYGEN)
+				checkThenArm('best', 'trinket', scOxygen);
+			else
+				checkThenArm('best', 'trinket', scAnchorTreasure);
+		}
+		
+		checkThenArm(null, 'bait', 'SUPER');	
+	}	
+	else if (currentZone == ZONE_DANGER)
+	{		
+		if (distance >= 10000)
+		{
+			if (!isAggro)
+			{
+				// arm Empowered Anchor Charm
+				if (!isEACArmed && !isAggro)
+				{
+					if (parseInt(charmElement[0].innerText) > 0)
+						fireEvent(charmElement[0], 'click');
+				}
+			}			
+			else
+				checkThenArm('best', 'trinket', scAnchorDanger);
+			
 			checkThenArm(null, 'bait', 'SUPER');
 		}
 		else
@@ -739,6 +766,8 @@ function SunkenCity(isAggro) {
 				fireEvent(charmElement[0], 'click');
 			else if (isWJCArmed)
 				fireEvent(charmElement[1], 'click');
+			else
+				DisarmSCSpecialCharm(charmArmed);
 			
 			checkThenArm(null, 'bait', 'Gouda');
 		}			
@@ -769,6 +798,8 @@ function SunkenCity(isAggro) {
 					fireEvent(charmElement[0], 'click');
 				else if (isWJCArmed)
 					fireEvent(charmElement[1], 'click');
+				else
+					DisarmSCSpecialCharm(charmArmed);
 			}
 		}
 		checkThenArm(null, 'bait', 'Gouda');
@@ -779,9 +810,24 @@ function SunkenCity(isAggro) {
 			fireEvent(charmElement[0], 'click');
 		else if (isWJCArmed)
 			fireEvent(charmElement[1], 'click');
+		else
+			DisarmSCSpecialCharm(charmArmed);
 		
 		checkThenArm(null, 'bait', 'Gouda');
 	}
+}
+
+function DisarmSCSpecialCharm(charmArmedName)
+{
+	var specialCharms = ['Golden Anchor', 'Spiked Anchor', 'Ultimate Anchor' 'Oxygen Burst'];	
+	for (var i = 0; i < specialCharms.length; i++)
+	{
+		if (charmArmedName.indexOf(specialCharms[i]) > -1)
+		{
+			disarmTrap('trinket');
+			break;
+		}
+	}    
 }
 
 function GetSunkenCityZone(zoneName)
