@@ -1411,7 +1411,7 @@ function getKingRewardStatus() {
 		var textContentLowerCase = header.textContent.toLowerCase();
 		if (textContentLowerCase.indexOf("king reward") > -1 ||
 			textContentLowerCase.indexOf("king's reward") > -1 ||
-			textContentLowerCase.indexOf("kings reward") > -1 ||) {
+			textContentLowerCase.indexOf("kings reward") > -1) {
 			return true;
 		}
 		else
