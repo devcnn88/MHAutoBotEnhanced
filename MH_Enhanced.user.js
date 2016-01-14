@@ -819,7 +819,7 @@ function SunkenCity(isAggro) {
 
 function DisarmSCSpecialCharm(charmArmedName)
 {
-	var specialCharms = ['Golden Anchor', 'Spiked Anchor', 'Ultimate Anchor' 'Oxygen Burst'];	
+	var specialCharms = ['Golden Anchor', 'Spiked Anchor', 'Ultimate Anchor', 'Oxygen Burst'];	
 	for (var i = 0; i < specialCharms.length; i++)
 	{
 		if (charmArmedName.indexOf(specialCharms[i]) > -1)
