@@ -106,8 +106,8 @@ var timerRefreshInterval = 1;
 var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
 var bestTactical = ['Chrome Sphynx Wrath', 'Sphynx Wrath'];
 var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap', 'Chrome Sphynx Wrath'];
-var bestArcane = ['Grand Arcanum Trap', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
-var bestShadow = ['Clockwork Portal Trap', 'Reaper\'s Perch', 'Clockapult of Time', 'Clockapult of Winter Past'];
+var bestArcane = ['Event Horizon', 'Grand Arcanum Trap', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
+var bestShadow = ['Temporal Turbine', 'Clockwork Portal Trap', 'Reaper\'s Perch', 'Clockapult of Time', 'Clockapult of Winter Past'];
 var bestForgotten = ['Tarannosaurus Rex Trap', 'The Forgotten Art of Dance'];
 var bestDraconic = ['Dragon Lance', 'Ice Maiden'];
 var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
@@ -959,7 +959,7 @@ function cursedCity() {
                     default:
                         break;
                 }
-                return;
+                break;
             }
         }
     }
