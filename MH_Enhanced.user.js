@@ -1234,7 +1234,6 @@ function armTrap(sort, name) {
                 if (nameElement.indexOf(name) == 0)
                 {
                     fireEvent(tagElement[j], 'click');
-					fireEvent(document.getElementById('trapSelectorBrowserClose'), 'click')
                     console.debug(name + ' armed');
 					return ARMED;
                 }
