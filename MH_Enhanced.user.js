@@ -680,6 +680,8 @@ function BurroughRift(minMist, maxMist)
 	//Tier 1/Yellow: 1-5 Mist Canisters
 	//Tier 2/Green: 6-18 Mist Canisters
 	//Tier 3/Red: 19-20 Mist Canisters
+	if (GetCurrentLocation().indexOf('Burroughs Rift') < 0)
+		return;
 	
 	var currentMistQuantity = parseInt(document.getElementsByClassName('mistQuantity')[0].innerText);
 	var isMisting = getPageVariable('user.quests.QuestRiftBurroughs.is_misting');
