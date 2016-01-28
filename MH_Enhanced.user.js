@@ -726,15 +726,16 @@ function SunkenCity(isAggro) {
 	
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;	
 	console.debug('Current Zone: ' + zone);
-	var currentZone = GetSunkenCityZone(zone);	
-	
+	var currentZone = GetSunkenCityZone(zone);
+	checkThenArm('best', 'weapon', bestHydro);	
 	if (currentZone == 0)
 	{
+		checkThenArm('best', 'base', bestLuckBase);
 		checkThenArm('best', 'bait', scOxyBait);
-		checkThenArm('best', 'weapon', bestHydro);
 		return;
 	}
-		
+	
+	checkThenArm('best', 'base', bestSCBase);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.debug('Dive Distance(m): ' + distance);
 	var charmArmed = getPageVariable("user.trinket_name");
@@ -794,7 +795,6 @@ function SunkenCity(isAggro) {
 	}
 	else if ((currentZone == ZONE_DEFAULT) && isAggro)
 	{
-		var activeZone = parseInt(getPageVariable('user.quests.QuestSunkenCity.active_zone'));
 		var depth = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[1].length'));
 		if (depth >= 500)
 		{			
@@ -1244,17 +1244,15 @@ function armTrap(sort, name) {
         {
             nameArray.shift();
             if (nameArray.length > 0)
-            {
                 return armTrap(sort, nameArray);
-            }
-            else
-            {
-                console.debug('No traps found');
-                return NOT_FOUND;
-            }            
+			else
+				return NOT_FOUND;
         }
+		else
+			return NOT_FOUND;
     }
-    return LOADING;
+	else
+		return LOADING;
 }
 
 function clickTrapSelector(strSelect) //strSelect = weapon/base/charm/trinket/bait
