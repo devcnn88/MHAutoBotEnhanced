@@ -785,13 +785,7 @@ function SunkenCity(isAggro) {
 		}
 		else
 		{
-			if (isEACArmed)
-				fireEvent(charmElement[0], 'click');
-			else if (isWJCArmed)
-				fireEvent(charmElement[1], 'click');
-			else
-				DisarmSCSpecialCharm(charmArmed);
-			
+			DisarmSCSpecialCharm(charmArmed);
 			checkThenArm(null, 'bait', 'Gouda');
 		}			
 	}
@@ -816,32 +810,21 @@ function SunkenCity(isAggro) {
 			}			
 			else
 			{
-				if (isEACArmed)
-					fireEvent(charmElement[0], 'click');
-				else if (isWJCArmed)
-					fireEvent(charmElement[1], 'click');
-				else
-					DisarmSCSpecialCharm(charmArmed);
+				DisarmSCSpecialCharm(charmArmed);
 			}
 		}
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else
 	{		
-		if (isEACArmed)
-			fireEvent(charmElement[0], 'click');
-		else if (isWJCArmed)
-			fireEvent(charmElement[1], 'click');
-		else
-			DisarmSCSpecialCharm(charmArmed);
-		
+		DisarmSCSpecialCharm(charmArmed);
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 }
 
 function DisarmSCSpecialCharm(charmArmedName)
 {
-	var specialCharms = ['Golden Anchor', 'Spiked Anchor', 'Ultimate Anchor', 'Oxygen Burst'];	
+	var specialCharms = ['Golden Anchor', 'Spiked Anchor', 'Ultimate Anchor', 'Oxygen Burst', 'Empowered Anchor', 'Water Jet'];	
 	for (var i = 0; i < specialCharms.length; i++)
 	{
 		if (charmArmedName.indexOf(specialCharms[i]) > -1)
