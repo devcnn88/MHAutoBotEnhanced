@@ -780,14 +780,12 @@ function SunkenCity(isAggro) {
 			}			
 			else
 				checkThenArm('best', 'trinket', scAnchorDanger);
-			
-			checkThenArm(null, 'bait', 'SUPER');
 		}
 		else
 		{
 			DisarmSCSpecialCharm(charmArmed);
-			checkThenArm(null, 'bait', 'Gouda');
-		}			
+		}
+		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else if ((currentZone == ZONE_DEFAULT) && isAggro)
 	{
