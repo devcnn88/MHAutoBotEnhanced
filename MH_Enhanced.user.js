@@ -121,7 +121,7 @@ var bestDraconic = ['Dragon Lance', 'Ice Maiden'];
 var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
 var bestRiftPower = ['Focused Crystal Laser', 'Crystal Tower'];
 var bestPowerBase = ['Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
-var bestLuckBase = ['Fissure Base', 'Rift Base', 'Depth Charge Base', 'Sheep Jade Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Papyrus Base'];
+var bestLuckBase = ['Fissure Base', 'Rift Base', 'Depth Charge Base', 'Monkey Jade Base', 'Sheep Jade Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Papyrus Base'];
 var bestAttBasae = ['Birthday Drag', 'Cheesecake Base'];
 var wasteCharm = ['Tarnished', 'Wealth'];
 
