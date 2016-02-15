@@ -2765,7 +2765,19 @@ function kingRewardAction() {
     setStorage("lastKingRewardDate", nowDate.toString());
 
 	if (!isAutoSolve)
+	{
+		var intervalCRB = setInterval(
+			function ()
+			{
+				if (checkResumeButton())
+				{
+					clearInterval(intervalCRB);
+					intervalCRB = null;
+					return;
+				}
+			}, 1000);
 		return;
+	}		
 	
 	var krDelaySec = krDelayMin + Math.floor(Math.random() * (krDelayMax - krDelayMin));		
 	var krStopHourNormalized = krStopHour;
@@ -2834,7 +2846,7 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 						intervalCRB = null;
 						return;
 					}
-				}, 1000);   
+				}, 1000);
 			CallKRSolver();
 		}		
 	}
