@@ -811,6 +811,9 @@ function SunkenCity(isAggro) {
 				DisarmSCSpecialCharm(charmArmed);
 			}
 		}
+		else
+			DisarmSCSpecialCharm(charmArmed);
+		
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else
