@@ -139,6 +139,15 @@ var spongeCharm = ['Double Sponge', 'Sponge'];
 var maxSaltCharged = 25;	// Sand Crypts maximum salt for King Grub
 
 // // Sunken City Preference
+// // DON'T edit this variable if you don't know what are you editing
+var ZONE_NOT_DIVE = 0;
+var ZONE_DEFAULT = 1;
+var ZONE_LOOT = 2;
+var ZONE_TREASURE = 4;
+var ZONE_DANGER = 8;
+var ZONE_OXYGEN = 16;
+var ZONE_BONUS = 32;
+
 var bestSCBase = bestLuckBase.slice();
 var indexDC = bestSCBase.indexOf('Depth Charge Base');
 if (indexDC > -1)
@@ -159,16 +168,6 @@ var scAnchorDanger = ['Spiked Anchor', 'Empowered Anchor'];
 
 // // Spring Egg Hunt 
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
-
-// // Sunken City constant variables.
-// // DON'T edit this variable if you don't know what are you editing
-var ZONE_NOT_DIVE = 0;
-var ZONE_DEFAULT = 1;
-var ZONE_LOOT = 2;
-var ZONE_TREASURE = 4;
-var ZONE_DANGER = 8;
-var ZONE_OXYGEN = 16;
-var ZONE_BONUS = 32;
 
 // == Advance User Preference Setting (End) ==
 
@@ -627,6 +626,8 @@ function eventLocationCheck(caller) {
 			SunkenCity(false); break;
 		case 'Sunken City Aggro':
 			SunkenCity(true); break;
+		case 'Sunken City Custom':
+			SCCustom(); break;
         default:
             break;
     }
@@ -823,6 +824,11 @@ function SunkenCity(isAggro) {
 		DisarmSCSpecialCharm(charmArmed);
 		checkThenArm(null, 'bait', 'Gouda');
 	}
+}
+
+function SCCustom() {
+	if (GetCurrentLocation().indexOf("Sunken City") < 0)
+		return;
 }
 
 function DisarmSCSpecialCharm(charmArmedName)
@@ -2306,6 +2312,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
+			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
             preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + eventLocation + '"/>';
