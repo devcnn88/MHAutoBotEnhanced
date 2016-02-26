@@ -156,13 +156,13 @@ else
 var scOxyBait = ['Fishy Fromage', 'Gouda'];
 var scAnchorTreasure = ['Golden Anchor', 'Empowered Anchor'];
 var scAnchorDanger = ['Spiked Anchor', 'Empowered Anchor'];
-var scOxygen = ['Oxygen Burst', 'Empowered Anchor'];
 
 // // Spring Egg Hunt 
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 
 // // Sunken City constant variables.
 // // DON'T edit this variable if you don't know what are you editing
+var ZONE_NOT_DIVE = 0;
 var ZONE_DEFAULT = 1;
 var ZONE_LOOT = 2;
 var ZONE_TREASURE = 4;
@@ -748,7 +748,9 @@ function SunkenCity(isAggro) {
 	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);	
 	if (currentZone == ZONE_OXYGEN || currentZone == ZONE_TREASURE || currentZone == ZONE_BONUS)
 	{
-		if (!isAggro || currentZone == ZONE_BONUS)
+		if (isAggro && (currentZone == ZONE_TREASURE))
+			checkThenArm('best', 'trinket', scAnchorTreasure);
+		else
 		{
 			// arm Empowered Anchor Charm
 			if (!isEACArmed)
@@ -757,16 +759,9 @@ function SunkenCity(isAggro) {
 					fireEvent(charmElement[0], 'click');
 			}
 		}
-		else
-		{
-			if (currentZone == ZONE_OXYGEN)
-				checkThenArm('best', 'trinket', scOxygen);
-			else
-				checkThenArm('best', 'trinket', scAnchorTreasure);
-		}
 		
 		checkThenArm(null, 'bait', 'SUPER');	
-	}	
+	}
 	else if (currentZone == ZONE_DANGER)
 	{		
 		if (distance >= 10000)
@@ -816,6 +811,11 @@ function SunkenCity(isAggro) {
 		else
 			DisarmSCSpecialCharm(charmArmed);
 		
+		checkThenArm(null, 'bait', 'Gouda');
+	}
+	else if (currentZone == ZONE_NOT_DIVE)
+	{
+		checkThenArm(null, 'trinket', 'Oxygen Burst');
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else
@@ -878,7 +878,7 @@ function GetSunkenCityZone(zoneName)
 			returnZone = ZONE_DEFAULT;
 			break;
 		default:
-			returnZone = 0;			
+			returnZone = ZONE_NOT_DIVE;			
 			break;
 	}
 	return returnZone;
