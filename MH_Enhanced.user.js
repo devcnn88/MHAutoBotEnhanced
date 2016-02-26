@@ -852,9 +852,9 @@ function SCCustom() {
 	{
 		// hunt here
 		var bestOrNull = Array.isArray(scHuntBait[indexZone]) ? 'best' : null;
-		checkThenArm(bestOrNull, 'bait', scHuntBait);
+		checkThenArm(bestOrNull, 'bait', scHuntBait[indexZone]);
 		bestOrNull = Array.isArray(scHuntTrinket[indexZone]) ? 'best' : null;
-		checkThenArm(bestOrNull, 'trinket', scHuntTrinket);
+		checkThenArm(bestOrNull, 'trinket', scHuntTrinket[indexZone]);
 	}
 	else
 	{
