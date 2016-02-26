@@ -168,6 +168,7 @@ var ZONE_LOOT = 2;
 var ZONE_TREASURE = 4;
 var ZONE_DANGER = 8;
 var ZONE_OXYGEN = 16;
+var ZONE_BONUS = 32;
 
 // == Advance User Preference Setting (End) ==
 
@@ -288,6 +289,7 @@ function receiveMessage(event)
 			strKR = strKR.replace(", ", "-");
 			strKR = strKR.replace(" ", "-");
 			strKR += "-" + result;
+			strKR += "KRR-" + kingsRewardRetry;
 			setStorage(strKR, processedImg);
 			FinalizePuzzleImageAnswer(result);
 		}		
@@ -744,9 +746,9 @@ function SunkenCity(isAggro) {
 	var charmElement = document.getElementsByClassName('charm');	
 	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);	
 	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);	
-	if (currentZone == ZONE_OXYGEN || currentZone == ZONE_TREASURE)
+	if (currentZone == ZONE_OXYGEN || currentZone == ZONE_TREASURE || currentZone == ZONE_BONUS)
 	{
-		if (!isAggro)
+		if (!isAggro || currentZone == ZONE_BONUS)
 		{
 			// arm Empowered Anchor Charm
 			if (!isEACArmed)
@@ -811,6 +813,9 @@ function SunkenCity(isAggro) {
 				DisarmSCSpecialCharm(charmArmed);
 			}
 		}
+		else
+			DisarmSCSpecialCharm(charmArmed);
+		
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else
@@ -850,10 +855,12 @@ function GetSunkenCityZone(zoneName)
 			returnZone = ZONE_DANGER;
 			break;
 		case 'Deep Oxygen Stream':
-		case 'Oxygen Stream':
-		case 'Magma Flow':
+		case 'Oxygen Stream':		
 			returnZone = ZONE_OXYGEN;
-			break;		
+			break;
+		case 'Magma Flow':
+			returnZone = ZONE_BONUS;
+			break;			
 		case 'Coral Reef':
 		case 'Coral Garden':
 		case 'Coral Castle':
@@ -2765,7 +2772,19 @@ function kingRewardAction() {
     setStorage("lastKingRewardDate", nowDate.toString());
 
 	if (!isAutoSolve)
+	{
+		var intervalCRB = setInterval(
+			function ()
+			{
+				if (checkResumeButton())
+				{
+					clearInterval(intervalCRB);
+					intervalCRB = null;
+					return;
+				}
+			}, 1000);
 		return;
+	}		
 	
 	var krDelaySec = krDelayMin + Math.floor(Math.random() * (krDelayMax - krDelayMin));		
 	var krStopHourNormalized = krStopHour;
@@ -2834,7 +2853,7 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 						intervalCRB = null;
 						return;
 					}
-				}, 1000);   
+				}, 1000);
 			CallKRSolver();
 		}		
 	}
