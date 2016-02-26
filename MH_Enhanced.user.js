@@ -289,6 +289,7 @@ function receiveMessage(event)
 			strKR = strKR.replace(", ", "-");
 			strKR = strKR.replace(" ", "-");
 			strKR += "-" + result;
+			strKR += "KRR-" + kingsRewardRetry;
 			setStorage(strKR, processedImg);
 			FinalizePuzzleImageAnswer(result);
 		}		
