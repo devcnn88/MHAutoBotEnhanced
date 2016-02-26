@@ -873,7 +873,7 @@ function SCCustom() {
 		}
 		else
 		{
-			DisarmSCSpecialCharm(charmArmedName);
+			DisarmSCSpecialCharm(charmArmed);
 		}
 		checkThenArm(null, 'bait', 'Gouda');
 	}
