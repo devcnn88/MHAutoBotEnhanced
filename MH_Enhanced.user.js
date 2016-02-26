@@ -145,8 +145,9 @@ var ZONE_DEFAULT = 1;
 var ZONE_LOOT = 2;
 var ZONE_TREASURE = 4;
 var ZONE_DANGER = 8;
-var ZONE_OXYGEN = 16;
-var ZONE_BONUS = 32;
+var ZONE_DANGER_PP = 16;
+var ZONE_OXYGEN = 32;
+var ZONE_BONUS = 64;
 
 var bestSCBase = bestLuckBase.slice();
 var indexDC = bestSCBase.indexOf('Depth Charge Base');
@@ -165,6 +166,9 @@ else
 var scOxyBait = ['Fishy Fromage', 'Gouda'];
 var scAnchorTreasure = ['Golden Anchor', 'Empowered Anchor'];
 var scAnchorDanger = ['Spiked Anchor', 'Empowered Anchor'];
+var scHuntZone = [ZONE_TREASURE, ZONE_DANGER_PP, ZONE_BONUS, ZONE_OXYGEN];
+var scHuntBait = ['SUPER', 'Gouda', 'SUPER', 'SUPER'];
+var scHuntTrinket = [scAnchorTreasure, scAnchorDanger, 'Empowered Anchor', 'Empowered Anchor'];
 
 // // Spring Egg Hunt 
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
@@ -288,7 +292,7 @@ function receiveMessage(event)
 			strKR = strKR.replace(", ", "-");
 			strKR = strKR.replace(" ", "-");
 			strKR += "-" + result;
-			strKR += "KRR-" + kingsRewardRetry;
+			strKR += "-KRR" + kingsRewardRetry;
 			setStorage(strKR, processedImg);
 			FinalizePuzzleImageAnswer(result);
 		}		
@@ -746,7 +750,7 @@ function SunkenCity(isAggro) {
 	var charmArmed = getPageVariable("user.trinket_name");
 	var charmElement = document.getElementsByClassName('charm');	
 	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);	
-	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);	
+	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
 	if (currentZone == ZONE_OXYGEN || currentZone == ZONE_TREASURE || currentZone == ZONE_BONUS)
 	{
 		if (isAggro && (currentZone == ZONE_TREASURE))
@@ -763,26 +767,19 @@ function SunkenCity(isAggro) {
 		
 		checkThenArm(null, 'bait', 'SUPER');	
 	}
-	else if (currentZone == ZONE_DANGER)
-	{		
-		if (distance >= 10000)
+	else if (currentZone == ZONE_DANGER_PP)
+	{
+		if (!isAggro)
 		{
-			if (!isAggro)
+			// arm Empowered Anchor Charm
+			if (!isEACArmed && !isAggro)
 			{
-				// arm Empowered Anchor Charm
-				if (!isEACArmed && !isAggro)
-				{
-					if (parseInt(charmElement[0].innerText) > 0)
-						fireEvent(charmElement[0], 'click');
-				}
-			}			
-			else
-				checkThenArm('best', 'trinket', scAnchorDanger);
+				if (parseInt(charmElement[0].innerText) > 0)
+					fireEvent(charmElement[0], 'click');
+			}
 		}
 		else
-		{
-			DisarmSCSpecialCharm(charmArmed);
-		}
+			checkThenArm('best', 'trinket', scAnchorDanger);
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else if ((currentZone == ZONE_DEFAULT) && isAggro)
@@ -829,6 +826,54 @@ function SunkenCity(isAggro) {
 function SCCustom() {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
+	
+	var zone = document.getElementsByClassName('zoneName')[0].innerText;	
+	console.debug('Current Zone: ' + zone);
+	var currentZone = GetSunkenCityZone(zone);
+	checkThenArm('best', 'weapon', bestHydro);
+	checkThenArm('best', 'base', bestSCBase);
+	var nextZoneName = [];
+	var nextZoneLeft = [];
+	var nextZone = [];
+	var distanceToNextZone = [];
+	var isNextZoneInHuntZone = [];
+	for (var i = 0; i < 2; i++)
+	{
+		nextZoneName[i] = getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+1) + '].name');
+		nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+1) + '].left'));
+		nextZone[i] = GetSunkenCityZone(nextZoneName[i]);
+		distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
+		isNextZoneInHuntZone[i] = (scHuntZone.indexOf(nextZone[i]) > -1);
+		console.log('Next Zone in Hunt Zone: ' + isNextZoneInHuntZone[i]);
+	}
+	var indexZone = scHuntZone.indexOf(currentZone);
+	if (indexZone > -1)
+	{
+		// hunt here
+		var bestOrNull = Array.isArray(scHuntBait[indexZone]) ? 'best' : null;
+		checkThenArm(bestOrNull, 'bait', scHuntBait);
+		bestOrNull = Array.isArray(scHuntTrinket[indexZone]) ? 'best' : null;
+		checkThenArm(bestOrNull, 'trinket', scHuntTrinket);
+	}
+	else
+	{
+		// jet through
+		var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
+		if (distanceToNextZone >= 480 || !(isNextZoneInHuntZone[0] || isNextZoneInHuntZone[1]))
+		{
+			// arm Water Jet Charm
+			if (!isWJCArmed)
+			{
+				if (parseInt(charmElement[1].innerText) > 0)
+					fireEvent(charmElement[1], 'click');
+			}
+		}
+		else
+		{
+			DisarmSCSpecialCharm(charmArmedName);
+		}
+		checkThenArm(null, 'bait', 'Gouda');
+	}
 }
 
 function DisarmSCSpecialCharm(charmArmedName)
@@ -856,12 +901,14 @@ function GetSunkenCityZone(zoneName)
 			break;
 		case 'Feeding Grounds':
 		case 'Carnivore Cove':
-		case 'Monster Trench':
-		case 'Lair of the Ancients':
 			returnZone = ZONE_DANGER;
 			break;
+		case 'Monster Trench':
+		case 'Lair of the Ancients':
+			returnZone = ZONE_DANGER_PP;
+			break;
 		case 'Deep Oxygen Stream':
-		case 'Oxygen Stream':		
+		case 'Oxygen Stream':
 			returnZone = ZONE_OXYGEN;
 			break;
 		case 'Magma Flow':
