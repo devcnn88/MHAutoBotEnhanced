@@ -748,7 +748,7 @@ function SunkenCity(isAggro) {
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.debug('Dive Distance(m): ' + distance);
 	var charmArmed = getPageVariable("user.trinket_name");
-	var charmElement = document.getElementsByClassName('charm');	
+	var charmElement = document.getElementsByClassName('charm');
 	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);	
 	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
 	if (currentZone == ZONE_OXYGEN || currentZone == ZONE_TREASURE || currentZone == ZONE_BONUS)
@@ -839,11 +839,12 @@ function SCCustom() {
 	var isNextZoneInHuntZone = [];
 	for (var i = 0; i < 2; i++)
 	{
-		nextZoneName[i] = getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+1) + '].name');
-		nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+1) + '].left'));
+		nextZoneName[i] = getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].name');
+		nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].left'));
 		nextZone[i] = GetSunkenCityZone(nextZoneName[i]);
 		distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
 		isNextZoneInHuntZone[i] = (scHuntZone.indexOf(nextZone[i]) > -1);
+		console.log("Next Zone: " + nextZoneName[i]);
 		console.log('Next Zone in Hunt Zone: ' + isNextZoneInHuntZone[i]);
 	}
 	var indexZone = scHuntZone.indexOf(currentZone);
@@ -858,6 +859,7 @@ function SCCustom() {
 	else
 	{
 		// jet through
+		var charmElement = document.getElementsByClassName('charm');
 		var charmArmed = getPageVariable("user.trinket_name");
 		var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
 		if (distanceToNextZone >= 480 || !(isNextZoneInHuntZone[0] || isNextZoneInHuntZone[1]))
