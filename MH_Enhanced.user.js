@@ -862,7 +862,7 @@ function SCCustom() {
 		var charmElement = document.getElementsByClassName('charm');
 		var charmArmed = getPageVariable("user.trinket_name");
 		var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
-		if (distanceToNextZone >= 480 || !(isNextZoneInHuntZone[0] || isNextZoneInHuntZone[1]))
+		if (distanceToNextZone[0] >= 480 || !(isNextZoneInHuntZone[0] || isNextZoneInHuntZone[1]))
 		{
 			// arm Water Jet Charm
 			if (!isWJCArmed)
