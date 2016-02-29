@@ -142,12 +142,14 @@ var maxSaltCharged = 25;	// Sand Crypts maximum salt for King Grub
 // // DON'T edit this variable if you don't know what are you editing
 var ZONE_NOT_DIVE = 0;
 var ZONE_DEFAULT = 1;
-var ZONE_LOOT = 2;
-var ZONE_TREASURE = 4;
-var ZONE_DANGER = 8;
-var ZONE_DANGER_PP = 16;
-var ZONE_OXYGEN = 32;
-var ZONE_BONUS = 64;
+var ZONE_CORAL = 2;
+var ZONE_SCALE = 4;
+var ZONE_BARNACLE = 8
+var ZONE_TREASURE = 16;
+var ZONE_DANGER = 32;
+var ZONE_DANGER_PP = 64;
+var ZONE_OXYGEN = 128;
+var ZONE_BONUS = 256;
 
 var bestSCBase = bestLuckBase.slice();
 var indexDC = bestSCBase.indexOf('Depth Charge Base');
@@ -920,13 +922,17 @@ function GetSunkenCityZone(zoneName)
 		case 'Coral Reef':
 		case 'Coral Garden':
 		case 'Coral Castle':
+			returnZone = ZONE_CORAL;
+			break;
 		case 'School of Mice':
 		case 'Mermouse Den':
 		case 'Lost Ruins':
+			returnZone = ZONE_SCALE;
+			break;
 		case 'Rocky Outcrop':
 		case 'Shipwreck':
 		case 'Haunted Shipwreck':
-			returnZone = ZONE_LOOT;
+			returnZone = ZONE_BARNACLE;
 			break;
 		case 'Shallow Shoals':
 		case 'Sea Floor':
