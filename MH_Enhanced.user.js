@@ -834,12 +834,11 @@ function SunkenCity(isAggro) {
 }
 
 function SCCustom() {
-	if (Object.keys(objSCCustom).length == 0)
-		GetSCCustomConfig();
-	
-	console.debug(objSCCustom);
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
+	
+	if (Object.keys(objSCCustom).length == 0)
+		GetSCCustomConfig();
 	
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
