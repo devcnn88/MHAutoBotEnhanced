@@ -217,7 +217,7 @@ var discharge = false;
 var arming = false;
 var best = 0;
 var kingsRewardRetry = 0;
-var arrSCCustom = {};
+var objSCCustom = {};
 
 // element in page
 var titleElement;
@@ -834,10 +834,10 @@ function SunkenCity(isAggro) {
 }
 
 function SCCustom() {
-	if (Object.keys(arrSCCustom).length == 0)
+	if (Object.keys(objSCCustom).length == 0)
 		GetSCCustomConfig();
 	
-	console.debug(arrSCCustom);
+	console.debug(objSCCustom);
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
 	
@@ -847,32 +847,38 @@ function SCCustom() {
 	var currentZone = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', bestHydro);
 	checkThenArm('best', 'base', bestSCBase);
-	var nextZoneName = [];
-	var nextZoneLeft = [];
-	var nextZone = [];
-	var distanceToNextZone = [];
-	var isNextZoneInHuntZone = [];
-	for (var i = 0; i < 2; i++)
-	{
-		nextZoneName[i] = getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].name');
-		nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].left'));
-		nextZone[i] = GetSunkenCityZone(nextZoneName[i]);
-		distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
-		isNextZoneInHuntZone[i] = (arrSCCustom.zone.indexOf(nextZone[i]) > -1);
-		console.log('Next Zone: ' + nextZoneName[i] + ' in ' + distanceToNextZone[i] + 'm Is In Hunt Zone: ' + isNextZoneInHuntZone[i]);
-	}
-	
-	var indexZone = arrSCCustom.zone.indexOf(currentZone);
+	var indexZone = objSCCustom.zone.indexOf(currentZone);
 	if (indexZone > -1)
 	{
 		// hunt here
-		var bestOrNull = Array.isArray(arrSCCustom.bait[indexZone]) ? 'best' : null;
-		checkThenArm(bestOrNull, 'bait', arrSCCustom.bait[indexZone]);
-		bestOrNull = Array.isArray(arrSCCustom.trinket[indexZone]) ? 'best' : null;
-		checkThenArm(bestOrNull, 'trinket', arrSCCustom.trinket[indexZone]);
+		var bestOrNull = Array.isArray(objSCCustom.bait[indexZone]) ? 'best' : null;
+		checkThenArm(bestOrNull, 'bait', objSCCustom.bait[indexZone]);
+		if (objSCCustom.trinket[indexZone] == "NoSC")
+			DisarmSCSpecialCharm();
+		else if (objSCCustom.trinket[indexZone] == "None")
+			disarmTrap('trinket');
+		else {
+			bestOrNull = Array.isArray(objSCCustom.trinket[indexZone]) ? 'best' : null;
+			checkThenArm(bestOrNull, 'trinket', objSCCustom.trinket[indexZone]);
+		}
 	}
 	else
 	{
+		var nextZoneName = [];
+		var nextZoneLeft = [];
+		var nextZone = [];
+		var distanceToNextZone = [];
+		var isNextZoneInHuntZone = [];
+		for (var i = 0; i < 2; i++)
+		{
+			nextZoneName[i] = getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].name');
+			nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].left'));
+			nextZone[i] = GetSunkenCityZone(nextZoneName[i]);
+			distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
+			isNextZoneInHuntZone[i] = (objSCCustom.zone.indexOf(nextZone[i]) > -1);
+			console.log('Next Zone: ' + nextZoneName[i] + ' in ' + distanceToNextZone[i] + 'm Is In Hunt Zone: ' + isNextZoneInHuntZone[i]);
+		}
+		
 		// jet through
 		var charmElement = document.getElementsByClassName('charm');
 		var charmArmed = getPageVariable("user.trinket_name");
@@ -896,10 +902,10 @@ function SCCustom() {
 
 function GetSCCustomConfig()
 {
-	arrSCCustom = {};
-	arrSCCustom["zone"] = [];
-	arrSCCustom["bait"] = [];
-	arrSCCustom["trinket"] = [];
+	objSCCustom = {};
+	objSCCustom["zone"] = [];
+	objSCCustom["bait"] = [];
+	objSCCustom["trinket"] = [];
 	var storage = window.localStorage;
 	var keyName = "";
 	var value = "";
@@ -912,9 +918,9 @@ function GetSCCustomConfig()
 			value = value.split(',');
 			if (value[0] != "None")
 			{
-				arrSCCustom["zone"].push(objSCZone[value[0]]);
-				arrSCCustom["bait"].push(value[1]);
-				arrSCCustom["trinket"].push(objSCTrap[value[2]]);
+				objSCCustom["zone"].push(objSCZone[value[0]]);
+				objSCCustom["bait"].push(value[1]);
+				objSCCustom["trinket"].push(objSCTrap[value[2]]);
 			}
 		}
 	}
@@ -2449,7 +2455,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="SUPER">SUPER|brie+</option>';
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="scHuntTrinket" onChange="saveSCCustomAlgo();">';
-			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="None">No Charm</option>';
+			preferenceHTMLStr += '<option value="NoSC">No SC Charm</option>';
 			preferenceHTMLStr += '<option value="EAC">EAC</option>';
 			preferenceHTMLStr += '<option value="scAnchorTreasure">GAC, EAC</option>';
 			preferenceHTMLStr += '<option value="scAnchorDanger">SAC, EAC</option>';
