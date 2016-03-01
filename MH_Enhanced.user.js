@@ -168,9 +168,9 @@ else
 var scOxyBait = ['Fishy Fromage', 'Gouda'];
 var scAnchorTreasure = ['Golden Anchor', 'Empowered Anchor'];
 var scAnchorDanger = ['Spiked Anchor', 'Empowered Anchor'];
-var scHuntZone = [ZONE_TREASURE, ZONE_DANGER_PP, ZONE_BONUS, ZONE_OXYGEN];
-var scHuntBait = ['SUPER', 'Gouda', 'SUPER', 'SUPER'];
-var scHuntTrinket = [scAnchorTreasure, scAnchorDanger, 'Empowered Anchor', 'Empowered Anchor'];
+var scHuntZone = [ZONE_TREASURE, ZONE_DANGER_PP, ZONE_BONUS, ZONE_OXYGEN, ZONE_SCALE];
+var scHuntBait = ['SUPER', 'Gouda', 'SUPER', 'SUPER', 'Gouda'];
+var scHuntTrinket = [scAnchorTreasure, scAnchorDanger, 'Empowered Anchor', 'Empowered Anchor', 'Wealth'];
 
 // // Spring Egg Hunt 
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
@@ -829,8 +829,9 @@ function SCCustom() {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
 	
-	var zone = document.getElementsByClassName('zoneName')[0].innerText;	
-	console.debug('Current Zone: ' + zone);
+	var zone = document.getElementsByClassName('zoneName')[0].innerText;
+	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
+	console.log('Current Zone: ' + zone + ' at ' + distance + 'm');
 	var currentZone = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', bestHydro);
 	checkThenArm('best', 'base', bestSCBase);
@@ -846,8 +847,7 @@ function SCCustom() {
 		nextZone[i] = GetSunkenCityZone(nextZoneName[i]);
 		distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
 		isNextZoneInHuntZone[i] = (scHuntZone.indexOf(nextZone[i]) > -1);
-		console.log("Next Zone: " + nextZoneName[i]);
-		console.log('Next Zone in Hunt Zone: ' + isNextZoneInHuntZone[i]);
+		console.log('Next Zone: ' + nextZoneName[i] + ' in ' + distanceToNextZone[i] + 'm Is In Hunt Zone: ' + isNextZoneInHuntZone[i]);
 	}
 	var indexZone = scHuntZone.indexOf(currentZone);
 	if (indexZone > -1)
