@@ -313,19 +313,6 @@ window.addEventListener("message", receiveMessage, false);
 if (debugKR)
 	CallKRSolver();
 
-var storage = window.localStorage;
-console.debug(storage);
-for (var key in storage)
-{
-	if (storage.hasOwnProperty(key)) {
-		if (key.indexOf("SCCustomNo3") > -1)
-		{
-			storage.removeItem(key);
-			break;
-		}
-	}
-}
-console.debug(storage);
 exeScript();
 
 function exeScript() {
