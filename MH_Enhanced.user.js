@@ -968,7 +968,10 @@ function twistedGarden() {
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
     var charmArmed = getPageVariable('user.trinket_name');
     console.debug('Red: ' + red + ' Yellow: ' + yellow);
-    if (red < 10)
+	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
+	if (red <= 8 && yellow <= 8)
+		checkThenArm('best', 'trinket', redPlusYellow);
+    else if (red < 10)
     {
         if (red <= 8)
             checkThenArm('best', 'trinket', redSpongeCharm);
