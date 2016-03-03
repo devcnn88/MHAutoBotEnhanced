@@ -621,7 +621,9 @@ function eventLocationCheck(caller) {
 		case 'Halloween 2015':
 			Halloween2015(); break;	 
 		case 'All LG Area':
-			LGGeneral(); break;
+			LGGeneral(false); break;
+		case 'All LG Area Auto Pour':
+			LGGeneral(true); break;
 		case 'Sunken City':
 			SunkenCity(false); break;
 		case 'Sunken City Aggro':
@@ -705,17 +707,17 @@ function BurroughRift(minMist, maxMist)
 	return;
 }
 
-function LGGeneral() {
+function LGGeneral(isAutoPour) {
     switch (GetCurrentLocation())
     {        
         case 'Living Garden':
-            livingGarden(); break;
+            livingGarden(isAutoPour); break;
         case 'Lost City':
             lostCity(); break;
         case 'Sand Dunes':
             sandDunes(); break;
         case 'Twisted Garden':
-            twistedGarden(); break;
+            twistedGarden(isAutoPour); break;
         case 'Cursed City':
             cursedCity(); break;
         case 'Sand Crypts':
@@ -890,7 +892,7 @@ function GetSunkenCityZone(zoneName)
 	return returnZone;
 }
 
-function livingGarden() {
+function livingGarden(isAutoPour) {
     var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
     if (pourEstimate.innerText != "")
     {
@@ -900,11 +902,14 @@ function livingGarden() {
         console.debug('Estimate Hunt: ' + estimateHunt);
         if (estimateHunt >= 35)
         {
-            console.debug('Going to click Pour...');
-			var pourButton = document.getElementsByClassName('pour')[0];								
-			fireEvent(pourButton, 'click');
-			var confirmButton = document.getElementsByClassName('confirm button')[0];
-			fireEvent(confirmButton, 'click');
+            if (isAutoPour) {
+				console.debug('Going to click Pour...');
+				var pourButton = document.getElementsByClassName('pour')[0];								
+				fireEvent(pourButton, 'click');
+				var confirmButton = document.getElementsByClassName('confirm button')[0];
+				fireEvent(confirmButton, 'click');
+			}
+			
 			if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
             {                
 				console.debug('Going to disarm');
@@ -942,6 +947,7 @@ function lostCity() {
 	
 	checkThenArm('best', 'weapon', bestArcane);
 	checkThenArm('best', 'base', bestLGBase);
+	checkThenArm(null, 'bait', 'Dewthief');
     return;
 }
 
@@ -960,10 +966,11 @@ function sandDunes() {
 	
 	checkThenArm('best', 'weapon', bestShadow);
 	checkThenArm('best', 'base', bestLGBase);
+	checkThenArm(null, 'bait', 'Dewthief');
     return;
 }
 
-function twistedGarden() {
+function twistedGarden(isAutoPour) {
     var red = parseInt(document.getElementsByClassName('itemImage red')[0].innerText);
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
     var charmArmed = getPageVariable('user.trinket_name');
@@ -986,7 +993,14 @@ function twistedGarden() {
             checkThenArm(null, 'trinket', 'Yellow Sponge');
     }
     else {
-        if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
+        if (isAutoPour) {
+			var pourButton = document.getElementsByClassName('pour')[0];								
+			fireEvent(pourButton, 'click');
+			var confirmButton = document.getElementsByClassName('confirm button')[0];
+			fireEvent(confirmButton, 'click');
+		}
+		
+		if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
             disarmTrap('trinket');
     }
 	
@@ -996,7 +1010,7 @@ function twistedGarden() {
 
 function cursedCity() {
     var cursed = getPageVariable('user.quests.QuestLostCity.minigame.is_cursed');
-    var curses = [];
+    var curses = "";
     var charmArmed = getPageVariable('user.trinket_name');
     if (cursed == 'false')
     {
@@ -1005,32 +1019,35 @@ function cursedCity() {
     }
     else
     {
-        for (var i = 0; i < 3; ++i)
+        var cursedCityCharm = [];
+		for (var i = 0; i < 3; ++i)
         {
-            curses[i] = getPageVariable('user.quests.QuestLostCity.minigame.curses[' + i + '].active');
-            if (curses[i] == 'true')
+            curses = getPageVariable('user.quests.QuestLostCity.minigame.curses[' + i + '].active');
+            if (curses == 'true')
             {
-                switch (i)
+				switch (i)
                 {
                     case 0:
                         console.debug("Fear Active");
-						checkThenArm(null, "trinket", "Bravery"); break;
+						cursedCityCharm.push('Bravery');
+						break;
                     case 1:
                         console.debug("Darkness Active");
-						checkThenArm(null, "trinket", "Shine"); break;
+						cursedCityCharm.push('Shine');
+						break;
                     case 2:
 						console.debug("Mist Active");
-                        checkThenArm(null, "trinket", "Clarity"); break;
-                    default:
-                        break;
+						cursedCityCharm.push('Clarity');
+						break;
                 }
-                break;
             }
         }
+		checkThenArm('best', 'trinket', cursedCityCharm);
     }
 	
 	checkThenArm('best', 'weapon', bestArcane);
 	checkThenArm('best', 'base', bestLGBase);
+	checkThenArm(null, 'bait', 'Graveblossom');
     return;
 }
 
@@ -1048,6 +1065,7 @@ function sandCrypts() {
 	
 	checkThenArm('best', 'weapon', bestShadow);
 	checkThenArm('best', 'base', bestLGBase);
+	checkThenArm(null, 'bait', 'Graveblossom');
     return;
 }
 
@@ -2317,6 +2335,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
 			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
+			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
             preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + eventLocation + '"/>';
             preferenceHTMLStr += '</td>';
