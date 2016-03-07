@@ -199,7 +199,7 @@ var nextActiveTime = 900;
 var timerInterval = 2;
 var checkMouseResult = null;
 var mouseList = [];
-var eventLocation = "None";
+//var eventLocation = "None";
 var discharge = false;
 var arming = false;
 var best = 0;
@@ -605,8 +605,9 @@ function ZTalgo() {
 }
 
 function eventLocationCheck(caller) {
-    console.debug('Algorithm Selected: ' + eventLocation + ' Call From: ' + caller);
-    switch (eventLocation)
+    var selAlgo = getStorageToVariableStr("eventLocation", "None");
+	console.debug('Algorithm Selected: ' + selAlgo + ' Call From: ' + caller);
+    switch (selAlgo)
     {
         case 'Charge Egg 2015':
             checkCharge(12); break;
@@ -2337,7 +2338,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
 			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
-            preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + eventLocation + '"/>';
+            preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + getStorageToVariableStr("eventLocation", "None") + '"/>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 
@@ -2418,7 +2419,7 @@ function loadPreferenceSettingFromStorage() {
 	kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);	
 	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
     discharge = getStorageToVariableBool("discharge", discharge);
-	eventLocation = getStorageToVariableStr("eventLocation", "None");
+	//eventLocation = getStorageToVariableStr("eventLocation", "None");
 }
 
 function getStorageToVariableInt(storageName, defaultInt)
