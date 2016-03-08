@@ -842,9 +842,7 @@ function SCCustom() {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
 	
-	if (Object.keys(objSCCustom).length == 0)
-		GetSCCustomConfig();
-	
+	GetSCCustomConfig();
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.log('Current Zone: ' + zone + ' at ' + distance + 'm');
