@@ -212,7 +212,7 @@ var nextActiveTime = 900;
 var timerInterval = 2;
 var checkMouseResult = null;
 var mouseList = [];
-var eventLocation = "None";
+//var eventLocation = "None";
 var discharge = false;
 var arming = false;
 var best = 0;
@@ -619,8 +619,9 @@ function ZTalgo() {
 }
 
 function eventLocationCheck(caller) {
-    console.debug('Algorithm Selected: ' + eventLocation + ' Call From: ' + caller);
-    switch (eventLocation)
+    var selAlgo = getStorageToVariableStr("eventLocation", "None");
+	console.debug('Algorithm Selected: ' + selAlgo + ' Call From: ' + caller);
+    switch (selAlgo)
     {
         case 'Charge Egg 2015':
             checkCharge(12); break;
@@ -635,7 +636,9 @@ function eventLocationCheck(caller) {
 		case 'Halloween 2015':
 			Halloween2015(); break;	 
 		case 'All LG Area':
-			LGGeneral(); break;
+			LGGeneral(false); break;
+		case 'All LG Area Auto Pour':
+			LGGeneral(true); break;
 		case 'Sunken City':
 			SunkenCity(false); break;
 		case 'Sunken City Aggro':
@@ -719,17 +722,19 @@ function BurroughRift(minMist, maxMist)
 	return;
 }
 
-function LGGeneral() {
-    switch (GetCurrentLocation())
+function LGGeneral(isAutoPour) {
+    var loc = GetCurrentLocation();
+	DisarmLGSpecialCharm(loc);
+	switch (loc)
     {        
         case 'Living Garden':
-            livingGarden(); break;
+            livingGarden(isAutoPour); break;
         case 'Lost City':
             lostCity(); break;
         case 'Sand Dunes':
             sandDunes(); break;
         case 'Twisted Garden':
-            twistedGarden(); break;
+            twistedGarden(isAutoPour); break;
         case 'Cursed City':
             cursedCity(); break;
         case 'Sand Crypts':
@@ -990,8 +995,10 @@ function GetSunkenCityZone(zoneName)
 	return returnZone;
 }
 
-function livingGarden() {
-    var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
+function livingGarden(isAutoPour) {
+    checkThenArm('best', 'weapon', bestHydro);
+	checkThenArm('best', 'base', bestLGBase);
+	var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
     if (pourEstimate.innerText != "")
     {
         // Not pouring
@@ -1000,16 +1007,19 @@ function livingGarden() {
         console.debug('Estimate Hunt: ' + estimateHunt);
         if (estimateHunt >= 35)
         {
-            console.debug('Going to click Pour...');
-			var pourButton = document.getElementsByClassName('pour')[0];								
-			fireEvent(pourButton, 'click');
-			var confirmButton = document.getElementsByClassName('confirm button')[0];
-			fireEvent(confirmButton, 'click');
+			if (isAutoPour) {
+				console.debug('Going to click Pour...');
+				var pourButton = document.getElementsByClassName('pour')[0];
+				if (pourButton)
+				{
+					fireEvent(pourButton, 'click');
+					if (document.getElementsByClassName('confirm button')[0])
+						window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
+				}
+			}
+			
 			if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
-            {                
-				console.debug('Going to disarm');
 				disarmTrap('trinket');
-            }
         }
 		else if (estimateHunt >= 28)
 			checkThenArm(null, 'trinket', 'Sponge');
@@ -1023,8 +1033,7 @@ function livingGarden() {
         if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
             disarmTrap('trinket');
     }
-	checkThenArm('best', 'weapon', bestHydro);
-	checkThenArm('best', 'base', bestLGBase);
+	
     return;
 }
 
@@ -1042,6 +1051,7 @@ function lostCity() {
 	
 	checkThenArm('best', 'weapon', bestArcane);
 	checkThenArm('best', 'base', bestLGBase);
+	checkThenArm(null, 'bait', 'Dewthief');
     return;
 }
 
@@ -1060,14 +1070,16 @@ function sandDunes() {
 	
 	checkThenArm('best', 'weapon', bestShadow);
 	checkThenArm('best', 'base', bestLGBase);
+	checkThenArm(null, 'bait', 'Dewthief');
     return;
 }
 
-function twistedGarden() {
+function twistedGarden(isAutoPour) {
     var red = parseInt(document.getElementsByClassName('itemImage red')[0].innerText);
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
     var charmArmed = getPageVariable('user.trinket_name');
     console.debug('Red: ' + red + ' Yellow: ' + yellow);
+	checkThenArm('best', 'weapon', bestHydro);
 	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
 	if (red <= 8 && yellow <= 8)
 		checkThenArm('best', 'trinket', redPlusYellow);
@@ -1088,15 +1100,24 @@ function twistedGarden() {
     else {
         if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
             disarmTrap('trinket');
+		
+		if (isAutoPour) {
+			var pourButton = document.getElementsByClassName('pour')[0];
+			if (pourButton)
+			{
+				fireEvent(pourButton, 'click');
+				if (document.getElementsByClassName('confirm button')[0])
+					window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
+			}
+		}
     }
 	
-	checkThenArm('best', 'weapon', bestHydro);
     return;
 }
 
 function cursedCity() {
     var cursed = getPageVariable('user.quests.QuestLostCity.minigame.is_cursed');
-    var curses = [];
+    var curses = "";
     var charmArmed = getPageVariable('user.trinket_name');
     if (cursed == 'false')
     {
@@ -1105,32 +1126,35 @@ function cursedCity() {
     }
     else
     {
-        for (var i = 0; i < 3; ++i)
+        var cursedCityCharm = [];
+		for (var i = 0; i < 3; ++i)
         {
-            curses[i] = getPageVariable('user.quests.QuestLostCity.minigame.curses[' + i + '].active');
-            if (curses[i] == 'true')
+            curses = getPageVariable('user.quests.QuestLostCity.minigame.curses[' + i + '].active');
+            if (curses == 'true')
             {
-                switch (i)
+				switch (i)
                 {
                     case 0:
                         console.debug("Fear Active");
-						checkThenArm(null, "trinket", "Bravery"); break;
+						cursedCityCharm.push('Bravery');
+						break;
                     case 1:
                         console.debug("Darkness Active");
-						checkThenArm(null, "trinket", "Shine"); break;
+						cursedCityCharm.push('Shine');
+						break;
                     case 2:
 						console.debug("Mist Active");
-                        checkThenArm(null, "trinket", "Clarity"); break;
-                    default:
-                        break;
+						cursedCityCharm.push('Clarity');
+						break;
                 }
-                break;
             }
         }
+		checkThenArm('best', 'trinket', cursedCityCharm);
     }
 	
 	checkThenArm('best', 'weapon', bestArcane);
 	checkThenArm('best', 'base', bestLGBase);
+	checkThenArm(null, 'bait', 'Graveblossom');
     return;
 }
 
@@ -1148,7 +1172,35 @@ function sandCrypts() {
 	
 	checkThenArm('best', 'weapon', bestShadow);
 	checkThenArm('best', 'base', bestLGBase);
+	checkThenArm(null, 'bait', 'Graveblossom');
     return;
+}
+
+function DisarmLGSpecialCharm(locationName)
+{
+	var obj = {};
+	obj['Living Garden'] = spongeCharm.slice();
+	obj['Lost City'] = ['Searcher'];
+	obj['Sand Dunes'] = ['Grubling Chow'];
+	obj['Twisted Garden'] = redSpongeCharm.concat(yellowSpongeCharm);
+	obj['Cursed City'] = ['Bravery', 'Shine', 'Clarity'];
+	obj['Sand Crypts'] = bestSalt.slice();
+	delete obj[locationName];
+	var charmArmed = getPageVariable("user.trinket_name");
+	for (var prop in obj)
+	{
+		if(obj.hasOwnProperty(prop))
+		{
+			for (var i = 0; i < obj[prop].length; ++i)
+			{
+				if (charmArmed.indexOf(obj[prop][i]) > -1)
+				{
+					disarmTrap('trinket');
+					return;
+				}
+			}
+		}
+	}
 }
 
 function retrieveMouseList() {
@@ -2417,6 +2469,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
 			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
+			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -2550,7 +2603,7 @@ function loadPreferenceSettingFromStorage() {
 	kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);	
 	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
     discharge = getStorageToVariableBool("discharge", discharge);
-	eventLocation = getStorageToVariableStr("eventLocation", "None");
+	//eventLocation = getStorageToVariableStr("eventLocation", "None");
 }
 
 function getStorageToVariableInt(storageName, defaultInt)
