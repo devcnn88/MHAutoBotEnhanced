@@ -709,7 +709,9 @@ function BurroughRift(minMist, maxMist)
 }
 
 function LGGeneral(isAutoPour) {
-    switch (GetCurrentLocation())
+    var loc = GetCurrentLocation();
+	DisarmLGSpecialCharm(loc);
+	switch (loc)
     {        
         case 'Living Garden':
             livingGarden(isAutoPour); break;
@@ -894,7 +896,9 @@ function GetSunkenCityZone(zoneName)
 }
 
 function livingGarden(isAutoPour) {
-    var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
+    checkThenArm('best', 'weapon', bestHydro);
+	checkThenArm('best', 'base', bestLGBase);
+	var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
     if (pourEstimate.innerText != "")
     {
         // Not pouring
@@ -903,19 +907,19 @@ function livingGarden(isAutoPour) {
         console.debug('Estimate Hunt: ' + estimateHunt);
         if (estimateHunt >= 35)
         {
-            if (isAutoPour) {
+			if (isAutoPour) {
 				console.debug('Going to click Pour...');
-				var pourButton = document.getElementsByClassName('pour')[0];								
-				fireEvent(pourButton, 'click');
-				var confirmButton = document.getElementsByClassName('confirm button')[0];
-				fireEvent(confirmButton, 'click');
+				var pourButton = document.getElementsByClassName('pour')[0];
+				if (pourButton)
+				{
+					fireEvent(pourButton, 'click');
+					if (document.getElementsByClassName('confirm button')[0])
+						window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
+				}
 			}
 			
 			if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
-            {                
-				console.debug('Going to disarm');
 				disarmTrap('trinket');
-            }
         }
 		else if (estimateHunt >= 28)
 			checkThenArm(null, 'trinket', 'Sponge');
@@ -929,8 +933,7 @@ function livingGarden(isAutoPour) {
         if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
             disarmTrap('trinket');
     }
-	checkThenArm('best', 'weapon', bestHydro);
-	checkThenArm('best', 'base', bestLGBase);
+	
     return;
 }
 
@@ -976,6 +979,7 @@ function twistedGarden(isAutoPour) {
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
     var charmArmed = getPageVariable('user.trinket_name');
     console.debug('Red: ' + red + ' Yellow: ' + yellow);
+	checkThenArm('best', 'weapon', bestHydro);
 	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
 	if (red <= 8 && yellow <= 8)
 		checkThenArm('best', 'trinket', redPlusYellow);
@@ -994,18 +998,20 @@ function twistedGarden(isAutoPour) {
             checkThenArm(null, 'trinket', 'Yellow Sponge');
     }
     else {
-        if (isAutoPour) {
-			var pourButton = document.getElementsByClassName('pour')[0];								
-			fireEvent(pourButton, 'click');
-			var confirmButton = document.getElementsByClassName('confirm button')[0];
-			fireEvent(confirmButton, 'click');
-		}
-		
-		if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
+        if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
             disarmTrap('trinket');
+		
+		if (isAutoPour) {
+			var pourButton = document.getElementsByClassName('pour')[0];
+			if (pourButton)
+			{
+				fireEvent(pourButton, 'click');
+				if (document.getElementsByClassName('confirm button')[0])
+					window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
+			}
+		}
     }
 	
-	checkThenArm('best', 'weapon', bestHydro);
     return;
 }
 
@@ -1068,6 +1074,33 @@ function sandCrypts() {
 	checkThenArm('best', 'base', bestLGBase);
 	checkThenArm(null, 'bait', 'Graveblossom');
     return;
+}
+
+function DisarmLGSpecialCharm(locationName)
+{
+	var obj = {};
+	obj['Living Garden'] = spongeCharm.slice();
+	obj['Lost City'] = ['Searcher'];
+	obj['Sand Dunes'] = ['Grubling Chow'];
+	obj['Twisted Garden'] = redSpongeCharm.concat(yellowSpongeCharm);
+	obj['Cursed City'] = ['Bravery', 'Shine', 'Clarity'];
+	obj['Sand Crypts'] = bestSalt.slice();
+	delete obj[locationName];
+	var charmArmed = getPageVariable("user.trinket_name");
+	for (var prop in obj)
+	{
+		if(obj.hasOwnProperty(prop))
+		{
+			for (var i = 0; i < obj[prop].length; ++i)
+			{
+				if (charmArmed.indexOf(obj[prop][i]) > -1)
+				{
+					disarmTrap('trinket');
+					return;
+				}
+			}
+		}
+	}
 }
 
 function retrieveMouseList() {
