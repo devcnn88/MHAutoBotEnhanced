@@ -2973,7 +2973,7 @@ function CallKRSolver()
 	frame.setAttribute("id", "myFrame");
 	var img = document.getElementById('puzzleImage');	
 	if (debugKR)
-		frame.src = "https://photos-4.dropbox.com/t/2/AAArkp_yNcE-_gLkppu3xeeV2p-y0q0Ml0AhZ0RfCIlYpQ/12/127673959/png/32x32/1/_/1/2/download.png/EM-6pmIYjboGIAcoBw/VXDBwjXQ2NNK6ShussiKls1sCUQSTjvkn3wM5g4Jcro?size=640x480&size_mode=2";
+		frame.src = "https://dl.dropboxusercontent.com/s/4u5msso39hfpo87/Capture.PNG";
 	else
 		frame.src = img.src;	
 	document.body.appendChild(frame);	
