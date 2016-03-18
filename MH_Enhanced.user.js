@@ -2395,7 +2395,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
-			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
+			//preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
             preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
 			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
