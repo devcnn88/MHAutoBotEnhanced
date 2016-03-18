@@ -275,8 +275,7 @@ function FinalizePuzzleImageAnswer(answer)
 
 function receiveMessage(event)
 {  
-	console.debug("Event origin: " + event.origin);	
-
+	console.debug("Event origin: " + event.origin);
 	if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1)
 	{
 		if (event.data.indexOf("~") > -1)
@@ -289,7 +288,12 @@ function receiveMessage(event)
 			strKR = strKR.replace(" ", "-");
 			strKR += "-" + result;
 			strKR += "-KRR" + kingsRewardRetry;
-			setStorage(strKR, processedImg);
+			try{
+				setStorage(strKR, processedImg);
+			}
+			catch (e){
+				console.debug(e);
+			}
 			FinalizePuzzleImageAnswer(result);
 		}		
 	}		
@@ -710,7 +714,6 @@ function BurroughRift(minMist, maxMist)
 
 function LGGeneral(isAutoPour) {
     var loc = GetCurrentLocation();
-	DisarmLGSpecialCharm(loc);
 	switch (loc)
     {        
         case 'Living Garden':
@@ -726,8 +729,9 @@ function LGGeneral(isAutoPour) {
         case 'Sand Crypts':
             sandCrypts(); break;
         default:
-            break;
+            return;
     }
+	DisarmLGSpecialCharm(loc);
 }
 
 function SunkenCity(isAggro) {
