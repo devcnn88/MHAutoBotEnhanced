@@ -68,6 +68,9 @@ var krStartHourDelayMax = 30;
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
 var kingsRewardRetryMax = 3;
 
+// // State to indicate whether to save KR image into localStorage or not
+var saveKRImage = true;
+
 // // The script will pause if player at different location that hunt location set before. (true/false)
 // // Note: Make sure you set showTimerInPage to true in order to know what is happening.
 var pauseAtInvalidLocation = false;
@@ -280,19 +283,21 @@ function receiveMessage(event)
 	{
 		if (event.data.indexOf("~") > -1)
 		{						
-			var result = event.data.substring(0, event.data.indexOf("~"));			
-			var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);			
-			var now = new Date();
-			var strKR = "KR-" + now.toLocaleString();
-			strKR = strKR.replace(", ", "-");
-			strKR = strKR.replace(" ", "-");
-			strKR += "-" + result;
-			strKR += "-KRR" + kingsRewardRetry;
-			try{
-				setStorage(strKR, processedImg);
-			}
-			catch (e){
-				console.debug(e);
+			if (saveKRImage){
+				var result = event.data.substring(0, event.data.indexOf("~"));			
+				var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);			
+				var now = new Date();
+				var strKR = "KR-" + now.toLocaleString();
+				strKR = strKR.replace(", ", "-");
+				strKR = strKR.replace(" ", "-");
+				strKR += "-" + result;
+				strKR += "-RETRY" + kingsRewardRetry;
+				try{
+					setStorage(strKR, processedImg);
+				}
+				catch (e){
+					console.debug(e);
+				}
 			}
 			FinalizePuzzleImageAnswer(result);
 		}		
@@ -2328,6 +2333,25 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Save King Reward image into localStorage"><b>Save King Reward Image</b></a>';
+			preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			if (saveKRImage){
+				preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputTrue" name="SaveKRImageInput" value="true" checked="checked"/> True';
+                preferenceHTMLStr += '   ';
+                preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputFalse" name="SaveKRImageInput" value="false" /> False';
+			}
+			else{
+				preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputTrue" name="SaveKRImageInput" value="true"/> True';
+                preferenceHTMLStr += '   ';
+                preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputFalse" name="SaveKRImageInput" value="false" checked="checked"/> False';
+			}
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
             if (pauseAtInvalidLocation) {
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -2390,6 +2414,7 @@ function embedTimer(targetPage) {
 				if (document.getElementById(\'PlayKingRewardSoundInputTrue\').checked == true) { window.localStorage.setItem(\'PlayKingRewardSound\', \'true\'); } else { window.localStorage.setItem(\'PlayKingRewardSound\', \'false\'); }	\
 				if (document.getElementById(\'AutoSolveKRInputTrue\').checked == true) { window.localStorage.setItem(\'AutoSolveKR\', \'true\'); } else { window.localStorage.setItem(\'AutoSolveKR\', \'false\'); }	\
 				window.localStorage.setItem(\'AutoSolveKRDelayMin\', document.getElementById(\'AutoSolveKRDelayMinInput\').value); window.localStorage.setItem(\'AutoSolveKRDelayMax\', document.getElementById(\'AutoSolveKRDelayMaxInput\').value);	\
+				if (document.getElementById(\'SaveKRImageInputTrue\').checked == true) { window.localStorage.setItem(\'SaveKRImage\', \'true\'); } else { window.localStorage.setItem(\'SaveKRImage\', \'false\'); }	\
 				if (document.getElementById(\'PauseLocationInputTrue\').checked == true) { window.localStorage.setItem(\'PauseLocation\', \'true\'); } else { window.localStorage.setItem(\'PauseLocation\', \'false\'); }	\
 				';
             if (fbPlatform) {
@@ -2455,6 +2480,7 @@ function loadPreferenceSettingFromStorage() {
 	krDelayMax = getStorageToVariableInt("AutoSolveKRDelayMax", krDelayMax);	
 	kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);	
 	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
+	saveKRImage = getStorageToVariableBool("SaveKRImage", saveKRImage);
     discharge = getStorageToVariableBool("discharge", discharge);
 	//eventLocation = getStorageToVariableStr("eventLocation", "None");
 }
