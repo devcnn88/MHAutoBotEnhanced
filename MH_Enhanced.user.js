@@ -1164,16 +1164,19 @@ function checkCharge2016(stopDischargeAt){
 		eggstra["link"] = charmContainer.children[0].children[1];
 		eggstra["isArmed"] = (eggstra.link.getAttribute('class').indexOf('active') > 0);
 		eggstra["canArm"] = (eggstra.quantity > 0 && !eggstra.isArmed);
+		console.debug(eggstra);
 		var eggstraCharge = {};
 		eggstraCharge["quantity"] = parseInt(charmContainer.children[1].children[0].innerText);
 		eggstraCharge["link"] = charmContainer.children[1].children[1];
 		eggstraCharge["isArmed"] = (eggstraCharge.link.getAttribute('class').indexOf('active') > 0);
 		eggstraCharge["canArm"] = (eggstraCharge.quantity > 0 && !eggstraCharge.isArmed);
+		console.debug(eggstraCharge);
 		var eggscavator = {};
 		eggscavator["quantity"] = parseInt(charmContainer.children[2].children[0].innerText);
 		eggscavator["link"] = charmContainer.children[2].children[1];
 		eggscavator["isArmed"] = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
 		eggscavator["canArm"] = (eggscavator.quantity > 0 && !eggscavator.isArmed);
+		console.debug(eggscavator);
 		
         if (charge == 20) {
             setStorage("discharge", true.toString());
