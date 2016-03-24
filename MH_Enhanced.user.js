@@ -1158,7 +1158,7 @@ function checkCharge2016(stopDischargeAt){
 	try {
 		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
 		var isDischarge = (getStorage("discharge") == "true");
-		console.debug('Current Charge: ' + charge + "Discharging: " + isDischarge + "Stop Discharge At: " + stopDischargeAt);
+		console.debug('Current Charge: ' + charge + " Discharging: " + isDischarge + " Stop Discharge At: " + stopDischargeAt);
 		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
 		var eggstra = {};
 		eggstra["quantity"] = parseInt(charmContainer.children[0].children[0].innerText);
