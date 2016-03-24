@@ -625,7 +625,7 @@ function eventLocationCheck(caller) {
 		case 'Charge Egg 2016 Medium + High':
             checkCharge2016(12); break;
         case 'Charge Egg 2016 High':
-            checkCharge2016(17); break;
+            checkCharge2016(18); break;
 		case 'Burroughs Rift(Red)':
 			BurroughRift(19, 20); break;
 		case 'Burroughs Rift(Green)':
@@ -1157,7 +1157,8 @@ function checkMouse(mouseName) {
 function checkCharge2016(stopDischargeAt){
 	try {
 		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
-		console.debug('Current Charge: ' + charge);
+		var isDischarge = (getStorage("discharge") == "true");
+		console.debug('Current Charge: ' + charge + "Discharging: " + isDischarge + "Stop Discharge At: " + stopDischargeAt);
 		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
 		var eggstra = {};
 		eggstra["quantity"] = parseInt(charmContainer.children[0].children[0].innerText);
@@ -1179,15 +1180,15 @@ function checkCharge2016(stopDischargeAt){
 		console.debug(eggscavator);
 		
         if (charge == 20) {
-            setStorage("discharge", true.toString());
+            setStorage("discharge", "true");
 			if (eggstra.canArm) fireEvent(eggstra.link, 'click');
         }
         else if (charge < 20 && charge > stopDischargeAt) {
-            if (getStorage("discharge") == "true") {
+            if (isDischarge) {
 				if (eggstra.canArm) fireEvent(eggstra.link, 'click');
             }
             else {
-				if (charge >= 17) {
+				if (charge >= 18) {
 					if (eggstraCharge.canArm) fireEvent(eggstraCharge.link, 'click');
 					else if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
 				}
@@ -1197,14 +1198,14 @@ function checkCharge2016(stopDischargeAt){
             }
         }
 		else if (charge <= stopDischargeAt) {
-			if (charge >= 17) {
+			if (charge >= 18) {
 				if (eggstraCharge.canArm) fireEvent(eggstraCharge.link, 'click');
 				else if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
 			}
 			else {
 				if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
 			}
-			setStorage("discharge", false.toString());
+			setStorage("discharge", "false");
 		}
     }
     catch (e) {
@@ -2459,8 +2460,6 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
 			//preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
-            preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
-			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
             preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + getStorageToVariableStr("eventLocation", "None") + '"/>';
             preferenceHTMLStr += '</td>';
