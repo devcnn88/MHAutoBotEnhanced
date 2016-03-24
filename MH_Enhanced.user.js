@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.28
+// @version    	1.29.29
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -179,7 +179,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.28 Enhanced Edition";
+var scriptVersion = "1.29.29 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -622,6 +622,10 @@ function eventLocationCheck(caller) {
             checkCharge(12); break;
         case 'Charge Egg 2015(17)':
             checkCharge(17); break;
+		case 'Charge Egg 2016 Medium + High':
+            checkCharge2016(12); break;
+        case 'Charge Egg 2016 High':
+            checkCharge2016(17); break;
 		case 'Burroughs Rift(Red)':
 			BurroughRift(19, 20); break;
 		case 'Burroughs Rift(Green)':
@@ -1150,6 +1154,60 @@ function checkMouse(mouseName) {
     }
 }
 
+function checkCharge2016(stopDischargeAt){
+	try {
+		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
+		console.debug('Current Charge: ' + charge);
+		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
+		var eggstra = {};
+		eggstra["quantity"] = parseInt(charmContainer.children[0].children[0].innerText);
+		eggstra["link"] = charmContainer.children[0].children[1];
+		eggstra["isArmed"] = (eggstra.link.getAttribute('class').indexOf('active') > 0);
+		eggstra["canArm"] = (eggstra.quantity > 0 && !eggstra.isArmed);
+		var eggstraCharge = {};
+		eggstraCharge["quantity"] = parseInt(charmContainer.children[1].children[0].innerText);
+		eggstraCharge["link"] = charmContainer.children[1].children[1];
+		eggstraCharge["isArmed"] = (eggstraCharge.link.getAttribute('class').indexOf('active') > 0);
+		eggstraCharge["canArm"] = (eggstraCharge.quantity > 0 && !eggstraCharge.isArmed);
+		var eggscavator = {};
+		eggscavator["quantity"] = parseInt(charmContainer.children[2].children[0].innerText);
+		eggscavator["link"] = charmContainer.children[2].children[1];
+		eggscavator["isArmed"] = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
+		eggscavator["canArm"] = (eggscavator.quantity > 0 && !eggscavator.isArmed);
+		
+        if (charge == 20) {
+            setStorage("discharge", true.toString());
+			if (eggstra.canArm) fireEvent(eggstra.link, 'click');
+        }
+        else if (charge < 20 && charge > stopDischargeAt) {
+            if (getStorage("discharge") == "true") {
+				if (eggstra.canArm) fireEvent(eggstra.link, 'click');
+            }
+            else {
+				if (charge >= 17) {
+					if (eggstraCharge.canArm) fireEvent(eggstraCharge.link, 'click');
+					else if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
+				else {
+					if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
+            }
+        }
+		else if (charge <= stopDischargeAt) {
+			if (charge >= 17) {
+				if (eggstraCharge.canArm) fireEvent(eggstraCharge.link, 'click');
+				else if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+			}
+			else {
+				if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+			}
+			setStorage("discharge", false.toString());
+		}
+    }
+    catch (e) {
+        return console.debug(e.message);
+    }
+}
 function checkCharge(stopDischargeAt) {
     try {
         var charge = parseInt(document.getElementsByClassName("chargeQuantity")[0].innerText);
@@ -2387,11 +2445,13 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select name="algo" onChange="window.localStorage.setItem(\'eventLocation\', value); document.getElementById(\'event\').value=window.localStorage.getItem(\'eventLocation\');">';
             preferenceHTMLStr += '<option value="None" selected>None</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2015">Charge Egg 2015</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>';
+			preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
+			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2016 Medium + High">Charge Egg 2016 Medium + High</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
