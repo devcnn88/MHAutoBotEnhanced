@@ -128,20 +128,7 @@
 				<tr id="scCustom" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="scCustomNo" onchange="loadSCCustomAlgo();">
-							<option value="1">1</option>
-							<option value="2">2</option>
-							<option value="3">3</option>
-							<option value="4">4</option>
-							<option value="5">5</option>
-							<option value="6">6</option>
-							<option value="7">7</option>
-							<option value="8">8</option>
-							<option value="9">9</option>
-							<option value="10">10</option>
-						</select>
-						<select id="scHuntZone" onchange="saveSCCustomAlgo();">
-							<option value="None">None</option>
+						<select id="scHuntZone" onchange="loadSCCustomAlgo();">
 							<option value="ZONE_DEFAULT">Default</option>
 							<option value="ZONE_CORAL">Coral</option>
 							<option value="ZONE_SCALE">Scale</option>
@@ -152,7 +139,11 @@
 							<option value="ZONE_OXYGEN">Oxygen</option>
 							<option value="ZONE_BONUS">Bonus</option>
 						</select>
-						<select id="scHuntBait" onchange="saveSCCustomAlgo();" multiple>
+						<select id="scHuntZoneEnable" onchange="saveSCCustomAlgo();">
+							<option value="true">Hunt</option>
+							<option value="false">Jet Through</option>
+						</select>
+						<select id="scHuntBait" onchange="saveSCCustomAlgo();">
 							<option value="Brie">Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SUPER|brie+</option>
@@ -216,19 +207,19 @@
 <script type="text/javascript">
 	function loadSCCustomAlgo()
 	{
-		var selectedValue = document.getElementById('scCustomNo').selectedIndex + 1;
-		var storageValue = window.localStorage.getItem('SCCustomNo' + selectedValue);
-		var scHuntZoneEle = document.getElementById('scHuntZone');
+		var selectedZone = document.getElementById('scHuntZone').value;
+		var storageValue = window.localStorage.getItem('SCCustom_' + selectedZone);
+		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
 		var scHuntBaitEle = document.getElementById('scHuntBait');
 		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
 		if (storageValue == null){
-			scHuntZoneEle.selectedIndex = 0;
+			scHuntZoneEnableEle.selectedIndex = 0;
 			scHuntBait.selectedIndex = 0;
 			scHuntTrinketEle.selectedIndex = 0;
 		}
 		else{
 			storageValue = storageValue.split(',');
-			scHuntZoneEle.value = storageValue[0];
+			scHuntZoneEnableEle.value = storageValue[0];
 			scHuntBaitEle.value = storageValue[1];
 			scHuntTrinketEle.value = storageValue[2];
 		}
@@ -236,12 +227,12 @@
 	
 	function saveSCCustomAlgo()
 	{	
-		var scCustomNoEle = document.getElementById('scCustomNo');
 		var scHuntZoneEle = document.getElementById('scHuntZone');
+		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
 		var scHuntBaitEle = document.getElementById('scHuntBait');
 		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
-		var key = 'SCCustomNo' + scCustomNoEle.value;
-		var value = scHuntZoneEle.value + ',' + scHuntBaitEle.value + ',' + scHuntTrinketEle.value;
+		var key = 'SCCustom_' + scHuntZoneEle.value;
+		var value = scHuntZoneEnableEle.value + ',' + scHuntBaitEle.value + ',' + scHuntTrinketEle.value;
 		window.localStorage.setItem(key, value);
 	}
 	

@@ -920,6 +920,7 @@ function GetSCCustomConfig()
 	var storage = window.localStorage;
 	var keyName = "";
 	var value = "";
+	var zoneName = "";
 	for (var i = 0; i < storage.length; i++)
 	{
 		keyName = storage.key(i);
@@ -927,9 +928,10 @@ function GetSCCustomConfig()
 		{
 			value = getStorage(keyName);
 			value = value.split(',');
-			if (value[0] != "None")
+			if (value[0] == "true")
 			{
-				objSCCustom["zone"].push(objSCZone[value[0]]);
+				zoneName = keyName.replace("SCCustom_", "");
+				objSCCustom["zone"].push(objSCZone[zoneName]);
 				objSCCustom["bait"].push(value[1]);
 				objSCCustom["trinket"].push(objSCTrap[value[2]]);
 			}
@@ -2506,20 +2508,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
-            preferenceHTMLStr += '<select id="scCustomNo" onChange="loadSCCustomAlgo();">';
-            preferenceHTMLStr += '<option value="1">1</option>';
-			preferenceHTMLStr += '<option value="2">2</option>';
-			preferenceHTMLStr += '<option value="3">3</option>';
-			preferenceHTMLStr += '<option value="4">4</option>';
-			preferenceHTMLStr += '<option value="5">5</option>';
-			preferenceHTMLStr += '<option value="6">6</option>';
-			preferenceHTMLStr += '<option value="7">7</option>';
-			preferenceHTMLStr += '<option value="8">8</option>';
-			preferenceHTMLStr += '<option value="9">9</option>';
-			preferenceHTMLStr += '<option value="10">10</option>';
-			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="scHuntZone" onChange="saveSCCustomAlgo();">';
-			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<select id="scHuntZone" onChange="loadSCCustomAlgo();">';
 			preferenceHTMLStr += '<option value="ZONE_DEFAULT">Default</option>';
 			preferenceHTMLStr += '<option value="ZONE_CORAL">Coral</option>';
 			preferenceHTMLStr += '<option value="ZONE_SCALE">Scale</option>';
@@ -2530,8 +2519,11 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="ZONE_OXYGEN">Oxygen</option>';
 			preferenceHTMLStr += '<option value="ZONE_BONUS">Bonus</option>';
             preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="scHuntZoneEnable" onChange="saveSCCustomAlgo();">';
+			preferenceHTMLStr += '<option value="true">Hunt</option>';
+			preferenceHTMLStr += '<option value="false">Jet Through</option>';
+            preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="scHuntBait" onChange="saveSCCustomAlgo();">';
-			preferenceHTMLStr += '<option value="Brie">Brie</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="SUPER">SUPER|brie+</option>';
             preferenceHTMLStr += '</select>';
@@ -2605,7 +2597,7 @@ function embedTimer(targetPage) {
 			
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('type', "text/javascript");
-			scriptElement.innerHTML = "function loadSCCustomAlgo(){var selectedValue = document.getElementById(\'scCustomNo\').selectedIndex + 1;var storageValue = window.localStorage.getItem(\'SCCustomNo\' + selectedValue);var scHuntZoneEle = document.getElementById(\'scHuntZone\');var scHuntBaitEle = document.getElementById(\'scHuntBait\');var scHuntTrinketEle = document.getElementById(\'scHuntTrinket\');if (storageValue == null){scHuntZoneEle.selectedIndex = 0;scHuntBait.selectedIndex = 0;scHuntTrinketEle.selectedIndex = 0;}else{storageValue = storageValue.split(\',\');scHuntZoneEle.value = storageValue[0];scHuntBaitEle.value = storageValue[1];scHuntTrinketEle.value = storageValue[2];}}function saveSCCustomAlgo(){var scCustomNoEle = document.getElementById(\'scCustomNo\');var scHuntZoneEle = document.getElementById(\'scHuntZone\');var scHuntBaitEle = document.getElementById(\'scHuntBait\');var scHuntTrinketEle = document.getElementById(\'scHuntTrinket\');var key = \'SCCustomNo\' + scCustomNoEle.value;var value = scHuntZoneEle.value + \',\' + scHuntBaitEle.value + \',\' + scHuntTrinketEle.value;window.localStorage.setItem(key, value);}function showOrHideTr(algo){document.getElementById(\'scCustom\').style.display = (algo == \'Sunken City Custom\') ? \'table-row\' : \'none\';}";
+			scriptElement.innerHTML = "function loadSCCustomAlgo(){var selectedZone = document.getElementById(\'scHuntZone\').value;var storageValue = window.localStorage.getItem(\'SCCustom_\' + selectedZone);var scHuntZoneEnableEle = document.getElementById(\'scHuntZoneEnable\');var scHuntBaitEle = document.getElementById(\'scHuntBait\');var scHuntTrinketEle = document.getElementById(\'scHuntTrinket\');if (storageValue == null){scHuntZoneEnableEle.selectedIndex = 0;scHuntBait.selectedIndex = 0;scHuntTrinketEle.selectedIndex = 0;}else{storageValue = storageValue.split(\',\');scHuntZoneEnableEle.value = storageValue[0];scHuntBaitEle.value = storageValue[1];scHuntTrinketEle.value = storageValue[2];}}function saveSCCustomAlgo(){	var scHuntZoneEle = document.getElementById(\'scHuntZone\');var scHuntZoneEnableEle = document.getElementById(\'scHuntZoneEnable\');var scHuntBaitEle = document.getElementById(\'scHuntBait\');var scHuntTrinketEle = document.getElementById(\'scHuntTrinket\');var key = \'SCCustom_\' + scHuntZoneEle.value;var value = scHuntZoneEnableEle.value + \',\' + scHuntBaitEle.value + \',\' + scHuntTrinketEle.value;window.localStorage.setItem(key, value);}function showOrHideTr(algo){document.getElementById(\'scCustom\').style.display = (algo == \'Sunken City Custom\') ? \'table-row\' : \'none\';}";
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);
 			scriptElement = null;
         }
