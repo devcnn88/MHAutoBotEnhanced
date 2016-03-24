@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.28
+// @version    	1.29.29
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -143,18 +143,13 @@ var maxSaltCharged = 25;	// Sand Crypts maximum salt for King Grub
 
 // // Sunken City Preference
 // // DON'T edit this variable if you don't know what are you editing
-var objSCZone = {
-	ZONE_NOT_DIVE : 0,
-	ZONE_DEFAULT : 1,
-	ZONE_CORAL : 2,
-	ZONE_SCALE : 4,
-	ZONE_BARNACLE : 8,
-	ZONE_TREASURE : 16,
-	ZONE_DANGER : 32,
-	ZONE_DANGER_PP : 64,
-	ZONE_OXYGEN : 128,
-	ZONE_BONUS : 256
-};
+var ZONE_NOT_DIVE = 0;
+var ZONE_DEFAULT = 1;
+var ZONE_LOOT = 2;
+var ZONE_TREASURE = 4;
+var ZONE_DANGER = 8;
+var ZONE_OXYGEN = 16;
+var ZONE_BONUS = 32;
 
 var bestSCBase = bestLuckBase.slice();
 var indexDC = bestSCBase.indexOf('Depth Charge Base');
@@ -170,17 +165,9 @@ else
 	bestSCBase = bestSCBase.concat(bestLuckBase);
 }
 
-var objSCTrap = {
-	scOxyBait : ['Fishy Fromage', 'Gouda'],
-	EAC : ['Empowered Anchor'],
-	scAnchorTreasure : ['Golden Anchor', 'Empowered Anchor'],
-	scAnchorDanger : ['Spiked Anchor', 'Empowered Anchor'],
-	scAnchorUlti : ['Ultimate Anchor', 'Empowered Anchor']
-};
-
-// var scHuntZone = [objSCZone.ZONE_TREASURE, objSCZone.ZONE_DANGER_PP, objSCZone.ZONE_BONUS, objSCZone.ZONE_OXYGEN, objSCZone.ZONE_SCALE];
-// var scHuntBait = ['SUPER', 'Gouda', 'SUPER', 'SUPER', 'Gouda'];
-// var scHuntTrinket = [objSCTrap.scAnchorTreasure, objSCTrap.scAnchorDanger, 'Empowered Anchor', 'Empowered Anchor', 'Wealth'];
+var scOxyBait = ['Fishy Fromage', 'Gouda'];
+var scAnchorTreasure = ['Golden Anchor', 'Empowered Anchor'];
+var scAnchorDanger = ['Spiked Anchor', 'Empowered Anchor'];
 
 // // Spring Egg Hunt 
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
@@ -192,7 +179,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.28 Enhanced Edition";
+var scriptVersion = "1.29.29 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -220,7 +207,6 @@ var discharge = false;
 var arming = false;
 var best = 0;
 var kingsRewardRetry = 0;
-var objSCCustom = {};
 
 // element in page
 var titleElement;
@@ -636,6 +622,10 @@ function eventLocationCheck(caller) {
             checkCharge(12); break;
         case 'Charge Egg 2015(17)':
             checkCharge(17); break;
+		case 'Charge Egg 2016 Medium + High':
+            checkCharge2016(12); break;
+        case 'Charge Egg 2016 High':
+            checkCharge2016(17); break;
 		case 'Burroughs Rift(Red)':
 			BurroughRift(19, 20); break;
 		case 'Burroughs Rift(Green)':
@@ -764,7 +754,7 @@ function SunkenCity(isAggro) {
 	if (currentZone == 0)
 	{
 		checkThenArm('best', 'base', bestLuckBase);
-		checkThenArm('best', 'bait', objSCTrap.scOxyBait);
+		checkThenArm('best', 'bait', scOxyBait);
 		return;
 	}
 	
@@ -772,13 +762,13 @@ function SunkenCity(isAggro) {
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.debug('Dive Distance(m): ' + distance);
 	var charmArmed = getPageVariable("user.trinket_name");
-	var charmElement = document.getElementsByClassName('charm');
+	var charmElement = document.getElementsByClassName('charm');	
 	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);	
-	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
-	if (currentZone == objSCZone.ZONE_OXYGEN || currentZone == objSCZone.ZONE_TREASURE || currentZone == objSCZone.ZONE_BONUS)
+	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);	
+	if (currentZone == ZONE_OXYGEN || currentZone == ZONE_TREASURE || currentZone == ZONE_BONUS)
 	{
-		if (isAggro && (currentZone == objSCZone.ZONE_TREASURE))
-			checkThenArm('best', 'trinket', objSCTrap.scAnchorTreasure);
+		if (isAggro && (currentZone == ZONE_TREASURE))
+			checkThenArm('best', 'trinket', scAnchorTreasure);
 		else
 		{
 			// arm Empowered Anchor Charm
@@ -791,22 +781,29 @@ function SunkenCity(isAggro) {
 		
 		checkThenArm(null, 'bait', 'SUPER');	
 	}
-	else if (currentZone == objSCZone.ZONE_DANGER_PP)
-	{
-		if (!isAggro)
+	else if (currentZone == ZONE_DANGER)
+	{		
+		if (distance >= 10000)
 		{
-			// arm Empowered Anchor Charm
-			if (!isEACArmed && !isAggro)
+			if (!isAggro)
 			{
-				if (parseInt(charmElement[0].innerText) > 0)
-					fireEvent(charmElement[0], 'click');
-			}
+				// arm Empowered Anchor Charm
+				if (!isEACArmed && !isAggro)
+				{
+					if (parseInt(charmElement[0].innerText) > 0)
+						fireEvent(charmElement[0], 'click');
+				}
+			}			
+			else
+				checkThenArm('best', 'trinket', scAnchorDanger);
 		}
 		else
-			checkThenArm('best', 'trinket', objSCTrap.scAnchorDanger);
+		{
+			DisarmSCSpecialCharm(charmArmed);
+		}
 		checkThenArm(null, 'bait', 'Gouda');
 	}
-	else if ((currentZone == objSCZone.ZONE_DEFAULT) && isAggro)
+	else if ((currentZone == ZONE_DEFAULT) && isAggro)
 	{
 		var depth = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[1].length'));
 		if (depth >= 500)
@@ -816,7 +813,7 @@ function SunkenCity(isAggro) {
 			var nextZone = GetSunkenCityZone(nextZoneName);
 			var distanceToNextZone = parseInt((nextZoneLeft - 80) / 0.6);
 			console.debug('Distance to next zone(m): ' + distanceToNextZone);
-			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == objSCZone.ZONE_DEFAULT))
+			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == ZONE_DEFAULT))
 			{
 				// arm Water Jet Charm
 				if (!isWJCArmed)
@@ -835,7 +832,7 @@ function SunkenCity(isAggro) {
 		
 		checkThenArm(null, 'bait', 'Gouda');
 	}
-	else if (currentZone == objSCZone.ZONE_NOT_DIVE)
+	else if (currentZone == ZONE_NOT_DIVE)
 	{
 		checkThenArm(null, 'trinket', 'Oxygen Burst');
 		checkThenArm(null, 'bait', 'Gouda');
@@ -850,91 +847,6 @@ function SunkenCity(isAggro) {
 function SCCustom() {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
-	
-	GetSCCustomConfig();
-	var zone = document.getElementsByClassName('zoneName')[0].innerText;
-	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
-	console.log('Current Zone: ' + zone + ' at ' + distance + 'm');
-	var currentZone = GetSunkenCityZone(zone);
-	checkThenArm('best', 'weapon', bestHydro);
-	checkThenArm('best', 'base', bestSCBase);
-	var indexZone = objSCCustom.zone.indexOf(currentZone);
-	if (indexZone > -1)
-	{
-		// hunt here
-		var bestOrNull = Array.isArray(objSCCustom.bait[indexZone]) ? 'best' : null;
-		checkThenArm(bestOrNull, 'bait', objSCCustom.bait[indexZone]);
-		if (objSCCustom.trinket[indexZone] == "NoSC")
-			DisarmSCSpecialCharm();
-		else if (objSCCustom.trinket[indexZone] == "None")
-			disarmTrap('trinket');
-		else {
-			bestOrNull = Array.isArray(objSCCustom.trinket[indexZone]) ? 'best' : null;
-			checkThenArm(bestOrNull, 'trinket', objSCCustom.trinket[indexZone]);
-		}
-	}
-	else
-	{
-		var nextZoneName = [];
-		var nextZoneLeft = [];
-		var nextZone = [];
-		var distanceToNextZone = [];
-		var isNextZoneInHuntZone = [];
-		for (var i = 0; i < 2; i++)
-		{
-			nextZoneName[i] = getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].name');
-			nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].left'));
-			nextZone[i] = GetSunkenCityZone(nextZoneName[i]);
-			distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
-			isNextZoneInHuntZone[i] = (objSCCustom.zone.indexOf(nextZone[i]) > -1);
-			console.log('Next Zone: ' + nextZoneName[i] + ' in ' + distanceToNextZone[i] + 'm Is In Hunt Zone: ' + isNextZoneInHuntZone[i]);
-		}
-		
-		// jet through
-		var charmElement = document.getElementsByClassName('charm');
-		var charmArmed = getPageVariable("user.trinket_name");
-		var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
-		if (distanceToNextZone[0] >= 480 || !(isNextZoneInHuntZone[0] || isNextZoneInHuntZone[1]))
-		{
-			// arm Water Jet Charm
-			if (!isWJCArmed)
-			{
-				if (parseInt(charmElement[1].innerText) > 0)
-					fireEvent(charmElement[1], 'click');
-			}
-		}
-		else
-		{
-			DisarmSCSpecialCharm(charmArmed);
-		}
-		checkThenArm(null, 'bait', 'Gouda');
-	}
-}
-
-function GetSCCustomConfig()
-{
-	objSCCustom = {};
-	objSCCustom["zone"] = [];
-	objSCCustom["bait"] = [];
-	objSCCustom["trinket"] = [];
-	var storage = window.localStorage;
-	var keyName = "";
-	var value = "";
-	for (var i = 0; i < storage.length; i++)
-	{
-		keyName = storage.key(i);
-		if (keyName.indexOf("SCCustom") > -1)
-		{
-			value = getStorage(keyName);
-			value = value.split(',');
-			if (value[0] != "None")
-			{
-				objSCCustom["zone"].push(objSCZone[value[0]]);
-				objSCCustom["bait"].push(value[1]);
-				objSCCustom["trinket"].push(objSCTrap[value[2]]);
-			}
-		}
-	}
 }
 
 function DisarmSCSpecialCharm(charmArmedName)
@@ -958,45 +870,39 @@ function GetSunkenCityZone(zoneName)
 		case 'Sand Dollar Sea Bar':
 		case 'Pearl Patch':
 		case 'Sunken Treasure':
-			returnZone = objSCZone.ZONE_TREASURE;
+			returnZone = ZONE_TREASURE;
 			break;
 		case 'Feeding Grounds':
 		case 'Carnivore Cove':
-			returnZone = objSCZone.ZONE_DANGER;
-			break;
 		case 'Monster Trench':
 		case 'Lair of the Ancients':
-			returnZone = objSCZone.ZONE_DANGER_PP;
+			returnZone = ZONE_DANGER;
 			break;
 		case 'Deep Oxygen Stream':
-		case 'Oxygen Stream':
-			returnZone = objSCZone.ZONE_OXYGEN;
+		case 'Oxygen Stream':		
+			returnZone = ZONE_OXYGEN;
 			break;
 		case 'Magma Flow':
-			returnZone = objSCZone.ZONE_BONUS;
+			returnZone = ZONE_BONUS;
 			break;			
 		case 'Coral Reef':
 		case 'Coral Garden':
 		case 'Coral Castle':
-			returnZone = objSCZone.ZONE_CORAL;
-			break;
 		case 'School of Mice':
 		case 'Mermouse Den':
 		case 'Lost Ruins':
-			returnZone = objSCZone.ZONE_SCALE;
-			break;
 		case 'Rocky Outcrop':
 		case 'Shipwreck':
 		case 'Haunted Shipwreck':
-			returnZone = objSCZone.ZONE_BARNACLE;
+			returnZone = ZONE_LOOT;
 			break;
 		case 'Shallow Shoals':
 		case 'Sea Floor':
 		case 'Murky Depths':
-			returnZone = objSCZone.ZONE_DEFAULT;
+			returnZone = ZONE_DEFAULT;
 			break;
 		default:
-			returnZone = objSCZone.ZONE_NOT_DIVE;			
+			returnZone = ZONE_NOT_DIVE;			
 			break;
 	}
 	return returnZone;
@@ -1248,6 +1154,60 @@ function checkMouse(mouseName) {
     }
 }
 
+function checkCharge2016(stopDischargeAt){
+	try {
+		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
+		console.debug('Current Charge: ' + charge);
+		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
+		var eggstra = {};
+		eggstra["quantity"] = parseInt(charmContainer.children[0].children[0].innerText);
+		eggstra["link"] = charmContainer.children[0].children[1];
+		eggstra["isArmed"] = (eggstra.link.getAttribute('class').indexOf('active') > 0);
+		eggstra["canArm"] = (eggstra.quantity > 0 && !eggstra.isArmed);
+		var eggstraCharge = {};
+		eggstraCharge["quantity"] = parseInt(charmContainer.children[1].children[0].innerText);
+		eggstraCharge["link"] = charmContainer.children[1].children[1];
+		eggstraCharge["isArmed"] = (eggstraCharge.link.getAttribute('class').indexOf('active') > 0);
+		eggstraCharge["canArm"] = (eggstraCharge.quantity > 0 && !eggstraCharge.isArmed);
+		var eggscavator = {};
+		eggscavator["quantity"] = parseInt(charmContainer.children[2].children[0].innerText);
+		eggscavator["link"] = charmContainer.children[2].children[1];
+		eggscavator["isArmed"] = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
+		eggscavator["canArm"] = (eggscavator.quantity > 0 && !eggscavator.isArmed);
+		
+        if (charge == 20) {
+            setStorage("discharge", true.toString());
+			if (eggstra.canArm) fireEvent(eggstra.link, 'click');
+        }
+        else if (charge < 20 && charge > stopDischargeAt) {
+            if (getStorage("discharge") == "true") {
+				if (eggstra.canArm) fireEvent(eggstra.link, 'click');
+            }
+            else {
+				if (charge >= 17) {
+					if (eggstraCharge.canArm) fireEvent(eggstraCharge.link, 'click');
+					else if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
+				else {
+					if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
+            }
+        }
+		else if (charge <= stopDischargeAt) {
+			if (charge >= 17) {
+				if (eggstraCharge.canArm) fireEvent(eggstraCharge.link, 'click');
+				else if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+			}
+			else {
+				if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+			}
+			setStorage("discharge", false.toString());
+		}
+    }
+    catch (e) {
+        return console.debug(e.message);
+    }
+}
 function checkCharge(stopDischargeAt) {
     try {
         var charge = parseInt(document.getElementsByClassName("chargeQuantity")[0].innerText);
@@ -2245,7 +2205,7 @@ function embedTimer(targetPage) {
             timerDivElement.appendChild(showPreferenceLinkDiv);
 
             var showPreferenceSpan = document.createElement('span');
-			var showPreferenceLinkStr = '<a id="showPreferenceLink" name="showPreferenceLink" onclick="var selectedAlgo = window.localStorage.getItem(\'eventLocation\'); showOrHideTr(selectedAlgo); if (document.getElementById(\'showPreferenceLink\').innerHTML == \'<b>[Hide Preference]</b>\') { document.getElementById(\'preferenceDiv\').style.display=\'none\'; document.getElementById(\'showPreferenceLink\').innerHTML=\'<b>[Show Preference]</b>\'; } else { document.getElementById(\'preferenceDiv\').style.display=\'block\'; document.getElementById(\'showPreferenceLink\').innerHTML=\'<b>[Hide Preference]</b>\'; loadSCCustomAlgo(); document.getElementById(\'eventAlgo\').value = selectedAlgo;}">';
+            var showPreferenceLinkStr = '<a id="showPreferenceLink" name="showPreferenceLink" onclick="if (document.getElementById(\'showPreferenceLink\').innerHTML == \'<b>[Hide Preference]</b>\') { document.getElementById(\'preferenceDiv\').style.display=\'none\';  document.getElementById(\'showPreferenceLink\').innerHTML=\'<b>[Show Preference]</b>\'; } else { document.getElementById(\'preferenceDiv\').style.display=\'block\'; document.getElementById(\'showPreferenceLink\').innerHTML=\'<b>[Hide Preference]</b>\'; }">';
             if (showPreference == true)
                 showPreferenceLinkStr += '<b>[Hide Preference]</b>';
             else
@@ -2483,66 +2443,23 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
-            preferenceHTMLStr += '<select id="eventAlgo" onChange="window.localStorage.setItem(\'eventLocation\', value); showOrHideTr(value);">';
+            preferenceHTMLStr += '<select name="algo" onChange="window.localStorage.setItem(\'eventLocation\', value); document.getElementById(\'event\').value=window.localStorage.getItem(\'eventLocation\');">';
             preferenceHTMLStr += '<option value="None" selected>None</option>';
 			preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
 			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2015">Charge Egg 2015</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2016 Medium + High">Charge Egg 2016 Medium + High</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
 			//preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
-            preferenceHTMLStr += '</select>';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '</tr>';
-			
-			preferenceHTMLStr += '<tr id="scCustom" style="display:none;">';
-            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>';
-            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '<td style="height:24px">';
-            preferenceHTMLStr += '<select id="scCustomNo" onChange="loadSCCustomAlgo();">';
-            preferenceHTMLStr += '<option value="1">1</option>';
-			preferenceHTMLStr += '<option value="2">2</option>';
-			preferenceHTMLStr += '<option value="3">3</option>';
-			preferenceHTMLStr += '<option value="4">4</option>';
-			preferenceHTMLStr += '<option value="5">5</option>';
-			preferenceHTMLStr += '<option value="6">6</option>';
-			preferenceHTMLStr += '<option value="7">7</option>';
-			preferenceHTMLStr += '<option value="8">8</option>';
-			preferenceHTMLStr += '<option value="9">9</option>';
-			preferenceHTMLStr += '<option value="10">10</option>';
-			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="scHuntZone" onChange="saveSCCustomAlgo();">';
-			preferenceHTMLStr += '<option value="None">None</option>';
-			preferenceHTMLStr += '<option value="ZONE_DEFAULT">Default</option>';
-			preferenceHTMLStr += '<option value="ZONE_CORAL">Coral</option>';
-			preferenceHTMLStr += '<option value="ZONE_SCALE">Scale</option>';
-			preferenceHTMLStr += '<option value="ZONE_BARNACLE">Barnacle</option>';
-			preferenceHTMLStr += '<option value="ZONE_TREASURE">Treasure</option>';
-			preferenceHTMLStr += '<option value="ZONE_DANGER">Danger</option>';
-			preferenceHTMLStr += '<option value="ZONE_DANGER_PP">Danger PP</option>';
-			preferenceHTMLStr += '<option value="ZONE_OXYGEN">Oxygen</option>';
-			preferenceHTMLStr += '<option value="ZONE_BONUS">Bonus</option>';
-            preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="scHuntBait" onChange="saveSCCustomAlgo();">';
-			preferenceHTMLStr += '<option value="Brie">Brie</option>';
-			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
-			preferenceHTMLStr += '<option value="SUPER">SUPER|brie+</option>';
-            preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="scHuntTrinket" onChange="saveSCCustomAlgo();">';
-			preferenceHTMLStr += '<option value="None">No Charm</option>';
-			preferenceHTMLStr += '<option value="NoSC">No SC Charm</option>';
-			preferenceHTMLStr += '<option value="EAC">EAC</option>';
-			preferenceHTMLStr += '<option value="scAnchorTreasure">GAC, EAC</option>';
-			preferenceHTMLStr += '<option value="scAnchorDanger">SAC, EAC</option>';
-			preferenceHTMLStr += '<option value="scAnchorUlti">UAC, EAC</option>';
-            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
+			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
+            preferenceHTMLStr += '</select> Current Selection : ';
+            preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + getStorageToVariableStr("eventLocation", "None") + '"/>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 
@@ -2602,12 +2519,6 @@ function embedTimer(targetPage) {
             headerElement.parentNode.insertBefore(timerDivElement, headerElement);
 
             timerDivElement = null;
-			
-			var scriptElement = document.createElement("script");
-			scriptElement.setAttribute('type', "text/javascript");
-			scriptElement.innerHTML = "function loadSCCustomAlgo(){var selectedValue = document.getElementById(\'scCustomNo\').selectedIndex + 1;var storageValue = window.localStorage.getItem(\'SCCustomNo\' + selectedValue);var scHuntZoneEle = document.getElementById(\'scHuntZone\');var scHuntBaitEle = document.getElementById(\'scHuntBait\');var scHuntTrinketEle = document.getElementById(\'scHuntTrinket\');if (storageValue == null){scHuntZoneEle.selectedIndex = 0;scHuntBait.selectedIndex = 0;scHuntTrinketEle.selectedIndex = 0;}else{storageValue = storageValue.split(\',\');scHuntZoneEle.value = storageValue[0];scHuntBaitEle.value = storageValue[1];scHuntTrinketEle.value = storageValue[2];}}function saveSCCustomAlgo(){var scCustomNoEle = document.getElementById(\'scCustomNo\');var scHuntZoneEle = document.getElementById(\'scHuntZone\');var scHuntBaitEle = document.getElementById(\'scHuntBait\');var scHuntTrinketEle = document.getElementById(\'scHuntTrinket\');var key = \'SCCustomNo\' + scCustomNoEle.value;var value = scHuntZoneEle.value + \',\' + scHuntBaitEle.value + \',\' + scHuntTrinketEle.value;window.localStorage.setItem(key, value);}function showOrHideTr(algo){document.getElementById(\'scCustom\').style.display = (algo == \'Sunken City Custom\') ? \'table-row\' : \'none\';}";
-			headerElement.parentNode.insertBefore(scriptElement, headerElement);
-			scriptElement = null;
         }
         headerElement = null;
     }
