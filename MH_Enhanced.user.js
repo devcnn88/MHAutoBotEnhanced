@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.29
+// @version    	1.29.30
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -171,6 +171,8 @@ var scAnchorDanger = ['Spiked Anchor', 'Empowered Anchor'];
 
 // // Spring Egg Hunt 
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
+var chargeHigh = 17;
+var chargeMedium = 12;
 
 // == Advance User Preference Setting (End) ==
 
@@ -179,7 +181,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.29 Enhanced Edition";
+var scriptVersion = "1.29.30 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -623,9 +625,9 @@ function eventLocationCheck(caller) {
         case 'Charge Egg 2015(17)':
             checkCharge(17); break;
 		case 'Charge Egg 2016 Medium + High':
-            checkCharge2016(12); break;
+            checkCharge2016(chargeMedium); break;
         case 'Charge Egg 2016 High':
-            checkCharge2016(18); break;
+            checkCharge2016(chargeHigh); break;
 		case 'Burroughs Rift(Red)':
 			BurroughRift(19, 20); break;
 		case 'Burroughs Rift(Green)':
@@ -1178,7 +1180,7 @@ function checkCharge2016(stopDischargeAt){
 		eggscavator["isArmed"] = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
 		eggscavator["canArm"] = (eggscavator.quantity > 0 && !eggscavator.isArmed);
 		console.debug(eggscavator);
-		
+
         if (charge == 20) {
             setStorage("discharge", "true");
 			if (eggstra.canArm) fireEvent(eggstra.link, 'click');
@@ -1188,9 +1190,13 @@ function checkCharge2016(stopDischargeAt){
 				if (eggstra.canArm) fireEvent(eggstra.link, 'click');
             }
             else {
-				if (charge >= 18) {
-					if (eggstraCharge.canArm) fireEvent(eggstraCharge.link, 'click');
-					else if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				if (charge >= chargeHigh) {
+					if (eggstraCharge.quantity > 0){
+						if (!eggstraCharge.isArmed) fireEvent(eggstraCharge.link, 'click');
+					}
+					else{
+						if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+					}
 				}
 				else {
 					if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
@@ -1198,9 +1204,13 @@ function checkCharge2016(stopDischargeAt){
             }
         }
 		else if (charge <= stopDischargeAt) {
-			if (charge >= 18) {
-				if (eggstraCharge.canArm) fireEvent(eggstraCharge.link, 'click');
-				else if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+			if (charge >= chargeHigh) {
+				if (eggstraCharge.quantity > 0){
+					if (!eggstraCharge.isArmed) fireEvent(eggstraCharge.link, 'click');
+				}
+				else{
+					if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
 			}
 			else {
 				if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
