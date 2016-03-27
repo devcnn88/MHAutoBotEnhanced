@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.28
+// @version    	1.29.30
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -184,6 +184,8 @@ var objSCTrap = {
 
 // // Spring Egg Hunt 
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
+var chargeHigh = 17;
+var chargeMedium = 12;
 
 // == Advance User Preference Setting (End) ==
 
@@ -192,7 +194,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.28 Enhanced Edition";
+var scriptVersion = "1.29.30 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -636,6 +638,10 @@ function eventLocationCheck(caller) {
             checkCharge(12); break;
         case 'Charge Egg 2015(17)':
             checkCharge(17); break;
+		case 'Charge Egg 2016 Medium + High':
+            checkCharge2016(chargeMedium); break;
+        case 'Charge Egg 2016 High':
+            checkCharge2016(chargeHigh); break;
 		case 'Burroughs Rift(Red)':
 			BurroughRift(19, 20); break;
 		case 'Burroughs Rift(Green)':
@@ -772,7 +778,7 @@ function SunkenCity(isAggro) {
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.debug('Dive Distance(m): ' + distance);
 	var charmArmed = getPageVariable("user.trinket_name");
-	var charmElement = document.getElementsByClassName('charm');
+	var charmElement = document.getElementsByClassName('charm');	
 	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);	
 	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
 	if (currentZone == objSCZone.ZONE_OXYGEN || currentZone == objSCZone.ZONE_TREASURE || currentZone == objSCZone.ZONE_BONUS)
@@ -1250,6 +1256,72 @@ function checkMouse(mouseName) {
     }
 }
 
+function checkCharge2016(stopDischargeAt){
+	try {
+		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
+		var isDischarge = (getStorage("discharge") == "true");
+		console.debug('Current Charge: ' + charge + " Discharging: " + isDischarge + " Stop Discharge At: " + stopDischargeAt);
+		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
+		var eggstra = {};
+		eggstra["quantity"] = parseInt(charmContainer.children[0].children[0].innerText);
+		eggstra["link"] = charmContainer.children[0].children[1];
+		eggstra["isArmed"] = (eggstra.link.getAttribute('class').indexOf('active') > 0);
+		eggstra["canArm"] = (eggstra.quantity > 0 && !eggstra.isArmed);
+		console.debug(eggstra);
+		var eggstraCharge = {};
+		eggstraCharge["quantity"] = parseInt(charmContainer.children[1].children[0].innerText);
+		eggstraCharge["link"] = charmContainer.children[1].children[1];
+		eggstraCharge["isArmed"] = (eggstraCharge.link.getAttribute('class').indexOf('active') > 0);
+		eggstraCharge["canArm"] = (eggstraCharge.quantity > 0 && !eggstraCharge.isArmed);
+		console.debug(eggstraCharge);
+		var eggscavator = {};
+		eggscavator["quantity"] = parseInt(charmContainer.children[2].children[0].innerText);
+		eggscavator["link"] = charmContainer.children[2].children[1];
+		eggscavator["isArmed"] = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
+		eggscavator["canArm"] = (eggscavator.quantity > 0 && !eggscavator.isArmed);
+		console.debug(eggscavator);
+
+        if (charge == 20) {
+            setStorage("discharge", "true");
+			if (eggstra.canArm) fireEvent(eggstra.link, 'click');
+        }
+        else if (charge < 20 && charge > stopDischargeAt) {
+            if (isDischarge) {
+				if (eggstra.canArm) fireEvent(eggstra.link, 'click');
+            }
+            else {
+				if (charge >= chargeHigh) {
+					if (eggstraCharge.quantity > 0){
+						if (!eggstraCharge.isArmed) fireEvent(eggstraCharge.link, 'click');
+					}
+					else{
+						if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+					}
+				}
+				else {
+					if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
+            }
+        }
+		else if (charge <= stopDischargeAt) {
+			if (charge >= chargeHigh) {
+				if (eggstraCharge.quantity > 0){
+					if (!eggstraCharge.isArmed) fireEvent(eggstraCharge.link, 'click');
+				}
+				else{
+					if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
+			}
+			else {
+				if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+			}
+			setStorage("discharge", "false");
+		}
+    }
+    catch (e) {
+        return console.debug(e.message);
+    }
+}
 function checkCharge(stopDischargeAt) {
     try {
         var charge = parseInt(document.getElementsByClassName("chargeQuantity")[0].innerText);
@@ -2492,8 +2564,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2015">Charge Egg 2015</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2016 Medium + High">Charge Egg 2016 Medium + High</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
