@@ -4,6 +4,7 @@
 // @version    	1.29.30
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
+// @require		https://code.jquery.com/jquery-2.2.2.min.js
 // @include		http://mousehuntgame.com/*
 // @include		https://mousehuntgame.com/*
 // @include		http://www.mousehuntgame.com/*
@@ -286,24 +287,43 @@ function receiveMessage(event)
 		if (event.data.indexOf("~") > -1)
 		{						
 			if (saveKRImage){
-				var result = event.data.substring(0, event.data.indexOf("~"));			
-				var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);			
-				var now = new Date();
-				var strKR = "KR-" + now.toLocaleString();
-				strKR = strKR.replace(", ", "-");
-				strKR = strKR.replace(" ", "-");
-				strKR += "-" + result;
-				strKR += "-RETRY" + kingsRewardRetry;
-				try{
-					setStorage(strKR, processedImg);
-				}
-				catch (e){
-					console.debug(e);
-				}
+				var result = event.data.substring(0, event.data.indexOf("~"));
+				setStorage("RecentKRResult", result);
+				var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);
+				processedImg = processedImg.substring(processedImg.indexOf(",")+1, processedImg.length);
+				$.ajax({
+					url: "https://api.imgur.com/3/upload",
+					type: "POST",
+					datatype: "json",
+					data: {image: processedImg},
+					success: saveKRImageLink,
+					error: saveKRImageLink,
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("Authorization", "Client-ID ee139f96e441fd1");
+					}
+				});
 			}
 			FinalizePuzzleImageAnswer(result);
 		}		
 	}		
+}
+
+function saveKRImageLink(data){
+	console.debug(data);
+	if(data.success == true) {
+		var now = new Date();
+		var strKR = "KR-" + now.toLocaleString();
+		strKR = strKR.replace(", ", "-");
+		strKR = strKR.replace(" ", "-");
+		strKR += "-" + getStorageToVariableStr("RecentKRResult", "NaN");
+		strKR += "-RETRY" + kingsRewardRetry;
+		try{
+			setStorage(strKR, data.data.link);
+		}
+		catch (e){
+			console.debug(e);
+		}
+    }
 }
 
 window.addEventListener("message", receiveMessage, false);
