@@ -767,9 +767,10 @@ function SunkenCity(isAggro) {
 	console.debug('Current Zone: ' + zone);
 	var currentZone = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', bestHydro);	
-	if (currentZone == 0)
+	if (currentZone == objSCZone.ZONE_NOT_DIVE)
 	{
 		checkThenArm('best', 'base', bestLuckBase);
+		checkThenArm(null, 'trinket', 'Oxygen Burst');
 		checkThenArm('best', 'bait', objSCTrap.scOxyBait);
 		return;
 	}
@@ -841,11 +842,6 @@ function SunkenCity(isAggro) {
 		
 		checkThenArm(null, 'bait', 'Gouda');
 	}
-	else if (currentZone == objSCZone.ZONE_NOT_DIVE)
-	{
-		checkThenArm(null, 'trinket', 'Oxygen Burst');
-		checkThenArm(null, 'bait', 'Gouda');
-	}
 	else
 	{		
 		DisarmSCSpecialCharm(charmArmed);
@@ -857,12 +853,19 @@ function SCCustom() {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
 	
-	GetSCCustomConfig();
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
-	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
-	console.log('Current Zone: ' + zone + ' at ' + distance + 'm');
 	var currentZone = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', bestHydro);
+	if (currentZone == objSCZone.ZONE_NOT_DIVE){
+		checkThenArm('best', 'base', bestLuckBase);
+		checkThenArm(null, 'trinket', 'Oxygen Burst');
+		checkThenArm('best', 'bait', objSCTrap.scOxyBait);
+		return;
+	}
+	
+	GetSCCustomConfig();
+	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
+	console.log('Current Zone: ' + zone + ' at ' + distance + 'm');
 	checkThenArm('best', 'base', bestSCBase);
 	var indexZone = objSCCustom.zone.indexOf(currentZone);
 	if (indexZone > -1)
@@ -923,23 +926,24 @@ function GetSCCustomConfig()
 	objSCCustom["zone"] = [];
 	objSCCustom["bait"] = [];
 	objSCCustom["trinket"] = [];
-	var storage = window.localStorage;
 	var keyName = "";
 	var value = "";
-	var zoneName = "";
-	for (var i = 0; i < storage.length; i++)
-	{
-		keyName = storage.key(i);
-		if (keyName.indexOf("SCCustom") > -1)
-		{
-			value = getStorage(keyName);
+	var arrObjSCTrapPropsName = Object.keys(objSCTrap);
+	for (var prop in objSCZone) {
+		if(objSCZone.hasOwnProperty(prop)) {
+			keyName = "SCCustom_" + prop;
+			value = getStorageToVariableStr(keyName, "true,Gouda,None");
 			value = value.split(',');
-			if (value[0] == "true")
-			{
-				zoneName = keyName.replace("SCCustom_", "");
-				objSCCustom["zone"].push(objSCZone[zoneName]);
+			if (value[0] == "true") {
+				objSCCustom["zone"].push(objSCZone[prop]);
 				objSCCustom["bait"].push(value[1]);
-				objSCCustom["trinket"].push(objSCTrap[value[2]]);
+				if (arrObjSCTrapPropsName.indexOf(value[2]) > -1)
+					objSCCustom["trinket"].push(objSCTrap[value[2]]);
+				else {
+					if (value[2] != "None" && value[2] != "NoSC")
+						value[2] = "None";
+					objSCCustom["trinket"].push(value[2]);
+				}	
 			}
 		}
 	}
