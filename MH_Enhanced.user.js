@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.29.27
+// @version    	1.29.30
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @include		http://mousehuntgame.com/*
@@ -67,6 +67,9 @@ var krStartHourDelayMax = 30;
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
 var kingsRewardRetryMax = 3;
+
+// // State to indicate whether to save KR image into localStorage or not
+var saveKRImage = true;
 
 // // The script will pause if player at different location that hunt location set before. (true/false)
 // // Note: Make sure you set showTimerInPage to true in order to know what is happening.
@@ -168,6 +171,8 @@ var scAnchorDanger = ['Spiked Anchor', 'Empowered Anchor'];
 
 // // Spring Egg Hunt 
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
+var chargeHigh = 17;
+var chargeMedium = 12;
 
 // == Advance User Preference Setting (End) ==
 
@@ -176,7 +181,7 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.29.27 Enhanced Edition";
+var scriptVersion = "1.29.30 Enhanced Edition";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -275,21 +280,27 @@ function FinalizePuzzleImageAnswer(answer)
 
 function receiveMessage(event)
 {  
-	console.debug("Event origin: " + event.origin);	
-
+	console.debug("Event origin: " + event.origin);
 	if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1)
 	{
 		if (event.data.indexOf("~") > -1)
 		{						
-			var result = event.data.substring(0, event.data.indexOf("~"));			
-			var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);			
-			var now = new Date();
-			var strKR = "KR-" + now.toLocaleString();
-			strKR = strKR.replace(", ", "-");
-			strKR = strKR.replace(" ", "-");
-			strKR += "-" + result;
-			strKR += "-KRR" + kingsRewardRetry;
-			setStorage(strKR, processedImg);
+			if (saveKRImage){
+				var result = event.data.substring(0, event.data.indexOf("~"));			
+				var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);			
+				var now = new Date();
+				var strKR = "KR-" + now.toLocaleString();
+				strKR = strKR.replace(", ", "-");
+				strKR = strKR.replace(" ", "-");
+				strKR += "-" + result;
+				strKR += "-RETRY" + kingsRewardRetry;
+				try{
+					setStorage(strKR, processedImg);
+				}
+				catch (e){
+					console.debug(e);
+				}
+			}
 			FinalizePuzzleImageAnswer(result);
 		}		
 	}		
@@ -613,6 +624,10 @@ function eventLocationCheck(caller) {
             checkCharge(12); break;
         case 'Charge Egg 2015(17)':
             checkCharge(17); break;
+		case 'Charge Egg 2016 Medium + High':
+            checkCharge2016(chargeMedium); break;
+        case 'Charge Egg 2016 High':
+            checkCharge2016(chargeHigh); break;
 		case 'Burroughs Rift(Red)':
 			BurroughRift(19, 20); break;
 		case 'Burroughs Rift(Green)':
@@ -710,7 +725,6 @@ function BurroughRift(minMist, maxMist)
 
 function LGGeneral(isAutoPour) {
     var loc = GetCurrentLocation();
-	DisarmLGSpecialCharm(loc);
 	switch (loc)
     {        
         case 'Living Garden':
@@ -726,8 +740,9 @@ function LGGeneral(isAutoPour) {
         case 'Sand Crypts':
             sandCrypts(); break;
         default:
-            break;
+            return;
     }
+	DisarmLGSpecialCharm(loc);
 }
 
 function SunkenCity(isAggro) {
@@ -1141,6 +1156,72 @@ function checkMouse(mouseName) {
     }
 }
 
+function checkCharge2016(stopDischargeAt){
+	try {
+		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
+		var isDischarge = (getStorage("discharge") == "true");
+		console.debug('Current Charge: ' + charge + " Discharging: " + isDischarge + " Stop Discharge At: " + stopDischargeAt);
+		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
+		var eggstra = {};
+		eggstra["quantity"] = parseInt(charmContainer.children[0].children[0].innerText);
+		eggstra["link"] = charmContainer.children[0].children[1];
+		eggstra["isArmed"] = (eggstra.link.getAttribute('class').indexOf('active') > 0);
+		eggstra["canArm"] = (eggstra.quantity > 0 && !eggstra.isArmed);
+		console.debug(eggstra);
+		var eggstraCharge = {};
+		eggstraCharge["quantity"] = parseInt(charmContainer.children[1].children[0].innerText);
+		eggstraCharge["link"] = charmContainer.children[1].children[1];
+		eggstraCharge["isArmed"] = (eggstraCharge.link.getAttribute('class').indexOf('active') > 0);
+		eggstraCharge["canArm"] = (eggstraCharge.quantity > 0 && !eggstraCharge.isArmed);
+		console.debug(eggstraCharge);
+		var eggscavator = {};
+		eggscavator["quantity"] = parseInt(charmContainer.children[2].children[0].innerText);
+		eggscavator["link"] = charmContainer.children[2].children[1];
+		eggscavator["isArmed"] = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
+		eggscavator["canArm"] = (eggscavator.quantity > 0 && !eggscavator.isArmed);
+		console.debug(eggscavator);
+
+        if (charge == 20) {
+            setStorage("discharge", "true");
+			if (eggstra.canArm) fireEvent(eggstra.link, 'click');
+        }
+        else if (charge < 20 && charge > stopDischargeAt) {
+            if (isDischarge) {
+				if (eggstra.canArm) fireEvent(eggstra.link, 'click');
+            }
+            else {
+				if (charge >= chargeHigh) {
+					if (eggstraCharge.quantity > 0){
+						if (!eggstraCharge.isArmed) fireEvent(eggstraCharge.link, 'click');
+					}
+					else{
+						if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+					}
+				}
+				else {
+					if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
+            }
+        }
+		else if (charge <= stopDischargeAt) {
+			if (charge >= chargeHigh) {
+				if (eggstraCharge.quantity > 0){
+					if (!eggstraCharge.isArmed) fireEvent(eggstraCharge.link, 'click');
+				}
+				else{
+					if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+				}
+			}
+			else {
+				if (eggscavator.canArm) fireEvent(eggscavator.link, 'click');
+			}
+			setStorage("discharge", "false");
+		}
+    }
+    catch (e) {
+        return console.debug(e.message);
+    }
+}
 function checkCharge(stopDischargeAt) {
     try {
         var charge = parseInt(document.getElementsByClassName("chargeQuantity")[0].innerText);
@@ -2324,6 +2405,25 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Save King Reward image into localStorage"><b>Save King Reward Image</b></a>';
+			preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			if (saveKRImage){
+				preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputTrue" name="SaveKRImageInput" value="true" checked="checked"/> True';
+                preferenceHTMLStr += '   ';
+                preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputFalse" name="SaveKRImageInput" value="false" /> False';
+			}
+			else{
+				preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputTrue" name="SaveKRImageInput" value="true"/> True';
+                preferenceHTMLStr += '   ';
+                preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputFalse" name="SaveKRImageInput" value="false" checked="checked"/> False';
+			}
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
             if (pauseAtInvalidLocation) {
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -2359,17 +2459,17 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select name="algo" onChange="window.localStorage.setItem(\'eventLocation\', value); document.getElementById(\'event\').value=window.localStorage.getItem(\'eventLocation\');">';
             preferenceHTMLStr += '<option value="None" selected>None</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2015">Charge Egg 2015</option>';
-            preferenceHTMLStr += '<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>';
+			preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
+			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2016 Medium + High">Charge Egg 2016 Medium + High</option>';
+            preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
-			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
-            preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
-			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
+			//preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
             preferenceHTMLStr += '</select> Current Selection : ';
             preferenceHTMLStr += '<input type="text" id="event" name="event" value="' + getStorageToVariableStr("eventLocation", "None") + '"/>';
             preferenceHTMLStr += '</td>';
@@ -2386,6 +2486,7 @@ function embedTimer(targetPage) {
 				if (document.getElementById(\'PlayKingRewardSoundInputTrue\').checked == true) { window.localStorage.setItem(\'PlayKingRewardSound\', \'true\'); } else { window.localStorage.setItem(\'PlayKingRewardSound\', \'false\'); }	\
 				if (document.getElementById(\'AutoSolveKRInputTrue\').checked == true) { window.localStorage.setItem(\'AutoSolveKR\', \'true\'); } else { window.localStorage.setItem(\'AutoSolveKR\', \'false\'); }	\
 				window.localStorage.setItem(\'AutoSolveKRDelayMin\', document.getElementById(\'AutoSolveKRDelayMinInput\').value); window.localStorage.setItem(\'AutoSolveKRDelayMax\', document.getElementById(\'AutoSolveKRDelayMaxInput\').value);	\
+				if (document.getElementById(\'SaveKRImageInputTrue\').checked == true) { window.localStorage.setItem(\'SaveKRImage\', \'true\'); } else { window.localStorage.setItem(\'SaveKRImage\', \'false\'); }	\
 				if (document.getElementById(\'PauseLocationInputTrue\').checked == true) { window.localStorage.setItem(\'PauseLocation\', \'true\'); } else { window.localStorage.setItem(\'PauseLocation\', \'false\'); }	\
 				';
             if (fbPlatform) {
@@ -2451,6 +2552,7 @@ function loadPreferenceSettingFromStorage() {
 	krDelayMax = getStorageToVariableInt("AutoSolveKRDelayMax", krDelayMax);	
 	kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);	
 	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
+	saveKRImage = getStorageToVariableBool("SaveKRImage", saveKRImage);
     discharge = getStorageToVariableBool("discharge", discharge);
 	//eventLocation = getStorageToVariableStr("eventLocation", "None");
 }
