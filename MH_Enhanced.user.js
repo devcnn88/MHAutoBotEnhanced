@@ -319,6 +319,7 @@ function saveKRImageLink(data){
 		strKR += "-RETRY" + kingsRewardRetry;
 		try{
 			setStorage(strKR, data.data.link);
+			removeStorage("RecentKRResult");
 		}
 		catch (e){
 			console.debug(e);
