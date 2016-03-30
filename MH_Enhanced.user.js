@@ -72,6 +72,9 @@ var kingsRewardRetryMax = 3;
 // // State to indicate whether to save KR image into localStorage or not
 var saveKRImage = true;
 
+// // Maximum number of KR image to be saved into localStorage
+var maxSaveKRImage = 100;
+
 // // The script will pause if player at different location that hunt location set before. (true/false)
 // // Note: Make sure you set showTimerInPage to true in order to know what is happening.
 var pauseAtInvalidLocation = false;
@@ -113,6 +116,14 @@ var timerRefreshInterval = 1;
 var LOADING = -1;
 var NOT_FOUND = 0;
 var ARMED = 1;
+
+// // Trap List
+var objTrapList = {
+	weapon : [],
+	base : [],
+	trinket : [],
+	bait : []
+};
 
 // // Best weapon/base/charm/bait pre-determined by user. Edit ur best weapon/base/charm/bait in ascending order. e.g. [best, better, good]
 var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
@@ -205,11 +216,11 @@ var nextActiveTime = 900;
 var timerInterval = 2;
 var checkMouseResult = null;
 var mouseList = [];
-//var eventLocation = "None";
 var discharge = false;
 var arming = false;
 var best = 0;
 var kingsRewardRetry = 0;
+var keyKR = [];
 
 // element in page
 var titleElement;
@@ -288,43 +299,23 @@ function receiveMessage(event)
 		{						
 			if (saveKRImage){
 				var result = event.data.substring(0, event.data.indexOf("~"));
-				setStorage("RecentKRResult", result);
 				var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);
-				processedImg = processedImg.substring(processedImg.indexOf(",")+1, processedImg.length);
-				$.ajax({
-					url: "https://api.imgur.com/3/upload",
-					type: "POST",
-					datatype: "json",
-					data: {image: processedImg},
-					success: saveKRImageLink,
-					error: saveKRImageLink,
-					beforeSend: function (xhr) {
-						xhr.setRequestHeader("Authorization", "Client-ID ee139f96e441fd1");
-					}
-				});
+				var now = new Date();
+				var timezoneOffset = now.getTimezoneOffset() / -60;
+				now.setUTCHours(now.getUTCHours() + timezoneOffset);
+				var strKR = "KR-" + now.toISOString();
+				strKR += "-" + result;
+				strKR += "-RETRY" + kingsRewardRetry;
+				try{
+					setStorage(strKR, processedImg);
+				}
+				catch (e){
+					console.debug(e);
+				}
 			}
 			FinalizePuzzleImageAnswer(result);
 		}		
 	}		
-}
-
-function saveKRImageLink(data){
-	console.debug(data);
-	if(data.success == true) {
-		var now = new Date();
-		var strKR = "KR-" + now.toLocaleString();
-		strKR = strKR.replace(", ", "-");
-		strKR = strKR.replace(" ", "-");
-		strKR += "-" + getStorageToVariableStr("RecentKRResult", "NaN");
-		strKR += "-RETRY" + kingsRewardRetry;
-		try{
-			setStorage(strKR, data.data.link);
-			removeStorage("RecentKRResult");
-		}
-		catch (e){
-			console.debug(e);
-		}
-    }
 }
 
 window.addEventListener("message", receiveMessage, false);
@@ -1287,27 +1278,46 @@ function checkCharge(stopDischargeAt) {
 
 function checkThenArm(sort, category, name)   //category = weapon/base/charm/trinket/bait
 {
-    if (category == "charm")
+	if (category == "charm")
         category = "trinket";
 
-    var trapArmed;
-    var userVariable = getPageVariable("user." + category + "_name");
-    if (sort == 'best')
-    {
-        for (var i = 0; i < name.length; i++)
-        {
-            if (userVariable.indexOf(name[i]) == 0)
-            {
-                trapArmed = true;
-                break;
-            }
-        }
+    var trapArmed = undefined;
+	var userVariable = getPageVariable("user." + category + "_name");
+    if (sort == 'best') {
+		getTrapList(category);
+		if (objTrapList[category].length == 0){
+			getTrapListFromTrapSelector(sort, category, name);
+			return;
+		}
+		else{
+			for (var i = 0; i < name.length; i++) {
+				for (var j = 0; j < objTrapList[category].length; j++) {
+					if (objTrapList[category][j].indexOf(name[i]) > -1){
+						if (userVariable.indexOf(name[i]) == 0) {
+							trapArmed = true;
+							return;
+						}
+						else {
+							trapArmed = false;
+							break;
+						}
+					}
+				}
+				if (trapArmed == false)
+					break;
+			}
+		}
     }
     else
     {        
         trapArmed = (userVariable.indexOf(name) == 0);
     }
 
+	if (trapArmed == undefined){
+		console.log(name.join("/") + "not found in TrapList" + capitalizeFirstLetter(category));
+		return;
+	}
+	
     if (!trapArmed)
     {
         var intervalCTA = setInterval(
@@ -1340,8 +1350,13 @@ function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attracti
                 clearInterval(intervalCTATI);
                 arming = false;
                 intervalCTATI = null;
-				if (armStatus == NOT_FOUND && trap == 'trinket')
-					disarmTrap('trinket');
+				if (armStatus == NOT_FOUND){
+					clearTrapList(trap);
+					if (trap == 'trinket')
+						disarmTrap('trinket');
+					else
+						closeTrapSelector(trap);
+				}
                 return;
             }
             else
@@ -1410,7 +1425,12 @@ function armTrap(sort, name) {
 
 function clickTrapSelector(strSelect) //strSelect = weapon/base/charm/trinket/bait
 {
-    if (strSelect == "base") {
+    if (document.getElementsByClassName('tagGroup').length > 0) {
+		arming = true;
+		return;
+	}
+	
+	if (strSelect == "base") {
         fireEvent(document.getElementsByClassName('trapControlThumb')[0], 'click');
     }
     else if (strSelect == "weapon") {
@@ -1427,6 +1447,11 @@ function clickTrapSelector(strSelect) //strSelect = weapon/base/charm/trinket/ba
     }
     arming = true;
     return (console.debug("Trap selector: " + strSelect + " clicked"));
+}
+
+function closeTrapSelector(category){
+	if(document.getElementsByClassName("showComponents " + category).length > 0)
+		fireEvent(document.getElementById('trapSelectorBrowserClose'), 'click');
 }
 
 function objToString(obj, str) {
@@ -2247,7 +2272,9 @@ function embedTimer(targetPage) {
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
             showPreferenceLinkStr += '</a>';
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
-            showPreferenceSpan.innerHTML = showPreferenceLinkStr;
+			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="window.localStorage.removeItem(\'TrapListWeapon\'); window.localStorage.removeItem(\'TrapListBase\'); window.localStorage.removeItem(\'TrapListTrinket\'); window.localStorage.removeItem(\'TrapListBait\');document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Done!]\';window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);">';
+			clearTrapListStr += '<b>[Clear Trap List]</b></a>&nbsp;&nbsp;&nbsp;';
+            showPreferenceSpan.innerHTML = clearTrapListStr + showPreferenceLinkStr;
             showPreferenceLinkDiv.appendChild(showPreferenceSpan);
             showPreferenceLinkStr = null;
             showPreferenceSpan = null;
@@ -2257,7 +2284,7 @@ function embedTimer(targetPage) {
             timerDivElement.appendChild(hr2Element);
             hr2Element = null;
 
-            var preferenceHTMLStr = '<table border="0" width="100%">';
+			var preferenceHTMLStr = '<table border="0" width="100%">';
             if (aggressiveMode) {
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -2445,6 +2472,27 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="View Saved King Reward Image from localStorage"><b>View King Reward Image</b></a>';
+			preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="viewKR">';
+			var replaced = "";
+			for(var i=0;i<keyKR.length;i++){
+				replaced = keyKR[i].substring(keyKR[i].indexOf("KR-")+("KR-").length, keyKR[i].length);
+				replaced = replaced.replace('T', '&nbsp;&nbsp;');
+				replaced = replaced.replace('Z', '');
+				replaced = replaceAll(replaced, "-", '&nbsp;&nbsp;');
+				preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + replaced +'</option>';
+			}
+			
+            preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
             if (pauseAtInvalidLocation) {
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -2575,7 +2623,225 @@ function loadPreferenceSettingFromStorage() {
 	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
 	saveKRImage = getStorageToVariableBool("SaveKRImage", saveKRImage);
     discharge = getStorageToVariableBool("discharge", discharge);
-	//eventLocation = getStorageToVariableStr("eventLocation", "None");
+	try{
+		keyKR = replaceKRImageKey();
+		if(keyKR.length == 0) {
+			keyKR = [];
+			var keyName = "";
+			for(var i = 0; i<window.localStorage.length;i++){
+				keyName = window.localStorage.key(i);
+				if(keyName.indexOf("KR-") > -1){
+					keyKR.push(keyName);
+				}
+			}
+		}
+		removeKRKey(keyKR);
+	}
+	catch (e){
+		console.debug(e);
+	}
+	getTrapList();
+}
+
+function removeKRKey(key){
+	if (key.length > maxSaveKRImage){
+		key = key.sort();
+		for (var i = 0;i<key.length - 50;i++){
+			removeStorage(key[i]);
+		}	
+	}
+}
+
+function replaceKRImageKey(){
+	var keyName = "";
+	var keyNameBefore = [];
+	var keyNameAfter = [];
+	var valueBefore = [];
+	var temp;
+	var objLocale = {
+		date : {
+			0 : [],
+			1 : [],
+			2 : [],
+			year : [],
+			month : [],
+			day : []
+		},
+		time : {
+			hour : [],
+			minute : [],
+			second : [],
+			ampm : []
+		},
+	};
+	var objResult = {
+		result : [],
+		retry : []
+	};
+	
+	for(var i = 0; i<window.localStorage.length;i++){
+		keyName = window.localStorage.key(i);
+		if(keyName.indexOf("KR-") > -1 && keyName.indexOf("/") > -1){
+			keyNameBefore.push(keyName);
+			keyName = keyName.split('-');
+			temp = keyName[1].split('/');
+			for (var j=0;j<temp.length;j++){
+				objLocale.date[j.toString()].push(parseInt(temp[j]));
+			}
+			
+			temp = keyName[2].split(':');
+			objLocale.time.hour.push(parseInt(temp[0]));
+			objLocale.time.minute.push(parseInt(temp[1]));
+			objLocale.time.second.push(parseInt(temp[2]));
+			objLocale.time.ampm.push((keyName[3] == "AM") ? 0 : 12);
+			objResult.result.push(keyName[4]);
+			objResult.retry.push(keyName[5]);
+		}
+	}
+
+	if (keyNameBefore.length == 0)
+		return keyNameAfter;
+	
+	var std = 0;
+	var maxValue;
+	for (var i = 0;i<3;i++){
+		maxValue = max(objLocale.date[i]);
+		if (Math.floor(maxValue / 1000) > 0){
+			objLocale.date.year = objLocale.date[i].slice();
+			objLocale.date[i] = [];
+			break;
+		}
+	}
+	for (var i = 0;i<3;i++){
+		if (objLocale.date[i].length == 0)
+			continue;
+		maxValue = max(objLocale.date[i]);
+		if (maxValue > 12){
+			objLocale.date.day = objLocale.date[i].slice();
+			objLocale.date[i] = [];
+			break;
+		}
+	}
+	if (objLocale.date.day.length == 0){
+		var arr = [];
+		for (var i = 0;i<3;i++){
+			if (objLocale.date[i].length == 0)
+				continue;
+			arr.push(objLocale.date[i]);
+		}
+		objLocale.date.day = arr[0].slice();
+		objLocale.date.month = arr[1].slice();
+	}
+	else{
+		for (var i = 0;i<3;i++){
+			if (objLocale.date[i].length == 0)
+				continue;
+			objLocale.date.month = objLocale.date[i].slice();
+			break;
+		}	
+	}
+	
+	for (var i = 0;i<objLocale.time.hour.length;i++){
+		temp = objLocale.time.hour[i] + objLocale.time.ampm[i];
+		if (temp >= 24) temp -= 24;
+		objLocale.time.hour[i] = temp;
+		temp = "KR-" + objLocale.date.year[i] + "-" + 
+			((objLocale.date.month[i]<10)?"0":"") + objLocale.date.month[i] + "-" + ((objLocale.date.day[i]<10)?"0":"") + objLocale.date.day[i] + "T" + 
+			((objLocale.time.hour[i]<10)?"0":"") + objLocale.time.hour[i] + ":" + ((objLocale.time.minute[i]<10)?"0":"") + objLocale.time.minute[i] + ":" + 
+			((objLocale.time.second[i]<10)?"0":"") + objLocale.time.second[i] + ".000Z-" + objResult.result[i] + "-" + objResult.retry[i];
+		keyNameAfter.push(temp);
+	}
+	
+	for (var i = 0;i<keyNameBefore.length;i++){
+		temp = getStorage(keyNameBefore[i]);
+		removeStorage(keyNameBefore[i]);
+		setStorage(keyNameAfter[i], temp);
+	}
+	
+	return keyNameAfter;
+}
+
+function getTrapList(category){
+	var temp = "";
+	var arrObjList;
+	if (category == null || category == undefined)
+		arrObjList = Object.keys(objTrapList);
+	else
+		arrObjList = [category];
+
+	for (var i=0;i<arrObjList.length;i++){
+		temp = getStorageToVariableBool("TrapList" + capitalizeFirstLetter(arrObjList[i]), "");
+		if (temp = ""){
+			objTrapList[arrObjList[i]] = [];
+		}
+		else{
+			try{
+				objTrapList[arrObjList[i]] = temp.split(",");
+			}
+			catch (e) {
+				objTrapList[arrObjList[i]] = [];
+			}
+		}
+	}
+}
+
+function clearTrapList(category){
+	var temp = "";
+	var arrObjList;
+	if (category == null || category == undefined)
+		arrObjList = Object.keys(objTrapList);
+	else
+		arrObjList = [category];
+
+	for (var i=0;i<arrObjList.length;i++){
+		removeStorage("TrapList" + capitalizeFirstLetter(arrObjList[i]));
+		temp = getStorageToVariableBool("TrapList" + capitalizeFirstLetter(arrObjList[i]), "");
+		objTrapList[arrObjList[i]] = [];
+	}
+}
+
+function capitalizeFirstLetter(strIn){
+	return strIn.charAt(0).toUpperCase() + strIn.slice(1);
+}
+
+function getTrapListFromTrapSelector(sort, category, name){
+	clickTrapSelector(category);
+	objTrapList[category] = [];
+	var sec = secWait;
+	var retry = armTrapRetry;
+	var tagGroupElement, tagElement, nameElement;
+    var intervalGTLFTS = setInterval(
+        function () {
+            tagGroupElement = document.getElementsByClassName('tagGroup');
+			if (tagGroupElement.length > 0){
+				for (var i = 0; i < tagGroupElement.length; ++i){
+					tagElement = tagGroupElement[i].getElementsByTagName('a');
+					for (var j = 0; j < tagElement.length; ++j){
+						nameElement = tagElement[j].getElementsByClassName('name')[0].innerText;
+						objTrapList[category].push(nameElement);
+					}
+				}
+				setStorage("TrapList" + capitalizeFirstLetter(category), objTrapList[category].join(","));
+				checkThenArm(sort, category, name);
+			}
+            else{
+                --sec;
+                if (sec <= 0)
+                {
+                    clickTrapSelector(category);
+                    sec = 2;
+					--retry;
+					if (retry <= 0)
+					{
+						clearInterval(intervalGTLFTS);
+						arming = false;
+						intervalGTLFTS = null;
+						return;
+					}
+                }
+            }
+        }, 1000);
+    return;
 }
 
 function getStorageToVariableInt(storageName, defaultInt)
@@ -3169,6 +3435,57 @@ function CalculateNextTrapCheckInMinute() {
 //   General Function - Start
 // ################################################################################################
 
+function min(data){
+	var value = Number.MAX_SAFE_INTEGER;
+	for (var i=0;i<data.length;i++){
+		if (data[i] < value)
+			value = data[i];
+	}
+	return value;
+}
+
+function max(data){
+	var value = Number.MIN_SAFE_INTEGER;
+	for (var i=0;i<data.length;i++){
+		if (data[i] > value)
+			value = data[i];
+	}
+	return value;
+}
+
+function standardDeviation(values){
+	var avg = average(values);
+	var squareDiffs = values.map(function(value){
+		var diff = value - avg;
+		var sqrDiff = diff * diff;
+		return sqrDiff;
+	});
+
+	var avgSquareDiff = average(squareDiffs);
+	var stdDev = Math.sqrt(avgSquareDiff);
+	return stdDev;
+}
+ 
+function average(data){
+	var sum = data.reduce(function(sum, value){
+		return sum + value;
+	}, 0);
+
+	var avg = sum / data.length;
+	return avg;
+}
+
+function functionToHTMLString(func){
+	var str = func.toString();
+	str = str.substring(str.indexOf("{")+1, str.lastIndexOf("}"));
+	str = replaceAll(str, '"', '\'');
+	return str;
+}
+
+function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
+
 function browserDetection() {
     var browserName = "unknown";
 
@@ -3413,4 +3730,54 @@ function timeFormatLong(time) {
 }
 // ################################################################################################
 //   General Function - End
+// ################################################################################################
+
+// ################################################################################################
+//   HTML Function - Start
+// ################################################################################################
+function refreshTrapList() {
+	try {
+		var objUserHash = {
+			uh : user.unique_hash
+		};
+		
+		jQuery.ajax({
+			type: 'POST',
+			url: '/managers/ajax/users/gettrapcomponents.php',
+			data: objUserHash,
+			contentType: 'text/plain',
+			dataType: 'json',
+			xhrFields: {
+				withCredentials: false
+			},
+			timeout: 10000,
+			statusCode: {
+				200: function () {}
+			},
+			success: function (data){
+				var objTrap = {
+					weapon : [],
+					base : [],
+					trinket : [],
+					bait : []
+				};
+				for (var i=0;i<data.components.length;i++){
+					if (data.components[i].classification == 'skin')
+						continue;
+					objTrap[data.components[i].classification].push(data.components[i].name);
+				}
+				console.debug(objTrap);
+			},
+			error: function (error){
+				console.log('POST Error');
+				console.debug(error);
+			}
+		});
+	} catch (e) {
+		console.debug('refreshTrapList error: ' + e.message);
+	}
+}
+
+// ################################################################################################
+//   HTML Function - End
 // ################################################################################################
