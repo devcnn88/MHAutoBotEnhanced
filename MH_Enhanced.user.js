@@ -1314,7 +1314,7 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
     }
 
 	if (trapArmed == undefined){
-		console.log(name.join("/") + "not found in TrapList" + capitalizeFirstLetter(category));
+		console.log(name.join("/") + " not found in TrapList" + capitalizeFirstLetter(category));
 		return;
 	}
 	
