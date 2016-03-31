@@ -1,0 +1,259 @@
+<div>
+<hr>
+	<div id="titleElement">
+		<a href="http://devcnn.wordpress.com" target="_blank"><b>MouseHunt AutoBot (version 1.29.27 Enhanced Edition)</b></a>
+	</div>
+	<div id="nextHornTimeElement">
+		<b>Next Hunter Horn Time:</b>1 min 12 sec  <i>(included extra 13 sec delay &amp; +/- 5 seconds different from MouseHunt timer)</i>
+	</div>
+	<div id="checkTimeElement">
+		<b>Next Trap Check Time:</b> 17 min 27 sec  <i>(included extra 6 sec delay)</i>
+	</div>
+	<div id="kingTimeElement">
+		<b>Last King's Reward:</b> - <font id="lastKingRewardSumTimeElement"></font>
+	</div>
+	<div id="loadTimeElement">
+		<b>Last Page Load: </b>Tue Mar 01 2016 09:15:12
+	</div>
+	<div id="showPreferenceLinkDiv" style="text-align:right">
+		<span>
+			<a id="showPreferenceLink" name="showPreferenceLink" 
+			onclick=
+			"var selectedAlgo = window.localStorage.getItem('eventLocation');
+			showOrHideTr(selectedAlgo);
+			if (document.getElementById('showPreferenceLink').innerHTML == '<b>[Hide Preference]</b>') { 
+				document.getElementById('preferenceDiv').style.display='none';  
+				document.getElementById('showPreferenceLink').innerHTML='<b>[Show Preference]</b>'; 
+			} 
+			else { 
+				document.getElementById('preferenceDiv').style.display='block'; 
+				document.getElementById('showPreferenceLink').innerHTML='<b>[Hide Preference]</b>'; 
+				loadSCCustomAlgo();
+				document.getElementById('eventAlgo').value = selectedAlgo;
+			}"><b>[Show Preference]</b></a>&nbsp;&nbsp;&nbsp;
+		</span>
+	</div>
+<hr>
+	<div id="preferenceDiv" style="display: none;">
+		<table border="0" width="100%">
+			<tbody>
+				<tr>
+					<td style="height:24px; text-align:right;"><a title="Bot aggressively by ignore all safety measure such as check horn image visible before sounding it"><b>Aggressive Mode</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="AggressiveModeInput" onchange=
+						"var isDisable = (value == 'true') ? 'disabled' : '';
+						document.getElementById('HornTimeDelayMinInput').disabled=isDisable; 
+						document.getElementById('HornTimeDelayMaxInput').disabled=isDisable;
+						">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title="Extra delay time before sounding the horn (in seconds)"><b>Delay:</b></a>&emsp;
+						<input type="number" id="HornTimeDelayMinInput" min="0" max="360" size="5" value="10"> seconds ~ 
+						<input type="number" id="HornTimeDelayMaxInput" min="1" max="361" size="5" value="30"> seconds
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><a title="Enable trap check once an hour"><b>Trap Check</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="TrapCheckInput" onchange=
+						"if (value == 'false') { 
+							document.getElementById('TrapCheckTimeDelayMinInput').disabled='disabled'; 
+							document.getElementById('TrapCheckTimeDelayMaxInput').disabled='disabled';
+						}
+						else {
+							document.getElementById('TrapCheckTimeDelayMinInput').disabled=''; 
+							document.getElementById('TrapCheckTimeDelayMaxInput').disabled='';
+						}
+						">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title="Extra delay time to trap check (in seconds)"><b>Delay:</b></a>&emsp;
+						<input type="number" id="TrapCheckTimeDelayMinInput" min="0" max="360" size="5" value="10"> seconds ~ 
+						<input type="number" id="TrapCheckTimeDelayMaxInput" min="1" max="361" size="5" value="30"> seconds
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><a title="Play sound when encounter king's reward"><b>Play King Reward Sound</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="PlayKingRewardSoundInput" >
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><a title="Solve King Reward automatically"><b>Auto Solve King Reward</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="AutoSolveKRInput" onchange=
+						"if (value == 'false') { 
+							document.getElementById('AutoSolveKRDelayMinInput').disabled='disabled'; 
+							document.getElementById('AutoSolveKRDelayMaxInput').disabled='disabled';
+						}
+						else {
+							document.getElementById('AutoSolveKRDelayMinInput').disabled=''; 
+							document.getElementById('AutoSolveKRDelayMaxInput').disabled='';
+						}
+						">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title="Extra delay time to solve King Reward (in seconds)"><b>Delay:</b></a>&emsp;
+						<input type="number" id="AutoSolveKRDelayMinInput" min="0" max="360" size="5" value="10"> seconds ~ 
+						<input type="number" id="AutoSolveKRDelayMaxInput" min="1" max="361" size="5" value="30"> seconds
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><a title="Save King Reward Image into localStorage"><b>Save King Reward Image</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="SaveKRImageInput">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><a title="The script will pause if player at different location that hunt location set before"><b>Remember Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="PauseLocationInput">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="eventAlgo" 
+							onchange=
+							"window.localStorage.setItem('eventLocation', value); 
+							showOrHideTr(value);
+							">
+							<option value="None">None</option>
+							<option value="Charge Egg 2015">Charge Egg 2015</option>
+							<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>
+							<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>
+							<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>
+							<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>
+							<option value="Halloween 2015">Halloween 2015</option>
+							<option value="Sunken City">Sunken City</option>
+							<option value="Sunken City Aggro">Sunken City Aggro</option>
+							<option value="Sunken City Custom">Sunken City Custom</option>
+							<option value="All LG Area">All LG Area</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="scCustom" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="scHuntZone" onchange="loadSCCustomAlgo();">
+							<option value="ZONE_DEFAULT">Default</option>
+							<option value="ZONE_CORAL">Coral</option>
+							<option value="ZONE_SCALE">Scale</option>
+							<option value="ZONE_BARNACLE">Barnacle</option>
+							<option value="ZONE_TREASURE">Treasure</option>
+							<option value="ZONE_DANGER">Danger</option>
+							<option value="ZONE_DANGER_PP">Danger PP</option>
+							<option value="ZONE_OXYGEN">Oxygen</option>
+							<option value="ZONE_BONUS">Bonus</option>
+						</select>
+						<select id="scHuntZoneEnable" onchange="saveSCCustomAlgo();">
+							<option value="true">Hunt</option>
+							<option value="false">Jet Through</option>
+						</select>
+						<select id="scHuntBait" onchange="saveSCCustomAlgo();">
+							<option value="Brie">Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SUPER|brie+</option>
+						</select>
+						<select id="scHuntTrinket" onchange="saveSCCustomAlgo();">
+							<option value="None">None</option>
+							<option value="EAC">EAC</option>
+							<option value="scAnchorTreasure">GAC, EAC</option>
+							<option value="scAnchorDanger">SAC, EAC</option>
+							<option value="UAC">UAC</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;" colspan="2">(Changes only take place after user save the preference) <input type="button" id="PreferenceSaveInput" value="Save" 
+					onclick=
+					"if (document.getElementById('AggressiveModeInputTrue').checked == true) { 
+						window.localStorage.setItem('AggressiveMode', 'true'); 
+					} 
+					else { 
+						window.localStorage.setItem('AggressiveMode', 'false'); 
+					}					
+					window.localStorage.setItem('HornTimeDelayMin', document.getElementById('HornTimeDelayMinInput').value); 
+					window.localStorage.setItem('HornTimeDelayMax', document.getElementById('HornTimeDelayMaxInput').value);					
+					if (document.getElementById('TrapCheckInputTrue').checked == true) { 
+						window.localStorage.setItem('TrapCheck', 'true'); 
+					} 
+					else { 
+						window.localStorage.setItem('TrapCheck', 'false'); 
+					}					
+					window.localStorage.setItem('TrapCheckTimeDelayMin', document.getElementById('TrapCheckTimeDelayMinInput').value); 
+					window.localStorage.setItem('TrapCheckTimeDelayMax', document.getElementById('TrapCheckTimeDelayMaxInput').value);					
+					if (document.getElementById('PlayKingRewardSoundInputTrue').checked == true) { 
+						window.localStorage.setItem('PlayKingRewardSound', 'true'); 
+					} 
+					else { 
+						window.localStorage.setItem('PlayKingRewardSound', 'false'); 
+					}					
+					if (document.getElementById('AutoSolveKRInputTrue').checked == true) { 
+						window.localStorage.setItem('AutoSolveKR', 'true'); 
+					} 
+					else { 
+						window.localStorage.setItem('AutoSolveKR', 'false'); 
+					}					
+					window.localStorage.setItem('AutoSolveKRDelayMin', document.getElementById('AutoSolveKRDelayMinInput').value); 
+					window.localStorage.setItem('AutoSolveKRDelayMax', document.getElementById('AutoSolveKRDelayMaxInput').value);					
+					if (document.getElementById('PauseLocationInputTrue').checked == true) { 
+						window.localStorage.setItem('PauseLocation', 'true'); 
+					} 
+					else { 
+						window.localStorage.setItem('PauseLocation', 'false'); 
+					}					
+					window.location.href='https://www.mousehuntgame.com/';
+					">&nbsp;&nbsp;&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
+	<hr>
+	</div>
+</div>
+<script type="text/javascript">
+	function loadSCCustomAlgo()
+	{
+		var selectedZone = document.getElementById('scHuntZone').value;
+		var storageValue = window.localStorage.getItem('SCCustom_' + selectedZone);
+		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
+		var scHuntBaitEle = document.getElementById('scHuntBait');
+		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
+		if (storageValue == null){
+			scHuntZoneEnableEle.selectedIndex = 0;
+			scHuntBait.selectedIndex = 0;
+			scHuntTrinketEle.selectedIndex = 0;
+		}
+		else{
+			storageValue = storageValue.split(',');
+			scHuntZoneEnableEle.value = storageValue[0];
+			scHuntBaitEle.value = storageValue[1];
+			scHuntTrinketEle.value = storageValue[2];
+		}
+	}
+	
+	function saveSCCustomAlgo()
+	{	
+		var scHuntZoneEle = document.getElementById('scHuntZone');
+		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
+		var scHuntBaitEle = document.getElementById('scHuntBait');
+		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
+		var key = 'SCCustom_' + scHuntZoneEle.value;
+		var value = scHuntZoneEnableEle.value + ',' + scHuntBaitEle.value + ',' + scHuntTrinketEle.value;
+		window.localStorage.setItem(key, value);
+	}
+	
+	function showOrHideTr(algo)
+	{
+		document.getElementById('scCustom').style.display = (algo == 'Sunken City Custom') ? 'table-row' : 'none';
+	}
+</script>
