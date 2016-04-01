@@ -2495,13 +2495,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="viewKR">';
-			var replaced = "";
 			for(var i=0;i<keyKR.length;i++){
-				replaced = keyKR[i].substring(keyKR[i].indexOf("KR-")+("KR-").length, keyKR[i].length);
-				replaced = replaced.replace('T', '&nbsp;&nbsp;');
-				replaced = replaced.replace('Z', '');
-				replaced = replaceAll(replaced, "-", '&nbsp;&nbsp;');
-				preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + replaced +'</option>';
+				preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + keyKR[i] +'</option>';
 			}
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
@@ -2673,15 +2668,12 @@ function loadPreferenceSettingFromStorage() {
 	saveKRImage = getStorageToVariableBool("SaveKRImage", saveKRImage);
     discharge = getStorageToVariableBool("discharge", discharge);
 	try{
-		keyKR = replaceKRImageKey();
-		if(keyKR.length == 0) {
-			keyKR = [];
-			var keyName = "";
-			for(var i = 0; i<window.localStorage.length;i++){
-				keyName = window.localStorage.key(i);
-				if(keyName.indexOf("KR-") > -1){
-					keyKR.push(keyName);
-				}
+		keyKR = [];
+		var keyName = "";
+		for(var i = 0; i<window.localStorage.length;i++){
+			keyName = window.localStorage.key(i);
+			if(keyName.indexOf("KR-") > -1){
+				keyKR.push(keyName);
 			}
 		}
 		removeKRKey(keyKR);
