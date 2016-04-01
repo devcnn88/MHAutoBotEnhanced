@@ -237,6 +237,7 @@ var best = 0;
 var kingsRewardRetry = 0;
 var objSCCustom = {};
 var keyKR = [];
+var separator = "~";
 
 // element in page
 var titleElement;
@@ -316,12 +317,10 @@ function receiveMessage(event)
 			if (saveKRImage){
 				var result = event.data.substring(0, event.data.indexOf("~"));
 				var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);
-				var now = new Date();
-				var timezoneOffset = now.getTimezoneOffset() / -60;
-				now.setUTCHours(now.getUTCHours() + timezoneOffset);
-				var strKR = "KR-" + now.toISOString();
-				strKR += "-" + result;
-				strKR += "-RETRY" + kingsRewardRetry;
+				var strKR = "KR" + separator;
+				strKR += Date.now() + separator;
+				strKR += result + separator;
+				strKR += "RETRY" + kingsRewardRetry;
 				try{
 					setStorage(strKR, processedImg);
 				}
@@ -2495,8 +2494,20 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="viewKR">';
+			var replaced = "";
+			var temp = [];
 			for(var i=0;i<keyKR.length;i++){
-				preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + keyKR[i] +'</option>';
+				if (keyKR[i].indexOf("KR" + separator) > -1){
+					temp = keyKR[i].split(separator);
+					temp.splice(0,1);
+					temp[0] = parseInt(temp[0]);
+					if (temp[0] == NaN)
+						temp[0] = 0;
+					
+					temp[0] = (new Date(temp[0])).toISOString();
+					replaced = temp.join("&nbsp;&nbsp;");
+					preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + replaced +'</option>';
+				}
 			}
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
@@ -2670,31 +2681,30 @@ function loadPreferenceSettingFromStorage() {
 	try{
 		keyKR = [];
 		var keyName = "";
+		var keyRemove = [];
 		for(var i = 0; i<window.localStorage.length;i++){
 			keyName = window.localStorage.key(i);
-			if(keyName.indexOf("KR-") > -1){
+			if(keyName.indexOf("KR-") > -1){ // remove old KR entries
+				keyRemove.push(keyName);
+			}
+			else if(keyName.indexOf("KR" + separator) > -1){
 				keyKR.push(keyName);
 			}
 		}
-		removeKRKey(keyKR);
+		
+		for(var i = 0; i<keyRemove.length;i++){
+			removeStorage(keyRemove[i]);
+		}
+		
+		if (keyKR.length > maxSaveKRImage){
+			keyKR = keyKR.sort();
+			keyKR.splice(0, keyKR.length - Math.floor(maxSaveKRImage / 2));
+		}
 	}
 	catch (e){
 		console.debug(e);
 	}
 	getTrapList();
-}
-
-function removeKRKey(key){
-	if (key.length > maxSaveKRImage){
-		key = key.sort();
-		var index = -1;
-		for (var i = 0;i<key.length - 50;i++){
-			index = keyKR.indexOf(key[i]);
-			if (index > -1)
-				keyKR.splice(index, 1);
-			removeStorage(key[i]);
-		}	
-	}
 }
 
 function replaceKRImageKey(){
