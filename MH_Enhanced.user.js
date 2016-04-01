@@ -2687,7 +2687,11 @@ function loadPreferenceSettingFromStorage() {
 function removeKRKey(key){
 	if (key.length > maxSaveKRImage){
 		key = key.sort();
+		var index = -1;
 		for (var i = 0;i<key.length - 50;i++){
+			index = keyKR.indexOf(key[i]);
+			if (index > -1)
+				keyKR.splice(index, 1);
 			removeStorage(key[i]);
 		}	
 	}
