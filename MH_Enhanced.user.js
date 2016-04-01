@@ -128,7 +128,7 @@ var objTrapList = {
 // // Best weapon/base/charm/bait pre-determined by user. Edit ur best weapon/base/charm/bait in ascending order. e.g. [best, better, good]
 var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
 var bestTactical = ['Chrome Sphynx Wrath', 'Sphynx Wrath'];
-var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap', 'Chrome Sphynx Wrath'];
+var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap'];
 var bestArcane = ['Event Horizon', 'Grand Arcanum Trap', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
 var bestShadow = ['Temporal Turbine', 'Clockwork Portal Trap', 'Reaper\'s Perch', 'Clockapult of Time', 'Clockapult of Winter Past'];
 var bestForgotten = ['Tarannosaurus Rex Trap', 'The Forgotten Art of Dance'];
@@ -2308,142 +2308,89 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
-            if (enableTrapCheck) {
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Enable trap check once an hour"><b>Trap Check</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="radio" id="TrapCheckInputTrue" name="TrapCheckInput" value="true" onchange="if (document.getElementById(\'TrapCheckInputTrue\').checked == true) { document.getElementById(\'TrapCheckTimeDelayMinInput\').disabled=\'\'; document.getElementById(\'TrapCheckTimeDelayMaxInput\').disabled=\'\';}" checked="checked"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="TrapCheckInputFalse" name="TrapCheckInput" value="false" onchange="if (document.getElementById(\'TrapCheckInputFalse\').checked == true) { document.getElementById(\'TrapCheckTimeDelayMinInput\').disabled=\'disabled\'; document.getElementById(\'TrapCheckTimeDelayMaxInput\').disabled=\'disabled\';}"/> False';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Extra delay time to trap check (in seconds)"><b>Trap Check Time Delay</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="text" id="TrapCheckTimeDelayMinInput" name="TrapCheckTimeDelayMinInput" value="' + checkTimeDelayMin.toString() + '"/> seconds';
-                preferenceHTMLStr += ' ~ ';
-                preferenceHTMLStr += '<input type="text" id="TrapCheckTimeDelayMaxInput" name="TrapCheckTimeDelayMaxInput" value="' + checkTimeDelayMax.toString() + '"/> seconds';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-            }
-            else {
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Enable trap check once an hour"><b>Trap Check</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="radio" id="TrapCheckInputTrue" name="TrapCheckInput" value="true" onchange="if (document.getElementById(\'TrapCheckInputTrue\').checked == true) { document.getElementById(\'TrapCheckTimeDelayMinInput\').disabled=\'\'; document.getElementById(\'TrapCheckTimeDelayMaxInput\').disabled=\'\';}"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="TrapCheckInputFalse" name="TrapCheckInput" value="false" onchange="if (document.getElementById(\'TrapCheckInputFalse\').checked == true) { document.getElementById(\'TrapCheckTimeDelayMinInput\').disabled=\'disabled\'; document.getElementById(\'TrapCheckTimeDelayMaxInput\').disabled=\'disabled\';}" checked="checked"/> False';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Extra delay time to trap check (in seconds)"><b>Trap Check Time Delay</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="text" id="TrapCheckTimeDelayMinInput" name="TrapCheckTimeDelayMinInput" disabled="disabled" value="' + checkTimeDelayMin.toString() + '"/> seconds';
-                preferenceHTMLStr += ' ~ ';
-                preferenceHTMLStr += '<input type="text" id="TrapCheckTimeDelayMaxInput" name="TrapCheckTimeDelayMaxInput" disabled="disabled" value="' + checkTimeDelayMax.toString() + '"/> seconds';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-            }
-			
-            if (isKingWarningSound) {
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Play sound when encounter king\'s reward"><b>Play King Reward Sound</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="radio" id="PlayKingRewardSoundInputTrue" name="PlayKingRewardSoundInput" value="true" checked="checked"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="PlayKingRewardSoundInputFalse" name="PlayKingRewardSoundInput" value="false" /> False';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-            }
-            else {
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Play sound when encounter king\'s reward"><b>Play King Reward Sound</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="radio" id="PlayKingRewardSoundInputTrue" name="PlayKingRewardSoundInput" value="true" /> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="PlayKingRewardSoundInputFalse" name="PlayKingRewardSoundInput" value="false" checked="checked"/> False';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-            }
-			
-            preferenceHTMLStr += '<tr>';
-            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-			preferenceHTMLStr += '<a title="Solve King Reward automatically"><b>Auto Solve King Reward</b></a>';
-            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '<td style="height:24px">';
-			if (isAutoSolve) {
-				preferenceHTMLStr += '<input type="radio" id="AutoSolveKRInputTrue" name="AutoSolveKRInput" value="true" onchange="if (document.getElementById(\'AutoSolveKRInputTrue\').checked == true) { document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=\'\'; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=\'\';}" checked="checked"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="AutoSolveKRInputFalse" name="AutoSolveKRInput" value="false" onchange="if (document.getElementById(\'AutoSolveKRInputFalse\').checked == true) { document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=\'disabled\'; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=\'disabled\';}"/> False';
-            }
-            else {
-                preferenceHTMLStr += '<input type="radio" id="AutoSolveKRInputTrue" name="AutoSolveKRInput" value="true" onchange="if (document.getElementById(\'AutoSolveKRInputTrue\').checked == true) { document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=\'\'; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=\'\';}"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="AutoSolveKRInputFalse" name="AutoSolveKRInput" value="false" onchange="if (document.getElementById(\'AutoSolveKRInputFalse\').checked == true) { document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=\'disabled\'; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=\'disabled\';}" checked="checked"/> False';                
-            }
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '</tr>';
-            preferenceHTMLStr += '<tr>';
-            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-			preferenceHTMLStr += '<a title="Extra delay time to solve King Reward (in seconds)"><b>Auto Solve King Reward Delay</b></a>';
-            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '<td style="height:24px">';
-			if (isAutoSolve) {
-                preferenceHTMLStr += '<input type="text" id="AutoSolveKRDelayMinInput" name="AutoSolveKRDelayMinInput" value="' + krDelayMin.toString() + '"/> seconds';
-                preferenceHTMLStr += ' ~ ';
-                preferenceHTMLStr += '<input type="text" id="AutoSolveKRDelayMaxInput" name="AutoSolveKRDelayMaxInput" value="' + krDelayMax.toString() + '"/> seconds';                
-            }
-            else {
-                preferenceHTMLStr += '<input type="text" id="AutoSolveKRDelayMinInput" name="AutoSolveKRDelayMinInput" disabled="disabled" value="' + krDelayMin.toString() + '"/> seconds';
-                preferenceHTMLStr += ' ~ ';
-                preferenceHTMLStr += '<input type="text" id="AutoSolveKRDelayMaxInput" name="AutoSolveKRDelayMaxInput" disabled="disabled" value="' + krDelayMax.toString() + '"/> seconds';
-            }
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '</tr>';
-			
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-			preferenceHTMLStr += '<a title="Save King Reward image into localStorage"><b>Save King Reward Image</b></a>';
-			preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '<a title="Enable trap check once an hour"><b>Trap Check</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
-			if (saveKRImage){
-				preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputTrue" name="SaveKRImageInput" value="true" checked="checked"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputFalse" name="SaveKRImageInput" value="false" /> False';
+			preferenceHTMLStr += '<select id="TrapCheckInput" onchange="var isDisable = (value == \'false\') ? \'disabled\' : \'\'; document.getElementById(\'TrapCheckTimeDelayMinInput\').disabled=isDisable; document.getElementById(\'TrapCheckTimeDelayMaxInput\').disabled=isDisable;">';
+			if (enableTrapCheck) {
+				preferenceHTMLStr += '<option value="false">False</option>';
+				preferenceHTMLStr += '<option value="true" selected>True</option>';
+				temp = '';
 			}
-			else{
-				preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputTrue" name="SaveKRImageInput" value="true"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="SaveKRImageInputFalse" name="SaveKRImageInput" value="false" checked="checked"/> False';
+			else {
+				preferenceHTMLStr += '<option value="false" selected>False</option>';
+				preferenceHTMLStr += '<option value="true">True</option>';
+				temp = 'disabled';
 			}
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title="Extra delay time to trap check (in seconds)"><b>Delay:</b></a>&emsp;';
+			preferenceHTMLStr += '<input type="number" id="TrapCheckTimeDelayMinInput" min="0" max="360" size="5" value="' + checkTimeDelayMin.toString() + '" ' + temp + '> seconds ~ ';
+			preferenceHTMLStr += '<input type="number" id="TrapCheckTimeDelayMaxInput" min="1" max="361" size="5" value="' + checkTimeDelayMax.toString() + '" ' + temp + '> seconds';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-			preferenceHTMLStr += '<a title="View Saved King Reward Image from localStorage"><b>View King Reward Image</b></a>';
-			preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '<a title="Play sound when encounter king\'s reward"><b>Play King Reward Sound</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="PlayKingRewardSoundInput" >';
+			if (isKingWarningSound) {
+				preferenceHTMLStr += '<option value="false">False</option>';
+				preferenceHTMLStr += '<option value="true" selected>True</option>';
+			}
+			else {
+				preferenceHTMLStr += '<option value="false" selected>False</option>';
+				preferenceHTMLStr += '<option value="true">True</option>';
+			}
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+            preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Solve King Reward automatically"><b>Auto Solve King Reward</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="AutoSolveKRInput" onchange="var isDisable = (value == \'false\') ? \'disabled\' : \'\'; document.getElementById(\'AutoSolveKRDelayMinInput\').disabled=isDisable; document.getElementById(\'AutoSolveKRDelayMaxInput\').disabled=isDisable;">';
+			if (isAutoSolve) {
+				preferenceHTMLStr += '<option value="false">False</option>';
+				preferenceHTMLStr += '<option value="true" selected>True</option>';
+				temp = '';
+			}
+			else {
+				preferenceHTMLStr += '<option value="false" selected>False</option>';
+				preferenceHTMLStr += '<option value="true">True</option>';
+				temp = 'disabled';
+			}
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title="Extra delay time to solve King Reward (in seconds)"><b>Delay:</b></a>&emsp;';
+			preferenceHTMLStr += '<input type="number" id="AutoSolveKRDelayMinInput" min="0" max="360" size="5" value="' + krDelayMin.toString() + '" ' + temp + '> seconds ~ ';
+			preferenceHTMLStr += '<input type="number" id="AutoSolveKRDelayMaxInput" min="1" max="361" size="5" value="' + krDelayMax.toString() + '" ' + temp + '> seconds';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Save King Reward image into localStorage"><b>Save King Reward Image</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="SaveKRImageInput" >';
+			if (saveKRImage) {
+				preferenceHTMLStr += '<option value="false">False</option>';
+				preferenceHTMLStr += '<option value="true" selected>True</option>';
+			}
+			else {
+				preferenceHTMLStr += '<option value="false" selected>False</option>';
+				preferenceHTMLStr += '<option value="true">True</option>';
+			}
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="View Saved King Reward Image from localStorage"><b>View King Reward Image</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="viewKR">';
@@ -2455,43 +2402,32 @@ function embedTimer(targetPage) {
 				replaced = replaceAll(replaced, "-", '&nbsp;&nbsp;');
 				preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + replaced +'</option>';
 			}
-			
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
-            if (pauseAtInvalidLocation) {
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="The script will pause if player at different location that hunt location set before"><b>Remember Location</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="radio" id="PauseLocationInputTrue" name="PauseLocationInput" value="true" checked="checked"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="PauseLocationInputFalse" name="PauseLocationInput" value="false" /> False';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-            }
-            else {
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="The script will pause if player at different location that hunt location set before"><b>Remember Location</b></a>';
-                preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="radio" id="PauseLocationInputTrue" name="PauseLocationInput" value="true"/> True';
-                preferenceHTMLStr += '   ';
-                preferenceHTMLStr += '<input type="radio" id="PauseLocationInputFalse" name="PauseLocationInput" value="false" checked="checked"/> False';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-            }
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="The script will pause if player at different location that hunt location set before"><b>Remember Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="PauseLocationInput" >';
+			if (pauseAtInvalidLocation) {
+				preferenceHTMLStr += '<option value="false">False</option>';
+				preferenceHTMLStr += '<option value="true" selected>True</option>';
+			}
+			else {
+				preferenceHTMLStr += '<option value="false" selected>False</option>';
+				preferenceHTMLStr += '<option value="true">True</option>';
+			}
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 
             preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>';
-            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '<a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select id="eventAlgo" onChange="window.localStorage.setItem(\'eventLocation\', value); document.getElementById(\'event\').value=window.localStorage.getItem(\'eventLocation\');">';
@@ -2514,16 +2450,19 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
             preferenceHTMLStr += '(Changes only take place after user save the preference) ';
-            preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="	\
-				if (document.getElementById(\'AggressiveModeInputTrue\').checked == true) { window.localStorage.setItem(\'AggressiveMode\', \'true\'); } else { window.localStorage.setItem(\'AggressiveMode\', \'false\'); }	\
-				window.localStorage.setItem(\'HornTimeDelayMin\', document.getElementById(\'HornTimeDelayMinInput\').value); window.localStorage.setItem(\'HornTimeDelayMax\', document.getElementById(\'HornTimeDelayMaxInput\').value);	\
-				if (document.getElementById(\'TrapCheckInputTrue\').checked == true) { window.localStorage.setItem(\'TrapCheck\', \'true\'); } else { window.localStorage.setItem(\'TrapCheck\', \'false\'); }	\
-				window.localStorage.setItem(\'TrapCheckTimeDelayMin\', document.getElementById(\'TrapCheckTimeDelayMinInput\').value); window.localStorage.setItem(\'TrapCheckTimeDelayMax\', document.getElementById(\'TrapCheckTimeDelayMaxInput\').value);	\
-				if (document.getElementById(\'PlayKingRewardSoundInputTrue\').checked == true) { window.localStorage.setItem(\'PlayKingRewardSound\', \'true\'); } else { window.localStorage.setItem(\'PlayKingRewardSound\', \'false\'); }	\
-				if (document.getElementById(\'AutoSolveKRInputTrue\').checked == true) { window.localStorage.setItem(\'AutoSolveKR\', \'true\'); } else { window.localStorage.setItem(\'AutoSolveKR\', \'false\'); }	\
-				window.localStorage.setItem(\'AutoSolveKRDelayMin\', document.getElementById(\'AutoSolveKRDelayMinInput\').value); window.localStorage.setItem(\'AutoSolveKRDelayMax\', document.getElementById(\'AutoSolveKRDelayMaxInput\').value);	\
-				if (document.getElementById(\'SaveKRImageInputTrue\').checked == true) { window.localStorage.setItem(\'SaveKRImage\', \'true\'); } else { window.localStorage.setItem(\'SaveKRImage\', \'false\'); }	\
-				if (document.getElementById(\'PauseLocationInputTrue\').checked == true) { window.localStorage.setItem(\'PauseLocation\', \'true\'); } else { window.localStorage.setItem(\'PauseLocation\', \'false\'); }	\
+            preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="\
+				window.localStorage.setItem(\'AggressiveMode\', 		document.getElementById(\'AggressiveModeInput\').value);\
+				window.localStorage.setItem(\'HornTimeDelayMin\', 		document.getElementById(\'HornTimeDelayMinInput\').value);\
+				window.localStorage.setItem(\'HornTimeDelayMax\', 		document.getElementById(\'HornTimeDelayMaxInput\').value);\
+				window.localStorage.setItem(\'TrapCheck\', 				document.getElementById(\'TrapCheckInput\').value);\
+				window.localStorage.setItem(\'TrapCheckTimeDelayMin\',	document.getElementById(\'TrapCheckTimeDelayMinInput\').value);\
+				window.localStorage.setItem(\'TrapCheckTimeDelayMax\', 	document.getElementById(\'TrapCheckTimeDelayMaxInput\').value);\
+				window.localStorage.setItem(\'PlayKingRewardSound\', 	document.getElementById(\'PlayKingRewardSoundInput\').value);\
+				window.localStorage.setItem(\'AutoSolveKR\', 			document.getElementById(\'AutoSolveKRInput\').value);\
+				window.localStorage.setItem(\'AutoSolveKRDelayMin\', 	document.getElementById(\'AutoSolveKRDelayMinInput\').value);\
+				window.localStorage.setItem(\'AutoSolveKRDelayMax\', 	document.getElementById(\'AutoSolveKRDelayMaxInput\').value);\
+				window.localStorage.setItem(\'SaveKRImage\', 			document.getElementById(\'SaveKRImageInput\').value);\
+				window.localStorage.setItem(\'PauseLocation\', 			document.getElementById(\'PauseLocationInput\').value);\
 				';
             if (fbPlatform) {
                 if (secureConnection)
@@ -3247,12 +3186,13 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 	var strTemp = (isReloadToSolve) ? "Reload to solve KR in " : "Solve KR in (extra few sec delay) ";
 	strTemp = strTemp + timeformat(interval);	
 	displayTimer(strTemp, strTemp, strTemp);
-	strTemp = null;
 	interval -= timerRefreshInterval;
 	if (interval < 0)
 	{
 		if (isReloadToSolve)
 		{
+			strTemp = "Reloading...";
+			displayTimer(strTemp, strTemp, strTemp);
 			// simulate mouse click on the camp button
 			var campElement = document.getElementsByClassName(strCampButton)[0].firstChild;
 			fireEvent(campElement, 'click');
@@ -3263,6 +3203,8 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 		}
 		else
 		{
+			strTemp = "Solving...";
+			displayTimer(strTemp, strTemp, strTemp);
 			var intervalCRB = setInterval(
 				function ()
 				{

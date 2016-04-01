@@ -56,14 +56,9 @@
 					<td style="height:24px; text-align:right;"><a title="Enable trap check once an hour"><b>Trap Check</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
 						<select id="TrapCheckInput" onchange=
-						"if (value == 'false') { 
-							document.getElementById('TrapCheckTimeDelayMinInput').disabled='disabled'; 
-							document.getElementById('TrapCheckTimeDelayMaxInput').disabled='disabled';
-						}
-						else {
-							document.getElementById('TrapCheckTimeDelayMinInput').disabled=''; 
-							document.getElementById('TrapCheckTimeDelayMaxInput').disabled='';
-						}
+						"var isDisable = (value == 'false') ? 'disabled' : '';
+						document.getElementById('TrapCheckTimeDelayMinInput').disabled=isDisable;
+						document.getElementById('TrapCheckTimeDelayMaxInput').disabled=isDisable;
 						">
 							<option value="false">False</option>
 							<option value="true">True</option>
