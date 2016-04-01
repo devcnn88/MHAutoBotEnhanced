@@ -39,69 +39,80 @@
 			<tbody>
 				<tr>
 					<td style="height:24px; text-align:right;"><a title="Bot aggressively by ignore all safety measure such as check horn image visible before sounding it"><b>Aggressive Mode</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="radio" id="AggressiveModeInputTrue" name="AggressiveModeInput" value="true" 
-						onchange=
-						"if (document.getElementById('AggressiveModeInputTrue').checked == true) { 
-							document.getElementById('HornTimeDelayMinInput').disabled='disabled'; 
-							document.getElementById('HornTimeDelayMaxInput').disabled='disabled';
-						}"> True   <input type="radio" id="AggressiveModeInputFalse" name="AggressiveModeInput" value="false" 
-						onchange=
-						"if (document.getElementById('AggressiveModeInputFalse').checked == true) { 
-							document.getElementById('HornTimeDelayMinInput').disabled=''; 
-							document.getElementById('HornTimeDelayMaxInput').disabled='';
-						}" checked="checked"> False</td>
-				</tr>
-				<tr>
-					<td style="height:24px; text-align:right;"><a title="Extra delay time before sounding the horn (in seconds)"><b>Horn Time Delay</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="text" id="HornTimeDelayMinInput" name="HornTimeDelayMinInput" value="10"> seconds ~ <input type="text" id="HornTimeDelayMaxInput" name="HornTimeDelayMaxInput" value="30"> seconds</td>
+					<td style="height:24px">
+						<select id="AggressiveModeInput" onchange=
+						"var isDisable = (value == 'true') ? 'disabled' : '';
+						document.getElementById('HornTimeDelayMinInput').disabled=isDisable; 
+						document.getElementById('HornTimeDelayMaxInput').disabled=isDisable;
+						">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title="Extra delay time before sounding the horn (in seconds)"><b>Delay:</b></a>&emsp;
+						<input type="number" id="HornTimeDelayMinInput" min="0" max="360" size="5" value="10"> seconds ~ 
+						<input type="number" id="HornTimeDelayMaxInput" min="1" max="361" size="5" value="30"> seconds
+					</td>
 				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><a title="Enable trap check once an hour"><b>Trap Check</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="radio" id="TrapCheckInputTrue" name="TrapCheckInput" value="true" 
-						onchange=
-						"if (document.getElementById('TrapCheckInputTrue').checked == true) { 
-							document.getElementById('TrapCheckTimeDelayMinInput').disabled=''; 
-							document.getElementById('TrapCheckTimeDelayMaxInput').disabled='';
-						}" checked="checked"> True   <input type="radio" id="TrapCheckInputFalse" name="TrapCheckInput" value="false" 
-						onchange=
-						"if (document.getElementById('TrapCheckInputFalse').checked == true) { 
-							document.getElementById('TrapCheckTimeDelayMinInput').disabled='disabled'; 
-							document.getElementById('TrapCheckTimeDelayMaxInput').disabled='disabled';
-						}"> False</td>
-				</tr>
-				<tr>
-					<td style="height:24px; text-align:right;"><a title="Extra delay time to trap check (in seconds)"><b>Trap Check Time Delay</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="text" id="TrapCheckTimeDelayMinInput" name="TrapCheckTimeDelayMinInput" value="5"> seconds ~ <input type="text" id="TrapCheckTimeDelayMaxInput" name="TrapCheckTimeDelayMaxInput" value="10"> seconds</td>
+					<td style="height:24px">
+						<select id="TrapCheckInput" onchange=
+						"var isDisable = (value == 'false') ? 'disabled' : '';
+						document.getElementById('TrapCheckTimeDelayMinInput').disabled=isDisable;
+						document.getElementById('TrapCheckTimeDelayMaxInput').disabled=isDisable;
+						">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title="Extra delay time to trap check (in seconds)"><b>Delay:</b></a>&emsp;
+						<input type="number" id="TrapCheckTimeDelayMinInput" min="0" max="360" size="5" value="10"> seconds ~ 
+						<input type="number" id="TrapCheckTimeDelayMaxInput" min="1" max="361" size="5" value="30"> seconds
+					</td>
 				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><a title="Play sound when encounter king's reward"><b>Play King Reward Sound</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="radio" id="PlayKingRewardSoundInputTrue" name="PlayKingRewardSoundInput" value="true"> True   <input type="radio" id="PlayKingRewardSoundInputFalse" name="PlayKingRewardSoundInput" value="false" checked="checked"> False</td>
+					<td style="height:24px">
+						<select id="PlayKingRewardSoundInput" >
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
 				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><a title="Solve King Reward automatically"><b>Auto Solve King Reward</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="radio" id="AutoSolveKRInputTrue" name="AutoSolveKRInput" value="true" 
-					onchange=
-					"if (document.getElementById('AutoSolveKRInputTrue').checked == true) { 
-						document.getElementById('AutoSolveKRDelayMinInput').disabled=''; 
-						document.getElementById('AutoSolveKRDelayMaxInput').disabled='';
-					}" checked="checked"> True   <input type="radio" id="AutoSolveKRInputFalse" name="AutoSolveKRInput" value="false" 
-					onchange=
-					"if (document.getElementById('AutoSolveKRInputFalse').checked == true) { 
-						document.getElementById('AutoSolveKRDelayMinInput').disabled='disabled'; 
-						document.getElementById('AutoSolveKRDelayMaxInput').disabled='disabled';
-					}"> False</td>
-				</tr>
-				<tr>
-					<td style="height:24px; text-align:right;"><a title="Extra delay time to solve King Reward (in seconds)"><b>Auto Solve King Reward Delay</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="text" id="AutoSolveKRDelayMinInput" name="AutoSolveKRDelayMinInput" value="10"> seconds ~ <input type="text" id="AutoSolveKRDelayMaxInput" name="AutoSolveKRDelayMaxInput" value="30"> seconds</td>
+					<td style="height:24px">
+						<select id="AutoSolveKRInput" onchange=
+						"if (value == 'false') { 
+							document.getElementById('AutoSolveKRDelayMinInput').disabled='disabled'; 
+							document.getElementById('AutoSolveKRDelayMaxInput').disabled='disabled';
+						}
+						else {
+							document.getElementById('AutoSolveKRDelayMinInput').disabled=''; 
+							document.getElementById('AutoSolveKRDelayMaxInput').disabled='';
+						}
+						">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title="Extra delay time to solve King Reward (in seconds)"><b>Delay:</b></a>&emsp;
+						<input type="number" id="AutoSolveKRDelayMinInput" min="0" max="360" size="5" value="10"> seconds ~ 
+						<input type="number" id="AutoSolveKRDelayMaxInput" min="1" max="361" size="5" value="30"> seconds
+					</td>
 				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><a title="Save King Reward Image into localStorage"><b>Save King Reward Image</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="radio" id="PauseLocationInputTrue" name="PauseLocationInput" value="true"> True   <input type="radio" id="PauseLocationInputFalse" name="PauseLocationInput" value="false" checked="checked"> False</td>
+					<td style="height:24px">
+						<select id="SaveKRImageInput">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
 				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><a title="The script will pause if player at different location that hunt location set before"><b>Remember Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px"><input type="radio" id="PauseLocationInputTrue" name="PauseLocationInput" value="true"> True   <input type="radio" id="PauseLocationInputFalse" name="PauseLocationInput" value="false" checked="checked"> False</td>
+					<td style="height:24px">
+						<select id="PauseLocationInput">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
 				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
