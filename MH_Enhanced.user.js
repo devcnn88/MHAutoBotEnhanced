@@ -147,13 +147,13 @@ var objSCZone = {
 	ZONE_NOT_DIVE : 0,
 	ZONE_DEFAULT : 1,
 	ZONE_CORAL : 2,
-	ZONE_SCALE : 4,
-	ZONE_BARNACLE : 8,
-	ZONE_TREASURE : 16,
-	ZONE_DANGER : 32,
-	ZONE_DANGER_PP : 64,
-	ZONE_OXYGEN : 128,
-	ZONE_BONUS : 256
+	ZONE_SCALE : 3,
+	ZONE_BARNACLE : 4,
+	ZONE_TREASURE : 5,
+	ZONE_DANGER : 6,
+	ZONE_DANGER_PP : 7,
+	ZONE_OXYGEN : 8,
+	ZONE_BONUS : 9
 };
 
 var bestSCBase = bestLuckBase.slice();
@@ -854,9 +854,9 @@ function SCCustom() {
 		return;
 	
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
-	var currentZone = GetSunkenCityZone(zone);
+	var zoneID = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', bestHydro);
-	if (currentZone == objSCZone.ZONE_NOT_DIVE){
+	if (zoneID == objSCZone.ZONE_NOT_DIVE){
 		checkThenArm('best', 'base', bestLuckBase);
 		checkThenArm(null, 'trinket', 'Oxygen Burst');
 		checkThenArm('best', 'bait', objSCTrap.scOxyBait);
@@ -864,38 +864,24 @@ function SCCustom() {
 	}
 	
 	GetSCCustomConfig();
+	console.debug(objSCCustom);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.log('Current Zone: ' + zone + ' at ' + distance + 'm');
 	checkThenArm('best', 'base', bestSCBase);
-	var indexZone = objSCCustom.zone.indexOf(currentZone);
-	if (indexZone > -1)
-	{
-		// hunt here
-		var bestOrNull = Array.isArray(objSCCustom.bait[indexZone]) ? 'best' : null;
-		checkThenArm(bestOrNull, 'bait', objSCCustom.bait[indexZone]);
-		if (objSCCustom.trinket[indexZone] == "NoSC")
-			DisarmSCSpecialCharm();
-		else if (objSCCustom.trinket[indexZone] == "None")
-			disarmTrap('trinket');
-		else {
-			bestOrNull = Array.isArray(objSCCustom.trinket[indexZone]) ? 'best' : null;
-			checkThenArm(bestOrNull, 'trinket', objSCCustom.trinket[indexZone]);
-		}
-	}
-	else
-	{
+	var canJet = false;
+	if (!objSCCustom[zoneID].isHunt){
 		var nextZoneName = [];
 		var nextZoneLeft = [];
-		var nextZone = [];
+		var nextZoneID = [];
 		var distanceToNextZone = [];
 		var isNextZoneInHuntZone = [];
 		for (var i = 0; i < 2; i++)
 		{
 			nextZoneName[i] = getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].name');
 			nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].left'));
-			nextZone[i] = GetSunkenCityZone(nextZoneName[i]);
+			nextZoneID[i] = GetSunkenCityZone(nextZoneName[i]);
 			distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
-			isNextZoneInHuntZone[i] = (objSCCustom.zone.indexOf(nextZone[i]) > -1);
+			isNextZoneInHuntZone[i] = (objSCCustom[nextZoneID[i]].isHunt);
 			console.log('Next Zone: ' + nextZoneName[i] + ' in ' + distanceToNextZone[i] + 'm Is In Hunt Zone: ' + isNextZoneInHuntZone[i]);
 		}
 		
@@ -903,29 +889,35 @@ function SCCustom() {
 		var charmElement = document.getElementsByClassName('charm');
 		var charmArmed = getPageVariable("user.trinket_name");
 		var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
-		if (distanceToNextZone[0] >= 480 || !(isNextZoneInHuntZone[0] || isNextZoneInHuntZone[1]))
-		{
+		if (distanceToNextZone[0] >= 480 || (distanceToNextZone[1] >= 480 && (!isNextZoneInHuntZone[0]))) {
 			// arm Water Jet Charm
-			if (!isWJCArmed)
-			{
-				if (parseInt(charmElement[1].innerText) > 0)
+			canJet = (parseInt(charmElement[1].innerText) > 0);
+			if (!isWJCArmed) {
+				if (canJet)
 					fireEvent(charmElement[1], 'click');
 			}
+			checkThenArm(null, 'bait', 'Gouda');
 		}
-		else
-		{
-			DisarmSCSpecialCharm(charmArmed);
+	}
+	
+	if (objSCCustom[zoneID].isHunt || !canJet){
+		// hunt here
+		var bestOrNull = Array.isArray(objSCCustom[zoneID].bait) ? 'best' : null;
+		checkThenArm(bestOrNull, 'bait', objSCCustom[zoneID].bait);
+		if (objSCCustom[zoneID].trinket == "NoSC")
+			DisarmSCSpecialCharm();
+		else if (objSCCustom[zoneID].trinket == "None")
+			disarmTrap('trinket');
+		else {
+			bestOrNull = Array.isArray(objSCCustom[zoneID].trinket) ? 'best' : null;
+			checkThenArm(bestOrNull, 'trinket', objSCCustom[zoneID].trinket);
 		}
-		checkThenArm(null, 'bait', 'Gouda');
 	}
 }
 
 function GetSCCustomConfig()
 {
-	objSCCustom = {};
-	objSCCustom["zone"] = [];
-	objSCCustom["bait"] = [];
-	objSCCustom["trinket"] = [];
+	objSCCustom = new Array(Object.keys(objSCZone).length);
 	var keyName = "";
 	var value = "";
 	var arrObjSCTrapPropsName = Object.keys(objSCTrap);
@@ -934,16 +926,19 @@ function GetSCCustomConfig()
 			keyName = "SCCustom_" + prop;
 			value = getStorageToVariableStr(keyName, "true,Gouda,None");
 			value = value.split(',');
-			if (value[0] == "true") {
-				objSCCustom["zone"].push(objSCZone[prop]);
-				objSCCustom["bait"].push(value[1]);
-				if (arrObjSCTrapPropsName.indexOf(value[2]) > -1)
-					objSCCustom["trinket"].push(objSCTrap[value[2]]);
-				else {
-					if (value[2] != "None" && value[2] != "NoSC")
-						value[2] = "None";
-					objSCCustom["trinket"].push(value[2]);
-				}	
+			objSCCustom[objSCZone[prop]] = {
+				isHunt : true,
+				bait : [],
+				trinket : []
+			};
+			objSCCustom[objSCZone[prop]].isHunt = (value[0] == 'true');
+			objSCCustom[objSCZone[prop]].bait.push(value[1]);
+			if (arrObjSCTrapPropsName.indexOf(value[2]) > -1)
+				objSCCustom[objSCZone[prop]].trinket = objSCTrap[value[2]].slice();
+			else {
+				if (value[2] != "None" && value[2] != "NoSC")
+					value[2] = "None";
+				objSCCustom[objSCZone[prop]].trinket = value[2];
 			}
 		}
 	}
