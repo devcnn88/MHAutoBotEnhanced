@@ -201,6 +201,44 @@ var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
 var chargeHigh = 17;
 var chargeMedium = 12;
 
+// // Labyrinth
+var objCodename = {
+	FEALTY : "y",
+	TECH : "h",
+	SCHOLAR : "s",
+	TREASURY : "t",
+	FARMING : "f",
+	PLAIN : "p",
+	SUPERIOR : "s",
+	EPIC : "e",
+	SHORT : "s",
+	MEDIUM : "m",
+	LONG : "l"
+};
+var arrDoorOrder = [
+	"yps","ypm","ypl","yss","ysm","ysl","yes","yem","yel",
+	"hps","hpm","hpl","hss","hsm","hsl","hes","hem","hel",
+	"sps","spm","spl","sss","ssm","ssl","ses","sem","sel",
+	"tps","tpm","tpl","tss","tsm","tsl",
+	"fps","fpm","fpl","fss","fsm","fsl"
+];
+
+var objDefaultPriorities = {
+	FEALTY : [9,8,7,6,5,4,3,2,1,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,15,14,13,12,11,10,16,17,18,16,17,18],
+	TECH : [19,20,21,19,20,21,19,20,21,9,8,7,6,5,4,3,2,1,19,20,21,19,20,21,19,20,21,15,14,13,12,11,10,16,17,18,16,17,18],
+	SCHOLAR : [19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,9,8,7,6,5,4,3,2,1,15,14,13,12,11,10,16,17,18,16,17,18],
+	TREASURY : [10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,6,5,4,3,2,1,7,8,9,7,8,9],
+	FARMING : [10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,7,8,9,7,8,9,6,5,4,3,2,1]
+};
+
+var objPriorities = {
+	FEALTY : [],
+	TECH : [],
+	SCHOLAR : [],
+	TREASURY : [],
+	FARMING : []
+};
+
 // == Advance User Preference Setting (End) ==
 
 
@@ -673,6 +711,8 @@ function eventLocationCheck(caller) {
 			SunkenCity(true); break;
 		case 'Sunken City Custom':
 			SCCustom(); break;
+		case 'Labyrinth':
+			labyrinth(); break;
         default:
             break;
     }
@@ -1022,6 +1062,110 @@ function GetSunkenCityZone(zoneName)
 	return returnZone;
 }
 
+function labyrinth() {
+	if (GetCurrentLocation().indexOf("Labyrinth") < 0)
+		return;
+
+	var isAtIntersection = true;
+	var doors = document.getElementsByClassName('labyrinthHUD-door');
+	var objDoors = {
+		name : [],
+		length : [],
+		tier : [],
+		clue : [],
+		code : [],
+		priorities : []
+	};
+	var temp = "";
+	if (doors.length > 0){
+		for (var i=0;i<doors.length;i++){
+			if (doors.getAttribute('class').indexOf('mystery') > -1){
+				isAtIntersection = false;
+				return;
+			}
+			else if (doors.getAttribute('class').indexOf('broken') > -1){
+				continue;
+			}
+			else {
+				temp = doors[i].children[1].innerText.toUpperCase();
+				if (temp == "???")
+					return;
+				temp = temp.split(" ");
+				objDoors.length.push(temp[0]);
+				objDoors.tier.push(temp[1]);
+				objDoors.name.push(temp[2]);
+				objDoors.clue.push(0);
+				objDoors.code.push(objCodename[temp[2]] + objCodename[temp[1]] + objCodename[temp[0]]);
+				objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
+			}
+		}
+	}
+	else
+		return;
+	
+	var userVariable = undefined;
+	var objClues = {
+		name : [],
+		quantity : [],
+		max_quantity : [],
+		max_name : []
+	};
+	temp = "";
+	var index = -1;
+	try	{
+		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
+		for (var i=0;i<userVariable.all_clues.length;i++){
+			temp = userVariable.all_clues[i].name.toUpperCase();
+			if (temp.indexOf("DEAD") > -1)
+				continue;
+			objClues.name.push(temp);
+			objClues.quantity.push(userVariable.all_clues[i].quantity);
+			index = objDoors.name.indexOf(temp);
+			if (index > -1){
+				objDoors.clue[index] = userVariable.all_clues[i].quantity;
+			}
+		}
+		temp = sortWithIndices(objClues.quantity, "descend");
+		for (var i=0;i>temp.value.length-1;i++){
+			objClues.max_name.push(objClues.name[temp.index[i]]);
+			objClues.max_quantity.push(temp.value[i]);
+			if (temp.value[i] != temp.value[i+1])
+				break;
+		}
+		
+		if (objClues.max_name.length != 1){
+			throw 'Invalid max count: ' + objClues.max_name.length;
+		}
+		else {
+			temp = objClues.max_name[0];
+			for (var i=0;i<objDoors.length;i++){
+				index = arrDoorOrder.indexOf(objDoors.code[i]);
+				if (index > -1)
+					objDoors.priorities[i] = objPriorities[temp][index];
+			}
+
+			var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
+			var highestPriorities = sortedDoorPriorities.value[0];
+			if (countArrayElement(highestPriorities, sortedDoorPriorities.value) > 1){
+				// more than one highest priority, select based on highest clue in the highest priority door
+				var sortedDoorsClue = sortWithIndices(objDoors.clue, "descend");
+				for (var i=0;i<sortedDoorsClue.value.length;i++){
+					if (sortedDoorPriorities.priorities[sortedDoorsClue.index[i]] == highestPriorities){
+						fireEvent(doors[sortedDoorPriorities.index[sortedDoorsClue.index[i]]], 'click');
+					}
+				}
+			}
+			else {
+				fireEvent(doors[sortedDoorPriorities.index[0]], 'click');
+			}
+		}
+	}
+	catch (e){
+		console.debug(e);
+		return;
+	}
+}
+
 function livingGarden(isAutoPour) {
     checkThenArm('best', 'weapon', bestHydro);
 	checkThenArm('best', 'base', bestLGBase);
@@ -1279,19 +1423,16 @@ function checkCharge2016(stopDischargeAt){
 		eggstra["link"] = charmContainer.children[0].children[1];
 		eggstra["isArmed"] = (eggstra.link.getAttribute('class').indexOf('active') > 0);
 		eggstra["canArm"] = (eggstra.quantity > 0 && !eggstra.isArmed);
-		console.debug(eggstra);
 		var eggstraCharge = {};
 		eggstraCharge["quantity"] = parseInt(charmContainer.children[1].children[0].innerText);
 		eggstraCharge["link"] = charmContainer.children[1].children[1];
 		eggstraCharge["isArmed"] = (eggstraCharge.link.getAttribute('class').indexOf('active') > 0);
 		eggstraCharge["canArm"] = (eggstraCharge.quantity > 0 && !eggstraCharge.isArmed);
-		console.debug(eggstraCharge);
 		var eggscavator = {};
 		eggscavator["quantity"] = parseInt(charmContainer.children[2].children[0].innerText);
 		eggscavator["link"] = charmContainer.children[2].children[1];
 		eggscavator["isArmed"] = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
 		eggscavator["canArm"] = (eggscavator.quantity > 0 && !eggscavator.isArmed);
-		console.debug(eggscavator);
 
         if (charge == 20) {
             setStorage("discharge", "true");
@@ -2550,6 +2691,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
 			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
+			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -3502,6 +3644,18 @@ function min(data){
 	return value;
 }
 
+function minIndex(data){
+	var value = Number.MAX_SAFE_INTEGER;
+	var index = -1;
+	for (var i=0;i<data.length;i++){
+		if (data[i] < value){
+			value = data[i];
+			index = i;
+		}
+	}
+	return index;
+}
+
 function max(data){
 	var value = Number.MIN_SAFE_INTEGER;
 	for (var i=0;i<data.length;i++){
@@ -3509,6 +3663,83 @@ function max(data){
 			value = data[i];
 	}
 	return value;
+}
+
+function maxIndex(data){
+	var value = Number.MAX_SAFE_INTEGER;
+	var index = -1;
+	for (var i=0;i<data.length;i++){
+		if (data[i] > value){
+			value = data[i];
+			index = i;
+		}
+	}
+	return index;
+}
+
+function countUnique(arrIn){
+	var  objCount = {
+		value : [],
+		count : [],
+	}; 
+
+	arrIn.forEach(function(i) { 
+		var index = objCount.value.indexOf(i);
+		if (index < 0){
+			objCount.value.push(i);
+			objCount.count.push(1);
+		}
+		else {
+			objCount.count[index]++;
+		}
+	});
+	
+	return objCount;
+}
+
+function hasDuplicate(arrIn){
+	var obj = countUnique(arrIn);
+	for (var i=0;i<obj.count.length;i++){
+		if(obj.count[i] > 1)
+			return true;
+	}
+	return false;
+}
+
+function countArrayElement(value, arrIn){
+	var count = 0;
+	for (var i=0;i<arrIn.length;i++){
+		if (arrIn[i] == value)
+			count++;
+	}
+	return count;
+}
+
+function sortWithIndices(toSort, sortType) {
+	var objSorted = {
+		value : [],
+		index : []
+	};
+	for (var i = 0; i < toSort.length; i++) {
+		toSort[i] = [toSort[i], i];
+	}
+
+	if (sortType == "descend"){
+		toSort.sort(function(left, right) {
+			return left[0] > right[0] ? -1 : 1;
+		});
+	}
+	else {
+		toSort.sort(function(left, right) {
+			return left[0] < right[0] ? -1 : 1;
+		});
+	}
+	
+	for (var j = 0; j < toSort.length; j++) {
+		objSorted.value.push(toSort[j][0]);
+		objSorted.index.push(toSort[j][1]);
+	}
+	return objSorted;
 }
 
 function standardDeviation(values){
