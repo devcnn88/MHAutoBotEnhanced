@@ -2820,6 +2820,11 @@ function loadPreferenceSettingFromStorage() {
 	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
 	saveKRImage = getStorageToVariableBool("SaveKRImage", saveKRImage);
     discharge = getStorageToVariableBool("discharge", discharge);
+	objPriorities.FEALTY = objDefaultPriorities.FEALTY.slice();
+	objPriorities.TECH = objDefaultPriorities.TECH.slice();
+	objPriorities.SCHOLAR = objDefaultPriorities.SCHOLAR.slice();
+	objPriorities.TREASURY = objDefaultPriorities.TREASURY.slice();
+	objPriorities.FARMING = objDefaultPriorities.FARMING.slice();
 	try{
 		keyKR = [];
 		var keyName = "";
