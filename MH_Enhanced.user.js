@@ -1079,12 +1079,16 @@ function labyrinth() {
 	var temp = "";
 	if (doors.length > 0){
 		for (var i=0;i<doors.length;i++){
-			if (doors.getAttribute('class').indexOf('mystery') > -1){
+			if (doors[i].getAttribute('class').indexOf('mystery') > -1){
 				isAtIntersection = false;
 				return;
 			}
-			else if (doors.getAttribute('class').indexOf('broken') > -1){
-				continue;
+			
+			if (doors[i].getAttribute('class').indexOf('broken') > -1){
+				objDoors.length.push("SHORT");
+				objDoors.tier.push("PLAIN");
+				objDoors.name.push("BROKEN");
+				objDoors.code.push("");
 			}
 			else {
 				temp = doors[i].children[1].innerText.toUpperCase();
@@ -1094,10 +1098,10 @@ function labyrinth() {
 				objDoors.length.push(temp[0]);
 				objDoors.tier.push(temp[1]);
 				objDoors.name.push(temp[2]);
-				objDoors.clue.push(0);
 				objDoors.code.push(objCodename[temp[2]] + objCodename[temp[1]] + objCodename[temp[0]]);
-				objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
 			}
+			objDoors.clue.push(0);
+			objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
 		}
 	}
 	else
@@ -1114,6 +1118,7 @@ function labyrinth() {
 	var index = -1;
 	try	{
 		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
+		console.debug(userVariable.all_clues);
 		for (var i=0;i<userVariable.all_clues.length;i++){
 			temp = userVariable.all_clues[i].name.toUpperCase();
 			if (temp.indexOf("DEAD") > -1)
@@ -1126,7 +1131,7 @@ function labyrinth() {
 			}
 		}
 		temp = sortWithIndices(objClues.quantity, "descend");
-		for (var i=0;i>temp.value.length-1;i++){
+		for (var i=0;i<temp.value.length-1;i++){
 			objClues.max_name.push(objClues.name[temp.index[i]]);
 			objClues.max_quantity.push(temp.value[i]);
 			if (temp.value[i] != temp.value[i+1])
@@ -1138,7 +1143,7 @@ function labyrinth() {
 		}
 		else {
 			temp = objClues.max_name[0];
-			for (var i=0;i<objDoors.length;i++){
+			for (var i=0;i<objDoors.code.length;i++){
 				index = arrDoorOrder.indexOf(objDoors.code[i]);
 				if (index > -1)
 					objDoors.priorities[i] = objPriorities[temp][index];
@@ -1152,11 +1157,14 @@ function labyrinth() {
 				for (var i=0;i<sortedDoorsClue.value.length;i++){
 					if (sortedDoorPriorities.priorities[sortedDoorsClue.index[i]] == highestPriorities){
 						fireEvent(doors[sortedDoorPriorities.index[sortedDoorsClue.index[i]]], 'click');
+						window.setTimeout(function () { fireEvent(document.getElementsByClassName('labyrinthHUD-confirm-button confirm')[0], 'click'); }, 1000);
+						break;
 					}
 				}
 			}
 			else {
 				fireEvent(doors[sortedDoorPriorities.index[0]], 'click');
+				window.setTimeout(function () { fireEvent(document.getElementsByClassName('labyrinthHUD-confirm-button confirm')[0], 'click'); }, 1000);
 			}
 		}
 	}
@@ -3721,28 +3729,29 @@ function countArrayElement(value, arrIn){
 }
 
 function sortWithIndices(toSort, sortType) {
+	var arr = toSort.slice();
 	var objSorted = {
 		value : [],
 		index : []
 	};
-	for (var i = 0; i < toSort.length; i++) {
-		toSort[i] = [toSort[i], i];
+	for (var i = 0; i < arr.length; i++) {
+		arr[i] = [arr[i], i];
 	}
 
 	if (sortType == "descend"){
-		toSort.sort(function(left, right) {
+		arr.sort(function(left, right) {
 			return left[0] > right[0] ? -1 : 1;
 		});
 	}
 	else {
-		toSort.sort(function(left, right) {
+		arr.sort(function(left, right) {
 			return left[0] < right[0] ? -1 : 1;
 		});
 	}
 	
-	for (var j = 0; j < toSort.length; j++) {
-		objSorted.value.push(toSort[j][0]);
-		objSorted.index.push(toSort[j][1]);
+	for (var j = 0; j < arr.length; j++) {
+		objSorted.value.push(arr[j][0]);
+		objSorted.index.push(arr[j][1]);
 	}
 	return objSorted;
 }
