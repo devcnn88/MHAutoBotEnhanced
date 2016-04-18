@@ -19,17 +19,19 @@
 		<span>
 			<a id="showPreferenceLink" name="showPreferenceLink" 
 			onclick=
-			"var selectedAlgo = window.localStorage.getItem('eventLocation');
-			showOrHideTr(selectedAlgo);
-			if (document.getElementById('showPreferenceLink').innerHTML == '<b>[Hide Preference]</b>') { 
+			"if (document.getElementById('showPreferenceLink').innerHTML == '<b>[Hide Preference]</b>') { 
 				document.getElementById('preferenceDiv').style.display='none';  
 				document.getElementById('showPreferenceLink').innerHTML='<b>[Show Preference]</b>'; 
 			} 
 			else { 
+				setLocalToSession();
+				var selectedAlgo = window.sessionStorage.getItem('eventLocation');
+				showOrHideTr(selectedAlgo);
 				document.getElementById('preferenceDiv').style.display='block'; 
 				document.getElementById('showPreferenceLink').innerHTML='<b>[Hide Preference]</b>'; 
-				loadSCCustomAlgo();
 				document.getElementById('eventAlgo').value = selectedAlgo;
+				loadSCCustomAlgo();
+				loadLabyrinth();
 			}"><b>[Show Preference]</b></a>&nbsp;&nbsp;&nbsp;
 		</span>
 	</div>
@@ -119,7 +121,7 @@
 					<td style="height:24px">
 						<select id="eventAlgo" 
 							onchange=
-							"window.localStorage.setItem('eventLocation', value); 
+							"window.sessionStorage.setItem('eventLocation', value); 
 							showOrHideTr(value);
 							">
 							<option value="None">None</option>
@@ -133,6 +135,7 @@
 							<option value="Sunken City Aggro">Sunken City Aggro</option>
 							<option value="Sunken City Custom">Sunken City Custom</option>
 							<option value="All LG Area">All LG Area</option>
+							<option value="Labyrinth">Labyrinth</option>
 						</select>
 					</td>
 				</tr>
@@ -168,46 +171,39 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="labyrinth" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select a district to focus on"><b>District to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="labyrinthDistrict" onchange="loadLabyrinth();">
+							<option value="FEALTY">Fealty</option>
+							<option value="TECH">Tech</option>
+							<option value="SCHOLAR">Scholar</option>
+							<option value="TREASURY">Treasury</option>
+							<option value="FARMING">Farming</option>
+						</select>&nbsp;&nbsp;<a title="Edit priorites of certain district"><b>Priorites:</b></a>&emsp;
+						<input id="labyrinthPriorities" size="20" type="text" value="" onchange=
+						"
+						var selectedDistrict = document.getElementById('labyrinthDistrict').value;
+						window.sessionStorage.setItem('Labyrinth_' + selectedDistrict, value);
+						">
+					</td>
+				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;" colspan="2">(Changes only take place after user save the preference) <input type="button" id="PreferenceSaveInput" value="Save" 
 					onclick=
-					"if (document.getElementById('AggressiveModeInputTrue').checked == true) { 
-						window.localStorage.setItem('AggressiveMode', 'true'); 
-					} 
-					else { 
-						window.localStorage.setItem('AggressiveMode', 'false'); 
-					}					
+					"window.localStorage.setItem('AggressiveMode',document.getElementById('AggressiveModeInput').value);
 					window.localStorage.setItem('HornTimeDelayMin', document.getElementById('HornTimeDelayMinInput').value); 
 					window.localStorage.setItem('HornTimeDelayMax', document.getElementById('HornTimeDelayMaxInput').value);					
-					if (document.getElementById('TrapCheckInputTrue').checked == true) { 
-						window.localStorage.setItem('TrapCheck', 'true'); 
-					} 
-					else { 
-						window.localStorage.setItem('TrapCheck', 'false'); 
-					}					
+					window.localStorage.setItem('TrapCheck',document.getElementById('TrapCheckInput').value);
 					window.localStorage.setItem('TrapCheckTimeDelayMin', document.getElementById('TrapCheckTimeDelayMinInput').value); 
 					window.localStorage.setItem('TrapCheckTimeDelayMax', document.getElementById('TrapCheckTimeDelayMaxInput').value);					
-					if (document.getElementById('PlayKingRewardSoundInputTrue').checked == true) { 
-						window.localStorage.setItem('PlayKingRewardSound', 'true'); 
-					} 
-					else { 
-						window.localStorage.setItem('PlayKingRewardSound', 'false'); 
-					}					
-					if (document.getElementById('AutoSolveKRInputTrue').checked == true) { 
-						window.localStorage.setItem('AutoSolveKR', 'true'); 
-					} 
-					else { 
-						window.localStorage.setItem('AutoSolveKR', 'false'); 
-					}					
+					window.localStorage.setItem('PlayKingRewardSound',document.getElementById('PlayKingRewardSoundInput').value);
+					window.localStorage.setItem('AutoSolveKR',document.getElementById('AutoSolveKRInput').value);
 					window.localStorage.setItem('AutoSolveKRDelayMin', document.getElementById('AutoSolveKRDelayMinInput').value); 
 					window.localStorage.setItem('AutoSolveKRDelayMax', document.getElementById('AutoSolveKRDelayMaxInput').value);					
-					if (document.getElementById('PauseLocationInputTrue').checked == true) { 
-						window.localStorage.setItem('PauseLocation', 'true'); 
-					} 
-					else { 
-						window.localStorage.setItem('PauseLocation', 'false'); 
-					}					
-					window.location.href='https://www.mousehuntgame.com/';
+					window.localStorage.setItem('SaveKRImage',document.getElementById('SaveKRImageInput').value);
+					window.localStorage.setItem('PauseLocation',document.getElementById('PauseLocationInput').value);
+					setSessionToLocal();
 					">&nbsp;&nbsp;&nbsp;</td>
 				</tr>
 			</tbody>
@@ -216,10 +212,37 @@
 	</div>
 </div>
 <script type="text/javascript">
+	function setLocalToSession(){
+		if(window.sessionStorage.length>0)
+			return;
+
+		var key;
+		for(var i=0;i<window.localStorage.length;i++){
+			key = window.localStorage.key(i);
+			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 || key.indexOf("eventLocation")>-1){
+				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
+			}
+		}
+	}
+	
+	function setSessionToLocal(){
+		if(window.sessionStorage.length==0)
+			return;
+		
+		window.localStorage.setItem('eventLocation', window.sessionStorage.getItem('eventLocation'));
+		var key;
+		for(var i=0;i<window.sessionStorage.length;i++){
+			key = window.sessionStorage.key(i);
+			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 || key.indexOf("eventLocation")>-1){
+				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
+			}
+		}
+	}
+	
 	function loadSCCustomAlgo()
 	{
 		var selectedZone = document.getElementById('scHuntZone').value;
-		var storageValue = window.localStorage.getItem('SCCustom_' + selectedZone);
+		var storageValue = window.sessionStorage.getItem('SCCustom_' + selectedZone);
 		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
 		var scHuntBaitEle = document.getElementById('scHuntBait');
 		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
@@ -227,6 +250,7 @@
 			scHuntZoneEnableEle.selectedIndex = 0;
 			scHuntBait.selectedIndex = 0;
 			scHuntTrinketEle.selectedIndex = 0;
+			window.sessionStorage.setItem('SCCustom_' + selectedZone, [scHuntZoneEnableEle.value,scHuntBaitEle.value,scHuntTrinketEle.value]);
 		}
 		else{
 			storageValue = storageValue.split(',');
@@ -244,11 +268,32 @@
 		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
 		var key = 'SCCustom_' + scHuntZoneEle.value;
 		var value = scHuntZoneEnableEle.value + ',' + scHuntBaitEle.value + ',' + scHuntTrinketEle.value;
-		window.localStorage.setItem(key, value);
+		window.sessionStorage.setItem(key, value);
+	}
+	
+	function loadLabyrinth(){
+		var selectedDistrict = document.getElementById('labyrinthDistrict').value;
+		var storageValue = window.sessionStorage.getItem('Labyrinth_' + selectedDistrict);
+		if (storageValue == null){
+			if(selectedDistrict == 'FEALTY')
+				storageValue = '9,8,7,6,5,4,3,2,1,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,15,14,13,12,11,10,16,17,18,16,17,18';
+			else if(selectedDistrict == 'TECH')
+				storageValue = '19,20,21,19,20,21,19,20,21,9,8,7,6,5,4,3,2,1,19,20,21,19,20,21,19,20,21,15,14,13,12,11,10,16,17,18,16,17,18';
+			else if(selectedDistrict == 'SCHOLAR')
+				storageValue = '19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,9,8,7,6,5,4,3,2,1,15,14,13,12,11,10,16,17,18,16,17,18';
+			else if(selectedDistrict == 'TREASURY')
+				storageValue = '10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,6,5,4,3,2,1,7,8,9,7,8,9';
+			else if(selectedDistrict == 'FARMING')
+				storageValue = '10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,7,8,9,7,8,9,6,5,4,3,2,1';
+			
+			window.sessionStorage.setItem('Labyrinth_' + selectedDistrict, storageValue);
+		}
+		document.getElementById('labyrinthPriorities').value = storageValue;
 	}
 	
 	function showOrHideTr(algo)
 	{
 		document.getElementById('scCustom').style.display = (algo == 'Sunken City Custom') ? 'table-row' : 'none';
+		document.getElementById('labyrinth').style.display = (algo == 'Labyrinth') ? 'table-row' : 'none';
 	}
 </script>
