@@ -1085,7 +1085,17 @@ function labyrinth() {
 		}
 	}
 	
-	isAtExit = (doorsExit.length > 0);
+	if(doorsExit.length>0){
+		for (var i=0;i<doorsExit.length;i++){
+			if (doorsExit[i].getAttribute('class').indexOf('mystery') > -1){
+				isAtExit = false;
+				break;
+			}
+			else
+				isAtExit = true;
+		}
+	}
+	
 	if (isAtIntersection || isAtExit){
 		console.debug("Intersection: " + isAtIntersection + " Exit: " + isAtExit);
 		checkThenArm(null, 'bait', 'Gouda');
@@ -1462,6 +1472,7 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
 					if (objTrapList[category][j].indexOf(name[i]) > -1){
 						if (userVariable.indexOf(name[i]) == 0) {
 							trapArmed = true;
+							arming = false;
 							return;
 						}
 						else {
@@ -1499,6 +1510,7 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
                 }
             }, 1000);
     }
+
     return;
 }
 
@@ -1592,10 +1604,8 @@ function armTrap(sort, name) {
 
 function clickTrapSelector(strSelect) //strSelect = weapon/base/charm/trinket/bait
 {
-    if (document.getElementsByClassName('tagGroup').length > 0) {
-		arming = true;
+    if(arming)
 		return;
-	}
 	
 	if (strSelect == "base") {
         fireEvent(document.getElementsByClassName('trapControlThumb')[0], 'click');
@@ -2454,7 +2464,15 @@ function embedTimer(targetPage) {
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
             showPreferenceLinkStr += '</a>';
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
-			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="window.localStorage.removeItem(\'TrapListWeapon\'); window.localStorage.removeItem(\'TrapListBase\'); window.localStorage.removeItem(\'TrapListTrinket\'); window.localStorage.removeItem(\'TrapListBait\');document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Done!]\';window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);">';
+			//var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="window.localStorage.removeItem(\'TrapListWeapon\'); window.localStorage.removeItem(\'TrapListBase\'); window.localStorage.removeItem(\'TrapListTrinket\'); window.localStorage.removeItem(\'TrapListBait\');document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Done!]\';window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);">';
+			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="\
+				window.localStorage.removeItem(\'TrapListWeapon\');\
+				window.localStorage.removeItem(\'TrapListBase\');\
+				window.localStorage.removeItem(\'TrapListTrinket\');\
+				window.localStorage.removeItem(\'TrapListBait\');\
+				document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Done!]\';\
+				window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);\
+				">';
 			clearTrapListStr += '<b>[Clear Trap List]</b></a>&nbsp;&nbsp;&nbsp;';
             showPreferenceSpan.innerHTML = clearTrapListStr + showPreferenceLinkStr;
             showPreferenceLinkDiv.appendChild(showPreferenceSpan);
@@ -3021,7 +3039,7 @@ function getTrapList(category){
 
 	for (var i=0;i<arrObjList.length;i++){
 		temp = getStorageToVariableStr("TrapList" + capitalizeFirstLetter(arrObjList[i]), "");
-		if (temp = ""){
+		if (temp == ""){
 			objTrapList[arrObjList[i]] = [];
 		}
 		else{
@@ -3055,13 +3073,16 @@ function capitalizeFirstLetter(strIn){
 }
 
 function getTrapListFromTrapSelector(sort, category, name){
-	clickTrapSelector(category);
 	objTrapList[category] = [];
 	var sec = secWait;
 	var retry = armTrapRetry;
 	var tagGroupElement, tagElement, nameElement;
     var intervalGTLFTS = setInterval(
         function () {
+			if(arming)
+				return;
+				
+			clickTrapSelector(category);			
             tagGroupElement = document.getElementsByClassName('tagGroup');
 			if (tagGroupElement.length > 0){
 				for (var i = 0; i < tagGroupElement.length; ++i){
@@ -4108,7 +4129,11 @@ function refreshTrapList() {
 						continue;
 					objTrap[data.components[i].classification].push(data.components[i].name);
 				}
-				console.debug(objTrap);
+				window.localStorage.setItem('TrapListWeapon', objTrap.weapon.join());
+				window.localStorage.setItem('TrapListBase', objTrap.base.join());
+				window.localStorage.setItem('TrapListTrinket', objTrap.trinket.join());
+				window.localStorage.setItem('TrapListBait', objTrap.bait.join());
+				//console.debug(objTrap);
 			},
 			error: function (error){
 				console.log('POST Error');
