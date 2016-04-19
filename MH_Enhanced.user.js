@@ -1068,125 +1068,27 @@ function labyrinth() {
 	if (GetCurrentLocation().indexOf("Labyrinth") < 0)
 		return;
 
+	checkThenArm('best', 'weapon', bestForgotten);
+	checkThenArm('best', 'base', bestLabyBase);
 	var isAtIntersection = false;
 	var isAtExit = false;
-	var isAtEntrance = false;
 	var doorsIntersect = document.getElementsByClassName('labyrinthHUD-door');
 	var doorsExit = document.getElementsByClassName('labyrinthHUD-exit');
-	var objDoors = {
-		name : [],
-		length : [],
-		tier : [],
-		clue : [],
-		code : [],
-		priorities : []
-	};
-	var temp = "";
 	if (doorsIntersect.length > 0){
 		for (var i=0;i<doorsIntersect.length;i++){
 			if (doorsIntersect[i].getAttribute('class').indexOf('mystery') > -1){
 				isAtIntersection = false;
 				break;
 			}
-			
-			if (doorsIntersect[i].getAttribute('class').indexOf('broken') > -1){
-				objDoors.length.push("SHORT");
-				objDoors.tier.push("PLAIN");
-				objDoors.name.push("BROKEN");
-				objDoors.code.push("");
-			}
-			else {
-				temp = doorsIntersect[i].children[1].innerText.toUpperCase();
-				if (temp == "???")
-					break;
-				temp = temp.split(" ");
-				objDoors.length.push(temp[0]);
-				objDoors.tier.push(temp[1]);
-				objDoors.name.push(temp[2]);
-				objDoors.code.push(objCodename[temp[2]] + objCodename[temp[1]] + objCodename[temp[0]]);
-			}
-			objDoors.clue.push(0);
-			objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
-			isAtIntersection = true;
+			else
+				isAtIntersection = true;
 		}
 	}
 	
-	if (doorsExit.length > 0) {
-		isAtExit = true;
-		for (var i=0;i<doorsExit.length;i++){
-			
-		}
-	}
-	
+	isAtExit = (doorsExit.length > 0);
 	if (isAtIntersection || isAtExit){
+		console.debug("Intersection: " + isAtIntersection + " Exit: " + isAtExit);
 		checkThenArm(null, 'bait', 'Gouda');
-	}	
-	else
-		return;
-	
-	var userVariable = undefined;
-	var objClues = {
-		name : [],
-		quantity : [],
-		max_quantity : [],
-		max_name : []
-	};
-	temp = "";
-	var index = -1;
-	try	{
-		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
-		for (var i=0;i<userVariable.all_clues.length;i++){
-			temp = userVariable.all_clues[i].name.toUpperCase();
-			if (temp.indexOf("DEAD") > -1)
-				continue;
-			objClues.name.push(temp);
-			objClues.quantity.push(userVariable.all_clues[i].quantity);
-			index = objDoors.name.indexOf(temp);
-			if (index > -1){
-				objDoors.clue[index] = userVariable.all_clues[i].quantity;
-			}
-		}
-		temp = sortWithIndices(objClues.quantity, "descend");
-		for (var i=0;i<temp.value.length-1;i++){
-			objClues.max_name.push(objClues.name[temp.index[i]]);
-			objClues.max_quantity.push(temp.value[i]);
-			if (temp.value[i] != temp.value[i+1])
-				break;
-		}
-		
-		if (objClues.max_name.length != 1){
-			throw 'Invalid max count: ' + objClues.max_name.length;
-		}
-		else {
-			temp = objClues.max_name[0];
-			for (var i=0;i<objDoors.code.length;i++){
-				index = arrDoorOrder.indexOf(objDoors.code[i]);
-				if (index > -1)
-					objDoors.priorities[i] = objPriorities[temp][index];
-			}
-
-			var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
-			var highestPriorities = sortedDoorPriorities.value[0];
-			if (countArrayElement(highestPriorities, sortedDoorPriorities.value) > 1){
-				// more than one highest priority, select based on highest clue in the highest priority door
-				var sortedDoorsClue = sortWithIndices(objDoors.clue, "descend");
-				for (var i=0;i<sortedDoorsClue.value.length;i++){
-					if (sortedDoorPriorities.priorities[sortedDoorsClue.index[i]] == highestPriorities){
-						fireEvent(doorsIntersect[sortedDoorPriorities.index[sortedDoorsClue.index[i]]], 'click');
-						window.setTimeout(function () { fireEvent(document.getElementsByClassName('labyrinthHUD-confirm-button confirm')[0], 'click'); }, 1000);
-						break;
-					}
-				}
-			}
-			else {
-				fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
-				window.setTimeout(function () { fireEvent(document.getElementsByClassName('labyrinthHUD-confirm-button confirm')[0], 'click'); }, 1000);
-			}
-		}
-	}
-	catch (e){
-		console.debug(e);
-		return;
 	}
 }
 
