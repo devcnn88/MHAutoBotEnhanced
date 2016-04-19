@@ -117,6 +117,28 @@
 					</td>
 				</tr>
 				<tr>
+					<td style="height:24px; text-align:right;" colspan="2">(Changes above this line only take place after user save the preference) <input type="button" id="PreferenceSaveInput" value="Save"
+					onclick=
+					"window.localStorage.setItem('AggressiveMode',document.getElementById('AggressiveModeInput').value);
+					window.localStorage.setItem('HornTimeDelayMin', document.getElementById('HornTimeDelayMinInput').value); 
+					window.localStorage.setItem('HornTimeDelayMax', document.getElementById('HornTimeDelayMaxInput').value);					
+					window.localStorage.setItem('TrapCheck',document.getElementById('TrapCheckInput').value);
+					window.localStorage.setItem('TrapCheckTimeDelayMin', document.getElementById('TrapCheckTimeDelayMinInput').value); 
+					window.localStorage.setItem('TrapCheckTimeDelayMax', document.getElementById('TrapCheckTimeDelayMaxInput').value);					
+					window.localStorage.setItem('PlayKingRewardSound',document.getElementById('PlayKingRewardSoundInput').value);
+					window.localStorage.setItem('AutoSolveKR',document.getElementById('AutoSolveKRInput').value);
+					window.localStorage.setItem('AutoSolveKRDelayMin', document.getElementById('AutoSolveKRDelayMinInput').value); 
+					window.localStorage.setItem('AutoSolveKRDelayMax', document.getElementById('AutoSolveKRDelayMaxInput').value);					
+					window.localStorage.setItem('SaveKRImage',document.getElementById('SaveKRImageInput').value);
+					window.localStorage.setItem('PauseLocation',document.getElementById('PauseLocationInput').value);
+					">&nbsp;&nbsp;&nbsp;</td>
+				</tr>
+				<tr>
+					<td style="height:24px" colspan="2">
+						<div style="width: 100%; height: 1px; background: #000000; overflow: hidden;">
+					</td>
+				</tr>
+				<tr>
 					<td style="height:24px; text-align:right;"><a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
 						<select id="eventAlgo" 
@@ -189,22 +211,10 @@
 					</td>
 				</tr>
 				<tr>
-					<td style="height:24px; text-align:right;" colspan="2">(Changes only take place after user save the preference) <input type="button" id="PreferenceSaveInput" value="Save" 
-					onclick=
-					"window.localStorage.setItem('AggressiveMode',document.getElementById('AggressiveModeInput').value);
-					window.localStorage.setItem('HornTimeDelayMin', document.getElementById('HornTimeDelayMinInput').value); 
-					window.localStorage.setItem('HornTimeDelayMax', document.getElementById('HornTimeDelayMaxInput').value);					
-					window.localStorage.setItem('TrapCheck',document.getElementById('TrapCheckInput').value);
-					window.localStorage.setItem('TrapCheckTimeDelayMin', document.getElementById('TrapCheckTimeDelayMinInput').value); 
-					window.localStorage.setItem('TrapCheckTimeDelayMax', document.getElementById('TrapCheckTimeDelayMaxInput').value);					
-					window.localStorage.setItem('PlayKingRewardSound',document.getElementById('PlayKingRewardSoundInput').value);
-					window.localStorage.setItem('AutoSolveKR',document.getElementById('AutoSolveKRInput').value);
-					window.localStorage.setItem('AutoSolveKRDelayMin', document.getElementById('AutoSolveKRDelayMinInput').value); 
-					window.localStorage.setItem('AutoSolveKRDelayMax', document.getElementById('AutoSolveKRDelayMaxInput').value);					
-					window.localStorage.setItem('SaveKRImage',document.getElementById('SaveKRImageInput').value);
-					window.localStorage.setItem('PauseLocation',document.getElementById('PauseLocationInput').value);
-					setSessionToLocal();
-					">&nbsp;&nbsp;&nbsp;</td>
+					<td style="height:24px; text-align:right;" colspan="2">
+						<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">
+						<input type="button" id="AlgoConfigSaveReloadInput" title="Save changes of Event or Location with reload, take effect immediately" value="Apply & Reload" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;
+					</td>
 				</tr>
 			</tbody>
 		</table>
@@ -213,9 +223,6 @@
 </div>
 <script type="text/javascript">
 	function setLocalToSession(){
-		if(window.sessionStorage.length>0)
-			return;
-
 		var key;
 		for(var i=0;i<window.localStorage.length;i++){
 			key = window.localStorage.key(i);

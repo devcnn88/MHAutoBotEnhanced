@@ -2711,13 +2711,60 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr>';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
+            preferenceHTMLStr += '(Changes above this line only take place after user save the preference) ';
+            preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="\
+				window.localStorage.setItem(\'AggressiveMode\', 		document.getElementById(\'AggressiveModeInput\').value);\
+				window.localStorage.setItem(\'HornTimeDelayMin\', 		document.getElementById(\'HornTimeDelayMinInput\').value);\
+				window.localStorage.setItem(\'HornTimeDelayMax\', 		document.getElementById(\'HornTimeDelayMaxInput\').value);\
+				window.localStorage.setItem(\'TrapCheck\', 				document.getElementById(\'TrapCheckInput\').value);\
+				window.localStorage.setItem(\'TrapCheckTimeDelayMin\',	document.getElementById(\'TrapCheckTimeDelayMinInput\').value);\
+				window.localStorage.setItem(\'TrapCheckTimeDelayMax\', 	document.getElementById(\'TrapCheckTimeDelayMaxInput\').value);\
+				window.localStorage.setItem(\'PlayKingRewardSound\', 	document.getElementById(\'PlayKingRewardSoundInput\').value);\
+				window.localStorage.setItem(\'AutoSolveKR\', 			document.getElementById(\'AutoSolveKRInput\').value);\
+				window.localStorage.setItem(\'AutoSolveKRDelayMin\', 	document.getElementById(\'AutoSolveKRDelayMinInput\').value);\
+				window.localStorage.setItem(\'AutoSolveKRDelayMax\', 	document.getElementById(\'AutoSolveKRDelayMaxInput\').value);\
+				window.localStorage.setItem(\'SaveKRImage\', 			document.getElementById(\'SaveKRImageInput\').value);\
+				window.localStorage.setItem(\'PauseLocation\', 			document.getElementById(\'PauseLocationInput\').value);\
+				for(var i=0;i<window.sessionStorage.length;i++){\
+					window.sessionStorage.removeItem(window.sessionStorage.key(i));\
+				}\
+				';
+            if (fbPlatform) {
+                if (secureConnection)
+                    temp = 'window.location.href=\'https://www.mousehuntgame.com/canvas/\';';
+                else
+                    temp = 'window.location.href=\'http://www.mousehuntgame.com/canvas/\';';
+            }
+            else if (hiFivePlatform) {
+                if (secureConnection)
+                    temp = 'window.location.href=\'https://www.mousehunt.hi5.hitgrab.com/\';';
+                else
+                    temp = 'window.location.href=\'http://www.mousehunt.hi5.hitgrab.com/\';';
+            }
+            else if (mhPlatform) {
+                if (secureConnection)
+                    temp = 'window.location.href=\'https://www.mousehuntgame.com/\';';
+                else
+                    temp = 'window.location.href=\'http://www.mousehuntgame.com/\';';
+            }
+            preferenceHTMLStr += temp + '"/>&nbsp;&nbsp;&nbsp;</td>';
+            preferenceHTMLStr += '</tr>';
 
             preferenceHTMLStr += '<tr>';
+            preferenceHTMLStr += '<td style="height:24px" colspan="2">';
+            preferenceHTMLStr += '<div style="width: 100%; height: 1px; background: #000000; overflow: hidden;">';
+            preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
-            preferenceHTMLStr += '<select id="eventAlgo" onChange="window.localStorage.setItem(\'eventLocation\', value); showOrHideTr(value);">';
+            preferenceHTMLStr += '<select id="eventAlgo" onChange="window.sessionStorage.setItem(\'eventLocation\', value); showOrHideTr(value);">';
             preferenceHTMLStr += '<option value="None" selected>None</option>';
 			preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
 			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
@@ -2727,10 +2774,10 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<option value="Charge Egg 2016 Medium + High">Charge Egg 2016 Medium + High</option>';
             preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
+			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
 			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
-			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -2790,47 +2837,12 @@ function embedTimer(targetPage) {
 				">';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-
-            preferenceHTMLStr += '<tr>';
+			
+			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
-            preferenceHTMLStr += '(Changes only take place after user save the preference) ';
-            preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="\
-				window.localStorage.setItem(\'AggressiveMode\', 		document.getElementById(\'AggressiveModeInput\').value);\
-				window.localStorage.setItem(\'HornTimeDelayMin\', 		document.getElementById(\'HornTimeDelayMinInput\').value);\
-				window.localStorage.setItem(\'HornTimeDelayMax\', 		document.getElementById(\'HornTimeDelayMaxInput\').value);\
-				window.localStorage.setItem(\'TrapCheck\', 				document.getElementById(\'TrapCheckInput\').value);\
-				window.localStorage.setItem(\'TrapCheckTimeDelayMin\',	document.getElementById(\'TrapCheckTimeDelayMinInput\').value);\
-				window.localStorage.setItem(\'TrapCheckTimeDelayMax\', 	document.getElementById(\'TrapCheckTimeDelayMaxInput\').value);\
-				window.localStorage.setItem(\'PlayKingRewardSound\', 	document.getElementById(\'PlayKingRewardSoundInput\').value);\
-				window.localStorage.setItem(\'AutoSolveKR\', 			document.getElementById(\'AutoSolveKRInput\').value);\
-				window.localStorage.setItem(\'AutoSolveKRDelayMin\', 	document.getElementById(\'AutoSolveKRDelayMinInput\').value);\
-				window.localStorage.setItem(\'AutoSolveKRDelayMax\', 	document.getElementById(\'AutoSolveKRDelayMaxInput\').value);\
-				window.localStorage.setItem(\'SaveKRImage\', 			document.getElementById(\'SaveKRImageInput\').value);\
-				window.localStorage.setItem(\'PauseLocation\', 			document.getElementById(\'PauseLocationInput\').value);\
-				setSessionToLocal();\
-				for(var i=0;i<window.sessionStorage.length;i++){\
-					window.sessionStorage.removeItem(window.sessionStorage.key(i));\
-				}\
-				';
-            if (fbPlatform) {
-                if (secureConnection)
-                    preferenceHTMLStr += 'window.location.href=\'https://www.mousehuntgame.com/canvas/\';"/>';
-                else
-                    preferenceHTMLStr += 'window.location.href=\'http://www.mousehuntgame.com/canvas/\';"/>';
-            }
-            else if (hiFivePlatform) {
-                if (secureConnection)
-                    preferenceHTMLStr += 'window.location.href=\'https://www.mousehunt.hi5.hitgrab.com/\';"/>';
-                else
-                    preferenceHTMLStr += 'window.location.href=\'http://www.mousehunt.hi5.hitgrab.com/\';"/>';
-            }
-            else if (mhPlatform) {
-                if (secureConnection)
-                    preferenceHTMLStr += 'window.location.href=\'https://www.mousehuntgame.com/\';"/>';
-                else
-                    preferenceHTMLStr += 'window.location.href=\'http://www.mousehuntgame.com/\';"/>';
-            }
-            preferenceHTMLStr += '&nbsp;&nbsp;&nbsp;</td>';
+            preferenceHTMLStr += '<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;';
+			preferenceHTMLStr += '<input type="button" id="AlgoConfigSaveReloadInput" title="Save changes of Event or Location with reload, take effect immediately" value="Apply & Reload" onclick="setSessionToLocal();' + temp + '">&nbsp;&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
             preferenceHTMLStr += '</table>';
 
@@ -2859,8 +2871,6 @@ function embedTimer(targetPage) {
 			scriptElement.setAttribute('type', "text/javascript");
 			scriptElement.innerHTML = "\
 				function setLocalToSession(){\
-					if(window.sessionStorage.length>0)\
-						return;\
 					var key;\
 					for(var i=0;i<window.localStorage.length;i++){\
 						key = window.localStorage.key(i);\
@@ -3108,7 +3118,7 @@ function getTrapList(category){
 		arrObjList = [category];
 
 	for (var i=0;i<arrObjList.length;i++){
-		temp = getStorageToVariableBool("TrapList" + capitalizeFirstLetter(arrObjList[i]), "");
+		temp = getStorageToVariableStr("TrapList" + capitalizeFirstLetter(arrObjList[i]), "");
 		if (temp = ""){
 			objTrapList[arrObjList[i]] = [];
 		}
