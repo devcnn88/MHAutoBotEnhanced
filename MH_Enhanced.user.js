@@ -186,6 +186,7 @@ else
 
 var objSCTrap = {
 	scOxyBait : ['Fishy Fromage', 'Gouda'],
+	TT : ['Treasure Trawling'],
 	EAC : ['Empowered Anchor'],
 	scAnchorTreasure : ['Golden Anchor', 'Empowered Anchor'],
 	scAnchorDanger : ['Spiked Anchor', 'Empowered Anchor'],
@@ -2737,6 +2738,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="scHuntTrinket" onChange="saveSCCustomAlgo();">';
 			preferenceHTMLStr += '<option value="None">No Charm</option>';
 			preferenceHTMLStr += '<option value="NoSC">No SC Charm</option>';
+			preferenceHTMLStr += '<option value="TT">Treasure Trawling</option>';
 			preferenceHTMLStr += '<option value="EAC">EAC</option>';
 			preferenceHTMLStr += '<option value="scAnchorTreasure">GAC, EAC</option>';
 			preferenceHTMLStr += '<option value="scAnchorDanger">SAC, EAC</option>';
