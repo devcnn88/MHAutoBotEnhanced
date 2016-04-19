@@ -1463,7 +1463,15 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
     if (sort == 'best') {
 		getTrapList(category);
 		if (objTrapList[category].length == 0){
-			getTrapListFromTrapSelector(sort, category, name);
+			var intervalCTA1 = setInterval(
+				function (){
+					if (!arming){
+						getTrapListFromTrapSelector(sort, category, name);
+						clearInterval(intervalCTA1);
+						intervalCTA1 = null;
+						return;
+					}
+				}, 1000);
 			return;
 		}
 		else{
@@ -1473,6 +1481,9 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
 						if (userVariable.indexOf(name[i]) == 0) {
 							trapArmed = true;
 							arming = false;
+							var close = document.getElementById("trapSelectorBrowserClose");
+							if(close!=null)
+								fireEvent(close, 'click');
 							return;
 						}
 						else {
@@ -1602,11 +1613,7 @@ function armTrap(sort, name) {
 		return LOADING;
 }
 
-function clickTrapSelector(strSelect) //strSelect = weapon/base/charm/trinket/bait
-{
-    if(arming)
-		return;
-	
+function clickTrapSelector(strSelect){ //strSelect = weapon/base/charm/trinket/bait
 	if (strSelect == "base") {
         fireEvent(document.getElementsByClassName('trapControlThumb')[0], 'click');
     }
@@ -3073,16 +3080,13 @@ function capitalizeFirstLetter(strIn){
 }
 
 function getTrapListFromTrapSelector(sort, category, name){
+	clickTrapSelector(category);
 	objTrapList[category] = [];
 	var sec = secWait;
 	var retry = armTrapRetry;
 	var tagGroupElement, tagElement, nameElement;
     var intervalGTLFTS = setInterval(
-        function () {
-			if(arming)
-				return;
-				
-			clickTrapSelector(category);			
+        function (){	
             tagGroupElement = document.getElementsByClassName('tagGroup');
 			if (tagGroupElement.length > 0){
 				for (var i = 0; i < tagGroupElement.length; ++i){
@@ -3093,7 +3097,11 @@ function getTrapListFromTrapSelector(sort, category, name){
 					}
 				}
 				setStorage("TrapList" + capitalizeFirstLetter(category), objTrapList[category].join(","));
+				clearInterval(intervalGTLFTS);
+				arming = false;
+				intervalGTLFTS = null;
 				checkThenArm(sort, category, name);
+				return;
 			}
             else{
                 --sec;
