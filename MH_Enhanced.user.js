@@ -1417,10 +1417,13 @@ function checkCharge(stopDischargeAt) {
     }
 }
 
-function checkThenArm(sort, category, name)   //category = weapon/base/charm/trinket/bait
+function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon/base/charm/trinket/bait
 {
 	if (category == "charm")
         category = "trinket";
+	
+	if(isForcedRetry==undefined || isForcedRetry==null)
+		isForcedRetry = true;
 
     var trapArmed = undefined;
 	var userVariable = getPageVariable("user." + category + "_name");
@@ -1467,7 +1470,11 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
 
 	if (trapArmed == undefined){
 		console.log(name.join("/") + " not found in TrapList" + capitalizeFirstLetter(category));
-		return;
+		clearTrapList(category);
+		if(isForcedRetry){
+			checkThenArm(sort, category, name, false);
+			return;
+		}
 	}
 	
     if (!trapArmed)
