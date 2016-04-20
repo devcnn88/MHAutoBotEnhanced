@@ -1442,6 +1442,7 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
 			for (var i = 0; i < name.length; i++) {
 				for (var j = 0; j < objTrapList[category].length; j++) {
 					if (objTrapList[category][j].indexOf(name[i]) > -1){
+						console.log("Best " + category + " found: " + name[i] + " Currently Armed: " + userVariable);
 						if (userVariable.indexOf(name[i]) == 0) {
 							trapArmed = true;
 							arming = false;
