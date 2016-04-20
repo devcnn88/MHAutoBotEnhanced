@@ -1445,9 +1445,7 @@ function checkThenArm(sort, category, name)   //category = weapon/base/charm/tri
 						if (userVariable.indexOf(name[i]) == 0) {
 							trapArmed = true;
 							arming = false;
-							var close = document.getElementById("trapSelectorBrowserClose");
-							if(close!=null)
-								fireEvent(close, 'click');
+							closeTrapSelector(trap);
 							return;
 						}
 						else {
@@ -2435,7 +2433,6 @@ function embedTimer(targetPage) {
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
             showPreferenceLinkStr += '</a>';
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
-			//var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="window.localStorage.removeItem(\'TrapListWeapon\'); window.localStorage.removeItem(\'TrapListBase\'); window.localStorage.removeItem(\'TrapListTrinket\'); window.localStorage.removeItem(\'TrapListBait\');document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Done!]\';window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);">';
 			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="\
 				window.localStorage.removeItem(\'TrapListWeapon\');\
 				window.localStorage.removeItem(\'TrapListBase\');\
@@ -2917,7 +2914,6 @@ function getTrapList(category){
 }
 
 function clearTrapList(category){
-	var temp = "";
 	var arrObjList;
 	if (category == null || category == undefined)
 		arrObjList = Object.keys(objTrapList);
@@ -2926,7 +2922,6 @@ function clearTrapList(category){
 
 	for (var i=0;i<arrObjList.length;i++){
 		removeStorage("TrapList" + capitalizeFirstLetter(arrObjList[i]));
-		temp = getStorageToVariableBool("TrapList" + capitalizeFirstLetter(arrObjList[i]), "");
 		objTrapList[arrObjList[i]] = [];
 	}
 }
