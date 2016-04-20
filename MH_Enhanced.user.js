@@ -205,42 +205,6 @@ var chargeMedium = 12;
 // // Labyrinth
 var bestLabyBase = ['Minotaur Base', 'Labyrinth Base'];
 bestLabyBase = bestLabyBase.concat(bestLuckBase);
-var objCodename = {
-	FEALTY : "y",
-	TECH : "h",
-	SCHOLAR : "s",
-	TREASURY : "t",
-	FARMING : "f",
-	PLAIN : "p",
-	SUPERIOR : "s",
-	EPIC : "e",
-	SHORT : "s",
-	MEDIUM : "m",
-	LONG : "l"
-};
-var arrDoorOrder = [
-	"yps","ypm","ypl","yss","ysm","ysl","yes","yem","yel",
-	"hps","hpm","hpl","hss","hsm","hsl","hes","hem","hel",
-	"sps","spm","spl","sss","ssm","ssl","ses","sem","sel",
-	"tps","tpm","tpl","tss","tsm","tsl",
-	"fps","fpm","fpl","fss","fsm","fsl"
-];
-
-var objDefaultPriorities = {
-	FEALTY : [9,8,7,6,5,4,3,2,1,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,15,14,13,12,11,10,16,17,18,16,17,18],
-	TECH : [19,20,21,19,20,21,19,20,21,9,8,7,6,5,4,3,2,1,19,20,21,19,20,21,19,20,21,15,14,13,12,11,10,16,17,18,16,17,18],
-	SCHOLAR : [19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,9,8,7,6,5,4,3,2,1,15,14,13,12,11,10,16,17,18,16,17,18],
-	TREASURY : [10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,6,5,4,3,2,1,7,8,9,7,8,9],
-	FARMING : [10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,7,8,9,7,8,9,6,5,4,3,2,1]
-};
-
-var objPriorities = {
-	FEALTY : [],
-	TECH : [],
-	SCHOLAR : [],
-	TREASURY : [],
-	FARMING : []
-};
 
 // == Advance User Preference Setting (End) ==
 
@@ -1097,10 +1061,9 @@ function labyrinth() {
 		}
 	}
 	
-	if (isAtIntersection || isAtExit){
-		console.debug("Intersection: " + isAtIntersection + " Exit: " + isAtExit);
+	console.debug("Intersection: " + isAtIntersection + " Exit: " + isAtExit);
+	if (isAtIntersection || isAtExit)
 		checkThenArm(null, 'bait', 'Gouda');
-	}
 }
 
 function livingGarden(isAutoPour) {
