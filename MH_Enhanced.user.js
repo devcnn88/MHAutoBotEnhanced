@@ -902,7 +902,7 @@ function SCCustom() {
 		var charmElement = document.getElementsByClassName('charm');
 		var charmArmed = getPageVariable("user.trinket_name");
 		var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
-		if (distanceToNextZone[0] >= 480 || (distanceToNextZone[1] >= 480 && (!isNextZoneInHuntZone[0]))) {
+		if (distanceToNextZone[0] >= 480 || (distanceToNextZone[1] >= 480 && (!isNextZoneInHuntZone[0])) || (!(isNextZoneInHuntZone[0]||isNextZoneInHuntZone[1]))) {
 			// arm Water Jet Charm
 			canJet = (parseInt(charmElement[1].innerText) > 0);
 			if (!isWJCArmed) {
