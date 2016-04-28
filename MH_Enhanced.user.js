@@ -132,7 +132,7 @@ var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Senti
 var bestTactical = ['Chrome Sphynx Wrath', 'Sphynx Wrath'];
 var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap'];
 var bestArcane = ['Event Horizon', 'Grand Arcanum Trap', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
-var bestShadow = ['Temporal Turbine', 'Clockwork Portal Trap', 'Reaper\'s Perch', 'Clockapult of Time', 'Clockapult of Winter Past'];
+var bestShadow = ['Temporal Turbine', 'Clockwork Portal Trap', 'Reaper\'s Perch', 'Dreaded Totem Trap', 'Clockapult of Time', 'Clockapult of Winter Past'];
 var bestForgotten = ['Infinite Labyrinth', 'Endless Labyrinth', 'Crystal Crucible', 'Stale Cupcake Golem', 'Tarannosaurus Rex Trap', 'The Forgotten Art of Dance'];
 var bestDraconic = ['Dragon Lance', 'Ice Maiden'];
 var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
@@ -1561,8 +1561,11 @@ function armTrap(sort, name) {
                 nameElement = tagElement[j].getElementsByClassName('name')[0].innerText;
                 if (nameElement.indexOf(name) == 0)
                 {
-                    fireEvent(tagElement[j], 'click');
-                    console.debug(name + ' armed');
+                    if(tagElement[j].getAttribute('class').indexOf('selected')<0){	// only click when not arming
+						fireEvent(tagElement[j], 'click');
+						console.debug(name + ' armed');
+					}
+					
 					return ARMED;
                 }
             }
