@@ -1066,8 +1066,10 @@ function labyrinth() {
 	}
 	
 	console.debug("Intersection: " + isAtIntersection + " Exit: " + isAtExit);
-	if (isAtIntersection || isAtExit)
+	if (isAtIntersection || isAtExit){
 		checkThenArm(null, 'bait', 'Gouda');
+		disarmTrap('trinket');
+	}
 }
 
 function livingGarden(isAutoPour) {
