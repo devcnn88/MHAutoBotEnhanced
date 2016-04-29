@@ -334,7 +334,11 @@ function receiveMessage(event)
 				}
 			}
 			FinalizePuzzleImageAnswer(result);
-		}		
+		}
+		else if(event.data.indexOf("#")>-1){
+			var value = event.data.substring(1, event.data.length);
+			setStorage("imgurCallBack",value);
+		}
 	}		
 }
 
@@ -2588,7 +2592,7 @@ function embedTimer(targetPage) {
 				}
 			}
             preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
+			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1 || value.indexOf(\'i.imgur.com\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
