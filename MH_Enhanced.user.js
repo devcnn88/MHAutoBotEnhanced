@@ -2891,7 +2891,9 @@ function loadPreferenceSettingFromStorage() {
 		
 		if (keyKR.length > maxSaveKRImage){
 			keyKR = keyKR.sort();
-			keyKR.splice(0, keyKR.length - Math.floor(maxSaveKRImage / 2));
+			var count = Math.floor(maxSaveKRImage / 2);
+			for(var i=0;i<count;i++)
+				removeStorage(keyKR[i]);
 		}
 	}
 	catch (e){
