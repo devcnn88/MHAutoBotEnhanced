@@ -2835,7 +2835,7 @@ function embedTimer(targetPage) {
 				function loadLG(){\
 					var storageValue = window.sessionStorage.getItem(\'LGArea\');\
 					if(storageValue == null){\
-						storageValue = \'true,25\';\
+						storageValue = \'false,25\';\
 						window.sessionStorage.setItem(\'LGArea\', storageValue);\
 					}\
 					storageValue = storageValue.split(\',\');\
