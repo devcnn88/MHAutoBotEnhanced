@@ -153,7 +153,10 @@ var bestSalt = ['Super Salt', 'Grub Salt'];
 var redSpongeCharm = ['Red Double', 'Red Sponge'];
 var yellowSpongeCharm = ['Yellow Double', 'Yellow Sponge'];
 var spongeCharm = ['Double Sponge', 'Sponge'];
-var maxSaltCharged = 25;	// Sand Crypts maximum salt for King Grub
+var objLG = {
+	isAutoPour : false,
+	maxSaltCharged : 25	// Sand Crypts maximum salt for King Grub
+};
 
 // // Sunken City Preference
 // // DON'T edit this variable if you don't know what are you editing
@@ -654,6 +657,7 @@ function ZTalgo() {
 function eventLocationCheck(caller) {
     var selAlgo = getStorageToVariableStr("eventLocation", "None");
 	console.debug('Algorithm Selected: ' + selAlgo + ' Call From: ' + caller);
+	var temp = "";
     switch (selAlgo)
     {
         case 'Charge Egg 2015':
@@ -673,9 +677,12 @@ function eventLocationCheck(caller) {
 		case 'Halloween 2015':
 			Halloween2015(); break;	 
 		case 'All LG Area':
-			LGGeneral(false); break;
-		case 'All LG Area Auto Pour':
-			LGGeneral(true); break;
+			temp = getStorageToVariableStr("LGArea", "false,25");
+			temp = temp.split(",");
+			objLG.isAutoPour = (temp[0] == "true");
+			objLG.maxSaltCharged = parseInt(temp[1]);
+			LGGeneral(isAutoPour);
+			break;
 		case 'Sunken City':
 			SunkenCity(false); break;
 		case 'Sunken City Aggro':
@@ -1238,10 +1245,10 @@ function cursedCity() {
 function sandCrypts() {
     var salt = parseInt(document.getElementsByClassName('salt_charms')[0].innerText);
     console.debug('Salted: ' + salt);
-    if (salt >= maxSaltCharged)
+    if (salt >= objLG.maxSaltCharged)
         checkThenArm(null, 'trinket', 'Grub Scent');
     else {
-		if ((maxSaltCharged - salt) == 1)
+		if ((objLG.maxSaltCharged - salt) == 1)
 			checkThenArm(null, 'trinket', 'Grub Salt');		
 		else
 			checkThenArm('best', 'trinket', bestSalt);
@@ -2440,6 +2447,7 @@ function embedTimer(targetPage) {
 					document.getElementById(\'preferenceDiv\').style.display=\'block\';\
 					document.getElementById(\'showPreferenceLink\').innerHTML=\'<b>[Hide Preference]</b>\';\
 					document.getElementById(\'eventAlgo\').value = selectedAlgo;\
+					loadLG();\
 					loadSCCustomAlgo();\
 				}\
 				">';
@@ -2671,7 +2679,6 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<select id="eventAlgo" onChange="window.sessionStorage.setItem(\'eventLocation\', value); showOrHideTr(value);">';
             preferenceHTMLStr += '<option value="None" selected>None</option>';
 			preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
-			preferenceHTMLStr += '<option value="All LG Area Auto Pour">All LG Area Auto Pour</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
@@ -2686,6 +2693,20 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="lgArea" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select auto pour status"><b>Auto Pour</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="lgAutoPour" onChange="saveLG();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+            preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title="Max number of salt before hunting King Grub"><b>Salt Charge:</b></a>&emsp;';
+			preferenceHTMLStr += '<input type="number" id="lgSalt" min="1" max="50" size="5" value="" onchange="saveLG();">';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="scCustom" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>';
@@ -2759,7 +2780,7 @@ function embedTimer(targetPage) {
 					var key;\
 					for(var i=0;i<window.localStorage.length;i++){\
 						key = window.localStorage.key(i);\
-						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'eventLocation\')>-1){\
+						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'LGArea\')>-1 || key.indexOf(\'eventLocation\')>-1){\
 							window.sessionStorage.setItem(key, window.localStorage.getItem(key));\
 						}\
 					}\
@@ -2771,7 +2792,7 @@ function embedTimer(targetPage) {
 					var key;\
 					for(var i=0;i<window.sessionStorage.length;i++){\
 						key = window.sessionStorage.key(i);\
-						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'eventLocation\')>-1){\
+						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'LGArea\')>-1 || key.indexOf(\'eventLocation\')>-1){\
 							window.localStorage.setItem(key, window.sessionStorage.getItem(key));\
 						}\
 					}\
@@ -2804,7 +2825,23 @@ function embedTimer(targetPage) {
 					var value = scHuntZoneEnableEle.value + \',\' + scHuntBaitEle.value + \',\' + scHuntTrinketEle.value;\
 					window.sessionStorage.setItem(key, value);\
 				}\
+				function saveLG(){\
+					var isPour = (document.getElementById(\'lgAutoPour\').value == \'true\');\
+					var maxSalt = document.getElementById(\'lgSalt\').value;\
+					window.sessionStorage.setItem(\'LGArea\', isPour + \',\' + maxSalt);\
+				}\
+				function loadLG(){\
+					var storageValue = window.sessionStorage.getItem(\'LGArea\');\
+					if(storageValue == null){\
+						storageValue = \'true,25\';\
+						window.sessionStorage.setItem(\'LGArea\', storageValue);\
+					}\
+					storageValue = storageValue.split(\',\');\
+					document.getElementById(\'lgAutoPour\').value = storageValue[0];\
+					document.getElementById(\'lgSalt\').value = parseInt(storageValue[1]);\
+				}\
 				function showOrHideTr(algo){\
+					document.getElementById(\'lgArea\').style.display = (algo == \'All LG Area\') ? \'table-row\' : \'none\';\
 					document.getElementById(\'scCustom\').style.display = (algo == \'Sunken City Custom\') ? \'table-row\' : \'none\';\
 				}";
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);

@@ -30,6 +30,7 @@
 				document.getElementById('preferenceDiv').style.display='block'; 
 				document.getElementById('showPreferenceLink').innerHTML='<b>[Hide Preference]</b>'; 
 				document.getElementById('eventAlgo').value = selectedAlgo;
+				loadLG();
 				loadSCCustomAlgo();
 				loadLabyrinth();
 			}"><b>[Show Preference]</b></a>&nbsp;&nbsp;&nbsp;
@@ -161,6 +162,16 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="lgArea" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select auto pour status"><b>Auto Pour</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="lgAutoPour" onchange="saveLG();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title="Max number of salt before hunting King Grub"><b>Salt Charge:</b></a>&emsp;
+						<input type="number" id="lgSalt" min="1" max="50" size="5" value="25" onchange="saveLG();">
+					</td>
+				</tr>
 				<tr id="scCustom" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -226,7 +237,8 @@
 		var key;
 		for(var i=0;i<window.localStorage.length;i++){
 			key = window.localStorage.key(i);
-			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 || key.indexOf("eventLocation")>-1){
+			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
+				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -240,7 +252,8 @@
 		var key;
 		for(var i=0;i<window.sessionStorage.length;i++){
 			key = window.sessionStorage.key(i);
-			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 || key.indexOf("eventLocation")>-1){
+			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
+				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -298,8 +311,27 @@
 		document.getElementById('labyrinthPriorities').value = storageValue;
 	}
 	
+	function saveLG(){
+		var isPour = (document.getElementById('lgAutoPour').value == 'true');
+		var maxSalt = document.getElementById('lgSalt').value;
+		window.sessionStorage.setItem('LGArea', isPour + ',' + maxSalt);
+	}
+	
+	function loadLG(){
+		var storageValue = window.sessionStorage.getItem('LGArea');
+		if(storageValue == null){
+			storageValue = 'true,25';
+			window.sessionStorage.setItem('LGArea', storageValue);
+		}
+
+		storageValue = storageValue.split(',');
+		document.getElementById('lgAutoPour').value = storageValue[0];
+		document.getElementById('lgSalt').value = parseInt(storageValue[1]);
+	}
+	
 	function showOrHideTr(algo)
 	{
+		document.getElementById('lgArea').style.display = (algo == 'All LG Area') ? 'table-row' : 'none';
 		document.getElementById('scCustom').style.display = (algo == 'Sunken City Custom') ? 'table-row' : 'none';
 		document.getElementById('labyrinth').style.display = (algo == 'Labyrinth') ? 'table-row' : 'none';
 	}
