@@ -681,7 +681,7 @@ function eventLocationCheck(caller) {
 			temp = temp.split(",");
 			objLG.isAutoPour = (temp[0] == "true");
 			objLG.maxSaltCharged = parseInt(temp[1]);
-			LGGeneral(isAutoPour);
+			LGGeneral(objLG.isAutoPour);
 			break;
 		case 'Sunken City':
 			SCCustom(); break;
