@@ -139,7 +139,7 @@ var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
 var bestRiftPower = ['Focused Crystal Laser', 'Crystal Tower'];
 var bestPowerBase = ['Minotaur Base', 'Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
 var bestLuckBase = ['Minotaur Base', 'Fissure Base', 'Rift Base', 'Monkey Jade Base', 'Sheep Jade Base', 'Depth Charge Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Eerier Base', 'Papyrus Base'];
-var bestAttBasae = ['Birthday Drag', 'Cheesecake Base'];
+var bestAttBase = ['Birthday Drag', 'Cheesecake Base'];
 var wasteCharm = ['Tarnished', 'Wealth'];
 
 // // Fiery Warpath Preference
@@ -1578,6 +1578,8 @@ function armTrap(sort, name) {
 						fireEvent(tagElement[j], 'click');
 						console.debug(name + ' armed');
 					}
+					else
+						closeTrapSelector(trap);
 					
 					return ARMED;
                 }
