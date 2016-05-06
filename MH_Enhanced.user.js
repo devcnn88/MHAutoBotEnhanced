@@ -1457,7 +1457,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 		else{
 			for (var i = 0; i < name.length; i++) {
 				for (var j = 0; j < objTrapList[category].length; j++) {
-					if (objTrapList[category][j].indexOf(name[i]) > -1){
+					if (objTrapList[category][j].indexOf(name[i]) == 0){
 						console.log("Best " + category + " found: " + name[i] + " Currently Armed: " + userVariable);
 						if (userVariable.indexOf(name[i]) == 0) {
 							trapArmed = true;
