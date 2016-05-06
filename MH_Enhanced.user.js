@@ -1942,8 +1942,8 @@ function checkJournalDate() {
 
         if (midIndex >= 1) {
             var hrStr = journalDateStr.substring(0, midIndex);
-            var minStr = journalDateStr.substring(midIndex + 1, 2);
-            var hourSysStr = journalDateStr.substring(spaceIndex + 1, 2);
+            var minStr = journalDateStr.substr(midIndex + 1, 2);
+            var hourSysStr = journalDateStr.substr(spaceIndex + 1, 2);
 
             var nowDate = new Date();
             var lastHuntDate = new Date();
