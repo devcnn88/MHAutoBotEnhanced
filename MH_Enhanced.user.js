@@ -3507,8 +3507,10 @@ function CallKRSolver()
 	var frame = document.createElement('iframe');
 	frame.setAttribute("id", "myFrame");
 	var img = document.getElementById('puzzleImage');	
-	if (debugKR)
-		frame.src = "https://dl.dropboxusercontent.com/s/4u5msso39hfpo87/Capture.PNG";
+	if (debugKR){
+		//frame.src = "https://dl.dropboxusercontent.com/s/4u5msso39hfpo87/Capture.PNG";
+		frame.src = "https://dl.dropboxusercontent.com/s/og73bcdsn2qod63/download%20%2810%29Ori.png"
+	}
 	else
 		frame.src = img.src;	
 	document.body.appendChild(frame);	
