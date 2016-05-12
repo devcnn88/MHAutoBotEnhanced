@@ -1098,17 +1098,19 @@ function labyrinth() {
 				objDoors.code.push("");
 			}
 			else {
-				temp = doorsIntersect[i].children[1].innerText.toUpperCase();
-				if (temp == "???")
-					break;
-				temp = temp.split(" ");
-				objDoors.length.push(temp[0]);
-				objDoors.tier.push(temp[1]);
-				objDoors.name.push(temp[2]);
-				objDoors.code.push(objCodename[temp[0]] + objCodename[temp[1]]);
+				if(doorsIntersect[i].children.length>=2){
+					temp = doorsIntersect[i].children[1].innerText.toUpperCase();
+					if(temp == "???")
+						break;
+					temp = temp.split(" ");
+					objDoors.length.push(temp[0]);
+					objDoors.tier.push(temp[1]);
+					objDoors.name.push(temp[2]);
+					objDoors.code.push(objCodename[temp[0]] + objCodename[temp[1]]);
+					objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
+					isAtIntersection = true;
+				}		
 			}
-			objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
-			isAtIntersection = true;
 		}
 	}
 	
@@ -1124,7 +1126,7 @@ function labyrinth() {
 	}
 	
 	console.debug("Intersection: " + isAtIntersection + " Exit: " + isAtExit);
-	if(!(isAtIntersection || isExit))
+	if(!(isAtIntersection || isAtExit))
 		return;
 	
 	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
