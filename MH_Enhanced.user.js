@@ -208,6 +208,28 @@ var chargeMedium = 12;
 // // Labyrinth
 var bestLabyBase = ['Minotaur Base', 'Labyrinth Base'];
 bestLabyBase = bestLabyBase.concat(bestLuckBase);
+var objCodename = {
+	FEALTY : "y",
+	TECH : "h",
+	SCHOLAR : "s",
+	TREASURY : "t",
+	FARMING : "f",
+	PLAIN : "p",
+	SUPERIOR : "s",
+	EPIC : "e",
+	SHORT : "s",
+	MEDIUM : "m",
+	LONG : "l"
+};
+var arrHallwayOrder = [
+'SP','MP','LP',
+'SS','MS','LS',
+'SE','ME','LE'];
+var objDefaultHallwayPriorities = {
+	between0and14 : ['LP'],
+	between15and59  : ['SP','LS'],
+	between60and100  : ['SP','SS','LE']
+};
 
 // == Advance User Preference Setting (End) ==
 
@@ -322,8 +344,9 @@ function receiveMessage(event)
 	{
 		if (event.data.indexOf("~") > -1)
 		{						
+			var result = "";
 			if (saveKRImage){
-				var result = event.data.substring(0, event.data.indexOf("~"));
+				result = event.data.substring(0, event.data.indexOf("~"));
 				var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);
 				var strKR = "KR" + separator;
 				strKR += Date.now() + separator;
@@ -367,10 +390,12 @@ function exeScript() {
 
     if (showTimerInTitle) {
         // check if they are running in iFrame
+		var contentElement = undefined;
+		var breakFrameDivElement = undefined;
         if (window.location.href.indexOf("apps.facebook.com/mousehunt/") != -1) {
-            var contentElement = document.getElementById('pagelet_canvas_content');
+            contentElement = document.getElementById('pagelet_canvas_content');
             if (contentElement) {
-                var breakFrameDivElement = document.createElement('div');
+                breakFrameDivElement = document.createElement('div');
                 breakFrameDivElement.setAttribute('id', 'breakFrameDivElement');
                 breakFrameDivElement.innerHTML = "Timer cannot show on title page. You can <a href='http://www.mousehuntgame.com/canvas/'>run MouseHunt without iFrame (Facebook)</a> to enable timer on title page";
                 contentElement.parentNode.insertBefore(breakFrameDivElement, contentElement);
@@ -378,9 +403,9 @@ function exeScript() {
             contentElement = undefined;
         }
         else if (window.location.href.indexOf("hi5.com/friend/games/MouseHunt") != -1) {
-            var contentElement = document.getElementById('apps-canvas-body');
+            contentElement = document.getElementById('apps-canvas-body');
             if (contentElement) {
-                var breakFrameDivElement = document.createElement('div');
+                breakFrameDivElement = document.createElement('div');
                 breakFrameDivElement.setAttribute('id', 'breakFrameDivElement');
                 breakFrameDivElement.innerHTML = "Timer cannot show on title page. You can <a href='http://mousehunt.hi5.hitgrab.com/'>run MouseHunt without iFrame (Hi5)</a> to enable timer on title page";
                 contentElement.parentNode.insertBefore(breakFrameDivElement, contentElement);
@@ -403,7 +428,7 @@ function exeScript() {
         }
         else {
             // from mousehunt game standard version
-            mhPlatform = true
+            mhPlatform = true;
         }
         version = undefined;
     }
@@ -450,7 +475,7 @@ function exeScript() {
             else {
                 // fail to retrieve data, display error msg and reload the page
                 document.title = "Fail to retrieve data from page. Reloading in " + timeformat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false) }, errorReloadTime * 1000);
+                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
         }
         else {
@@ -487,7 +512,7 @@ function exeScript() {
             else {
                 // fail to retrieve data, display error msg and reload the page
                 document.title = "Fail to retrieve data from page. Reloading in " + timeformat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false) }, errorReloadTime * 1000);
+                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
         }
         else {
@@ -532,7 +557,7 @@ function exeScript() {
             else {
                 // fail to retrieve data, display error msg and reload the page
                 document.title = "Fail to retrieve data from page. Reloading in " + timeformat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false) }, errorReloadTime * 1000);
+                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
         }
         else {
@@ -553,7 +578,7 @@ function GetTrapCheckTime() {
 			setStorage("TrapCheckTimeOffset", time);
 			return parseInt(time);				
 		}
-		else throw 'passiveElement not found'
+		else throw 'passiveElement not found';
 	}
 	catch (e) {
 		console.debug(e);
@@ -1050,14 +1075,40 @@ function labyrinth() {
 	var isAtExit = false;
 	var doorsIntersect = document.getElementsByClassName('labyrinthHUD-door');
 	var doorsExit = document.getElementsByClassName('labyrinthHUD-exit');
+	var objDoors = {
+		name : [],
+		length : [],
+		tier : [],
+		clue : [],
+		code : [],
+		priorities : []
+	};
+	var temp = "";
 	if (doorsIntersect.length > 0){
 		for (var i=0;i<doorsIntersect.length;i++){
 			if (doorsIntersect[i].getAttribute('class').indexOf('mystery') > -1){
 				isAtIntersection = false;
 				break;
 			}
-			else
-				isAtIntersection = true;
+			
+			if (doorsIntersect[i].getAttribute('class').indexOf('broken') > -1){
+				objDoors.length.push("SHORT");
+				objDoors.tier.push("PLAIN");
+				objDoors.name.push("BROKEN");
+				objDoors.code.push("");
+			}
+			else {
+				temp = doorsIntersect[i].children[1].innerText.toUpperCase();
+				if (temp == "???")
+					break;
+				temp = temp.split(" ");
+				objDoors.length.push(temp[0]);
+				objDoors.tier.push(temp[1]);
+				objDoors.name.push(temp[2]);
+				objDoors.code.push(objCodename[temp[0]] + objCodename[temp[1]]);
+			}
+			objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
+			isAtIntersection = true;
 		}
 	}
 	
@@ -1073,9 +1124,69 @@ function labyrinth() {
 	}
 	
 	console.debug("Intersection: " + isAtIntersection + " Exit: " + isAtExit);
-	if (isAtIntersection || isAtExit){
+	if(!(isAtIntersection || isExit))
+		return;
+	
+	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
+	if ((isAtIntersection && districtFocus == 'None') || (isAtIntersection && objDoors.name.indexOf(districtFocus) < 0) ||isAtExit){
 		checkThenArm(null, 'bait', 'Gouda');
 		disarmTrap('trinket');
+		return;
+	}
+	
+	var userVariable = undefined;
+	temp = "";
+	var range = "";
+	var index = -1;
+	var clues = 0;
+	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
+	try	{
+		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
+		for (var i=0;i<userVariable.all_clues.length;i++){
+			temp = userVariable.all_clues[i].name.toUpperCase();
+			if (temp.indexOf(districtFocus) > -1){
+				clues = userVariable.all_clues[i].quantity;
+				break;
+			}
+		}
+		if(clues<15)
+			range = 'between0and14';
+		else if(clues<60)
+			range = 'between15and59';
+		else
+			range = 'between60and100';
+		
+		var arr;
+		var arrAll = [];
+		for (var i=0;i<objHallwayPriorities[range].length;i++){
+			// i = 0/1/2 = plain/superior/epic
+			arr = [];
+			for (var j=0;j<3;j++)
+				arr.push(j+1+i*3);
+			
+			if(objHallwayPriorities[range][i].indexOf('L') == 0)
+				arrAll.push(arr.reverse());
+			else
+				arrAll.push(arr);
+		}
+		
+		for (var i=arrAll.length;i<arrHallwayOrder.length;i++)
+			arrAll.push(Number.MAX_SAFE_INTEGER);
+		
+		for (var i=0;i<doorsIntersect.length;i++){
+			index = arrHallwayOrder.indexOf(objDoors.code[i]);
+			if(index > -1){
+				objDoors.priorities[i] = arrAll[index];
+			}
+		}
+		
+		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
+		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
+		//window.setTimeout(function () { fireEvent(document.getElementsByClassName('labyrinthHUD-confirm-button confirm')[0], 'click'); }, 1000);
+	}
+	catch (e){
+		console.debug(e);
+		return;
 	}
 }
 
@@ -2449,8 +2560,6 @@ function embedTimer(targetPage) {
 					document.getElementById(\'preferenceDiv\').style.display=\'block\';\
 					document.getElementById(\'showPreferenceLink\').innerHTML=\'<b>[Hide Preference]</b>\';\
 					document.getElementById(\'eventAlgo\').value = selectedAlgo;\
-					loadLG();\
-					loadSCCustomAlgo();\
 				}\
 				">';
             if (showPreference == true)
@@ -2746,6 +2855,58 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="labyrinth" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select a district to focus on"><b>District to Focus</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="labyrinthDistrict" onChange="saveDistrictFocus(value); loadLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="FEALTY">Fealty</option>';
+			preferenceHTMLStr += '<option value="TECH">Tech</option>';
+			preferenceHTMLStr += '<option value="SCHOLAR">Scholar</option>';
+			preferenceHTMLStr += '<option value="TREASURY">Treasury</option>';
+			preferenceHTMLStr += '<option value="FARMING">Farming</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="labyrinthMaxClue" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select the range that max clue fall under"><b>Clues Range</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="clueRange" onChange="loadLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="between0and14">Max Clues < 15</option>';
+			preferenceHTMLStr += '<option value="between15and59">15 < Max Clues < 60</option>';
+			preferenceHTMLStr += '<option value="between60and100">Max Clues > 60</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="labyrinthHallway" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select the hallway length priorities after unlocking certain tier doors"><b>Priorities</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="hallwayEpic" onChange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="LE">Long Epic Hallway First</option>';
+			preferenceHTMLStr += '<option value="SE">Short Epic Hallway First</option>';
+            preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="hallwaySuperior" onChange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="LS">Long Superior Hallway First</option>';
+			preferenceHTMLStr += '<option value="SS">Short Superior Hallway First</option>';
+            preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="hallwayPlain" onChange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="LP">Long Plain Hallway First</option>';
+			preferenceHTMLStr += '<option value="SP">Short Plain Hallway First</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
             preferenceHTMLStr += '<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;';
@@ -2782,7 +2943,8 @@ function embedTimer(targetPage) {
 					var key;\
 					for(var i=0;i<window.localStorage.length;i++){\
 						key = window.localStorage.key(i);\
-						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'LGArea\')>-1 || key.indexOf(\'eventLocation\')>-1){\
+						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'LGArea\')>-1 ||\
+							key.indexOf(\'Labyrinth_\')>-1 || key.indexOf(\'eventLocation\')>-1){\
 							window.sessionStorage.setItem(key, window.localStorage.getItem(key));\
 						}\
 					}\
@@ -2794,7 +2956,8 @@ function embedTimer(targetPage) {
 					var key;\
 					for(var i=0;i<window.sessionStorage.length;i++){\
 						key = window.sessionStorage.key(i);\
-						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'LGArea\')>-1 || key.indexOf(\'eventLocation\')>-1){\
+						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'LGArea\')>-1 || \
+							key.indexOf(\'Labyrinth_\')>-1 || key.indexOf(\'eventLocation\')>-1){\
 							window.localStorage.setItem(key, window.sessionStorage.getItem(key));\
 						}\
 					}\
@@ -2827,6 +2990,87 @@ function embedTimer(targetPage) {
 					var value = scHuntZoneEnableEle.value + \',\' + scHuntBaitEle.value + \',\' + scHuntTrinketEle.value;\
 					window.sessionStorage.setItem(key, value);\
 				}\
+				function saveDistrictFocus(value){\
+					window.sessionStorage.setItem(\'Labyrinth_DistrictFocus\',value);\
+				}\
+				function saveLabyrinthHallway(){\
+					var hallwayPlain = document.getElementById(\'hallwayPlain\');\
+					var hallwaySuperior = document.getElementById(\'hallwaySuperior\');\
+					var hallwayEpic = document.getElementById(\'hallwayEpic\');\
+					var selectedRange = document.getElementById(\'clueRange\').value;\
+					var objDefaultHallwayPriorities = {\
+						between0and14 : [\'LP\'],\
+						between15and59  : [\'SP\',\'LS\'],\
+						between60and100  : [\'SP\',\'SS\',\'LE\']\
+					};\
+					var storageValue = JSON.parse(window.sessionStorage.getItem(\'Labyrinth_HallwayPriorities\'));\
+					if(storageValue == null)\
+						storageValue = objDefaultHallwayPriorities;\
+					\
+					if(selectedRange == \'between0and14\'){\
+						storageValue[selectedRange] = [hallwayPlain.value];\
+					}\
+					else if(selectedRange == \'between15and59\'){\
+						storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value];\
+					}\
+					else if(selectedRange == \'between60and100\'){\
+						storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];\
+					}\
+					\
+					window.sessionStorage.setItem(\'Labyrinth_HallwayPriorities\', JSON.stringify(storageValue));\
+				}\
+				function loadDistricFocus(){\
+					var storageValue = window.sessionStorage.getItem(\'Labyrinth_DistrictFocus\');\
+					if(storageValue == null)\
+						storageValue = \'None\';\
+					\
+					document.getElementById(\'labyrinthDistrict\').value = storageValue;\
+				}\
+				function loadLabyrinthHallway(){\
+					var selectedDistrict = document.getElementById(\'labyrinthDistrict\').value;\
+					document.getElementById(\'labyrinthMaxClue\').style.display = (selectedDistrict == \'None\') ? \'none\' : \'table-row\';\
+					document.getElementById(\'labyrinthHallway\').style.display = (selectedDistrict == \'None\') ? \'none\' : \'table-row\';\
+					if(selectedDistrict == \'None\')\
+						return;\
+						\
+					var hallwayPlain = document.getElementById(\'hallwayPlain\');\
+					var hallwaySuperior = document.getElementById(\'hallwaySuperior\');\
+					var hallwayEpic = document.getElementById(\'hallwayEpic\');\
+					var selectedRange = document.getElementById(\'clueRange\').value;\
+					var storageValue = JSON.parse(window.sessionStorage.getItem(\'Labyrinth_HallwayPriorities\'));\
+					\
+					var objDefaultHallwayPriorities = {\
+						between0and14 : [\'LP\'],\
+						between15and59  : [\'SP\',\'LS\'],\
+						between60and100  : [\'SP\',\'SS\',\'LE\']\
+					};\
+					if(storageValue == null){\
+						storageValue = JSON.stringify(objDefaultHallwayPriorities);\
+						storageValue = JSON.parse(storageValue);\
+					}\
+					\
+					if(selectedRange == \'between0and14\'){\
+						hallwayPlain.value = storageValue[selectedRange][0];\
+						hallwaySuperior.disabled = \'disabled\';\
+						hallwayEpic.disabled = \'disabled\';\
+					}\
+					else if(selectedRange == \'between15and59\'){\
+						hallwayPlain.value = storageValue[selectedRange][0];\
+						hallwaySuperior.value = storageValue[selectedRange][1];\
+						hallwaySuperior.disabled = \'\';\
+						hallwayEpic.disabled = \'disabled\';\
+					}\
+					else if(selectedRange == \'between60and100\'){\
+						hallwayPlain.value = storageValue[selectedRange][0];\
+						hallwaySuperior.value = storageValue[selectedRange][1];\
+						hallwayEpic.value = storageValue[selectedRange][2];\
+						hallwaySuperior.disabled = \'\';\
+						hallwayEpic.disabled = \'\';\
+					}\
+					\
+					if(!hallwayEpic.disabled && (selectedDistrict == \'TREASURY\' || selectedDistrict == \'FARMING\'))\
+						hallwayEpic.disabled = \'disabled\';\
+				}\
 				function saveLG(){\
 					var isPour = (document.getElementById(\'lgAutoPour\').value == \'true\');\
 					var maxSalt = document.getElementById(\'lgSalt\').value;\
@@ -2843,8 +3087,26 @@ function embedTimer(targetPage) {
 					document.getElementById(\'lgSalt\').value = parseInt(storageValue[1]);\
 				}\
 				function showOrHideTr(algo){\
-					document.getElementById(\'lgArea\').style.display = (algo == \'All LG Area\') ? \'table-row\' : \'none\';\
-					document.getElementById(\'scCustom\').style.display = (algo == \'Sunken City Custom\') ? \'table-row\' : \'none\';\
+					document.getElementById(\'lgArea\').style.display = \'none\';\
+					document.getElementById(\'scCustom\').style.display = \'none\';\
+					document.getElementById(\'labyrinth\').style.display = \'none\';\
+					document.getElementById(\'labyrinthMaxClue\').style.display = \'none\';\
+					document.getElementById(\'labyrinthHallway\').style.display = \'none\';\
+					if(algo == \'All LG Area\'){\
+						document.getElementById(\'lgArea\').style.display = \'table-row\';\
+						loadLG();\
+					}\
+					else if(algo == \'Sunken City Custom\'){\
+						document.getElementById(\'scCustom\').style.display = \'table-row\';\
+						loadSCCustomAlgo();\
+					}\
+					else if(algo == \'Labyrinth\'){\
+						document.getElementById(\'labyrinth\').style.display = \'table-row\';\
+						document.getElementById(\'labyrinthMaxClue\').style.display = \'table-row\';\
+						document.getElementById(\'labyrinthHallway\').style.display = \'table-row\';\
+						loadDistricFocus();\
+						loadLabyrinthHallway();\
+					}\
 				}";
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);
 			scriptElement = null;
@@ -3399,7 +3661,7 @@ function kingRewardAction() {
 		krDelaySec += krDelayMinute * 60;
 		var timeNow = new Date();
 		setStorage("Time to start delay", timeNow.toString());
-		setStorage("Delay time", timeformat(krDelaySec))
+		setStorage("Delay time", timeformat(krDelaySec));
 		kingRewardCountdownTimer(krDelaySec, true);
 	}
 	else
@@ -3509,7 +3771,7 @@ function CallKRSolver()
 	var img = document.getElementById('puzzleImage');	
 	if (debugKR){
 		//frame.src = "https://dl.dropboxusercontent.com/s/4u5msso39hfpo87/Capture.PNG";
-		frame.src = "https://dl.dropboxusercontent.com/s/og73bcdsn2qod63/download%20%2810%29Ori.png"
+		frame.src = "https://dl.dropboxusercontent.com/s/og73bcdsn2qod63/download%20%2810%29Ori.png";
 	}
 	else
 		frame.src = img.src;	
