@@ -30,9 +30,6 @@
 				document.getElementById('preferenceDiv').style.display='block'; 
 				document.getElementById('showPreferenceLink').innerHTML='<b>[Hide Preference]</b>'; 
 				document.getElementById('eventAlgo').value = selectedAlgo;
-				loadLG();
-				loadSCCustomAlgo();
-				loadLabyrinth();
 			}"><b>[Show Preference]</b></a>&nbsp;&nbsp;&nbsp;
 		</span>
 	</div>
@@ -207,18 +204,52 @@
 				<tr id="labyrinth" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select a district to focus on"><b>District to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="labyrinthDistrict" onchange="loadLabyrinth();">
+						<select id="labyrinthDistrict" onchange=
+						"saveDistrictFocus(value);
+						loadLabyrinthHallway();
+						">
+							<option value="None">None</option>
 							<option value="FEALTY">Fealty</option>
 							<option value="TECH">Tech</option>
 							<option value="SCHOLAR">Scholar</option>
 							<option value="TREASURY">Treasury</option>
 							<option value="FARMING">Farming</option>
-						</select>&nbsp;&nbsp;<a title="Edit priorites of certain district"><b>Priorites:</b></a>&emsp;
-						<input id="labyrinthPriorities" size="20" type="text" value="" onchange=
-						"
-						var selectedDistrict = document.getElementById('labyrinthDistrict').value;
-						window.sessionStorage.setItem('Labyrinth_' + selectedDistrict, value);
+						</select>
+					</td>
+				</tr>
+				<tr id="labyrinthMaxClue" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select the range that max clue fall under"><b>Clues Range</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="clueRange" onchange=
+						"loadLabyrinthHallway();
 						">
+							<option value="between0and14">Max Clues < 15</option>
+							<option value="between15and59">15 < Max Clues < 60</option>
+							<option value="between60and100">Max Clues > 60</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="labyrinthHallway" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select the range that max clue fall under"><b>Priorities</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="hallwayEpic" onchange=
+						"saveLabyrinthHallway();
+						">
+							<option value="LE">Long Epic Hallway First</option>
+							<option value="SE">Short Epic Hallway First</option>
+						</select>
+						<select id="hallwaySuperior" onchange=
+						"saveLabyrinthHallway();
+						">
+							<option value="LS">Long Superior Hallway First</option>
+							<option value="SS">Short Superior Hallway First</option>
+						</select>
+						<select id="hallwayPlain" onchange=
+						"saveLabyrinthHallway();
+						">
+							<option value="LP">Long Plain Hallway First</option>
+							<option value="SP">Short Plain Hallway First</option>
+						</select>
 					</td>
 				</tr>
 				<tr>
@@ -291,24 +322,89 @@
 		window.sessionStorage.setItem(key, value);
 	}
 	
-	function loadLabyrinth(){
-		var selectedDistrict = document.getElementById('labyrinthDistrict').value;
-		var storageValue = window.sessionStorage.getItem('Labyrinth_' + selectedDistrict);
-		if (storageValue == null){
-			if(selectedDistrict == 'FEALTY')
-				storageValue = '9,8,7,6,5,4,3,2,1,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,15,14,13,12,11,10,16,17,18,16,17,18';
-			else if(selectedDistrict == 'TECH')
-				storageValue = '19,20,21,19,20,21,19,20,21,9,8,7,6,5,4,3,2,1,19,20,21,19,20,21,19,20,21,15,14,13,12,11,10,16,17,18,16,17,18';
-			else if(selectedDistrict == 'SCHOLAR')
-				storageValue = '19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,19,20,21,9,8,7,6,5,4,3,2,1,15,14,13,12,11,10,16,17,18,16,17,18';
-			else if(selectedDistrict == 'TREASURY')
-				storageValue = '10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,6,5,4,3,2,1,7,8,9,7,8,9';
-			else if(selectedDistrict == 'FARMING')
-				storageValue = '10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,10,11,12,7,8,9,7,8,9,6,5,4,3,2,1';
-			
-			window.sessionStorage.setItem('Labyrinth_' + selectedDistrict, storageValue);
+	function saveDistrictFocus(value){
+		window.sessionStorage.setItem('Labyrinth_DistrictFocus',value);
+	}
+	
+	function saveLabyrinthHallway(){
+		var hallwayPlain = document.getElementById('hallwayPlain');
+		var hallwaySuperior = document.getElementById('hallwaySuperior');
+		var hallwayEpic = document.getElementById('hallwayEpic');
+		var selectedRange = document.getElementById('clueRange').value;
+		var objDefaultHallwayPriorities = {
+			between0and14 : ['LP'],
+			between15and59  : ['SP','LS'],
+			between60and100  : ['SP','SS','LE']
+		};
+		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
+		if(storageValue == null)
+			storageValue = objDefaultHallwayPriorities;
+		
+		if(selectedRange == 'between0and14'){
+			storageValue[selectedRange] = [hallwayPlain.value];
 		}
-		document.getElementById('labyrinthPriorities').value = storageValue;
+		else if(selectedRange == 'between15and59'){
+			storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value];
+		}
+		else if(selectedRange == 'between60and100'){
+			storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];
+		}
+		
+		window.sessionStorage.setItem('HallwayPriorities', JSON.stringify(storageValue));
+	}
+	
+	function loadDistricFocus(){
+		var storageValue = window.sessionStorage.getItem('Labyrinth_DistrictFocus');
+		if(storageValue == null)
+			storageValue = 'None';
+		
+		document.getElementById('labyrinthDistrict').value = storageValue;
+	}
+	
+	function loadLabyrinthHallway(){
+		var selectedDistrict = document.getElementById('labyrinthDistrict').value;
+		document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		if(selectedDistrict == 'None')
+			return;
+			
+		var hallwayPlain = document.getElementById('hallwayPlain');
+		var hallwaySuperior = document.getElementById('hallwaySuperior');
+		var hallwayEpic = document.getElementById('hallwayEpic');
+		var selectedRange = document.getElementById('clueRange').value;
+		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
+		
+		var objDefaultHallwayPriorities = {
+			between0and14 : ['LP'],
+			between15and59  : ['SP','LS'],
+			between60and100  : ['SP','SS','LE']
+		};
+		if(storageValue == null){
+			storageValue = JSON.stringify(objDefaultHallwayPriorities);
+			storageValue = JSON.parse(storageValue);
+		}
+		
+		if(selectedRange == 'between0and14'){
+			hallwayPlain.value = storageValue[selectedRange][0];
+			hallwaySuperior.disabled = 'disabled';
+			hallwayEpic.disabled = 'disabled';
+		}
+		else if(selectedRange == 'between15and59'){
+			hallwayPlain.value = storageValue[selectedRange][0];
+			hallwaySuperior.value = storageValue[selectedRange][1];
+			hallwaySuperior.disabled = '';
+			hallwayEpic.disabled = 'disabled';
+		}
+		else if(selectedRange == 'between60and100'){
+			hallwayPlain.value = storageValue[selectedRange][0];
+			hallwaySuperior.value = storageValue[selectedRange][1];
+			hallwayEpic.value = storageValue[selectedRange][2];
+			hallwaySuperior.disabled = '';
+			hallwayEpic.disabled = '';
+		}
+		
+		if(!hallwayEpic.disabled && (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING'))
+			hallwayEpic.disabled = 'disabled';
 	}
 	
 	function saveLG(){
@@ -329,10 +425,26 @@
 		document.getElementById('lgSalt').value = parseInt(storageValue[1]);
 	}
 	
-	function showOrHideTr(algo)
-	{
-		document.getElementById('lgArea').style.display = (algo == 'All LG Area') ? 'table-row' : 'none';
-		document.getElementById('scCustom').style.display = (algo == 'Sunken City Custom') ? 'table-row' : 'none';
-		document.getElementById('labyrinth').style.display = (algo == 'Labyrinth') ? 'table-row' : 'none';
+	function showOrHideTr(algo){
+		document.getElementById('lgArea').style.display = 'none';
+		document.getElementById('scCustom').style.display = 'none';
+		document.getElementById('labyrinth').style.display = 'none';
+		document.getElementById('labyrinthMaxClue').style.display = 'none';
+		document.getElementById('labyrinthHallway').style.display = 'none';
+		if(algo == 'All LG Area'){
+			document.getElementById('lgArea').style.display = 'table-row';
+			loadLG();
+		}
+		else if(algo == 'Sunken City Custom'){
+			document.getElementById('scCustom').style.display = 'table-row';
+			loadSCCustomAlgo();
+		}
+		else if(algo == 'Labyrinth'){
+			document.getElementById('labyrinth').style.display = 'table-row';
+			document.getElementById('labyrinthMaxClue').style.display = 'table-row';
+			document.getElementById('labyrinthHallway').style.display = 'table-row';
+			loadDistricFocus();
+			loadLabyrinthHallway();
+		}
 	}
 </script>
