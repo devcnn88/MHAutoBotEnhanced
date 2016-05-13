@@ -222,13 +222,13 @@ var objCodename = {
 	LONG : "l"
 };
 var arrHallwayOrder = [
-'SP','MP','LP',
-'SS','MS','LS',
-'SE','ME','LE'];
+'sp','mp','lp',
+'ss','ms','ls',
+'se','me','le'];
 var objDefaultHallwayPriorities = {
-	between0and14 : ['LP'],
-	between15and59  : ['SP','LS'],
-	between60and100  : ['SP','SS','LE']
+	between0and14 : ['lp'],
+	between15and59  : ['sp','ls'],
+	between60and100  : ['sp','ss','le']
 };
 
 // == Advance User Preference Setting (End) ==
@@ -1166,7 +1166,7 @@ function labyrinth() {
 			for (var j=0;j<3;j++)
 				arr.push(j+1+i*3);
 			
-			if(objHallwayPriorities[range][i].indexOf('L') == 0)
+			if(objHallwayPriorities[range][i].indexOf(objCodename.LONG) == 0)
 				arrAll.push(arr.reverse());
 			else
 				arrAll.push(arr);
@@ -2895,16 +2895,16 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="hallwayEpic" onChange="saveLabyrinthHallway();">';
-			preferenceHTMLStr += '<option value="LE">Long Epic Hallway First</option>';
-			preferenceHTMLStr += '<option value="SE">Short Epic Hallway First</option>';
+			preferenceHTMLStr += '<option value="le">Long Epic Hallway First</option>';
+			preferenceHTMLStr += '<option value="se">Short Epic Hallway First</option>';
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="hallwaySuperior" onChange="saveLabyrinthHallway();">';
-			preferenceHTMLStr += '<option value="LS">Long Superior Hallway First</option>';
-			preferenceHTMLStr += '<option value="SS">Short Superior Hallway First</option>';
+			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>';
+			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>';
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="hallwayPlain" onChange="saveLabyrinthHallway();">';
-			preferenceHTMLStr += '<option value="LP">Long Plain Hallway First</option>';
-			preferenceHTMLStr += '<option value="SP">Short Plain Hallway First</option>';
+			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>';
+			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -3001,9 +3001,9 @@ function embedTimer(targetPage) {
 					var hallwayEpic = document.getElementById(\'hallwayEpic\');\
 					var selectedRange = document.getElementById(\'clueRange\').value;\
 					var objDefaultHallwayPriorities = {\
-						between0and14 : [\'LP\'],\
-						between15and59  : [\'SP\',\'LS\'],\
-						between60and100  : [\'SP\',\'SS\',\'LE\']\
+						between0and14 : [\'lp\'],\
+						between15and59  : [\'sp\',\'ls\'],\
+						between60and100  : [\'sp\',\'ss\',\'le\']\
 					};\
 					var storageValue = JSON.parse(window.sessionStorage.getItem(\'Labyrinth_HallwayPriorities\'));\
 					if(storageValue == null)\
@@ -3042,9 +3042,9 @@ function embedTimer(targetPage) {
 					var storageValue = JSON.parse(window.sessionStorage.getItem(\'Labyrinth_HallwayPriorities\'));\
 					\
 					var objDefaultHallwayPriorities = {\
-						between0and14 : [\'LP\'],\
-						between15and59  : [\'SP\',\'LS\'],\
-						between60and100  : [\'SP\',\'SS\',\'LE\']\
+						between0and14 : [\'lp\'],\
+						between15and59  : [\'sp\',\'ls\'],\
+						between60and100  : [\'sp\',\'ss\',\'le\']\
 					};\
 					if(storageValue == null){\
 						storageValue = JSON.stringify(objDefaultHallwayPriorities);\
