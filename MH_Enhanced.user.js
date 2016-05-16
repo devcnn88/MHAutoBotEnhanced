@@ -1079,7 +1079,6 @@ function labyrinth() {
 		name : [],
 		length : [],
 		tier : [],
-		clue : [],
 		code : [],
 		priorities : []
 	};
@@ -1096,32 +1095,35 @@ function labyrinth() {
 				objDoors.tier.push("PLAIN");
 				objDoors.name.push("BROKEN");
 				objDoors.code.push("");
+				objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
 			}
 			else {
 				if(doorsIntersect[i].children.length>=2){
 					temp = doorsIntersect[i].children[1].innerText.toUpperCase();
-					if(temp == "???")
-						break;
+					// if(temp == "???")
+						// break;
 					temp = temp.split(" ");
 					objDoors.length.push(temp[0]);
 					objDoors.tier.push(temp[1]);
 					objDoors.name.push(temp[2]);
 					objDoors.code.push(objCodename[temp[0]] + objCodename[temp[1]]);
-					objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
-					isAtIntersection = true;
+					objDoors.priorities.push(Number.MAX_SAFE_INTEGER);					
 				}		
 			}
+			isAtIntersection = true;
 		}
 	}
 	
 	if(doorsExit.length>0){
-		for (var i=0;i<doorsExit.length;i++){
-			if (doorsExit[i].getAttribute('class').indexOf('mystery') > -1){
-				isAtExit = false;
-				break;
+		if(getPageVariable("user.quests.QuestLabyrinth.status") == 'exit'){			
+			for (var i=0;i<doorsExit.length;i++){
+				if (doorsExit[i].getAttribute('class').indexOf('mystery') > -1){
+					isAtExit = false;
+					break;
+				}
+				else
+					isAtExit = true;
 			}
-			else
-				isAtExit = true;
 		}
 	}
 	
@@ -1130,11 +1132,19 @@ function labyrinth() {
 		return;
 	
 	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
+	console.debug('District to focus: ' + districtFocus);
 	if ((isAtIntersection && districtFocus == 'None') || (isAtIntersection && objDoors.name.indexOf(districtFocus) < 0) ||isAtExit){
 		checkThenArm(null, 'bait', 'Gouda');
 		disarmTrap('trinket');
 		return;
 	}
+	
+	if(isAtIntersection && objDoors.name.indexOf(districtFocus)<0){
+		
+	}
+	
+	if(parseInt(getPageVariable("user.bait_quantity"))<3)
+		checkThenArm(null, 'bait', 'Gouda');
 	
 	var userVariable = undefined;
 	temp = "";
@@ -1167,24 +1177,27 @@ function labyrinth() {
 				arr.push(j+1+i*3);
 			
 			if(objHallwayPriorities[range][i].indexOf(objCodename.LONG) == 0)
-				arrAll.push(arr.reverse());
+				arrAll = arrAll.concat(arr.reverse());
 			else
-				arrAll.push(arr);
+				arrAll = arrAll.concat(arr);
 		}
 		
 		for (var i=arrAll.length;i<arrHallwayOrder.length;i++)
 			arrAll.push(Number.MAX_SAFE_INTEGER);
-		
-		for (var i=0;i<doorsIntersect.length;i++){
-			index = arrHallwayOrder.indexOf(objDoors.code[i]);
-			if(index > -1){
-				objDoors.priorities[i] = arrAll[index];
+
+		for (var i=0;i<objDoors.code.length;i++){
+			if(objDoors.name[i].indexOf(districtFocus)>-1){
+				index = arrHallwayOrder.indexOf(objDoors.code[i]);
+				if(index > -1){
+					objDoors.priorities[i] = arrAll[index];
+				}
 			}
 		}
 		
+		console.debug(objDoors);
 		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
 		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
-		//window.setTimeout(function () { fireEvent(document.getElementsByClassName('labyrinthHUD-confirm-button confirm')[0], 'click'); }, 1000);
+		window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
 	}
 	catch (e){
 		console.debug(e);
