@@ -228,7 +228,9 @@ var arrHallwayOrder = [
 var objDefaultHallwayPriorities = {
 	between0and14 : ['lp'],
 	between15and59  : ['sp','ls'],
-	between60and100  : ['sp','ss','le']
+	between60and100  : ['sp','ss','le'],
+	chooseOtherDoors : false,
+	typeOtherDoors : "SHORTEST_FEWEST"
 };
 
 // == Advance User Preference Setting (End) ==
@@ -1071,103 +1073,136 @@ function labyrinth() {
 
 	checkThenArm('best', 'weapon', bestForgotten);
 	checkThenArm('best', 'base', bestLabyBase);
-	var isAtIntersection = false;
-	var isAtExit = false;
+	var labyStatus = getPageVariable("user.quests.QuestLabyrinth.status");
+	var isAtEntrance = (labyStatus=="entrance");
+	var isAtHallway = (labyStatus=="hallway");
+	var isAtIntersection = (labyStatus=="intersection");
+	var isAtExit = (labyStatus=="exit");
+	console.debug("Entrance: " + isAtEntrance + " Intersection: " + isAtIntersection + " Exit: " + isAtExit);
+	if(isAtHallway)
+		return;
+
+	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
+	console.debug('District to focus: ' + districtFocus);
+	if(isAtEntrance || isAtExit || districtFocus.indexOf('None') > -1){
+		checkThenArm(null, 'bait', 'Gouda');
+		disarmTrap('trinket');
+		return;
+	}
+
 	var doorsIntersect = document.getElementsByClassName('labyrinthHUD-door');
 	var doorsExit = document.getElementsByClassName('labyrinthHUD-exit');
 	var objDoors = {
 		name : [],
 		length : [],
 		tier : [],
+		clue : [],
 		code : [],
 		priorities : []
 	};
 	var temp = "";
-	if (doorsIntersect.length > 0){
-		for (var i=0;i<doorsIntersect.length;i++){
-			if (doorsIntersect[i].getAttribute('class').indexOf('mystery') > -1){
-				isAtIntersection = false;
-				break;
-			}
-			
-			if (doorsIntersect[i].getAttribute('class').indexOf('broken') > -1){
-				objDoors.length.push("SHORT");
-				objDoors.tier.push("PLAIN");
-				objDoors.name.push("BROKEN");
-				objDoors.code.push("");
-				objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
-			}
-			else {
-				if(doorsIntersect[i].children.length>=2){
-					temp = doorsIntersect[i].children[1].innerText.toUpperCase();
-					// if(temp == "???")
-						// break;
-					temp = temp.split(" ");
-					objDoors.length.push(temp[0]);
-					objDoors.tier.push(temp[1]);
-					objDoors.name.push(temp[2]);
-					objDoors.code.push(objCodename[temp[0]] + objCodename[temp[1]]);
-					objDoors.priorities.push(Number.MAX_SAFE_INTEGER);					
-				}		
-			}
-			isAtIntersection = true;
+	for (var i=0;i<doorsIntersect.length;i++){
+		if (doorsIntersect[i].getAttribute('class').indexOf('mystery') > -1){
+			isAtIntersection = false;
+			return;
 		}
-	}
-	
-	if(doorsExit.length>0){
-		if(getPageVariable("user.quests.QuestLabyrinth.status") == 'exit'){			
-			for (var i=0;i<doorsExit.length;i++){
-				if (doorsExit[i].getAttribute('class').indexOf('mystery') > -1){
-					isAtExit = false;
-					break;
-				}
-				else
-					isAtExit = true;
-			}
-		}
-	}
-	
-	console.debug("Intersection: " + isAtIntersection + " Exit: " + isAtExit);
-	if(!(isAtIntersection || isAtExit))
-		return;
-	
-	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
-	console.debug('District to focus: ' + districtFocus);
-	if ((isAtIntersection && districtFocus == 'None') || (isAtIntersection && objDoors.name.indexOf(districtFocus) < 0) ||isAtExit){
-		checkThenArm(null, 'bait', 'Gouda');
-		disarmTrap('trinket');
-		return;
-	}
-	
-	if(isAtIntersection && objDoors.name.indexOf(districtFocus)<0){
 		
+		if (doorsIntersect[i].getAttribute('class').indexOf('broken') > -1 || doorsIntersect[i].children.length<2){
+			objDoors.length.push("SHORT");
+			objDoors.tier.push("PLAIN");
+			objDoors.name.push("BROKEN");
+			objDoors.code.push("");
+			objDoors.clue.push(Number.MAX_SAFE_INTEGER);
+			objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
+		}
+		else {
+			temp = doorsIntersect[i].children[1].innerText.toUpperCase();
+			temp = temp.split(" ");
+			objDoors.length.push(temp[0]);
+			objDoors.tier.push(temp[1]);
+			objDoors.name.push(temp[2]);
+			objDoors.code.push(objCodename[temp[0]] + objCodename[temp[1]]);
+			objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
+		}
+		isAtIntersection = true;
 	}
-	
+
 	if(parseInt(getPageVariable("user.bait_quantity"))<3)
 		checkThenArm(null, 'bait', 'Gouda');
-	
+
 	var userVariable = undefined;
 	temp = "";
 	var range = "";
 	var index = -1;
-	var clues = 0;
 	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
 	try	{
 		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
 		for (var i=0;i<userVariable.all_clues.length;i++){
 			temp = userVariable.all_clues[i].name.toUpperCase();
-			if (temp.indexOf(districtFocus) > -1){
-				clues = userVariable.all_clues[i].quantity;
-				break;
-			}
+			if (temp.indexOf("DEAD") > -1)
+				continue;
+			index = objDoors.name.indexOf(temp);
+			if (index > -1)
+				objDoors.clue[index] = userVariable.all_clues[i].quantity;
 		}
-		if(clues<15)
-			range = 'between0and14';
-		else if(clues<60)
-			range = 'between15and59';
-		else
-			range = 'between60and100';
-		
+
+		index = objDoors.name.indexOf(districtFocus);
+		if(index<0){
+			if(objHallwayPriorities.chooseOtherDoors){
+				console.debug(objDoors);
+				var objFewestClue = {
+					num : min(objDoors.clue),
+					index : minIndex(objDoors.clue),
+					count : countArrayElement(min(objDoors.clue), objDoors.clue)
+				};
+				var objShortestLength = {
+					type : "SHORT",
+					index : -1,
+					count : 0
+				};
+				if(objDoors.length.indexOf("SHORT") > -1)
+					objShortestLength.type = "SHORT";
+				else if(objDoors.length.indexOf("MEDIUM") > -1)
+					objShortestLength.type = "MEDIUM";
+				else if(objDoors.length.indexOf("LONG") > -1)
+					objShortestLength.type = "LONG";
+				objShortestLength.count = countArrayElement(objShortestLength.type, objDoors.length);
+				objShortestLength.index = objDoors.length.indexOf(objShortestLength.type);
+				if(objShortestLength.index < 0 || objFewestClue.index < 0){
+					checkThenArm(null, 'bait', 'Gouda');
+					disarmTrap('trinket');
+					return;
+				}
+
+				if(objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") == 0){
+					if(objShortestLength.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") > -1)
+						fireEvent(doorsIntersect[objFewestClue.index], 'click');
+					else
+						fireEvent(doorsIntersect[objShortestLength.index], 'click');
+				}
+				else if(objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") == 0){
+					if(objFewestClue.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") > -1)
+						fireEvent(doorsIntersect[objShortestLength.index], 'click');
+					else
+						fireEvent(doorsIntersect[objFewestClue.index], 'click');
+				}
+				window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
+			}
+			else{
+				checkThenArm(null, 'bait', 'Gouda');
+				disarmTrap('trinket');
+			}
+			return;
+		}
+		else{
+			if(objDoors.clue[index]<15)
+				range = 'between0and14';
+			else if(objDoors.clue[index]<60)
+				range = 'between15and59';
+			else
+				range = 'between60and100';
+		}
+
 		var arr;
 		var arrAll = [];
 		for (var i=0;i<objHallwayPriorities[range].length;i++){
@@ -1181,7 +1216,7 @@ function labyrinth() {
 			else
 				arrAll = arrAll.concat(arr);
 		}
-		
+
 		for (var i=arrAll.length;i<arrHallwayOrder.length;i++)
 			arrAll.push(Number.MAX_SAFE_INTEGER);
 
@@ -1193,7 +1228,7 @@ function labyrinth() {
 				}
 			}
 		}
-		
+
 		console.debug(objDoors);
 		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
 		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
@@ -2922,6 +2957,27 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="labyrinthOtherHallway" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Choose doors other than focused door when there is no available focused door to be choosen"><b>Open Non-Focus Door</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="chooseOtherDoors" onChange="\
+				saveLabyrinthHallway();\
+				document.getElementById(\'typeOtherDoors\').disabled = (value == \'false\') ? \'disabled\' : \'\'; ">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+            preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title="Select a choosing type for non-focused doors"><b>Choosing Type:</b></a>&emsp;';
+			preferenceHTMLStr += '<select id="typeOtherDoors" onChange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="SHORTEST_ONLY">Shortest Length Only</option>';
+			preferenceHTMLStr += '<option value="FEWEST_ONLY">Fewest Clue Only</option>';
+			preferenceHTMLStr += '<option value="SHORTEST_FEWEST">Shortest Length => Fewest Clue</option>';
+			preferenceHTMLStr += '<option value="FEWEST_SHORTEST">Fewest Clue => Shortest Length </option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
             preferenceHTMLStr += '<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;';
@@ -2950,7 +3006,7 @@ function embedTimer(targetPage) {
             headerElement.parentNode.insertBefore(timerDivElement, headerElement);
 
             timerDivElement = null;
-			
+
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('type', "text/javascript");
 			scriptElement.innerHTML = "\
@@ -3016,7 +3072,9 @@ function embedTimer(targetPage) {
 					var objDefaultHallwayPriorities = {\
 						between0and14 : [\'lp\'],\
 						between15and59  : [\'sp\',\'ls\'],\
-						between60and100  : [\'sp\',\'ss\',\'le\']\
+						between60and100  : [\'sp\',\'ss\',\'le\'],\
+						chooseOtherDoors : false,\
+						typeOtherDoors : \'SHORTEST_FEWEST\'\
 					};\
 					var storageValue = JSON.parse(window.sessionStorage.getItem(\'Labyrinth_HallwayPriorities\'));\
 					if(storageValue == null)\
@@ -3031,7 +3089,8 @@ function embedTimer(targetPage) {
 					else if(selectedRange == \'between60and100\'){\
 						storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];\
 					}\
-					\
+					storageValue.chooseOtherDoors = (document.getElementById(\'chooseOtherDoors\').value == \'true\');\
+					storageValue.typeOtherDoors = document.getElementById(\'typeOtherDoors\').value;\
 					window.sessionStorage.setItem(\'Labyrinth_HallwayPriorities\', JSON.stringify(storageValue));\
 				}\
 				function loadDistricFocus(){\
@@ -3057,7 +3116,9 @@ function embedTimer(targetPage) {
 					var objDefaultHallwayPriorities = {\
 						between0and14 : [\'lp\'],\
 						between15and59  : [\'sp\',\'ls\'],\
-						between60and100  : [\'sp\',\'ss\',\'le\']\
+						between60and100  : [\'sp\',\'ss\',\'le\'],\
+						chooseOtherDoors : false,\
+						typeOtherDoors : \'SHORTEST_FEWEST\'\
 					};\
 					if(storageValue == null){\
 						storageValue = JSON.stringify(objDefaultHallwayPriorities);\
@@ -3085,6 +3146,8 @@ function embedTimer(targetPage) {
 					\
 					if(!hallwayEpic.disabled && (selectedDistrict == \'TREASURY\' || selectedDistrict == \'FARMING\'))\
 						hallwayEpic.disabled = \'disabled\';\
+					typeOtherDoors.value = storageValue.typeOtherDoors;\
+					document.getElementById(\'typeOtherDoors\').disabled = (storageValue.chooseOtherDoors)? \'\' : \'disabled\';\
 				}\
 				function saveLG(){\
 					var isPour = (document.getElementById(\'lgAutoPour\').value == \'true\');\
@@ -3139,12 +3202,12 @@ function loadPreferenceSettingFromStorage() {
 	hornTimeDelayMax = getStorageToVariableInt("HornTimeDelayMax", hornTimeDelayMax);
 	enableTrapCheck = getStorageToVariableBool("TrapCheck", enableTrapCheck);
 	checkTimeDelayMin = getStorageToVariableInt("TrapCheckTimeDelayMin", checkTimeDelayMin);
-	checkTimeDelayMiax = getStorageToVariableInt("TrapCheckTimeDelayMax", checkTimeDelayMax);	
+	checkTimeDelayMiax = getStorageToVariableInt("TrapCheckTimeDelayMax", checkTimeDelayMax);
 	isKingWarningSound = getStorageToVariableBool("PlayKingRewardSound", isKingWarningSound);
 	isAutoSolve = getStorageToVariableBool("AutoSolveKR", isAutoSolve);
 	krDelayMin = getStorageToVariableInt("AutoSolveKRDelayMin", krDelayMin);
-	krDelayMax = getStorageToVariableInt("AutoSolveKRDelayMax", krDelayMax);	
-	kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);	
+	krDelayMax = getStorageToVariableInt("AutoSolveKRDelayMax", krDelayMax);
+	kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);
 	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
 	saveKRImage = getStorageToVariableBool("SaveKRImage", saveKRImage);
     discharge = getStorageToVariableBool("discharge", discharge);
@@ -3161,11 +3224,11 @@ function loadPreferenceSettingFromStorage() {
 				keyKR.push(keyName);
 			}
 		}
-		
+
 		for(var i = 0; i<keyRemove.length;i++){
 			removeStorage(keyRemove[i]);
 		}
-		
+
 		if (keyKR.length > maxSaveKRImage){
 			keyKR = keyKR.sort();
 			var count = Math.floor(maxSaveKRImage / 2);
@@ -3227,7 +3290,7 @@ function getTrapListFromTrapSelector(sort, category, name){
 	var retry = armTrapRetry;
 	var tagGroupElement, tagElement, nameElement;
     var intervalGTLFTS = setInterval(
-        function (){	
+        function (){
             tagGroupElement = document.getElementsByClassName('tagGroup');
 			if (tagGroupElement.length > 0){
 				for (var i = 0; i < tagGroupElement.length; ++i){
@@ -3266,15 +3329,15 @@ function getTrapListFromTrapSelector(sort, category, name){
 
 function getStorageToVariableInt(storageName, defaultInt)
 {
-	var temp = getStorage(storageName);    
+	var temp = getStorage(storageName);
 	var tempInt = defaultInt;
     if (temp == undefined || temp == null) {
-        setStorage(storageName, defaultInt);        
+        setStorage(storageName, defaultInt);
     }
     else {
-        tempInt = parseInt(temp);        
+        tempInt = parseInt(temp);
     }
-	return tempInt;    
+	return tempInt;
 }
 
 function getStorageToVariableStr(storageName, defaultStr)
@@ -3284,7 +3347,7 @@ function getStorageToVariableStr(storageName, defaultStr)
         setStorage(storageName, defaultStr);
         temp = defaultStr;
     }
-    return temp;    
+    return temp;
 }
 
 function getStorageToVariableBool(storageName, defaultBool)
@@ -3353,7 +3416,7 @@ function soundHorn() {
 		displayTimer("Not At Camp Page", "Not At Camp Page", "Not At Camp Page");
 		return;
 	}
-	
+
 	// update timer
     displayTimer("Ready to Blow The Horn...", "Ready to Blow The Horn...", "Ready to Blow The Horn...");
 
@@ -3386,7 +3449,7 @@ function soundHorn() {
                 headerStatus = null;
 
                 // double check if the horn was already sounded
-                window.setTimeout(function () { afterSoundingHorn() }, 5000);
+                window.setTimeout(function () { afterSoundingHorn(); }, 5000);
             }
             else if (headerStatus.indexOf("hornsounding") != -1 || headerStatus.indexOf("hornsounded") != -1) {
                 // some one just sound the horn...
@@ -3399,7 +3462,7 @@ function soundHorn() {
                 headerStatus = null;
 
                 // load the new data
-                window.setTimeout(function () { afterSoundingHorn() }, 5000);
+                window.setTimeout(function () { afterSoundingHorn(); }, 5000);
             }
             else if (headerStatus.indexOf("hornwaiting") != -1) {
                 // the horn is not appearing, let check the time again
@@ -3417,7 +3480,7 @@ function soundHorn() {
                 headerStatus = null;
 
                 // loop again
-                window.setTimeout(function () { countdownTimer() }, timerRefreshInterval * 1000);
+                window.setTimeout(function () { countdownTimer(); }, timerRefreshInterval * 1000);
             }
             else {
                 // some one steal the horn!
@@ -3435,7 +3498,7 @@ function soundHorn() {
                 headerStatus = null;
 
                 // double check if the horn was already sounded
-                window.setTimeout(function () { afterSoundingHorn() }, 5000);
+                window.setTimeout(function () { afterSoundingHorn(); }, 5000);
             }
         }
         else {
@@ -3456,7 +3519,7 @@ function soundHorn() {
         fireEvent(document.getElementsByClassName(strHornButton)[0].firstChild, 'click');
 
         // double check if the horn was already sounded
-        window.setTimeout(function () { afterSoundingHorn() }, 3000);
+        window.setTimeout(function () { afterSoundingHorn(); }, 3000);
     }
 }
 
@@ -3498,7 +3561,7 @@ function afterSoundingHorn() {
             }
             else {
                 // check again later
-                window.setTimeout(function () { afterSoundingHorn() }, 1000);
+                window.setTimeout(function () { afterSoundingHorn(); }, 1000);
             }
         }
         else if (headerStatus.indexOf("hornsounding") != -1) {
@@ -3522,7 +3585,7 @@ function afterSoundingHorn() {
             }
             else {
                 // check again later
-                window.setTimeout(function () { afterSoundingHorn() }, 3000);
+                window.setTimeout(function () { afterSoundingHorn(); }, 3000);
             }
         }
         else {
@@ -3539,7 +3602,7 @@ function afterSoundingHorn() {
             headerStatus = null;
 
             // script continue as normal
-            window.setTimeout(function () { countdownTimer() }, timerRefreshInterval * 1000);
+            window.setTimeout(function () { countdownTimer(); }, timerRefreshInterval * 1000);
 
             // reset the horn retry counter
             hornRetry = 0;
@@ -3593,7 +3656,7 @@ function embedScript() {
         strCampButton = 'camp';
 		alert("New UI might not work properly with this script. Use at your own risk");
 	}
-	
+
 	var hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
     var oriStr = hornButtonLink.getAttribute('onclick').toString();
     var index = oriStr.indexOf('return false;');
@@ -3656,16 +3719,16 @@ function kingRewardAction() {
 				}
 			}, 1000);
 		return;
-	}		
-	
-	var krDelaySec = krDelayMin + Math.floor(Math.random() * (krDelayMax - krDelayMin));		
+	}
+
+	var krDelaySec = krDelayMin + Math.floor(Math.random() * (krDelayMax - krDelayMin));
 	var krStopHourNormalized = krStopHour;
 	var krStartHourNormalized = krStartHour;
 	if (krStopHour > krStartHour) // e.g. Stop to Start => 22 to 06
 	{
 		var offset = 24 - krStopHour;
 		krStartHourNormalized = krStartHour + offset;
-		krStopHourNormalized = 0;		
+		krStopHourNormalized = 0;
 		nowDate.setHours(nowDate.getHours() + offset);
     }
 
@@ -3683,8 +3746,8 @@ function kingRewardAction() {
 	{
 		if (kingsRewardRetry > 0)
 			krDelaySec /= (kingsRewardRetry * 2);
-		kingRewardCountdownTimer(krDelaySec, false);		
-	}		
+		kingRewardCountdownTimer(krDelaySec, false);
+	}
 }
 
 function playKingRewardSound() {
@@ -3696,9 +3759,9 @@ function playKingRewardSound() {
 }
 
 function kingRewardCountdownTimer(interval, isReloadToSolve)
-{   	
+{
 	var strTemp = (isReloadToSolve) ? "Reload to solve KR in " : "Solve KR in (extra few sec delay) ";
-	strTemp = strTemp + timeformat(interval);	
+	strTemp = strTemp + timeformat(interval);
 	displayTimer(strTemp, strTemp, strTemp);
 	interval -= timerRefreshInterval;
 	if (interval < 0)
@@ -3730,10 +3793,10 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 					}
 				}, 1000);
 			CallKRSolver();
-		}		
+		}
 	}
 	else
-	{		
+	{
         if (!checkResumeButton()) {
             window.setTimeout(function () { kingRewardCountdownTimer(interval, isReloadToSolve); }, timerRefreshInterval * 1000);
         }
@@ -3783,25 +3846,25 @@ function CallKRSolver()
 {
 	var frame = document.createElement('iframe');
 	frame.setAttribute("id", "myFrame");
-	var img = document.getElementById('puzzleImage');	
+	var img = document.getElementById('puzzleImage');
 	if (debugKR){
 		//frame.src = "https://dl.dropboxusercontent.com/s/4u5msso39hfpo87/Capture.PNG";
 		frame.src = "https://dl.dropboxusercontent.com/s/og73bcdsn2qod63/download%20%2810%29Ori.png";
 	}
 	else
-		frame.src = img.src;	
-	document.body.appendChild(frame);	
+		frame.src = img.src;
+	document.body.appendChild(frame);
 }
 
 function CheckKRAnswerCorrectness()
-{	
+{
 	var pageMsg = document.getElementById('pagemessage');
 	if (pageMsg && pageMsg.innerText.toLowerCase().indexOf("unable to claim reward") > -1) // KR answer not correct, re-run OCR
 	{
 		if (kingsRewardRetry > kingsRewardRetryMax)
 	    {
 	        kingsRewardRetry = 0;
-			setStorage("KingsRewardRetry", kingsRewardRetry);			
+			setStorage("KingsRewardRetry", kingsRewardRetry);
 			alert('Max retry. Pls solve it manually.');
 			return;
 	    }
@@ -3835,11 +3898,11 @@ function trapCheck() {
     // reload the page if click on camp button fail
     // window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
 	retrieveData();
-	window.setTimeout(function () { countdownTimer() }, timerRefreshInterval * 1000);
+	window.setTimeout(function () { countdownTimer(); }, timerRefreshInterval * 1000);
     // eventLocationCheck();
 }
 
-function CalculateNextTrapCheckInMinute() {   
+function CalculateNextTrapCheckInMinute() {
     if (enableTrapCheck) {
         var now = new Date();
         var temp = (trapCheckTimeDiff * 60) - (now.getMinutes() * 60 + now.getSeconds());

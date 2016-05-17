@@ -252,6 +252,27 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="labyrinthOtherHallway" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Choose doors other than focused door when there is no available focused door to be choosen"><b>Open Non-Focus Door</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="chooseOtherDoors" onchange=
+						"saveLabyrinthHallway();
+						if (value == 'false')
+							document.getElementById('typeOtherDoors').disabled='disabled'; 
+						else
+							document.getElementById('typeOtherDoors').disabled=''; 
+						">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title="Select a choosing type for non-focused doors"><b>Choosing Type:</b></a>&emsp;
+						<select id="typeOtherDoors" onchange="saveLabyrinthHallway();">
+							<option value="SHORTEST_ONLY">Shortest Length Only</option>
+							<option value="FEWEST_ONLY">Fewest Clue Only</option>
+							<option value="SHORTEST_FEWEST">Shortest Length => Fewest Clue</option>
+							<option value="FEWEST_SHORTEST">Fewest Clue => Shortest Length</option>
+						</select>
+					</td>
+				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;" colspan="2">
 						<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">
@@ -334,7 +355,9 @@
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
 			between15and59  : ['SP','LS'],
-			between60and100  : ['SP','SS','LE']
+			between60and100  : ['SP','SS','LE'],
+			chooseOtherDoors : false,
+			typeOtherDoors : "SHORTEST_ONLY"
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		if(storageValue == null)
@@ -350,7 +373,9 @@
 			storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];
 		}
 		
-		window.sessionStorage.setItem('HallwayPriorities', JSON.stringify(storageValue));
+		storageValue.chooseOtherDoors = (document.getElementById('chooseOtherDoors').value == 'true');
+		storageValue.typeOtherDoors = document.getElementById('typeOtherDoors').value;
+		window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
 	}
 	
 	function loadDistricFocus(){
@@ -365,6 +390,7 @@
 		var selectedDistrict = document.getElementById('labyrinthDistrict').value;
 		document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
 		document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
 		if(selectedDistrict == 'None')
 			return;
 			
@@ -372,12 +398,15 @@
 		var hallwaySuperior = document.getElementById('hallwaySuperior');
 		var hallwayEpic = document.getElementById('hallwayEpic');
 		var selectedRange = document.getElementById('clueRange').value;
+		var typeOtherDoors = document.getElementById('typeOtherDoors');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
 			between15and59  : ['SP','LS'],
-			between60and100  : ['SP','SS','LE']
+			between60and100  : ['SP','SS','LE'],
+			chooseOtherDoors : false,
+			typeOtherDoors : "SHORTEST_ONLY"
 		};
 		if(storageValue == null){
 			storageValue = JSON.stringify(objDefaultHallwayPriorities);
@@ -405,6 +434,9 @@
 		
 		if(!hallwayEpic.disabled && (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING'))
 			hallwayEpic.disabled = 'disabled';
+			
+		typeOtherDoors.value = storageValue.typeOtherDoors;
+		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 	}
 	
 	function saveLG(){
@@ -431,6 +463,7 @@
 		document.getElementById('labyrinth').style.display = 'none';
 		document.getElementById('labyrinthMaxClue').style.display = 'none';
 		document.getElementById('labyrinthHallway').style.display = 'none';
+		document.getElementById('labyrinthOtherHallway').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -443,6 +476,7 @@
 			document.getElementById('labyrinth').style.display = 'table-row';
 			document.getElementById('labyrinthMaxClue').style.display = 'table-row';
 			document.getElementById('labyrinthHallway').style.display = 'table-row';
+			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
 			loadDistricFocus();
 			loadLabyrinthHallway();
 		}
