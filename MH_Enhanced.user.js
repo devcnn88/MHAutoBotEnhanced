@@ -1356,7 +1356,7 @@ function twistedGarden(isAutoPour) {
 			}
 		}
     }
-	
+
     return;
 }
 
@@ -3170,6 +3170,7 @@ function embedTimer(targetPage) {
 					document.getElementById(\'labyrinth\').style.display = \'none\';\
 					document.getElementById(\'labyrinthMaxClue\').style.display = \'none\';\
 					document.getElementById(\'labyrinthHallway\').style.display = \'none\';\
+					document.getElementById(\'labyrinthOtherHallway\').style.display = \'none\';\
 					if(algo == \'All LG Area\'){\
 						document.getElementById(\'lgArea\').style.display = \'table-row\';\
 						loadLG();\
@@ -3182,6 +3183,7 @@ function embedTimer(targetPage) {
 						document.getElementById(\'labyrinth\').style.display = \'table-row\';\
 						document.getElementById(\'labyrinthMaxClue\').style.display = \'table-row\';\
 						document.getElementById(\'labyrinthHallway\').style.display = \'table-row\';\
+						document.getElementById(\'labyrinthOtherHallway\').style.display = \'table-row\';\
 						loadDistricFocus();\
 						loadLabyrinthHallway();\
 					}\
