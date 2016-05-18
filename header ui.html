@@ -284,6 +284,19 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="trFWFocusType" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select either Normal (Warrior, Scout, Archer) or Special (Cavalry, Mage)"><b>Soldier Type to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFWFocusType" onchange="onSelectFWFocusTypeChanged();">
+							<option value="NORMAL">Normal</option>
+							<option value="SPECIAL">Special</option>
+						</select>&nbsp;&nbsp;<a title="Select which soldier type comes first based on population"><b>Priorities:</b></a>&emsp;
+						<select id="selectFWPriorities" onchange="onSelectFWPrioritiesChanged();">
+							<option value="HIGHEST">Highest Population First</option>
+							<option value="LOWEST">Lowest Population First</option>
+						</select>
+					</td>
+				</tr>
 				<tr id="trFWStreak" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select streak"><b>Streak</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -310,20 +323,14 @@
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SUPER|brie+</option>
 						</select>
-						<select id="selectFWFocusType" onchange="onSelectFWFocusTypeChanged();">
-							<option value="HIGHEST">Highest Population</option>
-							<option value="STREAK">Streak Type</option>
-							<option value="WARRIOR">Warrior</option>
-							<option value="SCOUT">Scout</option>
-							<option value="ARCHER">Archer</option>
-							<option value="CAVALRY">Cavalry</option>
-							<option value="MAGE">Mage</option>
-							<option value="COMMANDER">Commander</option>
-							<option value="GARGANTUA">Gargantua</option>
-						</select>
 						<select id="selectFWCharmType" onchange="onSelectFWCharmTypeChanged();">
 							<option value="NORMAL">Warpath</option>
 							<option value="SUPER">Super Warpath</option>
+						</select>
+						<select id="selectFWSpecial" onchange="onSelectFWSpecialChanged();">
+							<option value="None">None</option>
+							<option value="COMMANDER">Commander</option>
+							<option value="GARGANTUA">Gargantua</option>
 						</select>
 					</td>
 				</tr>
@@ -516,58 +523,60 @@
 	function onSelectFWWaveChanged(){
 		// show wave X settings
 		var nWave = parseInt(document.getElementById('selectFWWave').value);
-		var children = document.getElementById('selectFWFocusType').children;
-		for(var i=0;i<children.length;i++){
-			if(children[i].innerText.indexOf('Mage') > -1 || children[i].innerText.indexOf('Cavalry') > -1)
-				children[i].style = (nWave==1) ? 'display:none' : '';
+		var option = document.getElementById('selectFWFocusType').children;
+		for(var i=0;i<option.length;i++){
+			if(option[i].innerText.indexOf('Special') > -1)
+				option[i].style = (nWave==1) ? 'display:none' : '';
 		}
 		initControlsFW();
 	}
 	
 	function onSelectFWStreakChanged(){
-		// show streak X settings
-		var nStreak = parseInt(document.getElementById('selectFWStreak').value);
-		var children = document.getElementById('selectFWFocusType').children;
-		for(var i=0;i<children.length;i++){
-			if(children[i].innerText.indexOf('Highest') > -1)
-				children[i].style = (nStreak==0) ? '' : 'display:none';
-			else if(children[i].innerText.indexOf('Streak') > -1)
-				children[i].style = (nStreak==0) ? 'display:none' : '';
-		}
 		initControlsFW();
 	}
 	
 	function onSelectFWCheeseChanged(){
-		// save cheese into sessionStorage
 		saveFW();
 	}
 	
 	function onSelectFWFocusTypeChanged(){
-		// save focusType into sessionStorage
 		saveFW();
 	}
 	
 	function onSelectFWCharmTypeChanged(){
-		// save charmType into sessionStorage
+		saveFW();
+	}
+	
+	function onSelectFWSpecialChanged(){
+		saveFW();
+	}
+	
+	function onSelectFWPrioritiesChanged(){
 		saveFW();
 	}
 	
 	function initControlsFW(){
 		var selectFWStreak = document.getElementById('selectFWStreak');
-		var selectFWCheese = document.getElementById('selectFWCheese');
 		var selectFWFocusType = document.getElementById('selectFWFocusType');
+		var selectFWPriorities = document.getElementById('selectFWPriorities');
+		var selectFWCheese = document.getElementById('selectFWCheese');
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
+		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
 		if(storageValue == null){
-			selectFWCheese.selectedIndex = -1;
 			selectFWFocusType.selectedIndex = -1;
+			selectFWPriorities.selectedIndex = -1;
+			selectFWCheese.selectedIndex = -1;
 			selectFWCharmType.selectedIndex = -1;
+			selectFWSpecial.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
+			selectFWFocusType.value = storageValue.focusType;
+			selectFWPriorities.value = storageValue.priorities;
 			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
-			selectFWFocusType.value = storageValue.focusType[selectFWStreak.selectedIndex];
 			selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
+			selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
 		}
 	}
 	
@@ -576,22 +585,28 @@
 		var selectFWStreak = document.getElementById('selectFWStreak');
 		var nStreak = parseInt(selectFWStreak.value);
 		var nStreakLength = selectFWStreak.children.length;
-		var selectFWCheese = document.getElementById('selectFWCheese');
 		var selectFWFocusType = document.getElementById('selectFWFocusType');
+		var selectFWPriorities = document.getElementById('selectFWPriorities');
+		var selectFWCheese = document.getElementById('selectFWCheese');
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
+		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
 		if(storageValue == null){
 			var obj = {
+				focusType : 'NORMAL',
+				priorities : 'HIGHEST',
 				cheese : new Array(nStreakLength),
-				focusType : new Array(nStreakLength),
-				charmType : new Array(nStreakLength)
+				charmType : new Array(nStreakLength),
+				special : new Array(nStreakLength)
 			};
 			storageValue = JSON.stringify(obj);
 		}
 		storageValue = JSON.parse(storageValue);
+		storageValue.focusType = selectFWFocusType.value;
+		storageValue.priorities = selectFWPriorities.value;
 		storageValue.cheese[nStreak] = selectFWCheese.value;
-		storageValue.focusType[nStreak] = selectFWFocusType.value;
 		storageValue.charmType[nStreak] = selectFWCharmType.value;
+		storageValue.special[nStreak] = selectFWSpecial.value;
 		window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
 	}
 	
@@ -604,6 +619,7 @@
 		document.getElementById('labyrinthOtherHallway').style.display = 'none';
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
+		document.getElementById('trFWFocusType').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -623,6 +639,7 @@
 		else if(algo == 'Fiery Warpath'){
 			document.getElementById('trFWWave').style.display = 'table-row';
 			document.getElementById('trFWStreak').style.display = 'table-row';
+			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('selectFWWave').selectedIndex = 0;
 			onSelectFWWaveChanged();
 		}
