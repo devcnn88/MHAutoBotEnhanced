@@ -150,6 +150,7 @@
 							<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>
 							<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>
 							<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>
+							<option value="Fiery Warpath">Fiery Warpath</option>
 							<option value="Halloween 2015">Halloween 2015</option>
 							<option value="Sunken City">Sunken City</option>
 							<option value="Sunken City Aggro">Sunken City Aggro</option>
@@ -273,6 +274,59 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="trFWWave" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select FW wave"><b>Wave</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFWWave" onchange="onSelectFWWaveChanged();">
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trFWStreak" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select streak"><b>Streak</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFWStreak" onchange="onSelectFWStreakChanged();">
+							<option value="0">0</option>
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option value="7">7</option>
+							<option value="8">8</option>
+							<option value="9">9</option>
+							<option value="10">10</option>
+							<option value="11">11</option>
+							<option value="12">12</option>
+							<option value="13">13</option>
+							<option value="14">14</option>
+							<option value="15">15</option>
+						</select>
+						<select id="selectFWCheese" onchange="onSelectFWCheeseChanged();">
+							<option value="Brie">Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SUPER|brie+</option>
+						</select>
+						<select id="selectFWFocusType" onchange="onSelectFWFocusTypeChanged();">
+							<option value="HIGHEST">Highest Population</option>
+							<option value="STREAK">Streak Type</option>
+							<option value="WARRIOR">Warrior</option>
+							<option value="SCOUT">Scout</option>
+							<option value="ARCHER">Archer</option>
+							<option value="CAVALRY">Cavalry</option>
+							<option value="MAGE">Mage</option>
+							<option value="COMMANDER">Commander</option>
+							<option value="GARGANTUA">Gargantua</option>
+						</select>
+						<select id="selectFWCharmType" onchange="onSelectFWCharmTypeChanged();">
+							<option value="NORMAL">Warpath</option>
+							<option value="SUPER">Super Warpath</option>
+						</select>
+					</td>
+				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;" colspan="2">
 						<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">
@@ -290,7 +344,8 @@
 		for(var i=0;i<window.localStorage.length;i++){
 			key = window.localStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
-				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1){
+				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
+				key.indexOf("FW_")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -305,7 +360,8 @@
 		for(var i=0;i<window.sessionStorage.length;i++){
 			key = window.sessionStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
-				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1){
+				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
+				key.indexOf("FW_")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -457,6 +513,88 @@
 		document.getElementById('lgSalt').value = parseInt(storageValue[1]);
 	}
 	
+	function onSelectFWWaveChanged(){
+		// show wave X settings
+		var nWave = parseInt(document.getElementById('selectFWWave').value);
+		var children = document.getElementById('selectFWFocusType').children;
+		for(var i=0;i<children.length;i++){
+			if(children[i].innerText.indexOf('Mage') > -1 || children[i].innerText.indexOf('Cavalry') > -1)
+				children[i].style = (nWave==1) ? 'display:none' : '';
+		}
+		initControlsFW();
+	}
+	
+	function onSelectFWStreakChanged(){
+		// show streak X settings
+		var nStreak = parseInt(document.getElementById('selectFWStreak').value);
+		var children = document.getElementById('selectFWFocusType').children;
+		for(var i=0;i<children.length;i++){
+			if(children[i].innerText.indexOf('Highest') > -1)
+				children[i].style = (nStreak==0) ? '' : 'display:none';
+			else if(children[i].innerText.indexOf('Streak') > -1)
+				children[i].style = (nStreak==0) ? 'display:none' : '';
+		}
+		initControlsFW();
+	}
+	
+	function onSelectFWCheeseChanged(){
+		// save cheese into sessionStorage
+		saveFW();
+	}
+	
+	function onSelectFWFocusTypeChanged(){
+		// save focusType into sessionStorage
+		saveFW();
+	}
+	
+	function onSelectFWCharmTypeChanged(){
+		// save charmType into sessionStorage
+		saveFW();
+	}
+	
+	function initControlsFW(){
+		var selectFWStreak = document.getElementById('selectFWStreak');
+		var selectFWCheese = document.getElementById('selectFWCheese');
+		var selectFWFocusType = document.getElementById('selectFWFocusType');
+		var selectFWCharmType = document.getElementById('selectFWCharmType');
+		var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
+		if(storageValue == null){
+			selectFWCheese.selectedIndex = -1;
+			selectFWFocusType.selectedIndex = -1;
+			selectFWCharmType.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
+			selectFWFocusType.value = storageValue.focusType[selectFWStreak.selectedIndex];
+			selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
+		}
+	}
+	
+	function saveFW(){
+		var nWave = document.getElementById('selectFWWave').value;
+		var selectFWStreak = document.getElementById('selectFWStreak');
+		var nStreak = parseInt(selectFWStreak.value);
+		var nStreakLength = selectFWStreak.children.length;
+		var selectFWCheese = document.getElementById('selectFWCheese');
+		var selectFWFocusType = document.getElementById('selectFWFocusType');
+		var selectFWCharmType = document.getElementById('selectFWCharmType');
+		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
+		if(storageValue == null){
+			var obj = {
+				cheese : new Array(nStreakLength),
+				focusType : new Array(nStreakLength),
+				charmType : new Array(nStreakLength)
+			};
+			storageValue = JSON.stringify(obj);
+		}
+		storageValue = JSON.parse(storageValue);
+		storageValue.cheese[nStreak] = selectFWCheese.value;
+		storageValue.focusType[nStreak] = selectFWFocusType.value;
+		storageValue.charmType[nStreak] = selectFWCharmType.value;
+		window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
+	}
+	
 	function showOrHideTr(algo){
 		document.getElementById('lgArea').style.display = 'none';
 		document.getElementById('scCustom').style.display = 'none';
@@ -464,6 +602,8 @@
 		document.getElementById('labyrinthMaxClue').style.display = 'none';
 		document.getElementById('labyrinthHallway').style.display = 'none';
 		document.getElementById('labyrinthOtherHallway').style.display = 'none';
+		document.getElementById('trFWWave').style.display = 'none';
+		document.getElementById('trFWStreak').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -479,6 +619,12 @@
 			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
 			loadDistricFocus();
 			loadLabyrinthHallway();
+		}
+		else if(algo == 'Fiery Warpath'){
+			document.getElementById('trFWWave').style.display = 'table-row';
+			document.getElementById('trFWStreak').style.display = 'table-row';
+			document.getElementById('selectFWWave').selectedIndex = 0;
+			onSelectFWWaveChanged();
 		}
 	}
 </script>
