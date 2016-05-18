@@ -1074,7 +1074,7 @@ function labyrinth() {
 	checkThenArm('best', 'weapon', bestForgotten);
 	checkThenArm('best', 'base', bestLabyBase);
 	var labyStatus = getPageVariable("user.quests.QuestLabyrinth.status");
-	var isAtEntrance = (labyStatus=="entrance");
+	var isAtEntrance = (labyStatus=="intersection entrance");
 	var isAtHallway = (labyStatus=="hallway");
 	var isAtIntersection = (labyStatus=="intersection");
 	var isAtExit = (labyStatus=="exit");
@@ -1168,6 +1168,8 @@ function labyrinth() {
 					objShortestLength.type = "LONG";
 				objShortestLength.count = countArrayElement(objShortestLength.type, objDoors.length);
 				objShortestLength.index = objDoors.length.indexOf(objShortestLength.type);
+				console.debug(objShortestLength);
+				console.debug(objFewestClue);
 				if(objShortestLength.index < 0 || objFewestClue.index < 0){
 					checkThenArm(null, 'bait', 'Gouda');
 					disarmTrap('trinket');
