@@ -1098,7 +1098,8 @@ function labyrinth() {
 		tier : [],
 		clue : [],
 		code : [],
-		priorities : []
+		priorities : [],
+		debug : []
 	};
 	var temp = "";
 	for (var i=0;i<doorsIntersect.length;i++){
@@ -1117,6 +1118,7 @@ function labyrinth() {
 		}
 		else {
 			temp = doorsIntersect[i].children[1].innerText.toUpperCase();
+			objDoors.debug.push(temp);
 			temp = temp.split(" ");
 			objDoors.length.push(temp[0]);
 			objDoors.tier.push(temp[1]);
@@ -1127,6 +1129,7 @@ function labyrinth() {
 		isAtIntersection = true;
 	}
 
+	console.debug(objDoors.debug);
 	if(parseInt(getPageVariable("user.bait_quantity"))<3)
 		checkThenArm(null, 'bait', 'Gouda');
 
