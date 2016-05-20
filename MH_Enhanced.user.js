@@ -145,6 +145,15 @@ var wasteCharm = ['Tarnished', 'Wealth'];
 // // Fiery Warpath Preference
 var bestFWWave4Weapon = ['Warden Slayer Trap', 'Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
 var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
+var objPopulation = {
+	WARRIOR : 0,
+	SCOUT : 1,
+	ARCHER : 2,
+	CAVALRY : 3,
+	MAGE : 4,
+	ARTILLERY : 5,
+	name : ['Warrior', 'Scout', 'Archer', 'Cavalry', 'Mage', 'Artillery']
+};
 
 // // Living Garden Preference
 var bestLGBase = ['Hothouse Base'];
@@ -718,6 +727,8 @@ function eventLocationCheck(caller) {
 			SCCustom(); break;
 		case 'Labyrinth':
 			labyrinth(); break;
+		case 'Fiery Warpath':
+			fw(); break;
         default:
             break;
     }
@@ -1240,6 +1251,144 @@ function labyrinth() {
 		console.debug(e);
 		return;
 	}
+}
+
+function fw(){
+	if (GetCurrentLocation().indexOf("Fiery Warpath") < 0)
+		return;
+
+	var wave = getPageVariable('user.viewing_atts.desert_warpath.wave');
+    console.debug('Wave: ' + wave);
+    wave = parseInt(wave);
+    if (wave == 4){
+		checkThenArm('best', 'weapon', bestFWWave4Weapon);
+		checkThenArm('best', 'base', bestPowerBase);
+		checkThenArm(null, 'bait', 'Gouda');
+        return;
+    }
+
+	checkThenArm('best', 'base', bestLuckBase);
+	var nStreakLength = document.getElementById('selectFWStreak').children.length;
+	var objDefaultFW = {
+		focusType : 'NORMAL',
+		priorities : 'HIGHEST',
+		cheese : new Array(nStreakLength),
+		charmType : new Array(nStreakLength),
+		special : new Array(nStreakLength)
+	};
+	var objFW = JSON.parse(getStorageToVariableStr('FW_Wave'+wave,JSON.stringify(objDefaultFW)));
+	objFW.streak = parseInt(document.getElementsByClassName('streak_quantity')[0].innerText);
+    console.debug('Streak: ' + objFW.streak);
+	if(Number.isNaN(objFW.streak) || objFW.streak < 0 || objFW.streak >= nStreakLength)
+		return;
+
+	if(objFW.cheese[objFW.streak] === null)
+		objFW.cheese[objFW.streak] = 'Gouda';
+	if(objFW.charmType[objFW.streak] === null)
+		objFW.charmType[objFW.streak] = 'Warpath';
+	if(objFW.special[objFW.streak] === null)
+		objFW.special[objFW.streak] = 'None';
+
+	objFW.streakMouse = getPageVariable('user.viewing_atts.desert_warpath.streak.mouse_type');
+	if(objFW.streakMouse.indexOf('desert_') > -1)
+		objFW.streakMouse = capitalizeFirstLetter(objFW.streakMouse.split('_')[1]);
+
+    console.debug('Current streak mouse type: ' + objFW.streakMouse);
+	var population = document.getElementsByClassName('population');
+	objFW.population = {
+		all : [],
+		normal : [],
+		special : []
+	};
+	objFW.soldierActive = false;
+	var temp;
+	for(var i=0;i<population.length;i++){
+		temp = parseInt(population[i].innerText);
+		objFW.population.all.push(temp);
+		if(i == objPopulation.WARRIOR || i == objPopulation.SCOUT || i == objPopulation.ARCHER){
+			objFW.population.normal.push(temp);
+			objFW.soldierActive = (objFW.soldierActive || (temp > 0));
+		}
+		else{
+			objFW.population.special.push(temp);
+		}
+	}
+
+	if(!objFW.soldierActive && objFW.focusType == 'NORMAL')
+		objFW.focusType = 'SPECIAL';
+
+	console.debug(objFW);
+	var index = -1;
+	var charmArmed = getPageVariable('user.trinket_name');
+	if(objFW.special[objFW.streak] == 'COMMANDER')
+		checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' Commander\'s');
+	else if(objFW.special[objFW.streak] == 'GARGANTUA'){
+		checkThenArm('best', 'weapon', bestDraconic);
+		if(charmArmed.indexOf('Warpath') > -1)
+			disarmTrap('trinket');
+	}
+	else{
+		var bCurrentStreakZeroPopulation = false;
+		var bWrongSoldierTypeStreak = false;
+		index = objPopulation.name.indexOf(objFW.streakMouse);
+		if(index > -1){
+			bCurrentStreakZeroPopulation = (objFW.population.all[index] < 1);
+			if(objFW.soldierActive && index >=3 && objFW.focusType == 'NORMAL'){
+				bWrongSoldierTypeStreak = !(objFW.streak == 2 || objFW.streak >= 5);
+			}
+		}
+
+		if(objFW.streak === 0 || bCurrentStreakZeroPopulation || bWrongSoldierTypeStreak){
+			objFW.streak = 0;
+			objFW.focusType = objFW.focusType.toLowerCase();
+			if(objFW.priorities == 'HIGHEST')
+				index = maxIndex(objFW.population[objFW.focusType]);
+			else
+				index = minIndex(objFW.population[objFW.focusType]);
+
+			temp = objFW.population[objFW.focusType][index];
+			if(objFW.focusType.toUpperCase() == 'NORMAL'){
+				checkThenArm('best', 'weapon', bestPhysical);
+				var count = countArrayElement(temp, objFW.population[objFW.focusType]);
+				if(count > 1){
+					if(objFW.population[objFW.focusType][objPopulation.SCOUT] == temp)
+						checkThenArm(null, 'trinket', objFW.charmType[0] + ' Scout');
+					else if(objFW.population[objFW.focusType][objPopulation.ARCHER] == temp)
+						checkThenArm(null, 'trinket', objFW.charmType[0] + ' Archer');
+					else if(objFW.population[objFW.focusType][objPopulation.WARRIOR] == temp)
+						checkThenArm(null, 'trinket', objFW.charmType[0] + ' Warrior');
+				}
+				else{
+					checkThenArm(null, 'trinket', objFW.charmType[0] + ' ' + objPopulation.name[index]);
+				}
+			}
+			else{
+				index += 3;
+				checkThenArm(null, 'trinket', objFW.charmType[0] + ' ' + objPopulation.name[index]);
+				if(index == objPopulation.CAVALRY)
+					checkThenArm('best', 'weapon', bestPhysical);
+				else if(index == objPopulation.MAGE)
+					checkThenArm('best', 'weapon', bestHydro);
+				else if(index == objPopulation.ARTILLERY)
+					checkThenArm('best', 'weapon', bestArcane);
+			}
+		}
+		else{
+			if(index == objPopulation.ARTILLERY && charmArmed.indexOf('Warpath') > -1)
+				disarmTrap('trinket');
+			else
+				checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index]);
+			if(index == objPopulation.CAVALRY)
+				checkThenArm('best', 'weapon', bestPhysical);
+			else if(index == objPopulation.MAGE)
+				checkThenArm('best', 'weapon', bestHydro);
+			else if(index == objPopulation.ARTILLERY)
+				checkThenArm('best', 'weapon', bestArcane);
+			else
+				checkThenArm('best', 'weapon', bestPhysical);
+		}
+	}
+	checkThenArm(null, 'bait', objFW.cheese[objFW.streak]);
 }
 
 function livingGarden(isAutoPour) {
@@ -2847,6 +2996,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
             preferenceHTMLStr += '<option value="Charge Egg 2016 Medium + High">Charge Egg 2016 Medium + High</option>';
             preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
+			preferenceHTMLStr += '<option value="Fiery Warpath">Fiery Warpath</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
@@ -2980,6 +3130,78 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trFWWave" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select FW wave"><b>Wave</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFWWave" onChange="onSelectFWWaveChanged();">';
+			preferenceHTMLStr += '<option value="1">1</option>';
+			preferenceHTMLStr += '<option value="2">2</option>';
+			preferenceHTMLStr += '<option value="3">3</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trFWFocusType" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select either Normal (Warrior, Scout, Archer) or Special (Cavalry, Mage)"><b>Soldier Type to Focus</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFWFocusType" onChange="onSelectFWFocusTypeChanged();">';
+			preferenceHTMLStr += '<option value="NORMAL">Normal</option>';
+			preferenceHTMLStr += '<option value="SPECIAL">Special</option>';
+            preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title="Select which soldier type comes first based on population"><b>Priorities:</b></a>&emsp;';
+			preferenceHTMLStr += '<select id="selectFWPriorities" onChange="onSelectFWPrioritiesChanged();">';
+			preferenceHTMLStr += '<option value="HIGHEST">Highest</option>';
+			preferenceHTMLStr += '<option value="LOWEST">Lowest</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trFWStreak" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select streak"><b>Streak</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFWStreak" onChange="onSelectFWStreakChanged();">';
+			preferenceHTMLStr += '<option value="0">0</option>';
+			preferenceHTMLStr += '<option value="1">1</option>';
+			preferenceHTMLStr += '<option value="2">2</option>';
+			preferenceHTMLStr += '<option value="3">3</option>';
+			preferenceHTMLStr += '<option value="4">4</option>';
+			preferenceHTMLStr += '<option value="5">5</option>';
+			preferenceHTMLStr += '<option value="6">6</option>';
+			preferenceHTMLStr += '<option value="7">7</option>';
+			preferenceHTMLStr += '<option value="8">8</option>';
+			preferenceHTMLStr += '<option value="9">9</option>';
+			preferenceHTMLStr += '<option value="10">10</option>';
+			preferenceHTMLStr += '<option value="11">11</option>';
+			preferenceHTMLStr += '<option value="12">12</option>';
+			preferenceHTMLStr += '<option value="13">13</option>';
+			preferenceHTMLStr += '<option value="14">14</option>';
+			preferenceHTMLStr += '<option value="15">15</option>';
+            preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFWCheese" onChange="onSelectFWCheeseChanged();">';
+			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
+			preferenceHTMLStr += '<option value="SUPER">SUPER|brie+</option>';
+            preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFWCharmType" onChange="onSelectFWCharmTypeChanged();">';
+			preferenceHTMLStr += '<option value="Warpath">Warpath</option>';
+			preferenceHTMLStr += '<option value="Super Warpath">Super Warpath</option>';
+            preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFWSpecial" onChange="onSelectFWSpecialChanged();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="COMMANDER">Commander</option>';
+			preferenceHTMLStr += '<option value="GARGANTUA">Gargantua</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
             preferenceHTMLStr += '<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;';
@@ -3011,185 +3233,13 @@ function embedTimer(targetPage) {
 
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('type', "text/javascript");
-			scriptElement.innerHTML = "\
-				function setLocalToSession(){\
-					var key;\
-					for(var i=0;i<window.localStorage.length;i++){\
-						key = window.localStorage.key(i);\
-						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'LGArea\')>-1 ||\
-							key.indexOf(\'Labyrinth_\')>-1 || key.indexOf(\'eventLocation\')>-1){\
-							window.sessionStorage.setItem(key, window.localStorage.getItem(key));\
-						}\
-					}\
-				}\
-				function setSessionToLocal(){\
-					if(window.sessionStorage.length==0)\
-						return;\
-					window.localStorage.setItem('eventLocation', window.sessionStorage.getItem('eventLocation'));\
-					var key;\
-					for(var i=0;i<window.sessionStorage.length;i++){\
-						key = window.sessionStorage.key(i);\
-						if(key.indexOf(\'SCCustom_\')>-1 || key.indexOf(\'LGArea\')>-1 || \
-							key.indexOf(\'Labyrinth_\')>-1 || key.indexOf(\'eventLocation\')>-1){\
-							window.localStorage.setItem(key, window.sessionStorage.getItem(key));\
-						}\
-					}\
-				}\
-				function loadSCCustomAlgo(){\
-					var selectedZone = document.getElementById(\'scHuntZone\').value;\
-					var storageValue = window.sessionStorage.getItem(\'SCCustom_\' + selectedZone);\
-					var scHuntZoneEnableEle = document.getElementById(\'scHuntZoneEnable\');\
-					var scHuntBaitEle = document.getElementById(\'scHuntBait\');\
-					var scHuntTrinketEle = document.getElementById(\'scHuntTrinket\');\
-					if (storageValue == null){\
-						scHuntZoneEnableEle.selectedIndex = 0;\
-						scHuntBait.selectedIndex = 0;\
-						scHuntTrinketEle.selectedIndex = 0;\
-						window.sessionStorage.setItem('SCCustom_' + selectedZone, [scHuntZoneEnableEle.value,scHuntBaitEle.value,scHuntTrinketEle.value]);\
-					}\
-					else{\
-						storageValue = storageValue.split(\',\');\
-						scHuntZoneEnableEle.value = storageValue[0];\
-						scHuntBaitEle.value = storageValue[1];\
-						scHuntTrinketEle.value = storageValue[2];\
-					}\
-				}\
-				function saveSCCustomAlgo(){\
-					var scHuntZoneEle = document.getElementById(\'scHuntZone\');\
-					var scHuntZoneEnableEle = document.getElementById(\'scHuntZoneEnable\');\
-					var scHuntBaitEle = document.getElementById(\'scHuntBait\');\
-					var scHuntTrinketEle = document.getElementById(\'scHuntTrinket\');\
-					var key = \'SCCustom_\' + scHuntZoneEle.value;\
-					var value = scHuntZoneEnableEle.value + \',\' + scHuntBaitEle.value + \',\' + scHuntTrinketEle.value;\
-					window.sessionStorage.setItem(key, value);\
-				}\
-				function saveDistrictFocus(value){\
-					window.sessionStorage.setItem(\'Labyrinth_DistrictFocus\',value);\
-				}\
-				function saveLabyrinthHallway(){\
-					var hallwayPlain = document.getElementById(\'hallwayPlain\');\
-					var hallwaySuperior = document.getElementById(\'hallwaySuperior\');\
-					var hallwayEpic = document.getElementById(\'hallwayEpic\');\
-					var selectedRange = document.getElementById(\'clueRange\').value;\
-					var objDefaultHallwayPriorities = {\
-						between0and14 : [\'lp\'],\
-						between15and59  : [\'sp\',\'ls\'],\
-						between60and100  : [\'sp\',\'ss\',\'le\'],\
-						chooseOtherDoors : false,\
-						typeOtherDoors : \'SHORTEST_FEWEST\'\
-					};\
-					var storageValue = JSON.parse(window.sessionStorage.getItem(\'Labyrinth_HallwayPriorities\'));\
-					if(storageValue == null)\
-						storageValue = objDefaultHallwayPriorities;\
-					\
-					if(selectedRange == \'between0and14\'){\
-						storageValue[selectedRange] = [hallwayPlain.value];\
-					}\
-					else if(selectedRange == \'between15and59\'){\
-						storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value];\
-					}\
-					else if(selectedRange == \'between60and100\'){\
-						storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];\
-					}\
-					storageValue.chooseOtherDoors = (document.getElementById(\'chooseOtherDoors\').value == \'true\');\
-					storageValue.typeOtherDoors = document.getElementById(\'typeOtherDoors\').value;\
-					window.sessionStorage.setItem(\'Labyrinth_HallwayPriorities\', JSON.stringify(storageValue));\
-				}\
-				function loadDistricFocus(){\
-					var storageValue = window.sessionStorage.getItem(\'Labyrinth_DistrictFocus\');\
-					if(storageValue == null)\
-						storageValue = \'None\';\
-					\
-					document.getElementById(\'labyrinthDistrict\').value = storageValue;\
-				}\
-				function loadLabyrinthHallway(){\
-					var selectedDistrict = document.getElementById(\'labyrinthDistrict\').value;\
-					document.getElementById(\'labyrinthMaxClue\').style.display = (selectedDistrict == \'None\') ? \'none\' : \'table-row\';\
-					document.getElementById(\'labyrinthHallway\').style.display = (selectedDistrict == \'None\') ? \'none\' : \'table-row\';\
-					if(selectedDistrict == \'None\')\
-						return;\
-						\
-					var hallwayPlain = document.getElementById(\'hallwayPlain\');\
-					var hallwaySuperior = document.getElementById(\'hallwaySuperior\');\
-					var hallwayEpic = document.getElementById(\'hallwayEpic\');\
-					var selectedRange = document.getElementById(\'clueRange\').value;\
-					var storageValue = JSON.parse(window.sessionStorage.getItem(\'Labyrinth_HallwayPriorities\'));\
-					\
-					var objDefaultHallwayPriorities = {\
-						between0and14 : [\'lp\'],\
-						between15and59  : [\'sp\',\'ls\'],\
-						between60and100  : [\'sp\',\'ss\',\'le\'],\
-						chooseOtherDoors : false,\
-						typeOtherDoors : \'SHORTEST_FEWEST\'\
-					};\
-					if(storageValue == null){\
-						storageValue = JSON.stringify(objDefaultHallwayPriorities);\
-						storageValue = JSON.parse(storageValue);\
-					}\
-					\
-					if(selectedRange == \'between0and14\'){\
-						hallwayPlain.value = storageValue[selectedRange][0];\
-						hallwaySuperior.disabled = \'disabled\';\
-						hallwayEpic.disabled = \'disabled\';\
-					}\
-					else if(selectedRange == \'between15and59\'){\
-						hallwayPlain.value = storageValue[selectedRange][0];\
-						hallwaySuperior.value = storageValue[selectedRange][1];\
-						hallwaySuperior.disabled = \'\';\
-						hallwayEpic.disabled = \'disabled\';\
-					}\
-					else if(selectedRange == \'between60and100\'){\
-						hallwayPlain.value = storageValue[selectedRange][0];\
-						hallwaySuperior.value = storageValue[selectedRange][1];\
-						hallwayEpic.value = storageValue[selectedRange][2];\
-						hallwaySuperior.disabled = \'\';\
-						hallwayEpic.disabled = \'\';\
-					}\
-					\
-					if(!hallwayEpic.disabled && (selectedDistrict == \'TREASURY\' || selectedDistrict == \'FARMING\'))\
-						hallwayEpic.disabled = \'disabled\';\
-					typeOtherDoors.value = storageValue.typeOtherDoors;\
-					document.getElementById(\'typeOtherDoors\').disabled = (storageValue.chooseOtherDoors)? \'\' : \'disabled\';\
-				}\
-				function saveLG(){\
-					var isPour = (document.getElementById(\'lgAutoPour\').value == \'true\');\
-					var maxSalt = document.getElementById(\'lgSalt\').value;\
-					window.sessionStorage.setItem(\'LGArea\', isPour + \',\' + maxSalt);\
-				}\
-				function loadLG(){\
-					var storageValue = window.sessionStorage.getItem(\'LGArea\');\
-					if(storageValue == null){\
-						storageValue = \'false,25\';\
-						window.sessionStorage.setItem(\'LGArea\', storageValue);\
-					}\
-					storageValue = storageValue.split(\',\');\
-					document.getElementById(\'lgAutoPour\').value = storageValue[0];\
-					document.getElementById(\'lgSalt\').value = parseInt(storageValue[1]);\
-				}\
-				function showOrHideTr(algo){\
-					document.getElementById(\'lgArea\').style.display = \'none\';\
-					document.getElementById(\'scCustom\').style.display = \'none\';\
-					document.getElementById(\'labyrinth\').style.display = \'none\';\
-					document.getElementById(\'labyrinthMaxClue\').style.display = \'none\';\
-					document.getElementById(\'labyrinthHallway\').style.display = \'none\';\
-					document.getElementById(\'labyrinthOtherHallway\').style.display = \'none\';\
-					if(algo == \'All LG Area\'){\
-						document.getElementById(\'lgArea\').style.display = \'table-row\';\
-						loadLG();\
-					}\
-					else if(algo == \'Sunken City Custom\'){\
-						document.getElementById(\'scCustom\').style.display = \'table-row\';\
-						loadSCCustomAlgo();\
-					}\
-					else if(algo == \'Labyrinth\'){\
-						document.getElementById(\'labyrinth\').style.display = \'table-row\';\
-						document.getElementById(\'labyrinthMaxClue\').style.display = \'table-row\';\
-						document.getElementById(\'labyrinthHallway\').style.display = \'table-row\';\
-						document.getElementById(\'labyrinthOtherHallway\').style.display = \'table-row\';\
-						loadDistricFocus();\
-						loadLabyrinthHallway();\
-					}\
-				}";
+			scriptElement.innerHTML = functionToHTMLString(setLocalToSession) + functionToHTMLString(setSessionToLocal) + functionToHTMLString(loadSCCustomAlgo) + functionToHTMLString(saveSCCustomAlgo) +
+				functionToHTMLString(saveDistrictFocus) + functionToHTMLString(saveLabyrinthHallway) + functionToHTMLString(loadDistricFocus) + functionToHTMLString(loadLabyrinthHallway) +
+				functionToHTMLString(saveLG) + functionToHTMLString(loadLG) + functionToHTMLString(onSelectFWWaveChanged) + functionToHTMLString(onSelectFWStreakChanged) +
+				functionToHTMLString(onSelectFWCheeseChanged) + functionToHTMLString(onSelectFWFocusTypeChanged) + functionToHTMLString(onSelectFWCharmTypeChanged) + 
+				functionToHTMLString(onSelectFWSpecialChanged) + functionToHTMLString(onSelectFWPrioritiesChanged) + functionToHTMLString(initControlsFW) + 
+				functionToHTMLString(saveFW) + functionToHTMLString(showOrHideTr);
+
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);
 			scriptElement = null;
         }
@@ -3958,7 +4008,7 @@ function max(data){
 }
 
 function maxIndex(data){
-	var value = Number.MAX_SAFE_INTEGER;
+	var value = Number.MIN_SAFE_INTEGER;
 	var index = -1;
 	for (var i=0;i<data.length;i++){
 		if (data[i] > value){
@@ -4059,7 +4109,7 @@ function average(data){
 
 function functionToHTMLString(func){
 	var str = func.toString();
-	str = str.substring(str.indexOf("{")+1, str.lastIndexOf("}"));
+	//str = str.substring(str.indexOf("{")+1, str.lastIndexOf("}"));
 	str = replaceAll(str, '"', '\'');
 	return str;
 }
@@ -4363,6 +4413,304 @@ function refreshTrapList() {
 	}
 }
 
+function setLocalToSession(){
+	var key;
+	for(var i=0;i<window.localStorage.length;i++){
+		key = window.localStorage.key(i);
+		if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
+			key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
+			key.indexOf("FW_")>-1){
+			window.sessionStorage.setItem(key, window.localStorage.getItem(key));
+		}
+	}
+}
+
+function setSessionToLocal(){
+	if(window.sessionStorage.length==0)
+		return;
+	
+	window.localStorage.setItem('eventLocation', window.sessionStorage.getItem('eventLocation'));
+	var key;
+	for(var i=0;i<window.sessionStorage.length;i++){
+		key = window.sessionStorage.key(i);
+		if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
+			key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
+			key.indexOf("FW_")>-1){
+			window.localStorage.setItem(key, window.sessionStorage.getItem(key));
+		}
+	}
+}
+
+function loadSCCustomAlgo()
+{
+	var selectedZone = document.getElementById('scHuntZone').value;
+	var storageValue = window.sessionStorage.getItem('SCCustom_' + selectedZone);
+	var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
+	var scHuntBaitEle = document.getElementById('scHuntBait');
+	var scHuntTrinketEle = document.getElementById('scHuntTrinket');
+	if (storageValue == null){
+		scHuntZoneEnableEle.selectedIndex = 0;
+		scHuntBait.selectedIndex = 0;
+		scHuntTrinketEle.selectedIndex = 0;
+		window.sessionStorage.setItem('SCCustom_' + selectedZone, [scHuntZoneEnableEle.value,scHuntBaitEle.value,scHuntTrinketEle.value]);
+	}
+	else{
+		storageValue = storageValue.split(',');
+		scHuntZoneEnableEle.value = storageValue[0];
+		scHuntBaitEle.value = storageValue[1];
+		scHuntTrinketEle.value = storageValue[2];
+	}
+}
+
+function saveSCCustomAlgo()
+{	
+	var scHuntZoneEle = document.getElementById('scHuntZone');
+	var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
+	var scHuntBaitEle = document.getElementById('scHuntBait');
+	var scHuntTrinketEle = document.getElementById('scHuntTrinket');
+	var key = 'SCCustom_' + scHuntZoneEle.value;
+	var value = scHuntZoneEnableEle.value + ',' + scHuntBaitEle.value + ',' + scHuntTrinketEle.value;
+	window.sessionStorage.setItem(key, value);
+}
+
+function saveDistrictFocus(value){
+	window.sessionStorage.setItem('Labyrinth_DistrictFocus',value);
+}
+
+function saveLabyrinthHallway(){
+	var hallwayPlain = document.getElementById('hallwayPlain');
+	var hallwaySuperior = document.getElementById('hallwaySuperior');
+	var hallwayEpic = document.getElementById('hallwayEpic');
+	var selectedRange = document.getElementById('clueRange').value;
+	var objDefaultHallwayPriorities = {
+		between0and14 : ['LP'],
+		between15and59  : ['SP','LS'],
+		between60and100  : ['SP','SS','LE'],
+		chooseOtherDoors : false,
+		typeOtherDoors : "SHORTEST_ONLY"
+	};
+	var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
+	if(storageValue == null)
+		storageValue = objDefaultHallwayPriorities;
+	
+	if(selectedRange == 'between0and14'){
+		storageValue[selectedRange] = [hallwayPlain.value];
+	}
+	else if(selectedRange == 'between15and59'){
+		storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value];
+	}
+	else if(selectedRange == 'between60and100'){
+		storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];
+	}
+	
+	storageValue.chooseOtherDoors = (document.getElementById('chooseOtherDoors').value == 'true');
+	storageValue.typeOtherDoors = document.getElementById('typeOtherDoors').value;
+	window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
+}
+
+function loadDistricFocus(){
+	var storageValue = window.sessionStorage.getItem('Labyrinth_DistrictFocus');
+	if(storageValue == null)
+		storageValue = 'None';
+	
+	document.getElementById('labyrinthDistrict').value = storageValue;
+}
+
+function loadLabyrinthHallway(){
+	var selectedDistrict = document.getElementById('labyrinthDistrict').value;
+	document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+	document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+	document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+	if(selectedDistrict == 'None')
+		return;
+		
+	var hallwayPlain = document.getElementById('hallwayPlain');
+	var hallwaySuperior = document.getElementById('hallwaySuperior');
+	var hallwayEpic = document.getElementById('hallwayEpic');
+	var selectedRange = document.getElementById('clueRange').value;
+	var typeOtherDoors = document.getElementById('typeOtherDoors');
+	var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
+	
+	var objDefaultHallwayPriorities = {
+		between0and14 : ['LP'],
+		between15and59  : ['SP','LS'],
+		between60and100  : ['SP','SS','LE'],
+		chooseOtherDoors : false,
+		typeOtherDoors : "SHORTEST_ONLY"
+	};
+	if(storageValue == null){
+		storageValue = JSON.stringify(objDefaultHallwayPriorities);
+		storageValue = JSON.parse(storageValue);
+	}
+	
+	if(selectedRange == 'between0and14'){
+		hallwayPlain.value = storageValue[selectedRange][0];
+		hallwaySuperior.disabled = 'disabled';
+		hallwayEpic.disabled = 'disabled';
+	}
+	else if(selectedRange == 'between15and59'){
+		hallwayPlain.value = storageValue[selectedRange][0];
+		hallwaySuperior.value = storageValue[selectedRange][1];
+		hallwaySuperior.disabled = '';
+		hallwayEpic.disabled = 'disabled';
+	}
+	else if(selectedRange == 'between60and100'){
+		hallwayPlain.value = storageValue[selectedRange][0];
+		hallwaySuperior.value = storageValue[selectedRange][1];
+		hallwayEpic.value = storageValue[selectedRange][2];
+		hallwaySuperior.disabled = '';
+		hallwayEpic.disabled = '';
+	}
+	
+	if(!hallwayEpic.disabled && (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING'))
+		hallwayEpic.disabled = 'disabled';
+		
+	typeOtherDoors.value = storageValue.typeOtherDoors;
+	document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
+}
+
+function saveLG(){
+	var isPour = (document.getElementById('lgAutoPour').value == 'true');
+	var maxSalt = document.getElementById('lgSalt').value;
+	window.sessionStorage.setItem('LGArea', isPour + ',' + maxSalt);
+}
+
+function loadLG(){
+	var storageValue = window.sessionStorage.getItem('LGArea');
+	if(storageValue == null){
+		storageValue = 'true,25';
+		window.sessionStorage.setItem('LGArea', storageValue);
+	}
+
+	storageValue = storageValue.split(',');
+	document.getElementById('lgAutoPour').value = storageValue[0];
+	document.getElementById('lgSalt').value = parseInt(storageValue[1]);
+}
+
+function onSelectFWWaveChanged(){
+	// show wave X settings
+	var nWave = parseInt(document.getElementById('selectFWWave').value);
+	var option = document.getElementById('selectFWFocusType').children;
+	for(var i=0;i<option.length;i++){
+		if(option[i].innerText.indexOf('Special') > -1)
+			option[i].style = (nWave==1) ? 'display:none' : '';
+	}
+	initControlsFW();
+}
+
+function onSelectFWStreakChanged(){
+	initControlsFW();
+}
+
+function onSelectFWCheeseChanged(){
+	saveFW();
+}
+
+function onSelectFWFocusTypeChanged(){
+	saveFW();
+}
+
+function onSelectFWCharmTypeChanged(){
+	saveFW();
+}
+
+function onSelectFWSpecialChanged(){
+	saveFW();
+}
+
+function onSelectFWPrioritiesChanged(){
+	saveFW();
+}
+
+function initControlsFW(){
+	var selectFWStreak = document.getElementById('selectFWStreak');
+	var selectFWFocusType = document.getElementById('selectFWFocusType');
+	var selectFWPriorities = document.getElementById('selectFWPriorities');
+	var selectFWCheese = document.getElementById('selectFWCheese');
+	var selectFWCharmType = document.getElementById('selectFWCharmType');
+	var selectFWSpecial = document.getElementById('selectFWSpecial');
+	var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
+	if(storageValue == null){
+		selectFWFocusType.selectedIndex = -1;
+		selectFWPriorities.selectedIndex = -1;
+		selectFWCheese.selectedIndex = -1;
+		selectFWCharmType.selectedIndex = -1;
+		selectFWSpecial.selectedIndex = -1;
+	}
+	else{
+		storageValue = JSON.parse(storageValue);
+		selectFWFocusType.value = storageValue.focusType;
+		selectFWPriorities.value = storageValue.priorities;
+		selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
+		selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
+		selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
+	}
+}
+
+function saveFW(){
+	var nWave = document.getElementById('selectFWWave').value;
+	var selectFWStreak = document.getElementById('selectFWStreak');
+	var nStreak = parseInt(selectFWStreak.value);
+	var nStreakLength = selectFWStreak.children.length;
+	var selectFWFocusType = document.getElementById('selectFWFocusType');
+	var selectFWPriorities = document.getElementById('selectFWPriorities');
+	var selectFWCheese = document.getElementById('selectFWCheese');
+	var selectFWCharmType = document.getElementById('selectFWCharmType');
+	var selectFWSpecial = document.getElementById('selectFWSpecial');
+	var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
+	if(storageValue == null){
+		var obj = {
+			focusType : 'NORMAL',
+			priorities : 'HIGHEST',
+			cheese : new Array(nStreakLength),
+			charmType : new Array(nStreakLength),
+			special : new Array(nStreakLength)
+		};
+		storageValue = JSON.stringify(obj);
+	}
+	storageValue = JSON.parse(storageValue);
+	storageValue.focusType = selectFWFocusType.value;
+	storageValue.priorities = selectFWPriorities.value;
+	storageValue.cheese[nStreak] = selectFWCheese.value;
+	storageValue.charmType[nStreak] = selectFWCharmType.value;
+	storageValue.special[nStreak] = selectFWSpecial.value;
+	window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
+}
+
+function showOrHideTr(algo){
+	document.getElementById('lgArea').style.display = 'none';
+	document.getElementById('scCustom').style.display = 'none';
+	document.getElementById('labyrinth').style.display = 'none';
+	document.getElementById('labyrinthMaxClue').style.display = 'none';
+	document.getElementById('labyrinthHallway').style.display = 'none';
+	document.getElementById('labyrinthOtherHallway').style.display = 'none';
+	document.getElementById('trFWWave').style.display = 'none';
+	document.getElementById('trFWStreak').style.display = 'none';
+	document.getElementById('trFWFocusType').style.display = 'none';
+	if(algo == 'All LG Area'){
+		document.getElementById('lgArea').style.display = 'table-row';
+		loadLG();
+	}
+	else if(algo == 'Sunken City Custom'){
+		document.getElementById('scCustom').style.display = 'table-row';
+		loadSCCustomAlgo();
+	}
+	else if(algo == 'Labyrinth'){
+		document.getElementById('labyrinth').style.display = 'table-row';
+		document.getElementById('labyrinthMaxClue').style.display = 'table-row';
+		document.getElementById('labyrinthHallway').style.display = 'table-row';
+		document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
+		loadDistricFocus();
+		loadLabyrinthHallway();
+	}
+	else if(algo == 'Fiery Warpath'){
+		document.getElementById('trFWWave').style.display = 'table-row';
+		document.getElementById('trFWStreak').style.display = 'table-row';
+		document.getElementById('trFWFocusType').style.display = 'table-row';
+		document.getElementById('selectFWWave').selectedIndex = 0;
+		onSelectFWWaveChanged();
+	}
+}
 // ################################################################################################
 //   HTML Function - End
 // ################################################################################################
