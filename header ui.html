@@ -334,6 +334,12 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="trBRRed" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select the amount of hunt to toggle canister based on total horn calls"><b>Toggle Canister Every</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<input type="number" id="ToggleCanisterInput" min="1" max="10" value="1" onchange="onInputToggleCanisterChanged();">&nbsp;&nbsp;Hunt(s) of Total Horn Calls
+					</td>
+				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;" colspan="2">
 						<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">
@@ -352,7 +358,7 @@
 			key = window.localStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1){
+				key.indexOf("FW_")>-1 || key.indexOf("BRRed_")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -368,7 +374,7 @@
 			key = window.sessionStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1){
+				key.indexOf("FW_")>-1 || key.indexOf("BRRed_")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -610,6 +616,18 @@
 		window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
 	}
 	
+	function onInputToggleCanisterChanged(){
+		window.sessionStorage.setItem('BRRed_Toggle', document.getElementById('ToggleCanisterInput').value);
+	}
+	
+	function initControlsBR(){
+		var storageValue = window.sessionStorage.getItem('BRRed_Toggle');
+		if(storageValue === null)
+			storageValue = 1;
+			
+		document.getElementById('ToggleCanisterInput').value = parseInt(storageValue);
+	}
+	
 	function showOrHideTr(algo){
 		document.getElementById('lgArea').style.display = 'none';
 		document.getElementById('scCustom').style.display = 'none';
@@ -620,6 +638,7 @@
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
+		document.getElementById('trBRRed').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -642,6 +661,10 @@
 			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('selectFWWave').selectedIndex = 0;
 			onSelectFWWaveChanged();
+		}
+		else if(algo == 'Burroughs Rift(Red)'){
+			document.getElementById('trBRRed').style.display = 'table-row';
+			initControlsBR();
 		}
 	}
 </script>

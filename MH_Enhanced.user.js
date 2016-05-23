@@ -374,7 +374,7 @@ function receiveMessage(event)
 		}
 		else if(event.data.indexOf("#")>-1){
 			var value = event.data.substring(1, event.data.length);
-			setStorage("imgurCallBack",value);
+			setStorage("krCallBack",value);
 		}
 	}		
 }
@@ -795,6 +795,11 @@ function BurroughRift(minMist, maxMist)
 	console.debug('Min Mist: ' + minMist + " Max Mist: " + maxMist);
 	if(currentMistQuantity >= maxMist && isMisting == 'true')
 	{
+		if(maxMist == 20){
+			var nToggle = getStorageToVariableInt("BRRed_Toggle", 1);
+			if(parseInt(getPageVariable('user.num_active_turns')) % nToggle !== 0)
+				return;
+		}
 		console.debug('Stop mist...');
 		fireEvent(mistButton, 'click');
 	}
@@ -3205,6 +3210,16 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trBRRed" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select the amount of hunt to toggle canister based on total horn calls"><b>Toggle Canister Every</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px;">';
+            preferenceHTMLStr += '<input type="number" id="ToggleCanisterInput" min="1" max="10" value="1" onchange="onInputToggleCanisterChanged();">&nbsp;&nbsp;Hunt(s) of Total Horn Calls';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
             preferenceHTMLStr += '<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;';
@@ -3236,13 +3251,7 @@ function embedTimer(targetPage) {
 
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('type', "text/javascript");
-			scriptElement.innerHTML = functionToHTMLString(setLocalToSession) + functionToHTMLString(setSessionToLocal) + functionToHTMLString(loadSCCustomAlgo) + functionToHTMLString(saveSCCustomAlgo) +
-				functionToHTMLString(saveDistrictFocus) + functionToHTMLString(saveLabyrinthHallway) + functionToHTMLString(loadDistricFocus) + functionToHTMLString(loadLabyrinthHallway) +
-				functionToHTMLString(saveLG) + functionToHTMLString(loadLG) + functionToHTMLString(onSelectFWWaveChanged) + functionToHTMLString(onSelectFWStreakChanged) +
-				functionToHTMLString(onSelectFWCheeseChanged) + functionToHTMLString(onSelectFWFocusTypeChanged) + functionToHTMLString(onSelectFWCharmTypeChanged) + 
-				functionToHTMLString(onSelectFWSpecialChanged) + functionToHTMLString(onSelectFWPrioritiesChanged) + functionToHTMLString(initControlsFW) + 
-				functionToHTMLString(saveFW) + functionToHTMLString(showOrHideTr);
-
+			scriptElement.innerHTML = functionToHTMLString(bodyJS);
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);
 			scriptElement = null;
         }
@@ -3254,7 +3263,7 @@ function embedTimer(targetPage) {
 }
 
 function loadPreferenceSettingFromStorage() {
-    aggressiveMode = getStorageToVariableBool("AggressiveMode", aggressiveMode);
+	aggressiveMode = getStorageToVariableBool("AggressiveMode", aggressiveMode);
 	hornTimeDelayMin = getStorageToVariableInt("HornTimeDelayMin", hornTimeDelayMin);
 	hornTimeDelayMax = getStorageToVariableInt("HornTimeDelayMax", hornTimeDelayMax);
 	enableTrapCheck = getStorageToVariableBool("TrapCheck", enableTrapCheck);
@@ -3392,7 +3401,9 @@ function getStorageToVariableInt(storageName, defaultInt)
         setStorage(storageName, defaultInt);
     }
     else {
-        tempInt = parseInt(temp);
+		tempInt = parseInt(temp);
+		if(Number.isNaN(tempInt))
+			tempInt = defaultInt;
     }
 	return tempInt;
 }
@@ -3468,7 +3479,7 @@ function displayKingRewardSumTime(timeStr) {
 
 function soundHorn() {
 	var isAtCampPage = (isNewUI)? (document.getElementById('journalContainer') != null) : (document.getElementById('huntingTips') != null) ;
-	console.debug("At Camp Page: " + isAtCampPage);
+	//console.debug("At Camp Page: " + isAtCampPage);
 	if (!isAtCampPage) {
 		displayTimer("Not At Camp Page", "Not At Camp Page", "Not At Camp Page");
 		return;
@@ -3778,7 +3789,15 @@ function kingRewardAction() {
 		return;
 	}
 
-	var krDelaySec = krDelayMin + Math.floor(Math.random() * (krDelayMax - krDelayMin));
+	var krDelaySec = krDelayMax;
+	if (kingsRewardRetry > 0){
+		var nMin = krDelayMin / (kingsRewardRetry * 2);
+		var nMax = krDelayMax / (kingsRewardRetry * 2);
+		krDelaySec = nMin + Math.floor(Math.random() * (nMax - nMin));
+	}
+	else
+		krDelaySec = krDelayMin + Math.floor(Math.random() * (krDelayMax - krDelayMin));
+
 	var krStopHourNormalized = krStopHour;
 	var krStartHourNormalized = krStartHour;
 	if (krStopHour > krStartHour) // e.g. Stop to Start => 22 to 06
@@ -3795,14 +3814,9 @@ function kingRewardAction() {
 		krDelaySec += krStartHour * 3600 - (nowDate.getHours() * 3600 + nowDate.getMinutes() * 60 + nowDate.getSeconds());
 		krDelaySec += krDelayMinute * 60;
 		var timeNow = new Date();
-		setStorage("Time to start delay", timeNow.toString());
-		setStorage("Delay time", timeformat(krDelaySec));
 		kingRewardCountdownTimer(krDelaySec, true);
 	}
-	else
-	{
-		if (kingsRewardRetry > 0)
-			krDelaySec /= (kingsRewardRetry * 2);
+	else{
 		kingRewardCountdownTimer(krDelaySec, false);
 	}
 }
@@ -3906,7 +3920,8 @@ function CallKRSolver()
 	var img = document.getElementById('puzzleImage');
 	if (debugKR){
 		//frame.src = "https://dl.dropboxusercontent.com/s/4u5msso39hfpo87/Capture.PNG";
-		frame.src = "https://dl.dropboxusercontent.com/s/og73bcdsn2qod63/download%20%2810%29Ori.png";
+		//frame.src = "https://dl.dropboxusercontent.com/s/og73bcdsn2qod63/download%20%2810%29Ori.png";
+		frame.src = "https://dl.dropboxusercontent.com/s/ppg0l35h25phrx3/download%20(16).png";
 	}
 	else
 		frame.src = img.src;
@@ -3979,6 +3994,17 @@ function CalculateNextTrapCheckInMinute() {
 // ################################################################################################
 //   General Function - Start
 // ################################################################################################
+
+function range(value, min, max){
+	if(value > max)
+		value = max;
+	else if(value < min)
+		value = min;
+	else if(Number.isNaN(value))
+		value = min + Math.floor(Math.random() * (max - min));
+	
+	return value;
+}
 
 function min(data){
 	var value = Number.MAX_SAFE_INTEGER;
@@ -4112,7 +4138,7 @@ function average(data){
 
 function functionToHTMLString(func){
 	var str = func.toString();
-	//str = str.substring(str.indexOf("{")+1, str.lastIndexOf("}"));
+	str = str.substring(str.indexOf("{")+1, str.lastIndexOf("}"));
 	str = replaceAll(str, '"', '\'');
 	return str;
 }
@@ -4416,303 +4442,322 @@ function refreshTrapList() {
 	}
 }
 
-function setLocalToSession(){
-	var key;
-	for(var i=0;i<window.localStorage.length;i++){
-		key = window.localStorage.key(i);
-		if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
-			key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-			key.indexOf("FW_")>-1){
-			window.sessionStorage.setItem(key, window.localStorage.getItem(key));
+function bodyJS(){
+	function setLocalToSession(){
+		var key;
+		for(var i=0;i<window.localStorage.length;i++){
+			key = window.localStorage.key(i);
+			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
+				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
+				key.indexOf("FW_")>-1 || key.indexOf("BRRed_")>-1){
+				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
+			}
 		}
 	}
-}
 
-function setSessionToLocal(){
-	if(window.sessionStorage.length==0)
-		return;
-	
-	window.localStorage.setItem('eventLocation', window.sessionStorage.getItem('eventLocation'));
-	var key;
-	for(var i=0;i<window.sessionStorage.length;i++){
-		key = window.sessionStorage.key(i);
-		if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
-			key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-			key.indexOf("FW_")>-1){
-			window.localStorage.setItem(key, window.sessionStorage.getItem(key));
+	function setSessionToLocal(){
+		if(window.sessionStorage.length==0)
+			return;
+		
+		window.localStorage.setItem('eventLocation', window.sessionStorage.getItem('eventLocation'));
+		var key;
+		for(var i=0;i<window.sessionStorage.length;i++){
+			key = window.sessionStorage.key(i);
+			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
+				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
+				key.indexOf("FW_")>-1 || key.indexOf("BRRed_")>-1){
+				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
+			}
 		}
 	}
-}
 
-function loadSCCustomAlgo()
-{
-	var selectedZone = document.getElementById('scHuntZone').value;
-	var storageValue = window.sessionStorage.getItem('SCCustom_' + selectedZone);
-	var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
-	var scHuntBaitEle = document.getElementById('scHuntBait');
-	var scHuntTrinketEle = document.getElementById('scHuntTrinket');
-	if (storageValue == null){
-		scHuntZoneEnableEle.selectedIndex = 0;
-		scHuntBait.selectedIndex = 0;
-		scHuntTrinketEle.selectedIndex = 0;
-		window.sessionStorage.setItem('SCCustom_' + selectedZone, [scHuntZoneEnableEle.value,scHuntBaitEle.value,scHuntTrinketEle.value]);
-	}
-	else{
-		storageValue = storageValue.split(',');
-		scHuntZoneEnableEle.value = storageValue[0];
-		scHuntBaitEle.value = storageValue[1];
-		scHuntTrinketEle.value = storageValue[2];
-	}
-}
-
-function saveSCCustomAlgo()
-{	
-	var scHuntZoneEle = document.getElementById('scHuntZone');
-	var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
-	var scHuntBaitEle = document.getElementById('scHuntBait');
-	var scHuntTrinketEle = document.getElementById('scHuntTrinket');
-	var key = 'SCCustom_' + scHuntZoneEle.value;
-	var value = scHuntZoneEnableEle.value + ',' + scHuntBaitEle.value + ',' + scHuntTrinketEle.value;
-	window.sessionStorage.setItem(key, value);
-}
-
-function saveDistrictFocus(value){
-	window.sessionStorage.setItem('Labyrinth_DistrictFocus',value);
-}
-
-function saveLabyrinthHallway(){
-	var hallwayPlain = document.getElementById('hallwayPlain');
-	var hallwaySuperior = document.getElementById('hallwaySuperior');
-	var hallwayEpic = document.getElementById('hallwayEpic');
-	var selectedRange = document.getElementById('clueRange').value;
-	var objDefaultHallwayPriorities = {
-		between0and14 : ['LP'],
-		between15and59  : ['SP','LS'],
-		between60and100  : ['SP','SS','LE'],
-		chooseOtherDoors : false,
-		typeOtherDoors : "SHORTEST_ONLY"
-	};
-	var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
-	if(storageValue == null)
-		storageValue = objDefaultHallwayPriorities;
-	
-	if(selectedRange == 'between0and14'){
-		storageValue[selectedRange] = [hallwayPlain.value];
-	}
-	else if(selectedRange == 'between15and59'){
-		storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value];
-	}
-	else if(selectedRange == 'between60and100'){
-		storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];
-	}
-	
-	storageValue.chooseOtherDoors = (document.getElementById('chooseOtherDoors').value == 'true');
-	storageValue.typeOtherDoors = document.getElementById('typeOtherDoors').value;
-	window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
-}
-
-function loadDistricFocus(){
-	var storageValue = window.sessionStorage.getItem('Labyrinth_DistrictFocus');
-	if(storageValue == null)
-		storageValue = 'None';
-	
-	document.getElementById('labyrinthDistrict').value = storageValue;
-}
-
-function loadLabyrinthHallway(){
-	var selectedDistrict = document.getElementById('labyrinthDistrict').value;
-	document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
-	document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
-	document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
-	if(selectedDistrict == 'None')
-		return;
-		
-	var hallwayPlain = document.getElementById('hallwayPlain');
-	var hallwaySuperior = document.getElementById('hallwaySuperior');
-	var hallwayEpic = document.getElementById('hallwayEpic');
-	var selectedRange = document.getElementById('clueRange').value;
-	var typeOtherDoors = document.getElementById('typeOtherDoors');
-	var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
-	
-	var objDefaultHallwayPriorities = {
-		between0and14 : ['LP'],
-		between15and59  : ['SP','LS'],
-		between60and100  : ['SP','SS','LE'],
-		chooseOtherDoors : false,
-		typeOtherDoors : "SHORTEST_ONLY"
-	};
-	if(storageValue == null){
-		storageValue = JSON.stringify(objDefaultHallwayPriorities);
-		storageValue = JSON.parse(storageValue);
-	}
-	
-	if(selectedRange == 'between0and14'){
-		hallwayPlain.value = storageValue[selectedRange][0];
-		hallwaySuperior.disabled = 'disabled';
-		hallwayEpic.disabled = 'disabled';
-	}
-	else if(selectedRange == 'between15and59'){
-		hallwayPlain.value = storageValue[selectedRange][0];
-		hallwaySuperior.value = storageValue[selectedRange][1];
-		hallwaySuperior.disabled = '';
-		hallwayEpic.disabled = 'disabled';
-	}
-	else if(selectedRange == 'between60and100'){
-		hallwayPlain.value = storageValue[selectedRange][0];
-		hallwaySuperior.value = storageValue[selectedRange][1];
-		hallwayEpic.value = storageValue[selectedRange][2];
-		hallwaySuperior.disabled = '';
-		hallwayEpic.disabled = '';
-	}
-	
-	if(!hallwayEpic.disabled && (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING'))
-		hallwayEpic.disabled = 'disabled';
-		
-	typeOtherDoors.value = storageValue.typeOtherDoors;
-	document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
-}
-
-function saveLG(){
-	var isPour = (document.getElementById('lgAutoPour').value == 'true');
-	var maxSalt = document.getElementById('lgSalt').value;
-	window.sessionStorage.setItem('LGArea', isPour + ',' + maxSalt);
-}
-
-function loadLG(){
-	var storageValue = window.sessionStorage.getItem('LGArea');
-	if(storageValue == null){
-		storageValue = 'true,25';
-		window.sessionStorage.setItem('LGArea', storageValue);
+	function loadSCCustomAlgo()
+	{
+		var selectedZone = document.getElementById('scHuntZone').value;
+		var storageValue = window.sessionStorage.getItem('SCCustom_' + selectedZone);
+		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
+		var scHuntBaitEle = document.getElementById('scHuntBait');
+		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
+		if (storageValue == null){
+			scHuntZoneEnableEle.selectedIndex = 0;
+			scHuntBait.selectedIndex = 0;
+			scHuntTrinketEle.selectedIndex = 0;
+			window.sessionStorage.setItem('SCCustom_' + selectedZone, [scHuntZoneEnableEle.value,scHuntBaitEle.value,scHuntTrinketEle.value]);
+		}
+		else{
+			storageValue = storageValue.split(',');
+			scHuntZoneEnableEle.value = storageValue[0];
+			scHuntBaitEle.value = storageValue[1];
+			scHuntTrinketEle.value = storageValue[2];
+		}
 	}
 
-	storageValue = storageValue.split(',');
-	document.getElementById('lgAutoPour').value = storageValue[0];
-	document.getElementById('lgSalt').value = parseInt(storageValue[1]);
-}
-
-function onSelectFWWaveChanged(){
-	// show wave X settings
-	var nWave = parseInt(document.getElementById('selectFWWave').value);
-	var option = document.getElementById('selectFWFocusType').children;
-	for(var i=0;i<option.length;i++){
-		if(option[i].innerText.indexOf('Special') > -1)
-			option[i].style = (nWave==1) ? 'display:none' : '';
+	function saveSCCustomAlgo()
+	{	
+		var scHuntZoneEle = document.getElementById('scHuntZone');
+		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
+		var scHuntBaitEle = document.getElementById('scHuntBait');
+		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
+		var key = 'SCCustom_' + scHuntZoneEle.value;
+		var value = scHuntZoneEnableEle.value + ',' + scHuntBaitEle.value + ',' + scHuntTrinketEle.value;
+		window.sessionStorage.setItem(key, value);
 	}
-	initControlsFW();
-}
 
-function onSelectFWStreakChanged(){
-	initControlsFW();
-}
-
-function onSelectFWCheeseChanged(){
-	saveFW();
-}
-
-function onSelectFWFocusTypeChanged(){
-	saveFW();
-}
-
-function onSelectFWCharmTypeChanged(){
-	saveFW();
-}
-
-function onSelectFWSpecialChanged(){
-	saveFW();
-}
-
-function onSelectFWPrioritiesChanged(){
-	saveFW();
-}
-
-function initControlsFW(){
-	var selectFWStreak = document.getElementById('selectFWStreak');
-	var selectFWFocusType = document.getElementById('selectFWFocusType');
-	var selectFWPriorities = document.getElementById('selectFWPriorities');
-	var selectFWCheese = document.getElementById('selectFWCheese');
-	var selectFWCharmType = document.getElementById('selectFWCharmType');
-	var selectFWSpecial = document.getElementById('selectFWSpecial');
-	var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
-	if(storageValue == null){
-		selectFWFocusType.selectedIndex = -1;
-		selectFWPriorities.selectedIndex = -1;
-		selectFWCheese.selectedIndex = -1;
-		selectFWCharmType.selectedIndex = -1;
-		selectFWSpecial.selectedIndex = -1;
+	function saveDistrictFocus(value){
+		window.sessionStorage.setItem('Labyrinth_DistrictFocus',value);
 	}
-	else{
-		storageValue = JSON.parse(storageValue);
-		selectFWFocusType.value = storageValue.focusType;
-		selectFWPriorities.value = storageValue.priorities;
-		selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
-		selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
-		selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
-	}
-}
 
-function saveFW(){
-	var nWave = document.getElementById('selectFWWave').value;
-	var selectFWStreak = document.getElementById('selectFWStreak');
-	var nStreak = parseInt(selectFWStreak.value);
-	var nStreakLength = selectFWStreak.children.length;
-	var selectFWFocusType = document.getElementById('selectFWFocusType');
-	var selectFWPriorities = document.getElementById('selectFWPriorities');
-	var selectFWCheese = document.getElementById('selectFWCheese');
-	var selectFWCharmType = document.getElementById('selectFWCharmType');
-	var selectFWSpecial = document.getElementById('selectFWSpecial');
-	var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
-	if(storageValue == null){
-		var obj = {
-			focusType : 'NORMAL',
-			priorities : 'HIGHEST',
-			cheese : new Array(nStreakLength),
-			charmType : new Array(nStreakLength),
-			special : new Array(nStreakLength)
+	function saveLabyrinthHallway(){
+		var hallwayPlain = document.getElementById('hallwayPlain');
+		var hallwaySuperior = document.getElementById('hallwaySuperior');
+		var hallwayEpic = document.getElementById('hallwayEpic');
+		var selectedRange = document.getElementById('clueRange').value;
+		var objDefaultHallwayPriorities = {
+			between0and14 : ['LP'],
+			between15and59  : ['SP','LS'],
+			between60and100  : ['SP','SS','LE'],
+			chooseOtherDoors : false,
+			typeOtherDoors : "SHORTEST_ONLY"
 		};
-		storageValue = JSON.stringify(obj);
+		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
+		if(storageValue == null)
+			storageValue = objDefaultHallwayPriorities;
+		
+		if(selectedRange == 'between0and14'){
+			storageValue[selectedRange] = [hallwayPlain.value];
+		}
+		else if(selectedRange == 'between15and59'){
+			storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value];
+		}
+		else if(selectedRange == 'between60and100'){
+			storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];
+		}
+		
+		storageValue.chooseOtherDoors = (document.getElementById('chooseOtherDoors').value == 'true');
+		storageValue.typeOtherDoors = document.getElementById('typeOtherDoors').value;
+		window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
 	}
-	storageValue = JSON.parse(storageValue);
-	storageValue.focusType = selectFWFocusType.value;
-	storageValue.priorities = selectFWPriorities.value;
-	storageValue.cheese[nStreak] = selectFWCheese.value;
-	storageValue.charmType[nStreak] = selectFWCharmType.value;
-	storageValue.special[nStreak] = selectFWSpecial.value;
-	window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
-}
 
-function showOrHideTr(algo){
-	document.getElementById('lgArea').style.display = 'none';
-	document.getElementById('scCustom').style.display = 'none';
-	document.getElementById('labyrinth').style.display = 'none';
-	document.getElementById('labyrinthMaxClue').style.display = 'none';
-	document.getElementById('labyrinthHallway').style.display = 'none';
-	document.getElementById('labyrinthOtherHallway').style.display = 'none';
-	document.getElementById('trFWWave').style.display = 'none';
-	document.getElementById('trFWStreak').style.display = 'none';
-	document.getElementById('trFWFocusType').style.display = 'none';
-	if(algo == 'All LG Area'){
-		document.getElementById('lgArea').style.display = 'table-row';
-		loadLG();
+	function loadDistricFocus(){
+		var storageValue = window.sessionStorage.getItem('Labyrinth_DistrictFocus');
+		if(storageValue == null)
+			storageValue = 'None';
+		
+		document.getElementById('labyrinthDistrict').value = storageValue;
 	}
-	else if(algo == 'Sunken City Custom'){
-		document.getElementById('scCustom').style.display = 'table-row';
-		loadSCCustomAlgo();
+
+	function loadLabyrinthHallway(){
+		var selectedDistrict = document.getElementById('labyrinthDistrict').value;
+		document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		if(selectedDistrict == 'None')
+			return;
+			
+		var hallwayPlain = document.getElementById('hallwayPlain');
+		var hallwaySuperior = document.getElementById('hallwaySuperior');
+		var hallwayEpic = document.getElementById('hallwayEpic');
+		var selectedRange = document.getElementById('clueRange').value;
+		var typeOtherDoors = document.getElementById('typeOtherDoors');
+		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
+		
+		var objDefaultHallwayPriorities = {
+			between0and14 : ['LP'],
+			between15and59  : ['SP','LS'],
+			between60and100  : ['SP','SS','LE'],
+			chooseOtherDoors : false,
+			typeOtherDoors : "SHORTEST_ONLY"
+		};
+		if(storageValue == null){
+			storageValue = JSON.stringify(objDefaultHallwayPriorities);
+			storageValue = JSON.parse(storageValue);
+		}
+		
+		if(selectedRange == 'between0and14'){
+			hallwayPlain.value = storageValue[selectedRange][0];
+			hallwaySuperior.disabled = 'disabled';
+			hallwayEpic.disabled = 'disabled';
+		}
+		else if(selectedRange == 'between15and59'){
+			hallwayPlain.value = storageValue[selectedRange][0];
+			hallwaySuperior.value = storageValue[selectedRange][1];
+			hallwaySuperior.disabled = '';
+			hallwayEpic.disabled = 'disabled';
+		}
+		else if(selectedRange == 'between60and100'){
+			hallwayPlain.value = storageValue[selectedRange][0];
+			hallwaySuperior.value = storageValue[selectedRange][1];
+			hallwayEpic.value = storageValue[selectedRange][2];
+			hallwaySuperior.disabled = '';
+			hallwayEpic.disabled = '';
+		}
+		
+		if(!hallwayEpic.disabled && (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING'))
+			hallwayEpic.disabled = 'disabled';
+			
+		typeOtherDoors.value = storageValue.typeOtherDoors;
+		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 	}
-	else if(algo == 'Labyrinth'){
-		document.getElementById('labyrinth').style.display = 'table-row';
-		document.getElementById('labyrinthMaxClue').style.display = 'table-row';
-		document.getElementById('labyrinthHallway').style.display = 'table-row';
-		document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
-		loadDistricFocus();
-		loadLabyrinthHallway();
+
+	function saveLG(){
+		var isPour = (document.getElementById('lgAutoPour').value == 'true');
+		var maxSalt = document.getElementById('lgSalt').value;
+		window.sessionStorage.setItem('LGArea', isPour + ',' + maxSalt);
 	}
-	else if(algo == 'Fiery Warpath'){
-		document.getElementById('trFWWave').style.display = 'table-row';
-		document.getElementById('trFWStreak').style.display = 'table-row';
-		document.getElementById('trFWFocusType').style.display = 'table-row';
-		document.getElementById('selectFWWave').selectedIndex = 0;
-		onSelectFWWaveChanged();
+
+	function loadLG(){
+		var storageValue = window.sessionStorage.getItem('LGArea');
+		if(storageValue == null){
+			storageValue = 'true,25';
+			window.sessionStorage.setItem('LGArea', storageValue);
+		}
+
+		storageValue = storageValue.split(',');
+		document.getElementById('lgAutoPour').value = storageValue[0];
+		document.getElementById('lgSalt').value = parseInt(storageValue[1]);
 	}
+
+	function onSelectFWWaveChanged(){
+		// show wave X settings
+		var nWave = parseInt(document.getElementById('selectFWWave').value);
+		var option = document.getElementById('selectFWFocusType').children;
+		for(var i=0;i<option.length;i++){
+			if(option[i].innerText.indexOf('Special') > -1)
+				option[i].style = (nWave==1) ? 'display:none' : '';
+		}
+		initControlsFW();
+	}
+
+	function onSelectFWStreakChanged(){
+		initControlsFW();
+	}
+
+	function onSelectFWCheeseChanged(){
+		saveFW();
+	}
+
+	function onSelectFWFocusTypeChanged(){
+		saveFW();
+	}
+
+	function onSelectFWCharmTypeChanged(){
+		saveFW();
+	}
+
+	function onSelectFWSpecialChanged(){
+		saveFW();
+	}
+
+	function onSelectFWPrioritiesChanged(){
+		saveFW();
+	}
+
+	function initControlsFW(){
+		var selectFWStreak = document.getElementById('selectFWStreak');
+		var selectFWFocusType = document.getElementById('selectFWFocusType');
+		var selectFWPriorities = document.getElementById('selectFWPriorities');
+		var selectFWCheese = document.getElementById('selectFWCheese');
+		var selectFWCharmType = document.getElementById('selectFWCharmType');
+		var selectFWSpecial = document.getElementById('selectFWSpecial');
+		var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
+		if(storageValue == null){
+			selectFWFocusType.selectedIndex = -1;
+			selectFWPriorities.selectedIndex = -1;
+			selectFWCheese.selectedIndex = -1;
+			selectFWCharmType.selectedIndex = -1;
+			selectFWSpecial.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectFWFocusType.value = storageValue.focusType;
+			selectFWPriorities.value = storageValue.priorities;
+			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
+			selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
+			selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
+		}
+	}
+
+	function saveFW(){
+		var nWave = document.getElementById('selectFWWave').value;
+		var selectFWStreak = document.getElementById('selectFWStreak');
+		var nStreak = parseInt(selectFWStreak.value);
+		var nStreakLength = selectFWStreak.children.length;
+		var selectFWFocusType = document.getElementById('selectFWFocusType');
+		var selectFWPriorities = document.getElementById('selectFWPriorities');
+		var selectFWCheese = document.getElementById('selectFWCheese');
+		var selectFWCharmType = document.getElementById('selectFWCharmType');
+		var selectFWSpecial = document.getElementById('selectFWSpecial');
+		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
+		if(storageValue == null){
+			var obj = {
+				focusType : 'NORMAL',
+				priorities : 'HIGHEST',
+				cheese : new Array(nStreakLength),
+				charmType : new Array(nStreakLength),
+				special : new Array(nStreakLength)
+			};
+			storageValue = JSON.stringify(obj);
+		}
+		storageValue = JSON.parse(storageValue);
+		storageValue.focusType = selectFWFocusType.value;
+		storageValue.priorities = selectFWPriorities.value;
+		storageValue.cheese[nStreak] = selectFWCheese.value;
+		storageValue.charmType[nStreak] = selectFWCharmType.value;
+		storageValue.special[nStreak] = selectFWSpecial.value;
+		window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
+	}
+
+	function onInputToggleCanisterChanged(){
+		window.sessionStorage.setItem('BRRed_Toggle', document.getElementById('ToggleCanisterInput').value);
+	}
+
+	function initControlsBR(){
+		var storageValue = window.sessionStorage.getItem('BRRed_Toggle');
+		if(storageValue === null)
+			storageValue = 1;
+			
+		document.getElementById('ToggleCanisterInput').value = parseInt(storageValue);
+	}
+
+	function showOrHideTr(algo){
+		document.getElementById('lgArea').style.display = 'none';
+		document.getElementById('scCustom').style.display = 'none';
+		document.getElementById('labyrinth').style.display = 'none';
+		document.getElementById('labyrinthMaxClue').style.display = 'none';
+		document.getElementById('labyrinthHallway').style.display = 'none';
+		document.getElementById('labyrinthOtherHallway').style.display = 'none';
+		document.getElementById('trFWWave').style.display = 'none';
+		document.getElementById('trFWStreak').style.display = 'none';
+		document.getElementById('trFWFocusType').style.display = 'none';
+		document.getElementById('trBRRed').style.display = 'none';
+		if(algo == 'All LG Area'){
+			document.getElementById('lgArea').style.display = 'table-row';
+			loadLG();
+		}
+		else if(algo == 'Sunken City Custom'){
+			document.getElementById('scCustom').style.display = 'table-row';
+			loadSCCustomAlgo();
+		}
+		else if(algo == 'Labyrinth'){
+			document.getElementById('labyrinth').style.display = 'table-row';
+			document.getElementById('labyrinthMaxClue').style.display = 'table-row';
+			document.getElementById('labyrinthHallway').style.display = 'table-row';
+			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
+			loadDistricFocus();
+			loadLabyrinthHallway();
+		}
+		else if(algo == 'Fiery Warpath'){
+			document.getElementById('trFWWave').style.display = 'table-row';
+			document.getElementById('trFWStreak').style.display = 'table-row';
+			document.getElementById('trFWFocusType').style.display = 'table-row';
+			document.getElementById('selectFWWave').selectedIndex = 0;
+			onSelectFWWaveChanged();
+		}
+		else if(algo == 'Burroughs Rift(Red)'){
+			document.getElementById('trBRRed').style.display = 'table-row';
+			initControlsBR();
+		}
+	}	
 }
 // ################################################################################################
 //   HTML Function - End
