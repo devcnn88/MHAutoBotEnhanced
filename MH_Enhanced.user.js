@@ -851,8 +851,22 @@ function BRCustom(){
 	var nIndex = objBR.name.indexOf(currentTier);
 	checkThenArm(null, 'weapon', objBR.weapon[nIndex]);
 	checkThenArm(null, 'base', objBR.base[nIndex]);
-	checkThenArm(null, 'trinket', objBR.trinket[nIndex]);
 	checkThenArm(null, 'bait', objBR.bait[nIndex]);
+	if(objBR.trinket[nIndex] == 'NoRift'){
+		var charmArmed = getPageVariable("user.trinket_name");
+		var optionTrinket = document.getElementById('selectBRTrapTrinket').children;
+		for(var i=0;i<optionTrinket.length;i++){
+			if (charmArmed.indexOf(optionTrinket[i].value) > -1){
+				disarmTrap('trinket');
+				break;
+			}
+		}
+	}
+	else if(objBR.trinket[nIndex] == 'None'){
+		disarmTrap('trinket');
+	}
+	else
+		checkThenArm(null, 'trinket', objBR.trinket[nIndex]);
 }
 
 function LGGeneral(isAutoPour) {
