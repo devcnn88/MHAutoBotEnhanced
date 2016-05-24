@@ -135,8 +135,9 @@ var bestArcane = ['Event Horizon', 'Grand Arcanum Trap', 'Arcane Blast Trap', 'A
 var bestShadow = ['Temporal Turbine', 'Clockwork Portal Trap', 'Reaper\'s Perch', 'Dreaded Totem Trap', 'Clockapult of Time', 'Clockapult of Winter Past'];
 var bestForgotten = ['Infinite Labyrinth', 'Endless Labyrinth', 'Crystal Crucible', 'Stale Cupcake Golem', 'Tarannosaurus Rex Trap', 'The Forgotten Art of Dance'];
 var bestDraconic = ['Dragon Lance', 'Ice Maiden'];
-var bestRiftLuck = ['Multi-Crystal Laser', 'Crystal Tower'];
-var bestRiftPower = ['Focused Crystal Laser', 'Crystal Tower'];
+var bestRiftLuck = ['Mysteriously unYielding', 'Multi-Crystal Laser', 'Crystal Tower'];
+var bestRiftPower = ['Mysteriously unYielding', 'Focused Crystal Laser', 'Crystal Tower'];
+var bestRiftBase = ['Fissure Base', 'Rift Base', 'Fracture Base'];
 var bestPowerBase = ['Minotaur Base', 'Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
 var bestLuckBase = ['Minotaur Base', 'Fissure Base', 'Rift Base', 'Monkey Jade Base', 'Sheep Jade Base', 'Depth Charge Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Eerier Base', 'Papyrus Base'];
 var bestAttBase = ['Birthday Drag', 'Cheesecake Base'];
@@ -709,7 +710,9 @@ function eventLocationCheck(caller) {
 		case 'Burroughs Rift(Green)':
 			BurroughRift(6, 18); break;  
 		case 'Burroughs Rift(Yellow)':
-			BurroughRift(1, 5); break;  
+			BurroughRift(1, 5); break;
+		case 'Burroughs Rift Custom':
+			BRCustom(); break;
 		case 'Halloween 2015':
 			Halloween2015(); break;	 
 		case 'All LG Area':
@@ -778,7 +781,7 @@ function Halloween2015()
 	}
 }
 
-function BurroughRift(minMist, maxMist)
+function BurroughRift(minMist, maxMist, nToggle)
 {
 	//Tier 0: 0 Mist Canisters
 	//Tier 1/Yellow: 1-5 Mist Canisters
@@ -788,27 +791,68 @@ function BurroughRift(minMist, maxMist)
 		return;
 	
 	var currentMistQuantity = parseInt(document.getElementsByClassName('mistQuantity')[0].innerText);
-	var isMisting = getPageVariable('user.quests.QuestRiftBurroughs.is_misting');
+	var isMisting = (getPageVariable('user.quests.QuestRiftBurroughs.is_misting') == 'true');
 	var mistButton = document.getElementsByClassName('mistButton')[0];
 	console.debug('Current Mist Quantity: ' + currentMistQuantity);
 	console.debug('Is Misting: ' + isMisting);
 	console.debug('Min Mist: ' + minMist + " Max Mist: " + maxMist);
-	if(currentMistQuantity >= maxMist && isMisting == 'true')
+	if(minMist === 0 && maxMist === 0){
+		if(isMisting){
+			console.debug('Stop mist...');
+			fireEvent(mistButton, 'click');
+		}
+	}
+	else if(currentMistQuantity >= maxMist && isMisting)
 	{
-		if(maxMist == 20){
-			var nToggle = getStorageToVariableInt("BRRed_Toggle", 1);
+		if(maxMist == 20 && Number.isInteger(nToggle)){
 			if(parseInt(getPageVariable('user.num_active_turns')) % nToggle !== 0)
-				return;
+				return currentMistQuantity;
 		}
 		console.debug('Stop mist...');
 		fireEvent(mistButton, 'click');
 	}
-	else if(currentMistQuantity <= minMist && isMisting == 'false')
+	else if(currentMistQuantity <= minMist && !isMisting)
 	{
 		console.debug('Start mist...');
 		fireEvent(mistButton, 'click');
 	}
-	return;
+	return currentMistQuantity;
+}
+
+function BRCustom(){
+	if (GetCurrentLocation().indexOf('Burroughs Rift') < 0)
+		return;
+	
+	var objBR = getStorageToVariableStr('BRCustom', "");
+	if(objBR === "")
+		return;
+	
+	objBR = JSON.parse(objBR);
+	var mistQuantity = 0;
+	if(objBR.hunt == 'Red')
+		mistQuantity = BurroughRift(19, 20, objBR.hunt);
+	else if(objBR.hunt == 'Green')
+		mistQuantity = BurroughRift(6, 18);
+	else if(objBR.hunt == 'Yellow')
+		mistQuantity = BurroughRift(1, 5);
+	else
+		mistQuantity = BurroughRift(0, 0);
+
+	var currentTier = '';
+	if(mistQuantity <= 20 && mistQuantity >= 19)
+		currentTier = 'Red';
+	else if(mistQuantity <= 18 && mistQuantity >= 6)
+		currentTier = 'Green';
+	else if(mistQuantity <= 5 && mistQuantity >= 1)
+		currentTier = 'Yellow';
+	else
+		currentTier = 'None';
+	
+	var nIndex = objBR.name.indexOf(currentTier);
+	checkThenArm(null, 'weapon', objBR.weapon[nIndex]);
+	checkThenArm(null, 'base', objBR.base[nIndex]);
+	checkThenArm(null, 'trinket', objBR.trinket[nIndex]);
+	checkThenArm(null, 'bait', objBR.bait[nIndex]);
 }
 
 function LGGeneral(isAutoPour) {
@@ -3002,6 +3046,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
+			preferenceHTMLStr += '<option value="Burroughs Rift Custom">Burroughs Rift Custom</option>';
             preferenceHTMLStr += '<option value="Charge Egg 2016 Medium + High">Charge Egg 2016 Medium + High</option>';
             preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
 			preferenceHTMLStr += '<option value="Fiery Warpath">Fiery Warpath</option>';
@@ -3210,7 +3255,22 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
-			preferenceHTMLStr += '<tr id="trBRRed" style="display:none;">';
+			preferenceHTMLStr += '<tr id="trBRConfig" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select the mist tier to hunt"><b>Hunt At</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px;">';
+			preferenceHTMLStr += '<select id="selectBRHuntMistTier" onChange="onSelectBRHuntMistTierChanged();">';
+			preferenceHTMLStr += '<option value="Red">Red</option>';
+			preferenceHTMLStr += '<option value="Green">Green</option>';
+			preferenceHTMLStr += '<option value="Yellow">Yellow</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
+            preferenceHTMLStr += '</select>&nbsp;&nbsp;Mist Tier';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trBRToggle" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select the amount of hunt to toggle canister based on total horn calls"><b>Toggle Canister Every</b></a>';
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -3220,6 +3280,54 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trBRTrapSetup" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select trap setup combination for respective mist tier"><b>Trap Setup</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px;">';
+			preferenceHTMLStr += '<select id="selectBRTrapMist" onChange="onSelectBRTrapMistChanged();">';
+			preferenceHTMLStr += '<option value="Red">Red</option>';
+			preferenceHTMLStr += '<option value="Green">Green</option>';
+			preferenceHTMLStr += '<option value="Yellow">Yellow</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
+            preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBRTrapWeapon" onchange="onSelectBRTrapWeaponChanged();">';
+			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
+			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
+			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
+			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBRTrapBase" onchange="onSelectBRTrapBaseChanged();">';
+			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
+			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
+			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
+			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
+			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBRTrapTrinket" onchange="onSelectBRTrapTrinketChanged();">';
+			preferenceHTMLStr += '<option value="Rift Ultimate Luck">Rift Ultimate Luck</option>';
+			preferenceHTMLStr += '<option value="Rift Ultimate Power">Rift Ultimate Power</option>';
+			preferenceHTMLStr += '<option value="Ultimate Luck">Ultimate Luck</option>';
+			preferenceHTMLStr += '<option value="Ultimate Power">Ultimate Power</option>';
+			preferenceHTMLStr += '<option value="Rift Power">Rift Power</option>';
+			preferenceHTMLStr += '<option value="Super Rift Vacuum">Super Rift Vacuum</option>';
+			preferenceHTMLStr += '<option value="Rift Vacuum">Rift Vacuum</option>';
+			preferenceHTMLStr += '<option value="Enerchi">Enerchi</option>';
+			preferenceHTMLStr += '<option value="NoRift">No Rift Charm</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBRTrapBait" onchange="onSelectBRTrapBaitChanged();">';
+			preferenceHTMLStr += '<option value="Polluted Parmesan">PP</option>';
+			preferenceHTMLStr += '<option value="Terre Ricotta">Terre</option>';
+			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
+			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
+			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
+			preferenceHTMLStr += '<option value="Marble String">Marble</option>';
+			preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
             preferenceHTMLStr += '<input type="button" id="AlgoConfigSaveInput" title="Save changes of Event or Location without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;';
@@ -4449,7 +4557,7 @@ function bodyJS(){
 			key = window.localStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1 || key.indexOf("BRRed_")>-1){
+				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -4465,7 +4573,7 @@ function bodyJS(){
 			key = window.sessionStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1 || key.indexOf("BRRed_")>-1){
+				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -4478,7 +4586,7 @@ function bodyJS(){
 		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
 		var scHuntBaitEle = document.getElementById('scHuntBait');
 		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
-		if (storageValue == null){
+		if (storageValue === null){
 			scHuntZoneEnableEle.selectedIndex = 0;
 			scHuntBait.selectedIndex = 0;
 			scHuntTrinketEle.selectedIndex = 0;
@@ -4520,7 +4628,7 @@ function bodyJS(){
 			typeOtherDoors : "SHORTEST_ONLY"
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
-		if(storageValue == null)
+		if(storageValue === null)
 			storageValue = objDefaultHallwayPriorities;
 		
 		if(selectedRange == 'between0and14'){
@@ -4540,7 +4648,7 @@ function bodyJS(){
 
 	function loadDistricFocus(){
 		var storageValue = window.sessionStorage.getItem('Labyrinth_DistrictFocus');
-		if(storageValue == null)
+		if(storageValue === null)
 			storageValue = 'None';
 		
 		document.getElementById('labyrinthDistrict').value = storageValue;
@@ -4568,7 +4676,7 @@ function bodyJS(){
 			chooseOtherDoors : false,
 			typeOtherDoors : "SHORTEST_ONLY"
 		};
-		if(storageValue == null){
+		if(storageValue === null){
 			storageValue = JSON.stringify(objDefaultHallwayPriorities);
 			storageValue = JSON.parse(storageValue);
 		}
@@ -4607,7 +4715,7 @@ function bodyJS(){
 
 	function loadLG(){
 		var storageValue = window.sessionStorage.getItem('LGArea');
-		if(storageValue == null){
+		if(storageValue === null){
 			storageValue = 'true,25';
 			window.sessionStorage.setItem('LGArea', storageValue);
 		}
@@ -4660,7 +4768,7 @@ function bodyJS(){
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
-		if(storageValue == null){
+		if(storageValue === null){
 			selectFWFocusType.selectedIndex = -1;
 			selectFWPriorities.selectedIndex = -1;
 			selectFWCheese.selectedIndex = -1;
@@ -4688,7 +4796,7 @@ function bodyJS(){
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
-		if(storageValue == null){
+		if(storageValue === null){
 			var obj = {
 				focusType : 'NORMAL',
 				priorities : 'HIGHEST',
@@ -4708,15 +4816,96 @@ function bodyJS(){
 	}
 
 	function onInputToggleCanisterChanged(){
-		window.sessionStorage.setItem('BRRed_Toggle', document.getElementById('ToggleCanisterInput').value);
+		saveBR();
 	}
-
+	
+	function onSelectBRHuntMistTierChanged(){
+		saveBR();
+		initControlsBR();
+	}
+	
+	function onSelectBRTrapMistChanged(){
+		initControlsBR();
+	}
+	
+	function onSelectBRTrapWeaponChanged(){
+		saveBR();
+	}
+	
+	function onSelectBRTrapBaseChanged(){
+		saveBR();
+	}
+	
+	function onSelectBRTrapTrinketChanged(){
+		saveBR();
+	}
+	
+	function onSelectBRTrapBaitChanged(){
+		saveBR();
+	}
+	
 	function initControlsBR(){
-		var storageValue = window.sessionStorage.getItem('BRRed_Toggle');
-		if(storageValue === null)
-			storageValue = 1;
-			
-		document.getElementById('ToggleCanisterInput').value = parseInt(storageValue);
+		var hunt = document.getElementById('selectBRHuntMistTier');
+		document.getElementById('trBRToggle').style.display = (hunt.value == 'Red')? 'table-row' : 'none';
+		var mist = document.getElementById('selectBRTrapMist');
+		var toggle = document.getElementById('ToggleCanisterInput');
+		var weapon = document.getElementById('selectBRTrapWeapon');
+		var base = document.getElementById('selectBRTrapBase');
+		var trinket = document.getElementById('selectBRTrapTrinket');
+		var bait = document.getElementById('selectBRTrapBait');
+		var storageValue = window.sessionStorage.getItem('BRCustom');
+		if(storageValue === null){
+			toggle.value = 1;
+			hunt.selectedIndex = 0;
+			weapon.selectedIndex = -1;
+			base.selectedIndex = -1;
+			trinket.selectedIndex = -1;
+			bait.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			hunt.value = storageValue.hunt;
+			toggle.value = storageValue.toggle;
+			var nIndex = storageValue.name.indexOf(mist.value);
+			weapon.value = storageValue.weapon[nIndex];
+			base.value = storageValue.base[nIndex];
+			trinket.value = storageValue.trinket[nIndex];
+			bait.value = storageValue.bait[nIndex];
+		}
+	}
+	
+	function saveBR(){
+		var hunt = document.getElementById('selectBRHuntMistTier').value;
+		var mist = document.getElementById('selectBRTrapMist').value;
+		var nToggle = parseInt(document.getElementById('ToggleCanisterInput').value);
+		var weapon = document.getElementById('selectBRTrapWeapon').value;
+		var base = document.getElementById('selectBRTrapBase').value;
+		var trinket = document.getElementById('selectBRTrapTrinket').value;
+		var bait = document.getElementById('selectBRTrapBait').value;
+		var storageValue = window.sessionStorage.getItem('BRCustom');
+		if(storageValue === null){
+			var objBR = {
+				hunt : '',
+				toggle : 1,
+				name : ['Red', 'Green', 'Yellow', 'None'],
+				weapon : new Array(4),
+				base : new Array(4),
+				trinket : new Array(4),
+				bait : new Array(4)
+			};
+			storageValue = JSON.stringify(objBR);
+		}
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.name.indexOf(mist);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.hunt = hunt;
+		storageValue.toggle = nToggle;
+		storageValue.weapon[nIndex] = weapon;
+		storageValue.base[nIndex] = base;
+		storageValue.trinket[nIndex] = trinket;
+		storageValue.bait[nIndex] = bait;
+		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 	}
 
 	function showOrHideTr(algo){
@@ -4729,7 +4918,9 @@ function bodyJS(){
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
-		document.getElementById('trBRRed').style.display = 'none';
+		document.getElementById('trBRConfig').style.display = 'none';
+		document.getElementById('trBRToggle').style.display = 'none';
+		document.getElementById('trBRTrapSetup').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -4753,8 +4944,10 @@ function bodyJS(){
 			document.getElementById('selectFWWave').selectedIndex = 0;
 			onSelectFWWaveChanged();
 		}
-		else if(algo == 'Burroughs Rift(Red)'){
-			document.getElementById('trBRRed').style.display = 'table-row';
+		else if(algo == 'Burroughs Rift Custom'){
+			document.getElementById('trBRConfig').style.display = 'table-row';
+			document.getElementById('trBRToggle').style.display = 'table-row';
+			document.getElementById('trBRTrapSetup').style.display = 'table-row';
 			initControlsBR();
 		}
 	}	

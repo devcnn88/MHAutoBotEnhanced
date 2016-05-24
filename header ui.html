@@ -150,6 +150,7 @@
 							<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>
 							<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>
 							<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>
+							<option value="Burroughs Rift Custom">Burroughs Rift Custom</option>
 							<option value="Fiery Warpath">Fiery Warpath</option>
 							<option value="Halloween 2015">Halloween 2015</option>
 							<option value="Sunken City">Sunken City</option>
@@ -334,10 +335,65 @@
 						</select>
 					</td>
 				</tr>
-				<tr id="trBRRed" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select the amount of hunt to toggle canister based on total horn calls"><b>Toggle Canister Every</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+				<tr id="trBRConfig" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select the mist tier to hunt"><b>Hunt At</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectBRHuntMistTier" onchange="onSelectBRHuntMistTierChanged();">
+							<option value="Red">Red</option>
+							<option value="Green">Green</option>
+							<option value="Yellow">Yellow</option>
+							<option value="None">None</option>
+						</select>&nbsp;&nbsp;Mist Tier
+					</td>
+				</tr>
+				<tr id="trBRToggle" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select the amount of hunt to toggle canister at red mist tier based on total horn calls"><b>Toggle Canister Every</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
 						<input type="number" id="ToggleCanisterInput" min="1" max="10" value="1" onchange="onInputToggleCanisterChanged();">&nbsp;&nbsp;Hunt(s) of Total Horn Calls
+					</td>
+				</tr>
+				<tr id="trBRTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup combination for respective mist tier"><b>Trap Setup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectBRTrapMist" onchange="onSelectBRTrapMistChanged();">
+							<option value="Red">Red</option>
+							<option value="Green">Green</option>
+							<option value="Yellow">Yellow</option>
+							<option value="None">None</option>
+						</select>
+						<select id="selectBRTrapWeapon" onchange="onSelectBRTrapWeaponChanged();">
+							<option value="Mysteriously unYielding">MYNORCA</option>
+							<option value="Focused Crystal Laser">FCL</option>
+							<option value="Multi-Crystal Laser">MCL</option>
+							<option value="Crystal Tower">CT</option>
+						</select>
+						<select id="selectBRTrapBase" onchange="onSelectBRTrapBaseChanged();">
+							<option value="Fissure Base">Fissure</option>
+							<option value="Rift Base">Rift</option>
+							<option value="Fracture Base">Fracture</option>
+							<option value="Enerchi Induction Base">Enerchi</option>
+							<option value="Minotaur Base">Minotaur</option>
+						</select>
+						<select id="selectBRTrapTrinket" onchange="onSelectBRTrapTrinketChanged();">
+							<option value="Rift Ultimate Luck">Rift Ultimate Luck</option>
+							<option value="Rift Ultimate Power">Rift Ultimate Power</option>
+							<option value="Ultimate Luck">Ultimate Luck</option>
+							<option value="Ultimate Power">Ultimate Power</option>
+							<option value="Rift Power">Rift Power</option>
+							<option value="Super Rift Vacuum">Super Rift Vacuum</option>
+							<option value="Rift Vacuum">Rift Vacuum</option>
+							<option value="Enerchi">Enerchi</option>
+							<option value="NoRift">No Rift Charm</option>
+							<option value="None">None</option>
+						</select>
+						<select id="selectBRTrapBait" onchange="onSelectBRTrapBaitChanged();">
+							<option value="Polluted Parmesan">PP</option>
+							<option value="Terre Ricotta">Terre</option>
+							<option value="Magical String">Magical</option>
+							<option value="Brie String">Brie</option>
+							<option value="Swiss String">Swiss</option>
+							<option value="Marble String">Marble</option>
+						</select>
 					</td>
 				</tr>
 				<tr>
@@ -358,7 +414,7 @@
 			key = window.localStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1 || key.indexOf("BRRed_")>-1){
+				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -374,7 +430,7 @@
 			key = window.sessionStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1 || key.indexOf("BRRed_")>-1){
+				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -617,15 +673,96 @@
 	}
 	
 	function onInputToggleCanisterChanged(){
-		window.sessionStorage.setItem('BRRed_Toggle', document.getElementById('ToggleCanisterInput').value);
+		saveBR();
+	}
+	
+	function onSelectBRHuntMistTierChanged(){
+		saveBR();
+		initControlsBR();
+	}
+	
+	function onSelectBRTrapMistChanged(){
+		initControlsBR();
+	}
+	
+	function onSelectBRTrapWeaponChanged(){
+		saveBR();
+	}
+	
+	function onSelectBRTrapBaseChanged(){
+		saveBR();
+	}
+	
+	function onSelectBRTrapTrinketChanged(){
+		saveBR();
+	}
+	
+	function onSelectBRTrapBaitChanged(){
+		saveBR();
 	}
 	
 	function initControlsBR(){
-		var storageValue = window.sessionStorage.getItem('BRRed_Toggle');
-		if(storageValue === null)
-			storageValue = 1;
-			
-		document.getElementById('ToggleCanisterInput').value = parseInt(storageValue);
+		var hunt = document.getElementById('selectBRHuntMistTier');
+		document.getElementById('trBRToggle').style.display = (hunt.value == 'Red')? 'table-row' : 'none';
+		var mist = document.getElementById('selectBRTrapMist');
+		var toggle = document.getElementById('ToggleCanisterInput');
+		var weapon = document.getElementById('selectBRTrapWeapon');
+		var base = document.getElementById('selectBRTrapBase');
+		var trinket = document.getElementById('selectBRTrapTrinket');
+		var bait = document.getElementById('selectBRTrapBait');
+		var storageValue = window.sessionStorage.getItem('BRCustom');
+		if(storageValue === null){
+			toggle.value = 1;
+			hunt.selectedIndex = 0;
+			weapon.selectedIndex = -1;
+			base.selectedIndex = -1;
+			trinket.selectedIndex = -1;
+			bait.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			hunt.value = storageValue.hunt;
+			toggle.value = storageValue.toggle;
+			var nIndex = storageValue.name.indexOf(mist.value);
+			weapon.value = storageValue.weapon[nIndex];
+			base.value = storageValue.base[nIndex];
+			trinket.value = storageValue.trinket[nIndex];
+			bait.value = storageValue.bait[nIndex];
+		}
+	}
+	
+	function saveBR(){
+		var hunt = document.getElementById('selectBRHuntMistTier').value;
+		var mist = document.getElementById('selectBRTrapMist').value;
+		var nToggle = parseInt(document.getElementById('ToggleCanisterInput').value);
+		var weapon = document.getElementById('selectBRTrapWeapon').value;
+		var base = document.getElementById('selectBRTrapBase').value;
+		var trinket = document.getElementById('selectBRTrapTrinket').value;
+		var bait = document.getElementById('selectBRTrapBait').value;
+		var storageValue = window.sessionStorage.getItem('BRCustom');
+		if(storageValue === null){
+			var objBR = {
+				hunt : "",
+				toggle : 1,
+				name : ['Red', 'Green', 'Yellow', 'None'],
+				weapon : new Array(4),
+				base : new Array(4),
+				trinket : new Array(4),
+				bait : new Array(4)
+			};
+			storageValue = JSON.stringify(objBR);
+		}
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.name.indexOf(mist);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.hunt = hunt;
+		storageValue.toggle = nToggle;
+		storageValue.weapon[nIndex] = weapon;
+		storageValue.base[nIndex] = base;
+		storageValue.trinket[nIndex] = trinket;
+		storageValue.bait[nIndex] = bait;
+		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 	}
 	
 	function showOrHideTr(algo){
@@ -638,7 +775,9 @@
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
-		document.getElementById('trBRRed').style.display = 'none';
+		document.getElementById('trBRConfig').style.display = 'none';
+		document.getElementById('trBRToggle').style.display = 'none';
+		document.getElementById('trBRTrapSetup').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -662,8 +801,10 @@
 			document.getElementById('selectFWWave').selectedIndex = 0;
 			onSelectFWWaveChanged();
 		}
-		else if(algo == 'Burroughs Rift(Red)'){
-			document.getElementById('trBRRed').style.display = 'table-row';
+		else if(algo == 'Burroughs Rift Custom'){
+			document.getElementById('trBRConfig').style.display = 'table-row';
+			document.getElementById('trBRToggle').style.display = 'table-row';
+			document.getElementById('trBRTrapSetup').style.display = 'table-row';
 			initControlsBR();
 		}
 	}
