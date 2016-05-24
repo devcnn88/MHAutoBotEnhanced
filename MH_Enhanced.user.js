@@ -830,7 +830,7 @@ function BRCustom(){
 	objBR = JSON.parse(objBR);
 	var mistQuantity = 0;
 	if(objBR.hunt == 'Red')
-		mistQuantity = BurroughRift(19, 20, objBR.hunt);
+		mistQuantity = BurroughRift(19, 20, objBR.toggle);
 	else if(objBR.hunt == 'Green')
 		mistQuantity = BurroughRift(6, 18);
 	else if(objBR.hunt == 'Yellow')
