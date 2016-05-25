@@ -795,7 +795,6 @@ function BurroughRift(minMist, maxMist, nToggle)
 	var mistButton = document.getElementsByClassName('mistButton')[0];
 	console.debug('Current Mist Quantity: ' + currentMistQuantity);
 	console.debug('Is Misting: ' + isMisting);
-	console.debug('Min Mist: ' + minMist + " Max Mist: " + maxMist);
 	if(minMist === 0 && maxMist === 0){
 		if(isMisting){
 			console.debug('Stop mist...');
@@ -805,11 +804,25 @@ function BurroughRift(minMist, maxMist, nToggle)
 	else if(currentMistQuantity >= maxMist && isMisting)
 	{
 		if(maxMist == 20 && Number.isInteger(nToggle)){
-			if(parseInt(getPageVariable('user.num_active_turns')) % nToggle !== 0)
-				return currentMistQuantity;
+			if(nToggle == 1){
+				console.debug('Stop mist...');
+				fireEvent(mistButton, 'click');
+			}
+			else{
+				var nCount20 = getStorageToVariableInt('BR20_Count', 0);
+				nCount20++;
+				if(nCount20 >= nToggle){
+					nCount20 = 0;
+					setStorage('BR20_Count', nCount20);
+					console.debug('Stop mist...');
+					fireEvent(mistButton, 'click');
+				}	
+			}
 		}
-		console.debug('Stop mist...');
-		fireEvent(mistButton, 'click');
+		else{
+			console.debug('Stop mist...');
+			fireEvent(mistButton, 'click');	
+		}
 	}
 	else if(currentMistQuantity <= minMist && !isMisting)
 	{
@@ -839,20 +852,23 @@ function BRCustom(){
 		mistQuantity = BurroughRift(0, 0);
 
 	var currentTier = '';
-	if(mistQuantity <= 20 && mistQuantity >= 19)
+	if(mistQuantity >= 19)
 		currentTier = 'Red';
-	else if(mistQuantity <= 18 && mistQuantity >= 6)
+	else if(mistQuantity >= 6)
 		currentTier = 'Green';
-	else if(mistQuantity <= 5 && mistQuantity >= 1)
+	else if(mistQuantity >= 1)
 		currentTier = 'Yellow';
 	else
 		currentTier = 'None';
 	
+	if(currentTier != objBR.hunt)
+		return;
+
 	var nIndex = objBR.name.indexOf(currentTier);
 	checkThenArm(null, 'weapon', objBR.weapon[nIndex]);
 	checkThenArm(null, 'base', objBR.base[nIndex]);
 	checkThenArm(null, 'bait', objBR.bait[nIndex]);
-	if(objBR.trinket[nIndex] == 'NoRift'){
+	if(objBR.trinket[nIndex] == 'NoAbove'){
 		var charmArmed = getPageVariable("user.trinket_name");
 		var optionTrinket = document.getElementById('selectBRTrapTrinket').children;
 		for(var i=0;i<optionTrinket.length;i++){
@@ -3286,11 +3302,11 @@ function embedTimer(targetPage) {
 			
 			preferenceHTMLStr += '<tr id="trBRToggle" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<a title="Select the amount of hunt to toggle canister based on total horn calls"><b>Toggle Canister Every</b></a>';
+            preferenceHTMLStr += '<a title="Select the amount of hunt to toggle canister"><b>Toggle Canister Every</b></a>';
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px;">';
-            preferenceHTMLStr += '<input type="number" id="ToggleCanisterInput" min="1" max="10" value="1" onchange="onInputToggleCanisterChanged();">&nbsp;&nbsp;Hunt(s) of Total Horn Calls';
+            preferenceHTMLStr += '<input type="number" id="ToggleCanisterInput" min="1" max="10" value="1" onchange="onInputToggleCanisterChanged();">&nbsp;&nbsp;Hunt(s)';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
@@ -3300,12 +3316,6 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px;">';
-			preferenceHTMLStr += '<select id="selectBRTrapMist" onChange="onSelectBRTrapMistChanged();">';
-			preferenceHTMLStr += '<option value="Red">Red</option>';
-			preferenceHTMLStr += '<option value="Green">Green</option>';
-			preferenceHTMLStr += '<option value="Yellow">Yellow</option>';
-			preferenceHTMLStr += '<option value="None">None</option>';
-            preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBRTrapWeapon" onchange="onSelectBRTrapWeaponChanged();">';
 			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
 			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
@@ -3328,7 +3338,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Super Rift Vacuum">Super Rift Vacuum</option>';
 			preferenceHTMLStr += '<option value="Rift Vacuum">Rift Vacuum</option>';
 			preferenceHTMLStr += '<option value="Enerchi">Enerchi</option>';
-			preferenceHTMLStr += '<option value="NoRift">No Rift Charm</option>';
+			preferenceHTMLStr += '<option value="NoAbove">None of the above</option>';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBRTrapBait" onchange="onSelectBRTrapBaitChanged();">';
@@ -4834,11 +4844,23 @@ function bodyJS(){
 	}
 	
 	function onSelectBRHuntMistTierChanged(){
-		saveBR();
-		initControlsBR();
-	}
-	
-	function onSelectBRTrapMistChanged(){
+		var hunt = document.getElementById('selectBRHuntMistTier').value;
+		var storageValue = window.sessionStorage.getItem('BRCustom');
+		if(storageValue === null){
+			var objBR = {
+				hunt : "",
+				toggle : 1,
+				name : ['Red', 'Green', 'Yellow', 'None'],
+				weapon : new Array(4),
+				base : new Array(4),
+				trinket : new Array(4),
+				bait : new Array(4)
+			};
+			storageValue = JSON.stringify(objBR);
+		}
+		storageValue = JSON.parse(storageValue);
+		storageValue.hunt = hunt;
+		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 		initControlsBR();
 	}
 	
@@ -4861,7 +4883,6 @@ function bodyJS(){
 	function initControlsBR(){
 		var hunt = document.getElementById('selectBRHuntMistTier');
 		document.getElementById('trBRToggle').style.display = (hunt.value == 'Red')? 'table-row' : 'none';
-		var mist = document.getElementById('selectBRTrapMist');
 		var toggle = document.getElementById('ToggleCanisterInput');
 		var weapon = document.getElementById('selectBRTrapWeapon');
 		var base = document.getElementById('selectBRTrapBase');
@@ -4880,7 +4901,7 @@ function bodyJS(){
 			storageValue = JSON.parse(storageValue);
 			hunt.value = storageValue.hunt;
 			toggle.value = storageValue.toggle;
-			var nIndex = storageValue.name.indexOf(mist.value);
+			var nIndex = storageValue.name.indexOf(hunt.value);
 			weapon.value = storageValue.weapon[nIndex];
 			base.value = storageValue.base[nIndex];
 			trinket.value = storageValue.trinket[nIndex];
@@ -4890,7 +4911,6 @@ function bodyJS(){
 	
 	function saveBR(){
 		var hunt = document.getElementById('selectBRHuntMistTier').value;
-		var mist = document.getElementById('selectBRTrapMist').value;
 		var nToggle = parseInt(document.getElementById('ToggleCanisterInput').value);
 		var weapon = document.getElementById('selectBRTrapWeapon').value;
 		var base = document.getElementById('selectBRTrapBase').value;
@@ -4910,7 +4930,7 @@ function bodyJS(){
 			storageValue = JSON.stringify(objBR);
 		}
 		storageValue = JSON.parse(storageValue);
-		var nIndex = storageValue.name.indexOf(mist);
+		var nIndex = storageValue.name.indexOf(hunt);
 		if(nIndex < 0)
 			nIndex = 0;
 		storageValue.hunt = hunt;

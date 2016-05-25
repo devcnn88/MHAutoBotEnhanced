@@ -347,20 +347,14 @@
 					</td>
 				</tr>
 				<tr id="trBRToggle" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select the amount of hunt to toggle canister at red mist tier based on total horn calls"><b>Toggle Canister Every</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px; text-align:right;"><a title="Select the amount of hunt to toggle canister at red mist tier"><b>Toggle Canister Every</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<input type="number" id="ToggleCanisterInput" min="1" max="10" value="1" onchange="onInputToggleCanisterChanged();">&nbsp;&nbsp;Hunt(s) of Total Horn Calls
+						<input type="number" id="ToggleCanisterInput" min="1" max="10" value="1" onchange="onInputToggleCanisterChanged();">&nbsp;&nbsp;Hunt(s)
 					</td>
 				</tr>
 				<tr id="trBRTrapSetup" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select trap setup combination for respective mist tier"><b>Trap Setup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="selectBRTrapMist" onchange="onSelectBRTrapMistChanged();">
-							<option value="Red">Red</option>
-							<option value="Green">Green</option>
-							<option value="Yellow">Yellow</option>
-							<option value="None">None</option>
-						</select>
 						<select id="selectBRTrapWeapon" onchange="onSelectBRTrapWeaponChanged();">
 							<option value="Mysteriously unYielding">MYNORCA</option>
 							<option value="Focused Crystal Laser">FCL</option>
@@ -383,7 +377,7 @@
 							<option value="Super Rift Vacuum">Super Rift Vacuum</option>
 							<option value="Rift Vacuum">Rift Vacuum</option>
 							<option value="Enerchi">Enerchi</option>
-							<option value="NoRift">No Rift Charm</option>
+							<option value="NoAbove">None of the above</option>
 							<option value="None">None</option>
 						</select>
 						<select id="selectBRTrapBait" onchange="onSelectBRTrapBaitChanged();">
@@ -677,11 +671,23 @@
 	}
 	
 	function onSelectBRHuntMistTierChanged(){
-		saveBR();
-		initControlsBR();
-	}
-	
-	function onSelectBRTrapMistChanged(){
+		var hunt = document.getElementById('selectBRHuntMistTier').value;
+		var storageValue = window.sessionStorage.getItem('BRCustom');
+		if(storageValue === null){
+			var objBR = {
+				hunt : "",
+				toggle : 1,
+				name : ['Red', 'Green', 'Yellow', 'None'],
+				weapon : new Array(4),
+				base : new Array(4),
+				trinket : new Array(4),
+				bait : new Array(4)
+			};
+			storageValue = JSON.stringify(objBR);
+		}
+		storageValue = JSON.parse(storageValue);
+		storageValue.hunt = hunt;
+		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 		initControlsBR();
 	}
 	
@@ -704,7 +710,6 @@
 	function initControlsBR(){
 		var hunt = document.getElementById('selectBRHuntMistTier');
 		document.getElementById('trBRToggle').style.display = (hunt.value == 'Red')? 'table-row' : 'none';
-		var mist = document.getElementById('selectBRTrapMist');
 		var toggle = document.getElementById('ToggleCanisterInput');
 		var weapon = document.getElementById('selectBRTrapWeapon');
 		var base = document.getElementById('selectBRTrapBase');
@@ -723,7 +728,7 @@
 			storageValue = JSON.parse(storageValue);
 			hunt.value = storageValue.hunt;
 			toggle.value = storageValue.toggle;
-			var nIndex = storageValue.name.indexOf(mist.value);
+			var nIndex = storageValue.name.indexOf(hunt.value);
 			weapon.value = storageValue.weapon[nIndex];
 			base.value = storageValue.base[nIndex];
 			trinket.value = storageValue.trinket[nIndex];
@@ -733,7 +738,6 @@
 	
 	function saveBR(){
 		var hunt = document.getElementById('selectBRHuntMistTier').value;
-		var mist = document.getElementById('selectBRTrapMist').value;
 		var nToggle = parseInt(document.getElementById('ToggleCanisterInput').value);
 		var weapon = document.getElementById('selectBRTrapWeapon').value;
 		var base = document.getElementById('selectBRTrapBase').value;
@@ -753,7 +757,7 @@
 			storageValue = JSON.stringify(objBR);
 		}
 		storageValue = JSON.parse(storageValue);
-		var nIndex = storageValue.name.indexOf(mist);
+		var nIndex = storageValue.name.indexOf(hunt);
 		if(nIndex < 0)
 			nIndex = 0;
 		storageValue.hunt = hunt;
