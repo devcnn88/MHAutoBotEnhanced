@@ -335,6 +335,16 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="trFWLastType" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select config when there is only one soldier type left"><b>Last Soldier Type</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFWLastTypeConfig" onchange="onSelectFWLastTypeConfigChanged();">
+							<option value="CONFIG_STREAK">Follow Streak Config</option>
+							<option value="CONFIG_GOUDA">Gouda & No Warpath Charm</option>
+							<option value="CONFIG_UNCHANGED">Trap Setup Unchanged</option>
+						</select>
+					</td>
+				</tr>
 				<tr id="trBRConfig" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select the mist tier to hunt"><b>Hunt At</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -611,6 +621,10 @@
 		saveFW();
 	}
 	
+	function onSelectFWLastTypeConfigChanged(){
+		saveFW();
+	}
+	
 	function initControlsFW(){
 		var selectFWStreak = document.getElementById('selectFWStreak');
 		var selectFWFocusType = document.getElementById('selectFWFocusType');
@@ -618,6 +632,7 @@
 		var selectFWCheese = document.getElementById('selectFWCheese');
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
+		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
 		if(storageValue == null){
 			selectFWFocusType.selectedIndex = -1;
@@ -625,6 +640,7 @@
 			selectFWCheese.selectedIndex = -1;
 			selectFWCharmType.selectedIndex = -1;
 			selectFWSpecial.selectedIndex = -1;
+			selectFWLastTypeConfig.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -633,6 +649,7 @@
 			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
 			selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
 			selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
+			selectFWLastTypeConfig.value = storageValue.lastSoldierType;
 		}
 	}
 	
@@ -646,6 +663,7 @@
 		var selectFWCheese = document.getElementById('selectFWCheese');
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
+		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
 		if(storageValue == null){
 			var obj = {
@@ -653,7 +671,8 @@
 				priorities : 'HIGHEST',
 				cheese : new Array(nStreakLength),
 				charmType : new Array(nStreakLength),
-				special : new Array(nStreakLength)
+				special : new Array(nStreakLength),
+				lastSoldierType : 'CONFIG_GOUDA'
 			};
 			storageValue = JSON.stringify(obj);
 		}
@@ -663,6 +682,7 @@
 		storageValue.cheese[nStreak] = selectFWCheese.value;
 		storageValue.charmType[nStreak] = selectFWCharmType.value;
 		storageValue.special[nStreak] = selectFWSpecial.value;
+		storageValue.lastSoldierType = selectFWLastTypeConfig.value;
 		window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
 	}
 	
@@ -675,7 +695,7 @@
 		var storageValue = window.sessionStorage.getItem('BRCustom');
 		if(storageValue === null){
 			var objBR = {
-				hunt : "",
+				hunt : '',
 				toggle : 1,
 				name : ['Red', 'Green', 'Yellow', 'None'],
 				weapon : new Array(4),
@@ -746,7 +766,7 @@
 		var storageValue = window.sessionStorage.getItem('BRCustom');
 		if(storageValue === null){
 			var objBR = {
-				hunt : "",
+				hunt : '',
 				toggle : 1,
 				name : ['Red', 'Green', 'Yellow', 'None'],
 				weapon : new Array(4),
@@ -779,6 +799,7 @@
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
+		document.getElementById('trFWLastType').style.display = 'none';
 		document.getElementById('trBRConfig').style.display = 'none';
 		document.getElementById('trBRToggle').style.display = 'none';
 		document.getElementById('trBRTrapSetup').style.display = 'none';
@@ -802,6 +823,7 @@
 			document.getElementById('trFWWave').style.display = 'table-row';
 			document.getElementById('trFWStreak').style.display = 'table-row';
 			document.getElementById('trFWFocusType').style.display = 'table-row';
+			document.getElementById('trFWLastType').style.display = 'table-row';
 			document.getElementById('selectFWWave').selectedIndex = 0;
 			onSelectFWWaveChanged();
 		}

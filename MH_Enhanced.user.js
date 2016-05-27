@@ -723,7 +723,7 @@ function eventLocationCheck(caller) {
 			LGGeneral(objLG.isAutoPour);
 			break;
 		case 'Sunken City':
-			SCCustom(); break;
+			SunkenCity(false); break;
 		case 'Sunken City Aggro':
 			SunkenCity(true); break;
 		case 'Sunken City Custom':
@@ -1356,7 +1356,8 @@ function fw(){
 		priorities : 'HIGHEST',
 		cheese : new Array(nStreakLength),
 		charmType : new Array(nStreakLength),
-		special : new Array(nStreakLength)
+		special : new Array(nStreakLength),
+		lastSoldierConfig : 'CONFIG_GOUDA'
 	};
 	var objFW = JSON.parse(getStorageToVariableStr('FW_Wave'+wave,JSON.stringify(objDefaultFW)));
 	objFW.streak = parseInt(document.getElementsByClassName('streak_quantity')[0].innerText);
@@ -1380,16 +1381,23 @@ function fw(){
 	objFW.population = {
 		all : [],
 		normal : [],
-		special : []
+		special : [],
+		active : []
 	};
 	objFW.soldierActive = false;
 	var temp;
 	for(var i=0;i<population.length;i++){
 		temp = parseInt(population[i].innerText);
+		if(Number.isNaN(temp))
+			temp = 0;
 		objFW.population.all.push(temp);
+		if(temp > 0)
+			objFW.population.active.push(1);
+		else
+			objFW.population.active.push(0);
 		if(i == objPopulation.WARRIOR || i == objPopulation.SCOUT || i == objPopulation.ARCHER){
 			objFW.population.normal.push(temp);
-			objFW.soldierActive = (objFW.soldierActive || (temp > 0));
+			objFW.soldierActive |= (temp > 0);
 		}
 		else{
 			objFW.population.special.push(temp);
@@ -1402,6 +1410,27 @@ function fw(){
 	console.debug(objFW);
 	var index = -1;
 	var charmArmed = getPageVariable('user.trinket_name');
+	var nSum = sumData(objFW.population.active);
+	if(nSum == 1){ // only one soldier type left
+		if(objFW.lastSoldierConfig == 'CONFIG_STREAK')
+			objFW.priorities = 'HIGHEST';
+		else{
+			if(objFW.lastSoldierConfig == 'CONFIG_GOUDA'){
+				index = objFW.population.active.indexOf(1);
+				if(index == objPopulation.CAVALRY)
+					checkThenArm('best', 'weapon', bestTactical);
+				else if(index == objPopulation.MAGE)
+					checkThenArm('best', 'weapon', bestHydro);
+				else if(index == objPopulation.ARTILLERY)
+					checkThenArm('best', 'weapon', bestArcane);
+				else
+					checkThenArm('best', 'weapon', bestPhysical);
+				if(charmArmed.indexOf('Warpath') > -1)
+					disarmTrap('trinket');
+			}
+			return;
+		}
+	}
 	if(objFW.special[objFW.streak] == 'COMMANDER')
 		checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' Commander\'s');
 	else if(objFW.special[objFW.streak] == 'GARGANTUA'){
@@ -1425,8 +1454,14 @@ function fw(){
 			objFW.focusType = objFW.focusType.toLowerCase();
 			if(objFW.priorities == 'HIGHEST')
 				index = maxIndex(objFW.population[objFW.focusType]);
-			else
-				index = minIndex(objFW.population[objFW.focusType]);
+			else{
+				temp = objFW.population[objFW.focusType].slice();
+				for(var i=0;i<temp.length;i++){
+					if(temp[i] < 1)
+						temp[i] = Number.MAX_SAFE_INTEGER;
+				}
+				index = minIndex(temp);
+			}
 
 			temp = objFW.population[objFW.focusType][index];
 			if(objFW.focusType.toUpperCase() == 'NORMAL'){
@@ -1445,14 +1480,25 @@ function fw(){
 				}
 			}
 			else{
+				if((index+3) == objPopulation.ARTILLERY && nSum !=1){
+					temp = objFW.population.special.slice();
+					temp.splice(index,1);
+					index = minIndex(temp);
+				}
 				index += 3;
-				checkThenArm(null, 'trinket', objFW.charmType[0] + ' ' + objPopulation.name[index]);
-				if(index == objPopulation.CAVALRY)
-					checkThenArm('best', 'weapon', bestPhysical);
-				else if(index == objPopulation.MAGE)
+				if(index == objPopulation.CAVALRY){
+					checkThenArm('best', 'weapon', bestTactical);
+					checkThenArm(null, 'trinket', objFW.charmType[0] + ' Cavalry');
+				}
+				else if(index == objPopulation.MAGE){
 					checkThenArm('best', 'weapon', bestHydro);
-				else if(index == objPopulation.ARTILLERY)
+					checkThenArm(null, 'trinket', objFW.charmType[0] + ' Mage');
+				}
+				else if(index == objPopulation.ARTILLERY){
 					checkThenArm('best', 'weapon', bestArcane);
+					if(charmArmed.indexOf('Warpath') > -1)
+						disarmTrap('trinket');
+				}
 			}
 		}
 		else{
@@ -1460,8 +1506,9 @@ function fw(){
 				disarmTrap('trinket');
 			else
 				checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index]);
+
 			if(index == objPopulation.CAVALRY)
-				checkThenArm('best', 'weapon', bestPhysical);
+				checkThenArm('best', 'weapon', bestTactical);
 			else if(index == objPopulation.MAGE)
 				checkThenArm('best', 'weapon', bestHydro);
 			else if(index == objPopulation.ARTILLERY)
@@ -1911,7 +1958,7 @@ function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attracti
     var intervalCTATI = setInterval(
         function ()
         {
-            armStatus = armTrap(sort, name);
+            armStatus = armTrap(sort, trap, name);
 			if (armStatus != LOADING)
             {
                 clearInterval(intervalCTATI);
@@ -1948,7 +1995,7 @@ function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attracti
 }
 
 // name = Brie/Gouda/Swiss (brie = wrong)
-function armTrap(sort, name) {
+function armTrap(sort, trap, name) {
     var tagGroupElement = document.getElementsByClassName('tagGroup');
     var tagElement;
     var nameElement;
@@ -1968,13 +2015,17 @@ function armTrap(sort, name) {
                 nameElement = tagElement[j].getElementsByClassName('name')[0].innerText;
                 if (nameElement.indexOf(name) == 0)
                 {
-                    if(tagElement[j].getAttribute('class').indexOf('selected')<0){	// only click when not arming
+                    if(tagElement[j].getAttribute('class').indexOf('selected')<0)	// only click when not arming
 						fireEvent(tagElement[j], 'click');
-						console.debug(name + ' armed');
-					}
 					else
 						closeTrapSelector(trap);
 					
+					if(objTrapList[trap].indexOf(nameElement) < 0){
+						objTrapList[trap].unshift(nameElement);
+						setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
+					}
+					
+					console.debug(name + ' armed');
 					return ARMED;
                 }
             }
@@ -1982,9 +2033,16 @@ function armTrap(sort, name) {
         console.debug(name + " not found");
         if (sort == 'best')
         {
-            nameArray.shift();
+			for(var i=0;i<objTrapList[trap].length;i++){
+				if(objTrapList[trap][i].indexOf(name) == 0){
+					objTrapList[trap].splice(i,1);
+					setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
+					break;
+				}
+			}
+			nameArray.shift();
             if (nameArray.length > 0)
-                return armTrap(sort, nameArray);
+                return armTrap(sort, trap, nameArray);
 			else
 				return NOT_FOUND;
         }
@@ -2018,10 +2076,6 @@ function clickTrapSelector(strSelect){ //strSelect = weapon/base/charm/trinket/b
 function closeTrapSelector(category){
 	if(document.getElementsByClassName("showComponents " + category).length > 0)
 		fireEvent(document.getElementById('trapSelectorBrowserClose'), 'click');
-}
-
-function objToString(obj, str) {
-    return str = obj.data;
 }
 
 function retrieveDataFirst() {
@@ -3083,8 +3137,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
-			//preferenceHTMLStr += '<option value="Sunken City Aggro">Sunken City Aggro</option>';
-			//preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
+			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
+			preferenceHTMLStr += '<option value="Test">Test</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -3285,6 +3339,20 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trFWLastType" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select config when there is only one soldier type left"><b>Last Soldier Type</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px;">';
+			preferenceHTMLStr += '<select id="selectFWLastTypeConfig" onChange="onSelectFWLastTypeConfigChanged();">';
+			preferenceHTMLStr += '<option value="CONFIG_STREAK">Follow Streak Config</option>';
+			preferenceHTMLStr += '<option value="CONFIG_GOUDA">Gouda & No Warpath Charm</option>';
+			preferenceHTMLStr += '<option value="CONFIG_UNCHANGED">Trap Setup Unchanged</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr id="trBRConfig" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select the mist tier to hunt"><b>Hunt At</b></a>';
@@ -3443,7 +3511,7 @@ function loadPreferenceSettingFromStorage() {
 function getTrapList(category){
 	var temp = "";
 	var arrObjList;
-	if (category == null || category == undefined)
+	if (category === null || category === undefined)
 		arrObjList = Object.keys(objTrapList);
 	else
 		arrObjList = [category];
@@ -3507,13 +3575,11 @@ function getTrapListFromTrapSelector(sort, category, name){
 			}
             else{
                 --sec;
-                if (sec <= 0)
-                {
+                if (sec <= 0){
                     clickTrapSelector(category);
-                    sec = 2;
+                    sec = secWait;
 					--retry;
-					if (retry <= 0)
-					{
+					if (retry <= 0){
 						clearInterval(intervalGTLFTS);
 						arming = false;
 						intervalGTLFTS = null;
@@ -4258,13 +4324,17 @@ function standardDeviation(values){
 	var stdDev = Math.sqrt(avgSquareDiff);
 	return stdDev;
 }
- 
-function average(data){
+
+function sumData(data){
 	var sum = data.reduce(function(sum, value){
 		return sum + value;
 	}, 0);
 
-	var avg = sum / data.length;
+	return sum;
+}
+
+function average(data){
+	var avg = sumData(data) / data.length;
 	return avg;
 }
 
@@ -4783,6 +4853,10 @@ function bodyJS(){
 	function onSelectFWPrioritiesChanged(){
 		saveFW();
 	}
+	
+	function onSelectFWLastTypeConfigChanged(){
+		saveFW();
+	}
 
 	function initControlsFW(){
 		var selectFWStreak = document.getElementById('selectFWStreak');
@@ -4791,6 +4865,7 @@ function bodyJS(){
 		var selectFWCheese = document.getElementById('selectFWCheese');
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
+		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
 		if(storageValue === null){
 			selectFWFocusType.selectedIndex = -1;
@@ -4798,6 +4873,7 @@ function bodyJS(){
 			selectFWCheese.selectedIndex = -1;
 			selectFWCharmType.selectedIndex = -1;
 			selectFWSpecial.selectedIndex = -1;
+			selectFWLastTypeConfig.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -4806,6 +4882,7 @@ function bodyJS(){
 			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
 			selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
 			selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
+			selectFWLastTypeConfig.value = storageValue.lastSoldierType;
 		}
 	}
 
@@ -4819,6 +4896,7 @@ function bodyJS(){
 		var selectFWCheese = document.getElementById('selectFWCheese');
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
+		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
 		if(storageValue === null){
 			var obj = {
@@ -4826,7 +4904,8 @@ function bodyJS(){
 				priorities : 'HIGHEST',
 				cheese : new Array(nStreakLength),
 				charmType : new Array(nStreakLength),
-				special : new Array(nStreakLength)
+				special : new Array(nStreakLength),
+				lastSoldierType : 'CONFIG_GOUDA'
 			};
 			storageValue = JSON.stringify(obj);
 		}
@@ -4836,6 +4915,7 @@ function bodyJS(){
 		storageValue.cheese[nStreak] = selectFWCheese.value;
 		storageValue.charmType[nStreak] = selectFWCharmType.value;
 		storageValue.special[nStreak] = selectFWSpecial.value;
+		storageValue.lastSoldierType = selectFWLastTypeConfig.value;
 		window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
 	}
 
@@ -4848,7 +4928,7 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('BRCustom');
 		if(storageValue === null){
 			var objBR = {
-				hunt : "",
+				hunt : '',
 				toggle : 1,
 				name : ['Red', 'Green', 'Yellow', 'None'],
 				weapon : new Array(4),
@@ -4952,6 +5032,7 @@ function bodyJS(){
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
+		document.getElementById('trFWLastType').style.display = 'none';
 		document.getElementById('trBRConfig').style.display = 'none';
 		document.getElementById('trBRToggle').style.display = 'none';
 		document.getElementById('trBRTrapSetup').style.display = 'none';
@@ -4975,6 +5056,7 @@ function bodyJS(){
 			document.getElementById('trFWWave').style.display = 'table-row';
 			document.getElementById('trFWStreak').style.display = 'table-row';
 			document.getElementById('trFWFocusType').style.display = 'table-row';
+			document.getElementById('trFWLastType').style.display = 'table-row';
 			document.getElementById('selectFWWave').selectedIndex = 0;
 			onSelectFWWaveChanged();
 		}
