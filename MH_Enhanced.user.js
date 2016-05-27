@@ -4882,7 +4882,6 @@ function bodyJS(){
 	
 	function initControlsBR(){
 		var hunt = document.getElementById('selectBRHuntMistTier');
-		document.getElementById('trBRToggle').style.display = (hunt.value == 'Red')? 'table-row' : 'none';
 		var toggle = document.getElementById('ToggleCanisterInput');
 		var weapon = document.getElementById('selectBRTrapWeapon');
 		var base = document.getElementById('selectBRTrapBase');
@@ -4907,6 +4906,7 @@ function bodyJS(){
 			trinket.value = storageValue.trinket[nIndex];
 			bait.value = storageValue.bait[nIndex];
 		}
+		document.getElementById('trBRToggle').style.display = (hunt.value == 'Red')? 'table-row' : 'none';
 	}
 	
 	function saveBR(){
