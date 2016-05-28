@@ -4429,23 +4429,30 @@ function getCookie(c_name) {
 }
 
 function disarmTrap(trapSelector) {
-    clickTrapSelector(trapSelector);
     var x;
-    var intervalDT = setInterval(
-        function () {
-            x = document.getElementsByClassName(trapSelector + ' canDisarm');
-            if (x.length > 0) {
-                for (var i = 0; i < x.length; ++i) {
-                    if (x[i].getAttribute('title').indexOf('Click to disarm') > -1) {
-                        fireEvent(x[i], 'click');
-						arming = false;
-                        clearInterval(intervalDT);
-                        intervalDT = null;
-                        return (console.debug('Disarmed'));
-                    }
-                }
-            }
-        }, 1000);
+	var intervalDisarm = setInterval(
+		function (){
+			if(arming == false){
+				clickTrapSelector(trapSelector);
+				var intervalDT = setInterval(
+					function () {
+						x = document.getElementsByClassName(trapSelector + ' canDisarm');
+						if (x.length > 0) {
+							for (var i = 0; i < x.length; ++i) {
+								if (x[i].getAttribute('title').indexOf('Click to disarm') > -1) {
+									fireEvent(x[i], 'click');
+									arming = false;
+									clearInterval(intervalDT);
+									intervalDT = null;
+									return (console.debug('Disarmed'));
+								}
+							}
+						}
+					}, 1000);
+				clearInterval(intervalDisarm);
+				intervalDisarm = null;
+			}
+		}, 1000);
     return;
 }
 
