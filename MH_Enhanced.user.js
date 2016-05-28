@@ -1718,7 +1718,7 @@ function DisarmLGSpecialCharm(locationName)
 		{
 			for (var i = 0; i < obj[prop].length; ++i)
 			{
-				if (charmArmed.indexOf(obj[prop][i]) > -1)
+				if (charmArmed.indexOf(obj[prop][i]) == 0)
 				{
 					disarmTrap('trinket');
 					return;
