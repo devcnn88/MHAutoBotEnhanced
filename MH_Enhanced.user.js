@@ -3283,8 +3283,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="SPECIAL">Special</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title="Select which soldier type comes first based on population"><b>Priorities:</b></a>&emsp;';
 			preferenceHTMLStr += '<select id="selectFWPriorities" onChange="onSelectFWPrioritiesChanged();">';
-			preferenceHTMLStr += '<option value="HIGHEST">Highest</option>';
-			preferenceHTMLStr += '<option value="LOWEST">Lowest</option>';
+			preferenceHTMLStr += '<option value="HIGHEST">Highest Population First</option>';
+			preferenceHTMLStr += '<option value="LOWEST">Lowest Population First</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
