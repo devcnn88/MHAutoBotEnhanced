@@ -863,7 +863,7 @@ function BRCustom(){
 		var charmArmed = getPageVariable("user.trinket_name");
 		var optionTrinket = document.getElementById('selectBRTrapTrinket').children;
 		for(var i=0;i<optionTrinket.length;i++){
-			if (charmArmed.indexOf(optionTrinket[i].value) > -1){
+			if (charmArmed.indexOf(optionTrinket[i].value) == 0){
 				disarmTrap('trinket');
 				break;
 			}
