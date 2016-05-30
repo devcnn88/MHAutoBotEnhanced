@@ -732,27 +732,18 @@ function eventLocationCheck(caller) {
 			labyrinth(); break;
 		case 'Fiery Warpath':
 			fw(); break;
+		case 'Test':
+			checkThenArm(null, 'bait', 'Gouda');
+			disarmTrap('trinket');
         default:
             break;
     }
 }
 
-function GetCurrentLocation()
-{
-	var location = getPageVariable('user.location');
-    console.debug('Current Location: ' + location);
-	return location;
-}
-
-function GetMaxPopulation(population)
-{
-    var max = 0;
-    for (var i = 0; i < population.length; i++)
-    {
-        if (population[i] > max)
-            max = population[i];        
-    }
-    return max;
+function GetCurrentLocation(){
+	var loc = getPageVariable('user.location');
+    console.debug('Current Location: ' + loc);
+	return loc;
 }
 
 function Halloween2015()
