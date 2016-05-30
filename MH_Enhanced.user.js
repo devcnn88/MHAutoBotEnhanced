@@ -4758,6 +4758,7 @@ function bodyJS(){
 		var hallwaySuperior = document.getElementById('hallwaySuperior');
 		var hallwayEpic = document.getElementById('hallwayEpic');
 		var selectedRange = document.getElementById('clueRange').value;
+		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		
@@ -4795,6 +4796,7 @@ function bodyJS(){
 		if(!hallwayEpic.disabled && (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING'))
 			hallwayEpic.disabled = 'disabled';
 			
+		selectChooseOtherDoors.value = storageValue.chooseOtherDoors.toString();
 		typeOtherDoors.value = storageValue.typeOtherDoors;
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 	}
