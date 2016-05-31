@@ -1190,7 +1190,7 @@ function labyrinth() {
 		}
 		
 		if (doorsIntersect[i].getAttribute('class').indexOf('broken') > -1 || doorsIntersect[i].children.length<2){
-			objDoors.length.push("SHORT");
+			objDoors.length.push("LONG");
 			objDoors.tier.push("PLAIN");
 			objDoors.name.push("BROKEN");
 			objDoors.code.push("");
@@ -1205,6 +1205,7 @@ function labyrinth() {
 			objDoors.tier.push(temp[1]);
 			objDoors.name.push(temp[2]);
 			objDoors.code.push(objCodename[temp[0]] + objCodename[temp[1]]);
+			objDoors.clue.push(Number.MAX_SAFE_INTEGER);
 			objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
 		}
 		isAtIntersection = true;
@@ -1217,7 +1218,7 @@ function labyrinth() {
 	var userVariable = undefined;
 	temp = "";
 	var range = "";
-	var index = -1;
+	var index = [];
 	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
 	try	{
 		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
@@ -1225,23 +1226,25 @@ function labyrinth() {
 			temp = userVariable.all_clues[i].name.toUpperCase();
 			if (temp.indexOf("DEAD") > -1)
 				continue;
-			index = objDoors.name.indexOf(temp);
-			if (index > -1)
-				objDoors.clue[index] = userVariable.all_clues[i].quantity;
+			index = getAllIndices(objDoors.name, temp);
+			for(var j=0;j<index.length;j++){
+				objDoors.clue[index[j]] = userVariable.all_clues[i].quantity;
+			}
 		}
 
 		index = objDoors.name.indexOf(districtFocus);
 		if(index<0){
 			if(objHallwayPriorities.chooseOtherDoors){
 				console.debug(objDoors);
+				temp = min(objDoors.clue);
 				var objFewestClue = {
-					num : min(objDoors.clue),
-					index : minIndex(objDoors.clue),
-					count : countArrayElement(min(objDoors.clue), objDoors.clue)
+					num : temp,
+					indices : getAllIndices(objDoors.clue, temp),
+					count : countArrayElement(temp, objDoors.clue)
 				};
 				var objShortestLength = {
 					type : "SHORT",
-					index : -1,
+					indices : [],
 					count : 0
 				};
 				if(objDoors.length.indexOf("SHORT") > -1)
@@ -1250,29 +1253,36 @@ function labyrinth() {
 					objShortestLength.type = "MEDIUM";
 				else if(objDoors.length.indexOf("LONG") > -1)
 					objShortestLength.type = "LONG";
-				objShortestLength.count = countArrayElement(objShortestLength.type, objDoors.length);
-				objShortestLength.index = objDoors.length.indexOf(objShortestLength.type);
+				objShortestLength.indices = getAllIndices(objDoors.length, objShortestLength.type);
+				objShortestLength.count = objShortestLength.indices.length;
 				console.debug(objShortestLength);
 				console.debug(objFewestClue);
-				if(objShortestLength.index < 0 || objFewestClue.index < 0){
+				if(objShortestLength.indices.length < 1 || objFewestClue.indices.length < 1){
 					checkThenArm(null, 'bait', 'Gouda');
 					disarmTrap('trinket');
 					return;
 				}
 
+				var arrTemp = [];
 				if(objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") == 0){
 					if(objShortestLength.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") > -1)
-						fireEvent(doorsIntersect[objFewestClue.index], 'click');
+						arrTemp = objFewestClue.indices;
 					else
-						fireEvent(doorsIntersect[objShortestLength.index], 'click');
+						arrTemp = objShortestLength.indices;
 				}
 				else if(objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") == 0){
 					if(objFewestClue.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") > -1)
-						fireEvent(doorsIntersect[objShortestLength.index], 'click');
+						arrTemp = objShortestLength.indices;
 					else
-						fireEvent(doorsIntersect[objFewestClue.index], 'click');
+						arrTemp = objFewestClue.indices;
 				}
-				window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
+				for(var i=0;i<arrTemp.length;i++){
+					if(objDoors.name[arrTemp[i]].indexOf("BROKEN") > -1){
+						console.debug(doorsIntersect[arrTemp[i]]);
+						fireEvent(doorsIntersect[arrTemp[i]], 'click');
+						window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
+					}
+				}
 			}
 			else{
 				checkThenArm(null, 'bait', 'Gouda');
@@ -1317,6 +1327,7 @@ function labyrinth() {
 
 		console.debug(objDoors);
 		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
+		console.debug(doorsIntersect[sortedDoorPriorities.index[0]]);
 		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
 		window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
 	}
@@ -4183,6 +4194,15 @@ function CalculateNextTrapCheckInMinute() {
 // ################################################################################################
 //   General Function - Start
 // ################################################################################################
+
+function getAllIndices(arr, val) {
+    var indices = [];
+    for(var i = 0; i < arr.length; i++){
+        if (arr[i] === val)
+            indices.push(i);
+	}
+    return indices;
+}
 
 function range(value, min, max){
 	if(value > max)
