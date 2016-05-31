@@ -1277,7 +1277,7 @@ function labyrinth() {
 						arrTemp = objFewestClue.indices;
 				}
 				for(var i=0;i<arrTemp.length;i++){
-					if(objDoors.name[arrTemp[i]].indexOf("BROKEN") > -1){
+					if(objDoors.name[arrTemp[i]].indexOf("BROKEN") < 0){
 						console.debug(doorsIntersect[arrTemp[i]]);
 						fireEvent(doorsIntersect[arrTemp[i]], 'click');
 						window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
