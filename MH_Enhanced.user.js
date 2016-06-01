@@ -1193,6 +1193,7 @@ function labyrinth() {
 			objDoors.length.push("LONG");
 			objDoors.tier.push("PLAIN");
 			objDoors.name.push("BROKEN");
+			objDoors.debug.push("LONG PLAIN BROKEN");
 			objDoors.code.push("");
 			objDoors.clue.push(Number.MAX_SAFE_INTEGER);
 			objDoors.priorities.push(Number.MAX_SAFE_INTEGER);
@@ -1255,8 +1256,8 @@ function labyrinth() {
 					objShortestLength.type = "LONG";
 				objShortestLength.indices = getAllIndices(objDoors.length, objShortestLength.type);
 				objShortestLength.count = objShortestLength.indices.length;
-				console.debug(objShortestLength);
-				console.debug(objFewestClue);
+				console.debug(JSON.stringify(objShortestLength));
+				console.debug(JSON.stringify(objFewestClue));
 				if(objShortestLength.indices.length < 1 || objFewestClue.indices.length < 1){
 					checkThenArm(null, 'bait', 'Gouda');
 					disarmTrap('trinket');
@@ -1265,14 +1266,22 @@ function labyrinth() {
 
 				var arrTemp = [];
 				if(objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") == 0){
-					if(objShortestLength.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") > -1)
-						arrTemp = objFewestClue.indices;
+					if(objShortestLength.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") > -1){
+						for(var i=0;i<objShortestLength.indices.length;i++){
+							if(objDoors.clue[objShortestLength.indices[i]] == objFewestClue.num)
+								arrTemp.push(objShortestLength.indices[i]);
+						}
+					}
 					else
 						arrTemp = objShortestLength.indices;
 				}
 				else if(objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") == 0){
-					if(objFewestClue.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") > -1)
-						arrTemp = objShortestLength.indices;
+					if(objFewestClue.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") > -1){
+						for(var i=0;i<objFewestClue.indices.length;i++){
+							if(objDoors.length[objFewestClue.indices[i]] == objShortestLength.type)
+								arrTemp.push(objFewestClue.indices[i]);
+						}
+					}
 					else
 						arrTemp = objFewestClue.indices;
 				}
@@ -1281,6 +1290,7 @@ function labyrinth() {
 						console.debug(doorsIntersect[arrTemp[i]]);
 						fireEvent(doorsIntersect[arrTemp[i]], 'click');
 						window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
+						break;
 					}
 				}
 			}
