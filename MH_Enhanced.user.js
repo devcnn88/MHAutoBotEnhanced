@@ -242,6 +242,11 @@ var objDefaultHallwayPriorities = {
 	chooseOtherDoors : false,
 	typeOtherDoors : "SHORTEST_FEWEST"
 };
+var objLength = {
+	SHORT : 0,
+	MEDIUM : 1,
+	LONG : 2
+};
 
 // == Advance User Preference Setting (End) ==
 
@@ -1265,22 +1270,34 @@ function labyrinth() {
 				}
 
 				var arrTemp = [];
+				var nMin = Number.MAX_SAFE_INTEGER;
+				var nMinIndex = -1;
 				if(objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") == 0){
 					if(objShortestLength.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") > -1){
 						for(var i=0;i<objShortestLength.indices.length;i++){
-							if(objDoors.clue[objShortestLength.indices[i]] == objFewestClue.num)
-								arrTemp.push(objShortestLength.indices[i]);
+							if(objDoors.clue[objShortestLength.indices[i]] < nMin){
+								nMin = objDoors.clue[objShortestLength.indices[i]];
+								nMinIndex = objShortestLength.indices[i];
+							}
 						}
+						if(nMinIndex > -1)
+							arrTemp.push(nMinIndex);
 					}
 					else
 						arrTemp = objShortestLength.indices;
 				}
 				else if(objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") == 0){
 					if(objFewestClue.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") > -1){
+						var strTemp = "";
 						for(var i=0;i<objFewestClue.indices.length;i++){
-							if(objDoors.length[objFewestClue.indices[i]] == objShortestLength.type)
-								arrTemp.push(objFewestClue.indices[i]);
+							strTemp = objDoors.length[objFewestClue.indices[i]].toUpperCase();
+							if(objLength.hasOwnProperty(strTemp) && objLength[strTemp] < nMin){
+								nMin = objLength[strTemp];
+								nMinIndex = objFewestClue.indices[i];
+							}
 						}
+						if(nMinIndex > -1)
+							arrTemp.push(nMinIndex);
 					}
 					else
 						arrTemp = objFewestClue.indices;
