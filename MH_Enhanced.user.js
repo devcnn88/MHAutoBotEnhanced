@@ -1272,7 +1272,7 @@ function labyrinth() {
 				var arrTemp = [];
 				var nMin = Number.MAX_SAFE_INTEGER;
 				var nMinIndex = -1;
-				if(objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") == 0){
+				if(objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") == 0){ // SHORTEST_ONLY / SHORTEST_FEWEST
 					if(objShortestLength.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") > -1){
 						for(var i=0;i<objShortestLength.indices.length;i++){
 							if(objDoors.clue[objShortestLength.indices[i]] < nMin){
@@ -1286,7 +1286,7 @@ function labyrinth() {
 					else
 						arrTemp = objShortestLength.indices;
 				}
-				else if(objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") == 0){
+				else if(objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") == 0){ // FEWEST_ONLY / FEWEST_SHORTEST
 					if(objFewestClue.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") > -1){
 						var strTemp = "";
 						for(var i=0;i<objFewestClue.indices.length;i++){
