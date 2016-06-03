@@ -4929,7 +4929,7 @@ function bodyJS(){
 			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
 			selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
 			selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
-			selectFWLastTypeConfig.value = storageValue.lastSoldierType;
+			selectFWLastTypeConfig.value = storageValue.lastSoldierConfig;
 		}
 	}
 
@@ -4952,7 +4952,7 @@ function bodyJS(){
 				cheese : new Array(nStreakLength),
 				charmType : new Array(nStreakLength),
 				special : new Array(nStreakLength),
-				lastSoldierType : 'CONFIG_GOUDA'
+				lastSoldierConfig : 'CONFIG_GOUDA'
 			};
 			storageValue = JSON.stringify(obj);
 		}
@@ -4962,7 +4962,7 @@ function bodyJS(){
 		storageValue.cheese[nStreak] = selectFWCheese.value;
 		storageValue.charmType[nStreak] = selectFWCharmType.value;
 		storageValue.special[nStreak] = selectFWSpecial.value;
-		storageValue.lastSoldierType = selectFWLastTypeConfig.value;
+		storageValue.lastSoldierConfig = selectFWLastTypeConfig.value;
 		window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
 	}
 
