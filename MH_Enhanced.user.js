@@ -1332,7 +1332,7 @@ function labyrinth() {
 			// i = 0/1/2 = plain/superior/epic
 			arr = [];
 			for (var j=0;j<3;j++)
-				arr.push(j+1+i*3);
+				arr.push(j+1 + (objHallwayPriorities[range].length-1-i)*3);
 			
 			if(objHallwayPriorities[range][i].indexOf(objCodename.LONG) == 0)
 				arrAll = arrAll.concat(arr.reverse());
@@ -1343,6 +1343,7 @@ function labyrinth() {
 		for (var i=arrAll.length;i<arrHallwayOrder.length;i++)
 			arrAll.push(Number.MAX_SAFE_INTEGER);
 
+		console.debug(arrAll);
 		for (var i=0;i<objDoors.code.length;i++){
 			if(objDoors.name[i].indexOf(districtFocus)>-1){
 				index = arrHallwayOrder.indexOf(objDoors.code[i]);
@@ -1360,6 +1361,8 @@ function labyrinth() {
 	}
 	catch (e){
 		console.debug(e);
+		checkThenArm(null, 'bait', 'Gouda');
+		disarmTrap('trinket');
 		return;
 	}
 }
