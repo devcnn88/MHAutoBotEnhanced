@@ -1168,22 +1168,19 @@ function labyrinth() {
 	var lastHunt = document.getElementsByClassName('labyrinthHUD-hallway-tile locked').length + 1;
 	var totalClue = parseInt(document.getElementsByClassName('labyrinthHUD-clueBar-totalClues')[0].innerText);
 	console.debug("Entrance: " + isAtEntrance + " Intersection: " + isAtIntersection + " Exit: " + isAtExit);
-	if(isAtHallway)
-		return;
-
 	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
 	console.debug('District to focus: ' + districtFocus);
-	if(isAtEntrance || isAtExit || districtFocus.indexOf('None') > -1 || districtFocus.indexOf('MINO') > -1){
+	if(isAtHallway){
 		if(districtFocus.indexOf('MINO') > -1){
 			console.log('Hallway Last Hunt : ' + lastHunt + ' Total Clues: ' + totalClue);
 			if(lastHunt <= stopLastHunt && totalClue >= (100-3*stopLastHunt)) // each hunt will loot max 3 clues
 				disarmTrap('bait');
-			else
-				checkThenArm(null, 'bait', 'Gouda');
 		}
-		else
-			checkThenArm(null, 'bait', 'Gouda');
+		return;
+	}
 
+	if(isAtEntrance || isAtExit || districtFocus.indexOf('None') > -1 || districtFocus.indexOf('MINO') > -1){
+		checkThenArm(null, 'bait', 'Gouda');
 		disarmTrap('trinket');
 		return;
 	}
