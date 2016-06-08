@@ -1164,14 +1164,25 @@ function labyrinth() {
 	var isAtHallway = (labyStatus=="hallway");
 	var isAtIntersection = (labyStatus=="intersection");
 	var isAtExit = (labyStatus=="exit");
+	var stopLastHunt = 3;
+	var lastHunt = document.getElementsByClassName('labyrinthHUD-hallway-tile locked').length + 1;
+	var totalClue = parseInt(document.getElementsByClassName('labyrinthHUD-clueBar-totalClues')[0].innerText);
 	console.debug("Entrance: " + isAtEntrance + " Intersection: " + isAtIntersection + " Exit: " + isAtExit);
 	if(isAtHallway)
 		return;
 
 	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
 	console.debug('District to focus: ' + districtFocus);
-	if(isAtEntrance || isAtExit || districtFocus.indexOf('None') > -1){
+	if(isAtEntrance || isAtExit || districtFocus.indexOf('None') > -1 || districtFocus.indexOf('MINO') > -1){
+		if(districtFocus.indexOf('MINO') > -1){
+			if(lastHunt <= stopLastHunt && totalClue >= (100-3*stopLastHunt)) // each hunt will loot max 3 clues
+				disarmTrap('bait');
+			else
 		checkThenArm(null, 'bait', 'Gouda');
+		}
+		else
+			checkThenArm(null, 'bait', 'Gouda');
+
 		disarmTrap('trinket');
 		return;
 	}
@@ -3239,6 +3250,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="SCHOLAR">Scholar</option>';
 			preferenceHTMLStr += '<option value="TREASURY">Treasury</option>';
 			preferenceHTMLStr += '<option value="FARMING">Farming</option>';
+			preferenceHTMLStr += '<option value="MINO">Mino</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -4798,9 +4810,9 @@ function bodyJS(){
 
 	function loadLabyrinthHallway(){
 		var selectedDistrict = document.getElementById('labyrinthDistrict').value;
-		document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
-		document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
-		document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None' || selectedDistrict == 'MINO') ? 'none' : 'table-row';
+		document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None' || selectedDistrict == 'MINO') ? 'none' : 'table-row';
+		document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None' || selectedDistrict == 'MINO') ? 'none' : 'table-row';
 		if(selectedDistrict == 'None')
 			return;
 			
