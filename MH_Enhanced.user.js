@@ -356,6 +356,9 @@ function FinalizePuzzleImageAnswer(answer)
 
 function receiveMessage(event)
 {  
+	if(!isAutoSolve)
+		return;
+
 	console.debug("Event origin: " + event.origin);
 	if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1)
 	{
@@ -2331,7 +2334,7 @@ function getKingRewardStatus() {
 
 function getBaitQuantity() {	
 	var hudBaitQuantity = document.getElementById('hud_baitQuantity');
-	if (hudBaitQuantity != null) {
+	if (hudBaitQuantity !== null) {
 		return parseInt(hudBaitQuantity.textContent);
 	}
 	else {
@@ -2624,7 +2627,12 @@ function countdownTimer() {
 			if (hornTime <= 0) {
 				// blow the horn!
 				hornTime = 0;
-				soundHorn();
+				if(getBaitQuantity() > 0)
+					soundHorn();
+				else{
+					displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
+					window.setTimeout(function () { (countdownTimer)() }, timerRefreshInterval * 1000);
+				}
 			}
 			else if (enableTrapCheck && checkTime <= 0) {
 				// trap check!
