@@ -1175,7 +1175,7 @@ function labyrinth() {
 	console.debug('District to focus: ' + districtFocus);
 	if(isAtEntrance || isAtExit || districtFocus.indexOf('None') > -1 || districtFocus.indexOf('MINO') > -1){
 		if(districtFocus.indexOf('MINO') > -1){
-			console.log('Hallway Last Hunt : ' lastHunt + ' Total Clues: ' + totalClue);
+			console.log('Hallway Last Hunt : ' + lastHunt + ' Total Clues: ' + totalClue);
 			if(lastHunt <= stopLastHunt && totalClue >= (100-3*stopLastHunt)) // each hunt will loot max 3 clues
 				disarmTrap('bait');
 			else
