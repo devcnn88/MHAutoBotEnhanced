@@ -1178,7 +1178,7 @@ function labyrinth() {
 			if(lastHunt <= stopLastHunt && totalClue >= (100-3*stopLastHunt)) // each hunt will loot max 3 clues
 				disarmTrap('bait');
 			else
-		checkThenArm(null, 'bait', 'Gouda');
+				checkThenArm(null, 'bait', 'Gouda');
 		}
 		else
 			checkThenArm(null, 'bait', 'Gouda');
@@ -1919,7 +1919,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 	if (category == "charm")
         category = "trinket";
 	
-	if(isForcedRetry==undefined || isForcedRetry==null)
+	if(isForcedRetry===undefined || isForcedRetry===null)
 		isForcedRetry = true;
 
     var trapArmed = undefined;
@@ -1930,7 +1930,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 			var intervalCTA1 = setInterval(
 				function (){
 					if (!arming){
-						getTrapListFromTrapSelector(sort, category, name);
+						getTrapListFromTrapSelector(sort, category, name, isForcedRetry);
 						clearInterval(intervalCTA1);
 						intervalCTA1 = null;
 						return;
@@ -1965,16 +1965,12 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
         trapArmed = (userVariable.indexOf(name) == 0);
     }
 
-	if (trapArmed == undefined){
+	if (trapArmed === undefined && isForcedRetry){
 		console.log(name.join("/") + " not found in TrapList" + capitalizeFirstLetter(category));
 		clearTrapList(category);
-		if(isForcedRetry){
-			checkThenArm(sort, category, name, false);
-			return;
-		}
+		checkThenArm(sort, category, name, false);
 	}
-	
-    if (!trapArmed)
+    else if (trapArmed === false)
     {
         var intervalCTA = setInterval(
             function ()
@@ -2548,8 +2544,8 @@ function action() {
 
         isHornSounding = undefined;
     }
-    eventLocationCheck('action()');
-}
+		eventLocationCheck('action()');
+    }
 
 function countdownTimer() {
 	try {
@@ -3593,7 +3589,7 @@ function capitalizeFirstLetter(strIn){
 	return strIn.charAt(0).toUpperCase() + strIn.slice(1);
 }
 
-function getTrapListFromTrapSelector(sort, category, name){
+function getTrapListFromTrapSelector(sort, category, name, isForcedRetry){
 	clickTrapSelector(category);
 	objTrapList[category] = [];
 	var sec = secWait;
@@ -3614,7 +3610,7 @@ function getTrapListFromTrapSelector(sort, category, name){
 				clearInterval(intervalGTLFTS);
 				arming = false;
 				intervalGTLFTS = null;
-				checkThenArm(sort, category, name);
+				checkThenArm(sort, category, name, isForcedRetry);
 				return;
 			}
             else{
@@ -4482,7 +4478,10 @@ function getCookie(c_name) {
 }
 
 function disarmTrap(trapSelector) {
-    var x;
+    if(trapSelector == 'weapon' || trapSelector == 'base')
+		return;
+	var x;
+	var strTemp = "";
 	var intervalDisarm = setInterval(
 		function (){
 			if(arming == false){
@@ -4492,12 +4491,21 @@ function disarmTrap(trapSelector) {
 						x = document.getElementsByClassName(trapSelector + ' canDisarm');
 						if (x.length > 0) {
 							for (var i = 0; i < x.length; ++i) {
-								if (x[i].getAttribute('title').indexOf('Click to disarm') > -1) {
-									fireEvent(x[i], 'click');
+								strTemp = x[i].getAttribute('title');
+								if (strTemp.indexOf('Click to disarm') > -1) {
+									if(strTemp.indexOf('not armed') > -1){
+										// no charm armed, close trap selector
+										closeTrapSelector(trapSelector);
+										console.debug('No ' + trapSelector + ' armed');
+									}
+									else{
+										fireEvent(x[i], 'click');
+										console.debug('Disarmed');	
+									}
 									arming = false;
 									clearInterval(intervalDT);
 									intervalDT = null;
-									return (console.debug('Disarmed'));
+									return;
 								}
 							}
 						}
