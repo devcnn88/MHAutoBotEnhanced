@@ -2543,9 +2543,9 @@ function action() {
         }
 
         isHornSounding = undefined;
-    }
 		eventLocationCheck('action()');
     }
+}
 
 function countdownTimer() {
 	try {
