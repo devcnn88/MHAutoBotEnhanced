@@ -2638,10 +2638,8 @@ function countdownTimer() {
 				hornTime = 0;
 				if(getBaitQuantity() > 0)
 					soundHorn();
-				else{
+				else
 					displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
-					window.setTimeout(function () { (countdownTimer)() }, timerRefreshInterval * 1000);
-				}
 			}
 			else if (enableTrapCheck && checkTime <= 0) {
 				// trap check!
