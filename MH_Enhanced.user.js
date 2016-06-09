@@ -1186,7 +1186,7 @@ function labyrinth() {
 				maxCluePerHunt = 3;
 			else
 				maxCluePerHunt = 4;
-			if(lastHunt <= objHallwayPriorities.lastHunt && totalClue >= (100-maxCluePerHunt*objHallwayPriorities.lastHunt)) // each hunt will loot max 3 clues
+			if(lastHunt <= objHallwayPriorities.lastHunt && totalClue >= (100-maxCluePerHunt*lastHunt)) // each hunt will loot max 3 clues
 				disarmTrap('bait');
 		}
 		return;
