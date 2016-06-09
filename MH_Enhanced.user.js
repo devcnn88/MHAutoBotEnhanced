@@ -240,7 +240,9 @@ var objDefaultHallwayPriorities = {
 	between15and59  : ['sp','ls'],
 	between60and100  : ['sp','ss','le'],
 	chooseOtherDoors : false,
-	typeOtherDoors : "SHORTEST_FEWEST"
+	typeOtherDoors : "SHORTEST_FEWEST",
+	securityDisarm : false,
+	lastHunt : 0
 };
 var objLength = {
 	SHORT : 0,
@@ -1167,22 +1169,30 @@ function labyrinth() {
 	var isAtHallway = (labyStatus=="hallway");
 	var isAtIntersection = (labyStatus=="intersection");
 	var isAtExit = (labyStatus=="exit");
-	var stopLastHunt = 3;
 	var lastHunt = document.getElementsByClassName('labyrinthHUD-hallway-tile locked').length + 1;
 	var totalClue = parseInt(document.getElementsByClassName('labyrinthHUD-clueBar-totalClues')[0].innerText);
 	console.debug("Entrance: " + isAtEntrance + " Intersection: " + isAtIntersection + " Exit: " + isAtExit);
 	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
 	console.debug('District to focus: ' + districtFocus);
+	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
 	if(isAtHallway){
-		if(districtFocus.indexOf('MINO') > -1){
+		if(objHallwayPriorities.securityDisarm){
 			console.log('Hallway Last Hunt : ' + lastHunt + ' Total Clues: ' + totalClue);
-			if(lastHunt <= stopLastHunt && totalClue >= (100-3*stopLastHunt)) // each hunt will loot max 3 clues
+			var strCurHallwayTier = document.getElementsByClassName('labyrinthHUD-hallwayName')[0].textContent.split(' ')[1].toUpperCase();
+			var maxCluePerHunt = 0;
+			if(strCurHallwayTier == 'PLAIN')
+				maxCluePerHunt = 2;
+			else if(strCurHallwayTier == 'SUPERIOR')
+				maxCluePerHunt = 3;
+			else
+				maxCluePerHunt = 4;
+			if(lastHunt <= objHallwayPriorities.lastHunt && totalClue >= (100-maxCluePerHunt*objHallwayPriorities.lastHunt)) // each hunt will loot max 3 clues
 				disarmTrap('bait');
 		}
 		return;
 	}
 
-	if(isAtEntrance || isAtExit || districtFocus.indexOf('None') > -1 || districtFocus.indexOf('MINO') > -1){
+	if(isAtEntrance || isAtExit || districtFocus.indexOf('None') > -1){
 		checkThenArm(null, 'bait', 'Gouda');
 		disarmTrap('trinket');
 		return;
@@ -1237,7 +1247,6 @@ function labyrinth() {
 	temp = "";
 	var range = "";
 	var index = [];
-	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
 	try	{
 		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
 		for (var i=0;i<userVariable.all_clues.length;i++){
@@ -3252,8 +3261,21 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="SCHOLAR">Scholar</option>';
 			preferenceHTMLStr += '<option value="TREASURY">Treasury</option>';
 			preferenceHTMLStr += '<option value="FARMING">Farming</option>';
-			preferenceHTMLStr += '<option value="MINO">Mino</option>';
             preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trLabyrinthDisarm" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select to disarm cheese at X last hunt in hallway when total clues near 100"><b>Security Disarm</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectLabyrinthDisarm" onChange="onSelectLabyrinthDisarm();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+            preferenceHTMLStr += '</select>&nbsp;&nbsp;At Last&nbsp;';
+			preferenceHTMLStr += '<input type="number" id="inputLabyrinthLastHunt" min="1" max="10" style="width:40px" value="2" onchange="onInputLabyrinthLastHuntChanged();">&nbsp;Hunt(s) in Hallway Near 100 Total Clues';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
@@ -3264,9 +3286,9 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="clueRange" onChange="loadLabyrinthHallway();">';
-			preferenceHTMLStr += '<option value="between0and14">Max Clues < 15</option>';
-			preferenceHTMLStr += '<option value="between15and59">15 < Max Clues < 60</option>';
-			preferenceHTMLStr += '<option value="between60and100">Max Clues > 60</option>';
+			preferenceHTMLStr += '<option value="between0and14">Focus-District Clues< 15</option>';
+			preferenceHTMLStr += '<option value="between15and59">15 < Focus-District Clues< 60</option>';
+			preferenceHTMLStr += '<option value="between60and100">Focus-District Clues> 60</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -4782,6 +4804,17 @@ function bodyJS(){
 	function saveDistrictFocus(value){
 		window.sessionStorage.setItem('Labyrinth_DistrictFocus',value);
 	}
+	
+	function onSelectLabyrinthDisarm(){
+		var inputLabyrinthLastHunt = document.getElementById('inputLabyrinthLastHunt');
+		var selectLabyrinthDisarm = document.getElementById('selectLabyrinthDisarm');
+		inputLabyrinthLastHunt.disabled = (selectLabyrinthDisarm.value == 'true') ? '' : 'disabled';
+		saveLabyrinthHallway();
+	}
+	
+	function onInputLabyrinthLastHuntChanged(){
+		saveLabyrinthHallway();
+	}
 
 	function saveLabyrinthHallway(){
 		var hallwayPlain = document.getElementById('hallwayPlain');
@@ -4793,7 +4826,9 @@ function bodyJS(){
 			between15and59  : ['SP','LS'],
 			between60and100  : ['SP','SS','LE'],
 			chooseOtherDoors : false,
-			typeOtherDoors : "SHORTEST_ONLY"
+			typeOtherDoors : "SHORTEST_ONLY",
+			securityDisarm : false,
+			lastHunt : 0
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		if(storageValue === null)
@@ -4811,6 +4846,8 @@ function bodyJS(){
 		
 		storageValue.chooseOtherDoors = (document.getElementById('chooseOtherDoors').value == 'true');
 		storageValue.typeOtherDoors = document.getElementById('typeOtherDoors').value;
+		storageValue.securityDisarm = (document.getElementById('selectLabyrinthDisarm').value == 'true');
+		storageValue.lastHunt = parseInt(document.getElementById('inputLabyrinthLastHunt').value);
 		window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
 	}
 
@@ -4824,31 +4861,36 @@ function bodyJS(){
 
 	function loadLabyrinthHallway(){
 		var selectedDistrict = document.getElementById('labyrinthDistrict').value;
-		document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None' || selectedDistrict == 'MINO') ? 'none' : 'table-row';
-		document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None' || selectedDistrict == 'MINO') ? 'none' : 'table-row';
-		document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None' || selectedDistrict == 'MINO') ? 'none' : 'table-row';
-		if(selectedDistrict == 'None')
-			return;
-			
+		var inputLabyrinthLastHunt = document.getElementById('inputLabyrinthLastHunt');
+		var selectLabyrinthDisarm = document.getElementById('selectLabyrinthDisarm');
+		document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
 		var hallwayPlain = document.getElementById('hallwayPlain');
 		var hallwaySuperior = document.getElementById('hallwaySuperior');
 		var hallwayEpic = document.getElementById('hallwayEpic');
 		var selectedRange = document.getElementById('clueRange').value;
-		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
-		
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
 			between15and59  : ['SP','LS'],
 			between60and100  : ['SP','SS','LE'],
 			chooseOtherDoors : false,
-			typeOtherDoors : "SHORTEST_ONLY"
+			typeOtherDoors : "SHORTEST_ONLY",
+			securityDisarm : false,
+			lastHunt : 0
 		};
 		if(storageValue === null){
 			storageValue = JSON.stringify(objDefaultHallwayPriorities);
 			storageValue = JSON.parse(storageValue);
 		}
+		
+		inputLabyrinthLastHunt.value = storageValue.lastHunt;
+		inputLabyrinthLastHunt.disabled = (storageValue.securityDisarm) ? '' : 'disabled';
+		selectLabyrinthDisarm.value = storageValue.securityDisarm.toString();
+		if(selectedDistrict == 'None')
+			return;
 		
 		if(selectedRange == 'between0and14'){
 			hallwayPlain.value = storageValue[selectedRange][0];
@@ -5105,6 +5147,7 @@ function bodyJS(){
 		document.getElementById('labyrinthMaxClue').style.display = 'none';
 		document.getElementById('labyrinthHallway').style.display = 'none';
 		document.getElementById('labyrinthOtherHallway').style.display = 'none';
+		document.getElementById('trLabyrinthDisarm').style.display = 'none';
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
@@ -5125,6 +5168,7 @@ function bodyJS(){
 			document.getElementById('labyrinthMaxClue').style.display = 'table-row';
 			document.getElementById('labyrinthHallway').style.display = 'table-row';
 			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
+			document.getElementById('trLabyrinthDisarm').style.display = 'table-row';
 			loadDistricFocus();
 			loadLabyrinthHallway();
 		}
