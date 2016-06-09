@@ -4868,6 +4868,7 @@ function bodyJS(){
 		var hallwaySuperior = document.getElementById('hallwaySuperior');
 		var hallwayEpic = document.getElementById('hallwayEpic');
 		var selectedRange = document.getElementById('clueRange').value;
+		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		var objDefaultHallwayPriorities = {
@@ -4886,7 +4887,7 @@ function bodyJS(){
 		
 		inputLabyrinthLastHunt.value = storageValue.lastHunt;
 		inputLabyrinthLastHunt.disabled = (storageValue.securityDisarm) ? '' : 'disabled';
-		selectLabyrinthDisarm.value = storageValue.securityDisarm.toString();
+		selectLabyrinthDisarm.value = (storageValue.securityDisarm) ? 'true' : 'false';
 		if(selectedDistrict == 'None')
 			return;
 		
@@ -4912,7 +4913,7 @@ function bodyJS(){
 		if(!hallwayEpic.disabled && (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING'))
 			hallwayEpic.disabled = 'disabled';
 			
-		selectChooseOtherDoors.value = storageValue.chooseOtherDoors.toString();
+		selectChooseOtherDoors.value = (storageValue.chooseOtherDoors) ? 'true' : 'false';
 		typeOtherDoors.value = storageValue.typeOtherDoors;
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 	}
