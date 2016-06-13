@@ -145,6 +145,7 @@ var wasteCharm = ['Tarnished', 'Wealth'];
 
 // // Fiery Warpath Preference
 var bestFWWave4Weapon = ['Warden Slayer Trap', 'Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
+var bestFWWave4Base = ['Physical Brace Base'].concat(bestLuckBase);
 var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
 var objPopulation = {
 	WARRIOR : 0,
@@ -217,7 +218,7 @@ var chargeMedium = 12;
 
 // // Labyrinth
 var bestLabyBase = ['Minotaur Base', 'Labyrinth Base'];
-bestLabyBase = bestLabyBase.concat(bestLuckBase);
+bestLabyBase = bestLabyBase.concat(bestLuckBase).concat(bestPowerBase);
 var objCodename = {
 	FEALTY : "y",
 	TECH : "h",
@@ -1397,7 +1398,7 @@ function fw(){
     wave = parseInt(wave);
     if (wave == 4){
 		checkThenArm('best', 'weapon', bestFWWave4Weapon);
-		checkThenArm('best', 'base', bestPowerBase);
+		checkThenArm('best', 'base', bestFWWave4Base);
 		checkThenArm(null, 'bait', 'Gouda');
         return;
     }
