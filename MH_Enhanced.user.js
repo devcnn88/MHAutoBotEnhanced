@@ -1555,8 +1555,15 @@ function fw(){
 		else{
 			if(index == objPopulation.ARTILLERY && charmArmed.indexOf('Warpath') > -1)
 				disarmTrap('trinket');
-			else
+			else{
+				if(objFW.charmType[objFW.streak].indexOf('Super') > -1){
+					temp = [objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index], 'Warpath ' + objPopulation.name[index]];
+					checkThenArm('best', 'trinket', temp);
+				}
+				else{
 				checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index]);
+				}
+			}
 
 			if(index == objPopulation.CAVALRY)
 				checkThenArm('best', 'weapon', bestTactical);
