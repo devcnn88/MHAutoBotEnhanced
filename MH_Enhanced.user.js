@@ -1178,15 +1178,23 @@ function labyrinth() {
 	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
 	if(isAtHallway){
 		if(objHallwayPriorities.securityDisarm){
-			console.log('Hallway Last Hunt : ' + lastHunt + ' Total Clues: ' + totalClue);
 			var strCurHallwayTier = document.getElementsByClassName('labyrinthHUD-hallwayName')[0].textContent.split(' ')[1].toUpperCase();
 			var maxCluePerHunt = 0;
 			if(strCurHallwayTier == 'PLAIN')
-				maxCluePerHunt = 2;
+				maxCluePerHunt = 1;
 			else if(strCurHallwayTier == 'SUPERIOR')
-				maxCluePerHunt = 3;
+				maxCluePerHunt = 2;
 			else
-				maxCluePerHunt = 4;
+				maxCluePerHunt = 3;
+			var classLantern = document.getElementsByClassName('labyrinthHUD-toggleLantern mousehuntTooltipParent');
+			var bLanternActive = true;
+			if(classLantern.length < 1)
+				bLanternActive = (getPageVariable('user.quests.QuestLabyrinth.lantern_status') == 'active');
+			else
+				bLanternActive = (classLantern[0].getAttribute('class').indexOf('inactive') < 0);
+			if(bLanternActive)
+				maxCluePerHunt++;
+			console.log('Hallway Last Hunt : ' + lastHunt + ' Total Clues: ' + totalClue + ' Max Clue Per Hunt: ' + maxCluePerHunt);
 			if(lastHunt <= objHallwayPriorities.lastHunt && totalClue >= (100-maxCluePerHunt*lastHunt)) // each hunt will loot max 3 clues
 				disarmTrap('bait');
 		}
