@@ -1561,7 +1561,7 @@ function fw(){
 					checkThenArm('best', 'trinket', temp);
 				}
 				else{
-				checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index]);
+					checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index]);
 				}
 			}
 
@@ -3525,6 +3525,16 @@ function embedTimer(targetPage) {
 			scriptElement.innerHTML = functionToHTMLString(bodyJS);
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);
 			scriptElement = null;
+			
+			// set KR entries color
+			var nCurrent, nNext;
+			var selectViewKR = document.getElementById('viewKR');
+			for(var i=0;i<selectViewKR.children.length-1;i++){
+				nCurrent = parseInt(selectViewKR.children[i].value.split('~')[1]);
+				nNext = parseInt(selectViewKR.children[i+1].value.split('~')[1]);
+				if(Math.round((nNext-nCurrent)/60000) < 2)
+					selectViewKR.children[i].style = 'color:red';
+			}
         }
         headerElement = null;
     }
