@@ -3278,7 +3278,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="false">False</option>';
 			preferenceHTMLStr += '<option value="true">True</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;At Last&nbsp;';
-			preferenceHTMLStr += '<input type="number" id="inputLabyrinthLastHunt" min="1" max="10" style="width:40px" value="2" onchange="onInputLabyrinthLastHuntChanged();">&nbsp;Hunt(s) in Hallway Near 100 Total Clues';
+			preferenceHTMLStr += '<input type="number" id="inputLabyrinthLastHunt" min="2" max="10" style="width:40px" value="2" onchange="onInputLabyrinthLastHuntChanged();">&nbsp;Hunt(s) in Hallway Near 100 Total Clues';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
