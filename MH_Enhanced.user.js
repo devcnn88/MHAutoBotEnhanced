@@ -733,6 +733,8 @@ function eventLocationCheck(caller) {
 			objLG.maxSaltCharged = parseInt(temp[1]);
 			LGGeneral(objLG.isAutoPour);
 			break;
+		case 'SG/ZT':
+			sgOrZT(); break;
 		case 'Sunken City':
 			SunkenCity(false); break;
 		case 'Sunken City Aggro':
@@ -746,6 +748,7 @@ function eventLocationCheck(caller) {
 		case 'Test':
 			checkThenArm(null, 'bait', 'Gouda');
 			disarmTrap('trinket');
+			break;
         default:
             break;
     }
@@ -909,12 +912,47 @@ function LGGeneral(isAutoPour) {
 	DisarmLGSpecialCharm(loc);
 }
 
+function sgOrZT(){
+	var strLocation = GetCurrentLocation();
+	if(strLocation.indexOf("Seasonal Garden") > -1)
+		seasonalGarden();
+	else if(strLocation.indexOf("Zugzwang's Tower") > -1)
+		zugzwangTower();
+}
+
+function seasonalGarden(){
+	var cheeseArmed = getPageVariable('user.bait_name');
+	if(cheeseArmed.indexOf('Checkmate') > -1)
+		checkThenArm(null, 'bait', 'Guda');
+	
+	var objSG = {
+		season : ['Spring', 'Summer', 'Fall', 'Winter'],
+		trap : [bestPhysical.slice(), bestTactical.slice(), bestShadow.slice(), bestHydro.slice()]
+	};
+	var nTimeStamp = Date.parse(new Date())/1000;
+	var nFirstSeasonTimeStamp = 1283328000;
+	var nSeasonLength = 288000; // 80hr
+	var nSeason = Math.floor((nTimeStamp - nFirstSeasonTimeStamp)/nSeasonLength) % objSG.season.length;
+	var nSeasonNext = nSeasonLength - ((nTimeStamp - nFirstSeasonTimeStamp) % nSeasonLength);
+	console.log('Current Season: %s Next Season In: %s', objSG.season[nSeason], timeformat(nSeasonNext));
+	if(nSeasonNext <= nextActiveTime){ // total seconds left to next season less than next active time
+		nSeason++;
+		if(nSeason >= objSG.season.length)
+			nSeason = 0;
+	}
+	checkThenArm('best', 'weapon', objSG.trap[nSeason]);
+}
+
+function zugzwangTower(){
+	
+}
+
 function SunkenCity(isAggro) {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
 	
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;	
-	console.debug('Current Zone: ' + zone);
+	console.debug('Current Zone: %s', zone);
 	var currentZone = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', bestHydro);	
 	if (currentZone == objSCZone.ZONE_NOT_DIVE)
@@ -3201,6 +3239,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Fiery Warpath">Fiery Warpath</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
+			preferenceHTMLStr += '<option value="SG/ZT">Seasonal Garden</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
 			preferenceHTMLStr += '<option value="Test">Test</option>';
