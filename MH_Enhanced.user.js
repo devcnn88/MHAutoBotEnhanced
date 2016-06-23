@@ -2063,7 +2063,7 @@ function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attracti
                 arming = false;
                 intervalCTATI = null;
 				if (armStatus == NOT_FOUND){
-					clearTrapList(trap);
+					//clearTrapList(trap);
 					if (trap == 'trinket')
 						disarmTrap('trinket');
 					else
@@ -2123,14 +2123,12 @@ function armTrap(sort, trap, name) {
 						setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
 					}
 					
-					console.debug(name + ' armed');
+					console.debug('%s armed', name);
 					return ARMED;
                 }
             }
         }
-        console.debug(name + " not found");
-        if (sort == 'best')
-        {
+		console.debug('%s not found', name);
 		for(var i=0;i<objTrapList[trap].length;i++){
 			if(objTrapList[trap][i].indexOf(name) == 0){
 				objTrapList[trap].splice(i,1);
@@ -2138,6 +2136,8 @@ function armTrap(sort, trap, name) {
 				break;
 			}
 		}
+        if (sort == 'best')
+        {
 			nameArray.shift();
             if (nameArray.length > 0)
                 return armTrap(sort, trap, nameArray);
@@ -2152,6 +2152,11 @@ function armTrap(sort, trap, name) {
 }
 
 function clickTrapSelector(strSelect){ //strSelect = weapon/base/charm/trinket/bait
+	if(document.getElementsByClassName("showComponents " + strSelect).length > 0){ // trap selector opened
+		arming = true;
+		return (console.debug('Trap selector %s opened', strSelect));
+	}
+
 	if (strSelect == "base") {
         fireEvent(document.getElementsByClassName('trapControlThumb')[0], 'click');
     }
