@@ -288,6 +288,7 @@ var kingsRewardRetry = 0;
 var objSCCustom = {};
 var keyKR = [];
 var separator = "~";
+var krDelaySec = krDelayMax;
 
 // element in page
 var titleElement;
@@ -387,6 +388,10 @@ function receiveMessage(event)
 		else if(event.data.indexOf("#")>-1){
 			var value = event.data.substring(1, event.data.length);
 			setStorage("krCallBack",value);
+		}
+		else if(event.data.indexOf('loaded')>-1){
+			var myFrame = document.getElementById('myFrame');
+			myFrame.contentWindow.postMessage(krDelaySec, event.origin);
 		}
 	}
 }
@@ -4113,7 +4118,7 @@ function kingRewardAction() {
 		return;
 	}
 
-	var krDelaySec = krDelayMax;
+	krDelaySec = krDelayMax;
 	if (kingsRewardRetry > 0){
 		var nMin = krDelayMin / (kingsRewardRetry * 2);
 		var nMax = krDelayMax / (kingsRewardRetry * 2);
@@ -4141,6 +4146,7 @@ function kingRewardAction() {
 		kingRewardCountdownTimer(krDelaySec, true);
 	}
 	else{
+		CallKRSolver();
 		kingRewardCountdownTimer(krDelaySec, false);
 	}
 }
@@ -4156,10 +4162,10 @@ function playKingRewardSound() {
 function kingRewardCountdownTimer(interval, isReloadToSolve)
 {
 	var strTemp = (isReloadToSolve) ? "Reload to solve KR in " : "Solve KR in (extra few sec delay) ";
-	strTemp = strTemp + timeformat(interval);
+	strTemp = strTemp + timeformat(krDelaySec);
 	displayTimer(strTemp, strTemp, strTemp);
-	interval -= timerRefreshInterval;
-	if (interval < 0)
+	krDelaySec -= timerRefreshInterval;
+	if (krDelaySec < 0)
 	{
 		if (isReloadToSolve)
 		{
@@ -4187,13 +4193,13 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 						return;
 					}
 				}, 1000);
-			CallKRSolver();
+			//CallKRSolver();
 		}
 	}
 	else
 	{
         if (!checkResumeButton()) {
-            window.setTimeout(function () { kingRewardCountdownTimer(interval, isReloadToSolve); }, timerRefreshInterval * 1000);
+            window.setTimeout(function () { kingRewardCountdownTimer(krDelaySec, isReloadToSolve); }, timerRefreshInterval * 1000);
         }
     }
 }
