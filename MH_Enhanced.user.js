@@ -3040,8 +3040,9 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<a title="Get all the saved preference and copy all the text from the textbox from the right"><b>Get Saved Preference</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<input id="inputCopyPreference" type="text" maxlength="524588" value="">';
-			preferenceHTMLStr += '<input type="button" id="inputGetPreference" value="Get" onclick="onInputGetPreferenceClicked();">';
+			preferenceHTMLStr += '<input id="inputCopyPreference" type="text" maxlength="524588" value="">&nbsp;&nbsp;';
+			preferenceHTMLStr += '<input type="button" id="inputGetPreference" value="Get" onclick="onInputGetPreferenceClicked();">&nbsp;&nbsp;';
+			preferenceHTMLStr += '<input type="button" id="inputClearTextbox" value="Clear Textbox" onclick="document.getElementById(\'inputCopyPreference\').value = \'\';">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 
