@@ -3035,6 +3035,16 @@ function embedTimer(targetPage) {
 			var preferenceHTMLStr = '<table border="0" width="100%">';
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Get all the saved preference and copy all the text from the textbox from the right"><b>Get Saved Preference</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input id="inputCopyPreference" type="text" maxlength="524588" value="">';
+			preferenceHTMLStr += '<input type="button" id="inputGetPreference" value="Get" onclick="onInputGetPreferenceClicked();">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Bot aggressively by ignore all safety measure such as check horn image visible before sounding it"><b>Aggressive Mode</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -4803,6 +4813,18 @@ function refreshTrapList() {
 }
 
 function bodyJS(){
+	function onInputGetPreferenceClicked(){
+		var objPreference = {};
+		var temp = '';
+		for(var i=0;i<window.localStorage.length;i++){
+			temp = window.localStorage.key(i);
+			if(temp.indexOf('KR') == 0)
+				continue;
+			objPreference[temp] = window.localStorage.getItem(temp);
+		}
+		document.getElementById('inputCopyPreference').value = JSON.stringify(objPreference);
+	}
+	
 	function setLocalToSession(){
 		var key;
 		for(var i=0;i<window.localStorage.length;i++){

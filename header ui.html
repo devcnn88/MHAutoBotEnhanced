@@ -38,6 +38,13 @@
 		<table border="0" width="100%">
 			<tbody>
 				<tr>
+					<td style="height:24px; text-align:right;"><a title="Get all the saved preference and copy all the text from the textbox from the right"><b>Get Saved Preference</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<input id="inputCopyPreference" type="text" maxlength="524588" value="">
+						<input type="button" id="inputGetPreference" value="Get" onclick="onInputGetPreferenceClicked();">
+					</td>
+				</tr>
+				<tr>
 					<td style="height:24px; text-align:right;"><a title="Bot aggressively by ignore all safety measure such as check horn image visible before sounding it"><b>Aggressive Mode</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
 						<select id="AggressiveModeInput" onchange=
@@ -434,6 +441,18 @@
 	</div>
 </div>
 <script type="text/javascript">
+	function onInputGetPreferenceClicked(){
+		var objPreference = {};
+		var temp = '';
+		for(var i=0;i<window.localStorage.length;i++){
+			temp = window.localStorage.key(i);
+			if(temp.indexOf('KR') == 0)
+				continue;
+			objPreference[temp] = window.localStorage.getItem(temp);
+		}
+		document.getElementById('inputCopyPreference').value = JSON.stringify(objPreference);
+	}
+	
 	function setLocalToSession(){
 		var key;
 		for(var i=0;i<window.localStorage.length;i++){
