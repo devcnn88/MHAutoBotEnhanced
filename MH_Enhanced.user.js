@@ -1541,29 +1541,44 @@ function fw(){
 	else{
 		var bCurrentStreakZeroPopulation = false;
 		var bWrongSoldierTypeStreak = false;
+		var indexMinMax;
+		objFW.focusType = objFW.focusType.toLowerCase();
+		if(objFW.priorities == 'HIGHEST')
+			indexMinMax = maxIndex(objFW.population[objFW.focusType]);
+		else{
+			temp = objFW.population[objFW.focusType].slice();
+			for(var i=0;i<temp.length;i++){
+				if(temp[i] < 1)
+					temp[i] = Number.MAX_SAFE_INTEGER;
+			}
+			indexMinMax = minIndex(temp);
+		}
 		index = objPopulation.name.indexOf(objFW.streakMouse);
 		if(index > -1){
 			bCurrentStreakZeroPopulation = (objFW.population.all[index] < 1);
-			if(objFW.soldierActive && index >=3 && objFW.focusType == 'NORMAL'){
+			if(objFW.soldierActive && index >=3 && objFW.focusType.toUpperCase() == 'NORMAL'){
 				bWrongSoldierTypeStreak = !(objFW.streak == 2 || objFW.streak >= 5);
+			}
+			else if(!objFW.soldierActive && objFW.focusType.toUpperCase() == 'SPECIAL'){
+				bWrongSoldierTypeStreak = (index != (indexMinMax+3) && objFW.streak < 2);
 			}
 		}
 
 		if(objFW.streak === 0 || bCurrentStreakZeroPopulation || bWrongSoldierTypeStreak){
 			objFW.streak = 0;
-			objFW.focusType = objFW.focusType.toLowerCase();
-			if(objFW.priorities == 'HIGHEST')
-				index = maxIndex(objFW.population[objFW.focusType]);
-			else{
-				temp = objFW.population[objFW.focusType].slice();
-				for(var i=0;i<temp.length;i++){
-					if(temp[i] < 1)
-						temp[i] = Number.MAX_SAFE_INTEGER;
-				}
-				index = minIndex(temp);
-			}
+			// objFW.focusType = objFW.focusType.toLowerCase();
+			// if(objFW.priorities == 'HIGHEST')
+				// index = maxIndex(objFW.population[objFW.focusType]);
+			// else{
+				// temp = objFW.population[objFW.focusType].slice();
+				// for(var i=0;i<temp.length;i++){
+					// if(temp[i] < 1)
+						// temp[i] = Number.MAX_SAFE_INTEGER;
+				// }
+				// index = minIndex(temp);
+			// }
 
-			temp = objFW.population[objFW.focusType][index];
+			temp = objFW.population[objFW.focusType][indexMinMax];
 			if(objFW.focusType.toUpperCase() == 'NORMAL'){
 				checkThenArm('best', 'weapon', bestPhysical);
 				var count = countArrayElement(temp, objFW.population[objFW.focusType]);
@@ -1576,25 +1591,25 @@ function fw(){
 						checkThenArm(null, 'trinket', objFW.charmType[0] + ' Warrior');
 				}
 				else{
-					checkThenArm(null, 'trinket', objFW.charmType[0] + ' ' + objPopulation.name[index]);
+					checkThenArm(null, 'trinket', objFW.charmType[0] + ' ' + objPopulation.name[indexMinMax]);
 				}
 			}
 			else{
-				if((index+3) == objPopulation.ARTILLERY && nSum !=1){
+				if((indexMinMax+3) == objPopulation.ARTILLERY && nSum !=1){
 					temp = objFW.population.special.slice();
-					temp.splice(index,1);
-					index = minIndex(temp);
+					temp.splice(indexMinMax,1);
+					indexMinMax = minIndex(temp);
 				}
-				index += 3;
-				if(index == objPopulation.CAVALRY){
+				indexMinMax += 3;
+				if(indexMinMax == objPopulation.CAVALRY){
 					checkThenArm('best', 'weapon', bestTactical);
 					checkThenArm(null, 'trinket', objFW.charmType[0] + ' Cavalry');
 				}
-				else if(index == objPopulation.MAGE){
+				else if(indexMinMax == objPopulation.MAGE){
 					checkThenArm('best', 'weapon', bestHydro);
 					checkThenArm(null, 'trinket', objFW.charmType[0] + ' Mage');
 				}
-				else if(index == objPopulation.ARTILLERY){
+				else if(indexMinMax == objPopulation.ARTILLERY){
 					checkThenArm('best', 'weapon', bestArcane);
 					if(charmArmed.indexOf('Warpath') > -1)
 						disarmTrap('trinket');
