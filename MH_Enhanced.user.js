@@ -2877,6 +2877,8 @@ function embedTimer(targetPage) {
             if (targetPage && aggressiveMode) {
                 titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a> - <font color='red'>Aggressive Mode</font>";
             }
+			else if (targetPage && browser != 'chrome')
+				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a> - <font color='red'><b>Pls use Chrome browser for fully working features</b></font>";
             else {
                 titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a>";
             }
