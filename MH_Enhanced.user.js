@@ -2872,6 +2872,8 @@ function embedTimer(targetPage) {
             if (targetPage && aggressiveMode) {
                 titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a> - <font color='red'>Aggressive Mode</font>";
             }
+			else if (targetPage && browser != 'chrome')
+				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a> - <font color='red'><b>Pls use Chrome browser for fully working features</b></font>";
             else {
                 titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a>";
             }
@@ -3028,6 +3030,17 @@ function embedTimer(targetPage) {
 
 			var temp = "";
 			var preferenceHTMLStr = '<table border="0" width="100%">';
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Get all the saved preference and copy all the text from the textbox from the right"><b>Get Saved Preference</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input id="inputCopyPreference" type="text" maxlength="524588" value="">&nbsp;&nbsp;';
+			preferenceHTMLStr += '<input type="button" id="inputGetPreference" value="Get" onclick="onInputGetPreferenceClicked();">&nbsp;&nbsp;';
+			preferenceHTMLStr += '<input type="button" id="inputClearTextbox" value="Clear Textbox" onclick="document.getElementById(\'inputCopyPreference\').value = \'\';">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Bot aggressively by ignore all safety measure such as check horn image visible before sounding it"><b>Aggressive Mode</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -4797,6 +4810,18 @@ function refreshTrapList() {
 }
 
 function bodyJS(){
+	function onInputGetPreferenceClicked(){
+		var objPreference = {};
+		var temp = '';
+		for(var i=0;i<window.localStorage.length;i++){
+			temp = window.localStorage.key(i);
+			if(temp.indexOf('KR') == 0)
+				continue;
+			objPreference[temp] = window.localStorage.getItem(temp);
+		}
+		document.getElementById('inputCopyPreference').value = JSON.stringify(objPreference);
+	}
+	
 	function setLocalToSession(){
 		var key;
 		for(var i=0;i<window.localStorage.length;i++){
