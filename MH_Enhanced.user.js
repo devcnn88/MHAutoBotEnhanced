@@ -87,6 +87,9 @@ var secWait = 7;
 // // Stop trap arming after X retry
 var armTrapRetry = 3;
 
+// // Maximum number of log to be saved into sessionStorage
+var maxSaveLog = 500;
+
 // == Basic User Preference Setting (End) ==
 
 
@@ -303,6 +306,59 @@ var strCampButton = 'campbutton';
 var isNewUI = false;
 var debugKR = false;
 
+// console logging
+function saveToSessionStorage(){
+	var str = "";
+	for(var i=0;i<arguments.length;i++){
+		if(arguments[i] !== null && typeof arguments[i] === 'object'){ // if it is object
+			str += JSON.stringify(arguments[i]);
+		}
+		else
+			str += arguments[i];
+		if(i != arguments.length-1)
+			str += " ";
+	}
+	var key = "";
+	var arrLog = [];
+	for(var i=0;i<window.sessionStorage.length;i++){
+		key = window.sessionStorage.key(i);
+		if(key.indexOf("Log_") > -1)
+			arrLog.push(key);
+	}
+	if (arrLog.length > maxSaveLog){
+		arrLog = arrLog.sort();
+		var count = Math.floor(maxSaveLog / 2);
+		for(var i=0;i<count;i++)
+			removeSessionStorage(arrLog[i]);
+	}
+	try{
+		setSessionStorage("Log_" + Date.now(), str);
+	}
+	catch (e){
+		if(e.name == "QuotaExceededError"){
+			for(var i=0;i<window.sessionStorage.length;i++){
+				key = window.sessionStorage.key(i);
+				if(key.indexOf('Log_') > -1)
+					removeSessionStorage(key);
+			}
+			saveToSessionStorage.apply(this,arguments);
+		}
+	}
+	
+}
+console.plog = function(){
+	saveToSessionStorage.apply(this,arguments);
+	console.log.apply(console,arguments);
+};
+console.perror = function(){
+	saveToSessionStorage.apply(this,arguments);
+	console.error.apply(console,arguments);
+};
+console.pdebug = function(){
+	saveToSessionStorage.apply(this,arguments);
+	console.debug.apply(console,arguments);
+};
+
 function FinalizePuzzleImageAnswer(answer)
 {
 	if (answer.length != 5)
@@ -336,7 +392,7 @@ function FinalizePuzzleImageAnswer(answer)
         var puzzleAns = document.getElementById("puzzle_answer");
 		if (!puzzleAns)
 		{
-			console.debug("puzzleAns:", puzzleAns);
+			console.pdebug("puzzleAns:", puzzleAns);
 			return;
 		}
 		puzzleAns.value = "";
@@ -344,7 +400,7 @@ function FinalizePuzzleImageAnswer(answer)
         var puzzleSubmit = document.getElementById("puzzle_submit");
 		if (!puzzleSubmit)
 		{
-			console.debug("puzzleSubmit:", puzzleSubmit);
+			console.pdebug("puzzleSubmit:", puzzleSubmit);
 			return;
 		}
 
@@ -360,10 +416,10 @@ function FinalizePuzzleImageAnswer(answer)
 
 function receiveMessage(event)
 {
-	if(!isAutoSolve)
+	if(!debugKR && !isAutoSolve)
 		return;
 
-	console.debug("Event origin:", event.origin);
+	console.pdebug("Event origin:", event.origin);
 	if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1)
 	{
 		if (event.data.indexOf("~") > -1)
@@ -380,7 +436,7 @@ function receiveMessage(event)
 					setStorage(strKR, processedImg);
 				}
 				catch (e){
-					console.error('receiveMessage',e);
+					console.perror('receiveMessage',e);
 				}
 			}
 			FinalizePuzzleImageAnswer(result);
@@ -393,6 +449,9 @@ function receiveMessage(event)
 			var myFrame = document.getElementById('myFrame');
 			myFrame.contentWindow.postMessage(krDelaySec, event.origin);
 		}
+		else if(event.data.indexOf('Log_')>-1){
+			console.plog(event.data.split('_')[1]);
+		}
 	}
 }
 
@@ -403,7 +462,7 @@ if (debugKR)
 exeScript();
 
 function exeScript() {
-	console.debug("exeScript() Start");
+	console.pdebug("exeScript() Start");
 	browser = browserDetection();
     // check the trap check setting first
 	trapCheckTimeDiff = GetTrapCheckTime();
@@ -592,7 +651,7 @@ function exeScript() {
             embedTimer(false);
         }
     }
-	console.debug("exeScript() End");
+	console.pdebug("exeScript() End");
 	return;
 }
 
@@ -608,7 +667,7 @@ function GetTrapCheckTime(){
 		else throw 'passiveElement not found';
 	}
 	catch (e) {
-		console.error('GetTrapCheckTime',e);
+		console.perror('GetTrapCheckTime',e);
 		var tempStorage = getStorage('TrapCheckTimeOffset');
 		if (tempStorage == null) {
 		    tempStorage = 00;
@@ -708,7 +767,7 @@ function ZTalgo() {
 
 function eventLocationCheck(caller) {
     var selAlgo = getStorageToVariableStr("eventLocation", "None");
-	console.debug('Algorithm Selected: %s Call From: %s', selAlgo, caller);
+	console.pdebug('Algorithm Selected:', selAlgo, 'Call From:', caller);
 	var temp = "";
     switch (selAlgo)
     {
@@ -760,7 +819,7 @@ function eventLocationCheck(caller) {
 
 function GetCurrentLocation(){
 	var loc = getPageVariable('user.location');
-    console.debug('Current Location: %s', loc);
+    console.pdebug('Current Location:', loc);
 	return loc;
 }
 
@@ -771,19 +830,19 @@ function Halloween2015()
 		var areaName = document.getElementsByClassName('halloweenHud-areaDetails-name')[0].innerHTML;
 		var warning = document.getElementsByClassName('halloweenHud-areaDetails-warning active').length;
 		var isWarning = (warning > 0);
-		console.debug('Current Area Name: %s Warning: %s', areaName, isWarning);
+		console.pdebug('Current Area Name:', areaName, 'Warning:', isWarning);
 		if (isWarning)
 		{
 			var trickContainer = document.getElementsByClassName('halloweenHud-bait trick_cheese clear-block')[0];
 			var treatContainer = document.getElementsByClassName('halloweenHud-bait treat_cheese clear-block')[0];
 			if (trickContainer.children[2].getAttribute('class') == 'armNow active')
 			{
-				console.debug('Currently armed: Trick cheese, Going to arm Treat cheese');
+				console.pdebug('Currently armed: Trick cheese, Going to arm Treat cheese');
 				fireEvent(treatContainer.children[2], 'click');
 			}
 			else
 			{
-				console.debug('Currently armed: Treat cheese, Going to arm Trick cheese');
+				console.pdebug('Currently armed: Treat cheese, Going to arm Trick cheese');
 				fireEvent(trickContainer.children[2], 'click');
 			}
 		}
@@ -802,10 +861,10 @@ function BurroughRift(minMist, maxMist, nToggle)
 	var currentMistQuantity = parseInt(document.getElementsByClassName('mistQuantity')[0].innerText);
 	var isMisting = (getPageVariable('user.quests.QuestRiftBurroughs.is_misting') == 'true');
 	var mistButton = document.getElementsByClassName('mistButton')[0];
-	console.debug('Current Mist Quantity: %i Is Misting: %s', currentMistQuantity, isMisting);
+	console.pdebug('Current Mist Quantity:', currentMistQuantity, 'Is Misting:', isMisting);
 	if(minMist === 0 && maxMist === 0){
 		if(isMisting){
-			console.debug('Stop mist...');
+			console.pdebug('Stop mist...');
 			fireEvent(mistButton, 'click');
 		}
 	}
@@ -813,7 +872,7 @@ function BurroughRift(minMist, maxMist, nToggle)
 	{
 		if(maxMist == 20 && Number.isInteger(nToggle)){
 			if(nToggle == 1){
-				console.debug('Stop mist...');
+				console.pdebug('Stop mist...');
 				fireEvent(mistButton, 'click');
 			}
 			else{
@@ -822,19 +881,19 @@ function BurroughRift(minMist, maxMist, nToggle)
 				if(nCount20 >= nToggle){
 					nCount20 = 0;
 					setStorage('BR20_Count', nCount20);
-					console.debug('Stop mist...');
+					console.pdebug('Stop mist...');
 					fireEvent(mistButton, 'click');
 				}
 			}
 		}
 		else{
-			console.debug('Stop mist...');
+			console.pdebug('Stop mist...');
 			fireEvent(mistButton, 'click');
 		}
 	}
 	else if(currentMistQuantity <= minMist && !isMisting)
 	{
-		console.debug('Start mist...');
+		console.pdebug('Start mist...');
 		fireEvent(mistButton, 'click');
 	}
 	return currentMistQuantity;
@@ -937,7 +996,7 @@ function seasonalGarden(){
 	var nSeasonLength = 288000; // 80hr
 	var nSeason = Math.floor((nTimeStamp - nFirstSeasonTimeStamp)/nSeasonLength) % objSG.season.length;
 	var nSeasonNext = nSeasonLength - ((nTimeStamp - nFirstSeasonTimeStamp) % nSeasonLength);
-	console.log('Current Season: %s Next Season In: %s', objSG.season[nSeason], timeformat(nSeasonNext));
+	console.plog('Current Season:', objSG.season[nSeason], 'Next Season In:', timeformat(nSeasonNext));
 	if(nSeasonNext <= nextActiveTime){ // total seconds left to next season less than next active time
 		nSeason++;
 		if(nSeason >= objSG.season.length)
@@ -955,7 +1014,7 @@ function SunkenCity(isAggro) {
 		return;
 	
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
-	console.debug('Current Zone: %s', zone);
+	console.pdebug('Current Zone:', zone);
 	var currentZone = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', bestHydro);
 	if (currentZone == objSCZone.ZONE_NOT_DIVE)
@@ -968,7 +1027,7 @@ function SunkenCity(isAggro) {
 	
 	checkThenArm('best', 'base', bestSCBase);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
-	console.debug('Dive Distance(m): %i', distance);
+	console.pdebug('Dive Distance(m):', distance);
 	var charmArmed = getPageVariable("user.trinket_name");
 	var charmElement = document.getElementsByClassName('charm');
 	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);
@@ -1013,7 +1072,7 @@ function SunkenCity(isAggro) {
 			var nextZoneLeft = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[2].left'));
 			var nextZone = GetSunkenCityZone(nextZoneName);
 			var distanceToNextZone = parseInt((nextZoneLeft - 80) / 0.6);
-			console.debug('Distance to next zone(m): %i', distanceToNextZone);
+			console.pdebug('Distance to next zone(m):', distanceToNextZone);
 			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == objSCZone.ZONE_DEFAULT))
 			{
 				// arm Water Jet Charm
@@ -1055,9 +1114,9 @@ function SCCustom() {
 	}
 	
 	GetSCCustomConfig();
-	console.debug(objSCCustom);
+	console.pdebug(objSCCustom);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
-	console.log('Current Zone: %s at %im', zone, distance);
+	console.plog('Current Zone:', zone, 'at meter', distance);
 	checkThenArm('best', 'base', bestSCBase);
 	var canJet = false;
 	if (!objSCCustom[zoneID].isHunt){
@@ -1073,7 +1132,7 @@ function SCCustom() {
 			nextZoneID[i] = GetSunkenCityZone(nextZoneName[i]);
 			distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
 			isNextZoneInHuntZone[i] = (objSCCustom[nextZoneID[i]].isHunt);
-			console.log('Next Zone: %s in %im Is In Hunt Zone: %s', nextZoneName[i], distanceToNextZone[i], isNextZoneInHuntZone[i]);
+			console.plog('Next Zone:', nextZoneName[i], 'in meter', distanceToNextZone[i], 'Is In Hunt Zone:', isNextZoneInHuntZone[i]);
 		}
 		
 		// jet through
@@ -1213,9 +1272,9 @@ function labyrinth() {
 	var isAtExit = (labyStatus=="exit");
 	var lastHunt = document.getElementsByClassName('labyrinthHUD-hallway-tile locked').length + 1;
 	var totalClue = parseInt(document.getElementsByClassName('labyrinthHUD-clueBar-totalClues')[0].innerText);
-	console.debug("Entrance: %s Intersection: %s Exit: %s", isAtEntrance, isAtIntersection, isAtExit);
+	console.pdebug("Entrance:", isAtEntrance, "Intersection:", isAtIntersection, "Exit:", isAtExit);
 	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
-	console.debug('District to focus: %s', districtFocus);
+	console.pdebug('District to focus:', districtFocus);
 	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
 	if(isAtHallway){
 		if(objHallwayPriorities.securityDisarm){
@@ -1235,7 +1294,7 @@ function labyrinth() {
 				bLanternActive = (classLantern[0].getAttribute('class').indexOf('inactive') < 0);
 			if(bLanternActive)
 				maxCluePerHunt++;
-			console.log('Hallway Last Hunt : %i Total Clues: %i Max Clue Per Hunt: %i', lastHunt, totalClue, maxCluePerHunt);
+			console.plog('Hallway Last Hunt :', lastHunt, 'Total Clues:', totalClue, 'Max Clue Per Hunt:', maxCluePerHunt);
 			if(lastHunt <= objHallwayPriorities.lastHunt && totalClue >= (100-maxCluePerHunt*lastHunt)) // each hunt will loot max 3 clues
 				disarmTrap('bait');
 		}
@@ -1289,7 +1348,7 @@ function labyrinth() {
 		isAtIntersection = true;
 	}
 
-	console.log(objDoors.debug.join(","));
+	console.plog(objDoors.debug.join(","));
 	if(parseInt(getPageVariable("user.bait_quantity"))<3)
 		checkThenArm(null, 'bait', 'Gouda');
 
@@ -1312,7 +1371,7 @@ function labyrinth() {
 		index = objDoors.name.indexOf(districtFocus);
 		if(index<0){
 			if(objHallwayPriorities.chooseOtherDoors){
-				console.debug(objDoors);
+				console.pdebug(objDoors);
 				temp = min(objDoors.clue);
 				var objFewestClue = {
 					num : temp,
@@ -1332,8 +1391,8 @@ function labyrinth() {
 					objShortestLength.type = "LONG";
 				objShortestLength.indices = getAllIndices(objDoors.length, objShortestLength.type);
 				objShortestLength.count = objShortestLength.indices.length;
-				console.debug(JSON.stringify(objShortestLength));
-				console.debug(JSON.stringify(objFewestClue));
+				console.pdebug(JSON.stringify(objShortestLength));
+				console.pdebug(JSON.stringify(objFewestClue));
 				if(objShortestLength.indices.length < 1 || objFewestClue.indices.length < 1){
 					checkThenArm(null, 'bait', 'Gouda');
 					disarmTrap('trinket');
@@ -1422,13 +1481,13 @@ function labyrinth() {
 			}
 		}
 
-		console.debug(objDoors);
+		console.pdebug(objDoors);
 		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
 		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
 		window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
 	}
 	catch (e){
-		console.error('labyrinth',e);
+		console.perror('labyrinth',e);
 		checkThenArm(null, 'bait', 'Gouda');
 		disarmTrap('trinket');
 		return;
@@ -1461,7 +1520,7 @@ function fw(){
 	};
 	var objFW = JSON.parse(getStorageToVariableStr('FW_Wave'+wave,JSON.stringify(objDefaultFW)));
 	objFW.streak = parseInt(document.getElementsByClassName('streak_quantity')[0].innerText);
-    console.debug('Wave: %i Streak: %i', wave, objFW.streak);
+    console.pdebug('Wave:', wave, 'Streak:', objFW.streak);
 	if(Number.isNaN(objFW.streak) || objFW.streak < 0 || objFW.streak >= nStreakLength)
 		return;
 
@@ -1476,7 +1535,7 @@ function fw(){
 	if(objFW.streakMouse.indexOf('desert_') > -1)
 		objFW.streakMouse = capitalizeFirstLetter(objFW.streakMouse.split('_')[1]);
 
-    console.debug('Current streak mouse type: %s', objFW.streakMouse);
+    console.pdebug('Current streak mouse type:', objFW.streakMouse);
 	var population = document.getElementsByClassName('population');
 	objFW.population = {
 		all : [],
@@ -1507,7 +1566,7 @@ function fw(){
 	if(!objFW.soldierActive && objFW.focusType == 'NORMAL')
 		objFW.focusType = 'SPECIAL';
 
-	console.debug(objFW);
+	console.pdebug(objFW);
 	var index = -1;
 	var charmArmed = getPageVariable('user.trinket_name');
 	var nSum = sumData(objFW.population.active);
@@ -1649,13 +1708,13 @@ function livingGarden(isAutoPour) {
     if (pourEstimate.innerText != "")
     {
         // Not pouring
-		console.debug('Filling...');
+		console.pdebug('Filling...');
         var estimateHunt = parseInt(pourEstimate.innerText);
-        console.debug('Estimate Hunt: %i', estimateHunt);
+        console.pdebug('Estimate Hunt:', estimateHunt);
         if (estimateHunt >= 35)
         {
 			if (isAutoPour) {
-				console.debug('Going to click Pour...');
+				console.pdebug('Going to click Pour...');
 				var pourButton = document.getElementsByClassName('pour')[0];
 				if (pourButton)
 				{
@@ -1676,7 +1735,7 @@ function livingGarden(isAutoPour) {
     else
     {
         // Pouring
-		console.debug('Pouring...');
+		console.pdebug('Pouring...');
         if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
             disarmTrap('trinket');
     }
@@ -1686,7 +1745,7 @@ function livingGarden(isAutoPour) {
 
 function lostCity() {
 	var isCursed = (document.getElementsByClassName('stateBlessed hidden').length > 0);
-    console.debug('Cursed:', isCursed);
+    console.pdebug('Cursed:', isCursed);
     
 	//disarm searcher charm when cursed is lifted
     if (!isCursed) {
@@ -1704,7 +1763,7 @@ function lostCity() {
 
 function sandDunes() {
     var hasStampede = getPageVariable('user.quests.QuestSandDunes.minigame.has_stampede');
-    console.debug('Has Stampede:', hasStampede);
+    console.pdebug('Has Stampede:', hasStampede);
 
     //disarm grubling chow charm when there is no stampede
     if (hasStampede == 'false')
@@ -1725,7 +1784,7 @@ function twistedGarden(isAutoPour) {
     var red = parseInt(document.getElementsByClassName('itemImage red')[0].innerText);
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
     var charmArmed = getPageVariable('user.trinket_name');
-    console.debug('Red: %i Yellow: %i', red, yellow);
+    console.pdebug('Red:', red, 'Yellow:', yellow);
 	checkThenArm('best', 'weapon', bestHydro);
 	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
 	if (red <= 8 && yellow <= 8)
@@ -1782,15 +1841,15 @@ function cursedCity() {
 				switch (i)
                 {
                     case 0:
-                        console.debug("Fear Active");
+                        console.pdebug("Fear Active");
 						cursedCityCharm.push('Bravery');
 						break;
                     case 1:
-                        console.debug("Darkness Active");
+                        console.pdebug("Darkness Active");
 						cursedCityCharm.push('Shine');
 						break;
                     case 2:
-						console.debug("Mist Active");
+						console.pdebug("Mist Active");
 						cursedCityCharm.push('Clarity');
 						break;
                 }
@@ -1807,7 +1866,7 @@ function cursedCity() {
 
 function sandCrypts() {
     var salt = parseInt(document.getElementsByClassName('salt_charms')[0].innerText);
-    console.debug('Salted: %i', salt);
+    console.pdebug('Salted:', salt);
     if (salt >= objLG.maxSaltCharged)
         checkThenArm(null, 'trinket', 'Grub Scent');
     else {
@@ -1892,7 +1951,7 @@ function checkCharge2016(stopDischargeAt){
 	try {
 		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
 		var isDischarge = (getStorage("discharge") == "true");
-		console.debug('Current Charge: %i Discharging: %s Stop Discharge At: %i', charge, isDischarge, stopDischargeAt);
+		console.pdebug('Current Charge:', charge, 'Discharging:', isDischarge, 'Stop Discharge At:', stopDischargeAt);
 		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
 		var eggstra = {};
 		eggstra["quantity"] = parseInt(charmContainer.children[0].children[0].innerText);
@@ -1948,13 +2007,13 @@ function checkCharge2016(stopDischargeAt){
 		}
     }
     catch (e) {
-        console.error('checkCharge2016',e);
+        console.perror('checkCharge2016',e);
     }
 }
 function checkCharge(stopDischargeAt) {
     try {
         var charge = parseInt(document.getElementsByClassName("chargeQuantity")[0].innerText);
-		console.debug('Current Charge: %i', charge);
+		console.pdebug('Current Charge:', charge);
         if (charge == 20) {
             setStorage("discharge", true.toString());
             checkThenArm(null, "trinket", "Eggstra Charm");
@@ -1989,7 +2048,7 @@ function checkCharge(stopDischargeAt) {
         return;
     }
     catch (e) {
-        console.error('checkCharge',e);
+        console.perror('checkCharge',e);
     }
 }
 
@@ -2021,7 +2080,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 			for (var i = 0; i < name.length; i++) {
 				for (var j = 0; j < objTrapList[category].length; j++) {
 					if (objTrapList[category][j].indexOf(name[i]) == 0){
-						console.log("Best %s found: %s Currently Armed: %s", category, name[i], userVariable);
+						console.plog('Best', category, 'found:', name[i], 'Currently Armed:', userVariable);
 						if (userVariable.indexOf(name[i]) == 0) {
 							trapArmed = true;
 							arming = false;
@@ -2045,7 +2104,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
     }
 
 	if (trapArmed === undefined && isForcedRetry){
-		console.log("%s not found in TrapList%s", name.join("/"), capitalizeFirstLetter(category));
+		console.plog(name.join("/"), "not found in TrapList", capitalizeFirstLetter(category));
 		clearTrapList(category);
 		checkThenArm(sort, category, name, false);
 	}
@@ -2124,7 +2183,7 @@ function armTrap(sort, trap, name) {
     
     if (tagGroupElement.length > 0)
     {
-        console.debug('Try to arm %s', name);
+        console.pdebug('Try to arm', name);
         for (var i = 0; i < tagGroupElement.length; ++i)
         {
             tagElement = tagGroupElement[i].getElementsByTagName('a');
@@ -2143,12 +2202,12 @@ function armTrap(sort, trap, name) {
 						setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
 					}
 					
-					console.debug('%s armed', name);
+					console.pdebug(name, 'armed');
 					return ARMED;
                 }
             }
         }
-		console.debug('%s not found', name);
+		console.pdebug(name, 'not found');
 		for(var i=0;i<objTrapList[trap].length;i++){
 			if(objTrapList[trap][i].indexOf(name) == 0){
 				objTrapList[trap].splice(i,1);
@@ -2174,7 +2233,7 @@ function armTrap(sort, trap, name) {
 function clickTrapSelector(strSelect){ //strSelect = weapon/base/charm/trinket/bait
 	if(document.getElementsByClassName("showComponents " + strSelect).length > 0){ // trap selector opened
 		arming = true;
-		return (console.debug('Trap selector %s opened', strSelect));
+		return (console.pdebug('Trap selector', strSelect, 'opened'));
 	}
 
 	if (strSelect == "base") {
@@ -2190,10 +2249,10 @@ function clickTrapSelector(strSelect){ //strSelect = weapon/base/charm/trinket/b
         fireEvent(document.getElementsByClassName('trapControlThumb')[3], 'click');
     }
     else {
-        return (console.debug("Invalid trapSelector"));
+        return (console.pdebug("Invalid trapSelector"));
     }
     arming = true;
-    return (console.debug("Trap selector %s clicked",strSelect));
+    return (console.pdebug("Trap selector", strSelect, "clicked"));
 }
 
 function closeTrapSelector(category){
@@ -2363,7 +2422,7 @@ function retrieveDataFirst() {
 		return (retrieveSuccess);
 	}
 	catch (e) {
-		console.error('retrieveDataFirst',e);
+		console.perror('retrieveDataFirst',e);
 	}
 	finally {
 		retrieveSuccess = undefined;
@@ -2494,7 +2553,7 @@ function retrieveData() {
 		eventLocationCheck('retrieveData()');
 	}
 	catch (e) {
-		console.error('retrieveData',e);
+		console.perror('retrieveData',e);
 	}
 }
 
@@ -2784,7 +2843,7 @@ function countdownTimer() {
 		}
 	}
 	catch (e) {
-		console.error('countdownTimer',e);
+		console.perror('countdownTimer',e);
 	}
 }
 
@@ -3029,6 +3088,10 @@ function embedTimer(targetPage) {
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
             showPreferenceLinkStr += '</a>';
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
+			var getLogStr = '<a id="idGetLog" name="GetLog" title="Click to get saved log" onclick="onIdGetLogClicked();">';
+			getLogStr += '<b>[Get Log]</b></a>&nbsp;&nbsp;&nbsp;';
+			var getPreferenceStr = '<a id="idGetPreference" name="GetPreference" title="Click to get saved preference" onclick="onIdGetPreferenceClicked();">';
+			getPreferenceStr += '<b>[Get Preference]</b></a>&nbsp;&nbsp;&nbsp;';
 			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="\
 				window.localStorage.removeItem(\'TrapListWeapon\');\
 				window.localStorage.removeItem(\'TrapListBase\');\
@@ -3038,7 +3101,7 @@ function embedTimer(targetPage) {
 				window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);\
 				">';
 			clearTrapListStr += '<b>[Clear Trap List]</b></a>&nbsp;&nbsp;&nbsp;';
-            showPreferenceSpan.innerHTML = clearTrapListStr + showPreferenceLinkStr;
+            showPreferenceSpan.innerHTML = getLogStr + getPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
             showPreferenceLinkDiv.appendChild(showPreferenceSpan);
             showPreferenceLinkStr = null;
             showPreferenceSpan = null;
@@ -3050,17 +3113,6 @@ function embedTimer(targetPage) {
 
 			var temp = "";
 			var preferenceHTMLStr = '<table border="0" width="100%">';
-			preferenceHTMLStr += '<tr>';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-			preferenceHTMLStr += '<a title="Get all the saved preference and copy all the text from the textbox from the right"><b>Get Saved Preference</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
-			preferenceHTMLStr += '</td>';
-			preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<input id="inputCopyPreference" type="text" maxlength="524588" value="">&nbsp;&nbsp;';
-			preferenceHTMLStr += '<input type="button" id="inputGetPreference" value="Get" onclick="onInputGetPreferenceClicked();">&nbsp;&nbsp;';
-			preferenceHTMLStr += '<input type="button" id="inputClearTextbox" value="Clear Textbox" onclick="document.getElementById(\'inputCopyPreference\').value = \'\';">';
-			preferenceHTMLStr += '</td>';
-			preferenceHTMLStr += '</tr>';
-
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Bot aggressively by ignore all safety measure such as check horn image visible before sounding it"><b>Aggressive Mode</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -3663,7 +3715,7 @@ function loadPreferenceSettingFromStorage() {
 		}
 	}
 	catch (e){
-		console.error('loadPreferenceSettingFromStorage',e);
+		console.perror('loadPreferenceSettingFromStorage',e);
 	}
 	getTrapList();
 }
@@ -4542,6 +4594,38 @@ function browserDetection() {
     }
 }
 
+function setSessionStorage(name, value) {
+    // check if the web browser support HTML5 storage
+    if ('sessionStorage' in window && window['sessionStorage'] !== null) {
+        window.sessionStorage.setItem(name, value);
+    }
+
+    name = undefined;
+    value = undefined;
+}
+
+function removeSessionStorage(name) {
+    // check if the web browser support HTML5 storage
+    if ('sessionStorage' in window && window['sessionStorage'] !== null) {
+        window.sessionStorage.removeItem(name);
+    }
+    name = undefined;
+}
+
+function getSessionStorage(name) {
+    // check if the web browser support HTML5 storage
+    if ('sessionStorage' in window && window['sessionStorage'] !== null) {
+        return (window.sessionStorage.getItem(name));
+    }
+    name = undefined;
+}
+
+function clearSessionStorage() {
+    // check if the web browser support HTML5 storage
+    if ('sessionStorage' in window && window['sessionStorage'] !== null)
+        window.sessionStorage.clear();
+}
+
 function setStorage(name, value) {
     // check if the web browser support HTML5 storage
     if ('localStorage' in window && window['localStorage'] !== null) {
@@ -4617,11 +4701,11 @@ function disarmTrap(trapSelector) {
 									if(strTemp.indexOf('not armed') > -1){
 										// no charm armed, close trap selector
 										closeTrapSelector(trapSelector);
-										console.debug('No %s armed', trapSelector);
+										console.pdebug('No', trapSelector, 'armed');
 									}
 									else{
 										fireEvent(x[i], 'click');
-										console.debug('Disarmed');
+										console.pdebug('Disarmed');
 									}
 									arming = false;
 									clearInterval(intervalDT);
@@ -4690,7 +4774,7 @@ function getPageVariable(variableName) {
 		return value;
 	}
 	catch (e) {
-		console.error('getPageVariable',e);
+		console.perror('getPageVariable',e);
 		return "";
 	}
 }
@@ -4823,16 +4907,16 @@ function refreshTrapList() {
 				window.localStorage.setItem('TrapListBait', objTrap.bait.join());
 			},
 			error: function (error){
-				console.error('refreshTrapList:',error);
+				console.perror('refreshTrapList:',error);
 			}
 		});
 	} catch (e) {
-		console.error('refreshTrapList',e);
+		console.perror('refreshTrapList',e);
 	}
 }
 
 function bodyJS(){
-	function onInputGetPreferenceClicked(){
+	function onIdGetPreferenceClicked(){
 		var objPreference = {};
 		var temp = '';
 		for(var i=0;i<window.localStorage.length;i++){
@@ -4841,7 +4925,28 @@ function bodyJS(){
 				continue;
 			objPreference[temp] = window.localStorage.getItem(temp);
 		}
-		document.getElementById('inputCopyPreference').value = JSON.stringify(objPreference);
+		saveFile(JSON.stringify(objPreference),'preference.txt');
+	}
+	
+	function onIdGetLogClicked(){
+		var key;
+		var str = "";
+		for(var i=0;i<window.sessionStorage.length;i++){
+			key = window.sessionStorage.key(i);
+			if(key.indexOf('Log_') > -1){
+				str += key + "|" + window.sessionStorage.getItem(key);
+				str += "\r\n";
+			}
+		}
+		saveFile(str,'log.txt');
+	}
+	
+	function saveFile(content, filename){
+		var a = document.createElement("a");
+		var file = new Blob([content], {type: 'text/plain'});
+		a.href = URL.createObjectURL(file);
+		a.download = filename;
+		a.click();
 	}
 	
 	function setLocalToSession(){

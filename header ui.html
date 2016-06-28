@@ -17,6 +17,14 @@
 	</div>
 	<div id="showPreferenceLinkDiv" style="text-align:right">
 		<span>
+			<a id="idGetLog" name="GetLog"
+			onclick="onIdGetLogClicked();"><b>[Get Log]</b></a>&nbsp;&nbsp;&nbsp;
+		</span>
+		<span>
+			<a id="idGetPreference" name="GetPreference"
+			onclick="onIdGetPreferenceClicked();"><b>[Get Preference]</b></a>&nbsp;&nbsp;&nbsp;
+		</span>
+		<span>
 			<a id="showPreferenceLink" name="showPreferenceLink" 
 			onclick=
 			"if (document.getElementById('showPreferenceLink').innerHTML == '<b>[Hide Preference]</b>') { 
@@ -37,14 +45,6 @@
 	<div id="preferenceDiv" style="display: none;">
 		<table border="0" width="100%">
 			<tbody>
-				<tr>
-					<td style="height:24px; text-align:right;"><a title="Get all the saved preference and copy all the text from the textbox from the right"><b>Get Saved Preference</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px">
-						<input id="inputCopyPreference" type="text" maxlength="524588" value="">&nbsp;&nbsp;
-						<input type="button" id="inputGetPreference" value="Get" onclick="onInputGetPreferenceClicked();">&nbsp;&nbsp;
-						<input type="button" id="inputClearTextbox" value="Clear Textbox" onclick="document.getElementById('inputCopyPreference').value = '';">
-					</td>
-				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><a title="Bot aggressively by ignore all safety measure such as check horn image visible before sounding it"><b>Aggressive Mode</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -442,7 +442,7 @@
 	</div>
 </div>
 <script type="text/javascript">
-	function onInputGetPreferenceClicked(){
+	function onIdGetPreferenceClicked(){
 		var objPreference = {};
 		var temp = '';
 		for(var i=0;i<window.localStorage.length;i++){
@@ -451,7 +451,28 @@
 				continue;
 			objPreference[temp] = window.localStorage.getItem(temp);
 		}
-		document.getElementById('inputCopyPreference').value = JSON.stringify(objPreference);
+		saveFile(JSON.stringify(objPreference),'preference.txt');
+	}
+	
+	function onIdGetLogClicked(){
+		var key;
+		var str = "";
+		for(var i=0;i<window.sessionStorage.length;i++){
+			key = window.sessionStorage.key(i);
+			if(key.indexOf('Log_') > -1){
+				str += key + "|" + window.sessionStorage.getItem(key);
+				str += "\r\n";
+			}
+		}
+		saveFile(str,'log.txt');
+	}
+	
+	function saveFile(content, filename){
+		var a = document.createElement("a");
+		var file = new Blob([content], {type: 'text/plain'});
+		a.href = URL.createObjectURL(file);
+		a.download = filename;
+		a.click();
 	}
 	
 	function setLocalToSession(){
