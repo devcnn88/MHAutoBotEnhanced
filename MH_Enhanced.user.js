@@ -4911,24 +4911,35 @@ function bodyJS(){
 		var key;
 		var str = "";
 		var temp;
+		var arrLog = [];
 		for(var i=0;i<window.sessionStorage.length;i++){
 			key = window.sessionStorage.key(i);
-			if(key.indexOf('Log_') > -1){
-				temp = parseInt(key.split('_')[1]);
-				temp = (Number.isInteger(temp)) ? (new Date(temp)).toISOString() : key;
-				str += temp + "|" + window.sessionStorage.getItem(key);
-				str += "\r\n";
-			}
+			if(key.indexOf('Log_') > -1)
+				arrLog.push(key);
+		}
+		arrLog = arrLog.sort();
+		for(var i=0;i<arrLog.length;i++){
+			temp = parseInt(arrLog[i].split('_')[1]);
+			temp = (Number.isInteger(temp)) ? (new Date(temp)).toISOString() : arrLog[i];
+			str += temp + "|" + window.sessionStorage.getItem(arrLog[i]);
+			str += "\r\n";
 		}
 		saveFile(str,'log.txt');
 	}
 	
 	function saveFile(content, filename){
-		var a = document.createElement("a");
-		var file = new Blob([content], {type: 'text/plain'});
-		a.href = URL.createObjectURL(file);
-		a.download = filename;
-		a.click();
+		var pom = document.createElement('a');
+		pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+		pom.setAttribute('download', filename);
+
+		if (document.createEvent) {
+			var event = document.createEvent('MouseEvents');
+			event.initEvent('click', true, true);
+			pom.dispatchEvent(event);
+		}
+		else {
+			pom.click();
+		}
 	}
 	
 	function setLocalToSession(){
