@@ -4080,6 +4080,7 @@ function embedScript() {
 		strHornButton = 'mousehuntHud-huntersHorn-container';
         strCampButton = 'camp';
 		alert("New UI might not work properly with this script. Use at your own risk");
+		document.getElementById('titleElement').innerHTML += " - <font color='red'><b>Pls use Classic UI(i.e. Non-FreshCoat Layout) for fully working features</b></font>";
 	}
 
 	var hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
