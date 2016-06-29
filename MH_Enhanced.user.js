@@ -132,14 +132,14 @@ var objTrapList = {
 
 // // Best weapon/base/charm/bait pre-determined by user. Edit ur best weapon/base/charm/bait in ascending order. e.g. [best, better, good]
 var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
-var bestTactical = ['Chrome Sphynx Wrath', 'Sphynx Wrath', 'Zugzwang\'s First Move'];
+var bestTactical = ['Chrome Sphynx Wrath', 'Sphynx Wrath', 'Zugzwang\'s Ultimate Move', 'Zugzwang\'s First Move'];
 var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap', 'Steam Laser Mk. III', 'Steam Laser Mk. II', 'Steam Laser Mk. I', 'Ancient Spear Gun'];
-var bestArcane = ['Event Horizon', 'Grand Arcanum Trap', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
-var bestShadow = ['Temporal Turbine', 'Clockwork Portal Trap', 'Reaper\'s Perch', 'Dreaded Totem Trap', 'Clockapult of Time', 'Clockapult of Winter Past'];
+var bestArcane = ['Event Horizon', 'Grand Arcanum Trap', 'Chrome Arcane Capturing Rod', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
+var bestShadow = ['Temporal Turbine', 'Clockwork Portal Trap', 'Reaper\'s Perch', 'Dreaded Totem Trap', 'Candy Crusher Trap', 'Clockapult of Time', 'Clockapult of Winter Past'];
 var bestForgotten = ['Infinite Labyrinth', 'Endless Labyrinth', 'Crystal Crucible', 'Stale Cupcake Golem', 'Tarannosaurus Rex Trap', 'The Forgotten Art of Dance'];
 var bestDraconic = ['Dragon Lance', 'Ice Maiden'];
 var bestRiftLuck = ['Mysteriously unYielding', 'Multi-Crystal Laser', 'Crystal Tower'];
-var bestRiftPower = ['Mysteriously unYielding', 'Focused Crystal Laser', 'Crystal Tower'];
+var bestRiftPower = ['Mysteriously unYielding', 'Focused Crystal Laser', 'Biomolecular Re-atomizer Trap', 'Crystal Tower'];
 var bestRiftBase = ['Fissure Base', 'Rift Base', 'Fracture Base'];
 var bestPowerBase = ['Minotaur Base', 'Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
 var bestLuckBase = ['Minotaur Base', 'Fissure Base', 'Rift Base', 'Monkey Jade Base', 'Sheep Jade Base', 'Depth Charge Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Eerier Base', 'Papyrus Base'];
