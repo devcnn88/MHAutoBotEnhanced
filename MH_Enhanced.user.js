@@ -395,7 +395,7 @@ function FinalizePuzzleImageAnswer(answer)
 			return;
 		}
 		puzzleAns.value = "";
-        puzzleAns.value = answer;
+        puzzleAns.value = answer.toLowerCase();
         var puzzleSubmit = document.getElementById("puzzle_submit");
 		if (!puzzleSubmit)
 		{
