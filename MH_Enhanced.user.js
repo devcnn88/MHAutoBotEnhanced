@@ -971,13 +971,17 @@ function LGGeneral(isAutoPour) {
 
 function sgOrZT(){
 	var strLocation = GetCurrentLocation();
+	var objSGZTDefault = {
+		useZUMIn: 'None'
+	};
+	var objSGZT = JSON.parse(getStorageToVariableStr('SGZT', JSON.stringify(objSGZTDefault)));
 	if(strLocation.indexOf("Seasonal Garden") > -1)
-		seasonalGarden();
+		seasonalGarden(objSGZT.useZUMIn);
 	else if(strLocation.indexOf("Zugzwang's Tower") > -1)
-		zugzwangTower();
+		zugzwangTower(objSGZT.useZUMIn);
 }
 
-function seasonalGarden(){
+function seasonalGarden(useZUMIn){
 	var cheeseArmed = getPageVariable('user.bait_name');
 	if(cheeseArmed.indexOf('Checkmate') > -1)
 		checkThenArm(null, 'bait', 'Guda');
@@ -997,10 +1001,13 @@ function seasonalGarden(){
 		if(nSeason >= objSG.season.length)
 			nSeason = 0;
 	}
+
+	if(useZUMIn == 'ALL' || useZUMIn == objSG.season[nSeason].toUpperCase())
+		objSG.trap[nSeason].unshift('Zugzwang\'s Ultimate Move');
 	checkThenArm('best', 'weapon', objSG.trap[nSeason]);
 }
 
-function zugzwangTower(){
+function zugzwangTower(useZUMIn){
 	
 }
 
@@ -3311,6 +3318,24 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trUseZum" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select to arm Zugzwang\'s Ultimate Move whenever possible"><b>Use ZUM in</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectUseZUM" onChange="onSelectUseZUMChanged();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="ALL">All Season</option>';
+			// preferenceHTMLStr += '<option value="ZT_ONLY">ZT Only</option>';
+			// preferenceHTMLStr += '<option value="SG_ZT">SG & ZT</option>';
+			preferenceHTMLStr += '<option value="SPRING">Spring</option>';
+			preferenceHTMLStr += '<option value="SUMMER">Summer</option>';
+			preferenceHTMLStr += '<option value="FALL">Fall</option>';
+			preferenceHTMLStr += '<option value="WINTER">Winter</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="lgArea" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select auto pour status"><b>Auto Pour</b></a>';
@@ -4948,7 +4973,8 @@ function bodyJS(){
 			key = window.localStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1){
+				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
+				key.indexOf("SGZT")>-1 ){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -4964,7 +4990,8 @@ function bodyJS(){
 			key = window.sessionStorage.key(i);
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1){
+				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
+				key.indexOf("SGZT")>-1 ){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -5342,6 +5369,36 @@ function bodyJS(){
 		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 	}
 
+	function onSelectUseZUMChanged(){
+		saveSGZT();
+	}
+	
+	function saveSGZT(){
+		var selectUseZUM = document.getElementById('selectUseZUM');
+		var storageValue = window.sessionStorage.getItem('SGZT');
+		if(storageValue === null){
+			var objSGZT = {
+				useZUMIn : 'None'
+			};
+			storageValue = JSON.stringify(objSGZT);
+		}
+		storageValue = JSON.parse(storageValue);
+		storageValue.useZUMIn = selectUseZUM.value;
+		window.sessionStorage.setItem('SGZT', JSON.stringify(storageValue));
+	}
+	
+	function initControlsSGZT(){
+		var selectUseZUM = document.getElementById('selectUseZUM');
+		var storageValue = window.sessionStorage.getItem('SGZT');
+		if(storageValue === null){
+			selectUseZUM.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectUseZUM.value = storageValue.useZUMIn;
+		}
+	}
+	
 	function showOrHideTr(algo){
 		document.getElementById('lgArea').style.display = 'none';
 		document.getElementById('scCustom').style.display = 'none';
@@ -5357,6 +5414,7 @@ function bodyJS(){
 		document.getElementById('trBRConfig').style.display = 'none';
 		document.getElementById('trBRToggle').style.display = 'none';
 		document.getElementById('trBRTrapSetup').style.display = 'none';
+		document.getElementById('trUseZum').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -5387,6 +5445,10 @@ function bodyJS(){
 			document.getElementById('trBRToggle').style.display = 'table-row';
 			document.getElementById('trBRTrapSetup').style.display = 'table-row';
 			initControlsBR();
+		}
+		else if(algo == 'SG/ZT'){
+			document.getElementById('trUseZum').style.display = 'table-row';
+			initControlsSGZT();
 		}
 	}
 }
