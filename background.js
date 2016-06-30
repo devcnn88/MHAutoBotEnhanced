@@ -5,8 +5,9 @@ chrome.runtime.onConnect.addListener(function(port) {
 		mainPort = port;
 		mainPort.onMessage.addListener(function(msg) {
 			if (msg.request == "get"){
-				if(trapsPort !== null || trapsPort !== undefined)
+				if(trapsPort !== null && trapsPort !== undefined){
 					trapsPort.postMessage(msg);
+				}
 			}
 		});
 	}
@@ -14,8 +15,9 @@ chrome.runtime.onConnect.addListener(function(port) {
 		trapsPort = port;
 		trapsPort.onMessage.addListener(function(msg) {
 			if (Array.isArray(msg.result)){
-				if(mainPort !== null || mainPort !== undefined)
+				if(mainPort !== null && mainPort !== undefined){
 					mainPort.postMessage(msg);
+				}
 			}
 		});
 	}
