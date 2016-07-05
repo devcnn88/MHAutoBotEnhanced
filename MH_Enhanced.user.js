@@ -978,8 +978,11 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 		setStorage('MapHunting', JSON.stringify(obj));
 		checkThenArm(null, 'weapon', obj.weapon);
 		checkThenArm(null, 'base', obj.base);
-		checkThenArm(null, 'trinket', obj.trinket);
 		checkThenArm(null, 'bait', obj.bait);
+		if(obj.trinket == 'None')
+			disarmTrap('trinket');
+		else
+			checkThenArm(null, 'trinket', obj.trinket);
 	}
 }
 
