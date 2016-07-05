@@ -5340,9 +5340,10 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
+			selectMapHunting.value = storageValue.status;
 			trUncaughtMouse.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trMapHuntingTrapSetup.style.display = (storageValue.status) ? 'table-row' : 'none';
-			trMapHuntingTrapSetup.getElementsByTagName('b')[0].innerHTML = 'After <u><i>' + storageValue.afterMouseCaught + '</i></u> caught';
+			trMapHuntingTrapSetup.getElementsByTagName('i')[0].textContent = storageValue.afterMouseCaught;
 			selectWeapon.value = storageValue.weapon;
 			selectBase.value = storageValue.base;
 			selectTrinket.value = storageValue.trinket;
