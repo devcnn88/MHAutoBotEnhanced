@@ -705,7 +705,7 @@ function getTrapCollection(){
 				var selectBase = document.getElementById('selectBase');
 				var selectTrinket = document.getElementById('selectTrinket');
 				var selectBait = document.getElementById('selectBait');
-				var optionEle;
+				var optionEle, optionEle2;
 				for (var prop in objTrapCollection) {
 					if(objTrapCollection.hasOwnProperty(prop) && prop !== 'count') {
 						for(var i=0;i<objTrapCollection[prop].length;i++){
@@ -723,8 +723,10 @@ function getTrapCollection(){
 							else if(prop == 'trinket'){
 								if(!isNullOrUndefined(selectZokorTrinket))
 									selectZokorTrinket.appendChild(optionEle);
-								if(!isNullOrUndefined(selectTrinket))
-									selectTrinket.appendChild(optionEle);
+								if(!isNullOrUndefined(selectTrinket)){
+									optionEle2 = optionEle.cloneNode(true);
+									selectTrinket.appendChild(optionEle2);
+								}
 							}
 							else if(prop == 'bait'){
 								if(!isNullOrUndefined(selectBait))
