@@ -3567,7 +3567,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select id="selectMouseList"></select>';
 			preferenceHTMLStr += '<input type="button" id="inputSelectMouse" title="Click to select the mouse from the left dropdown list" value="Select This Mouse" onclick="onInputSelectMouse();" disabled>&nbsp;&nbsp;';
-			preferenceHTMLStr += '<input type="button" id="inputGetMouse" title="Click to Get all uncaught mouse from treasure map" value="Get Uncaught Mouse List" onclick="onInputGetMouse();">';
+			preferenceHTMLStr += '<input type="button" id="inputGetMouse" title="Click to Get all uncaught mouse from treasure map" value="Refresh Uncaught Mouse List" onclick="onInputGetMouse();">';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
@@ -5323,6 +5323,7 @@ function bodyJS(){
 	function initControlsMapHunting(){
 		var trUncaughtMouse = document.getElementById('trUncaughtMouse');
 		var selectMapHunting = document.getElementById('selectMapHunting');
+		var selectMouseList = document.getElementById('selectMouseList');
 		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
 		var selectWeapon = document.getElementById('selectWeapon');
 		var selectBase = document.getElementById('selectBase');
@@ -5349,6 +5350,22 @@ function bodyJS(){
 			selectTrinket.value = storageValue.trinket;
 			selectBait.value = storageValue.bait;
 		}
+		storageValue = window.localStorage.getItem('Last Record Uncaught');
+		if(storageValue !== null && storageValue !== undefined){
+			storageValue = storageValue.split(",");
+			var i;
+			for(i = selectMouseList.options.length-1 ; i >= 0 ; i--){
+				selectMouseList.remove(i);
+			}
+			var optionEle;
+			for(i=0;i<storageValue.length;i++){
+				optionEle = document.createElement("option");
+				optionEle.setAttribute('value', storageValue[i]);
+				optionEle.textContent = storageValue[i];
+				selectMouseList.appendChild(optionEle);
+			}
+		}
+		document.getElementById('inputSelectMouse').disabled = (selectMouseList.options.length > 0) ? '' : 'disabled';
 	}
 	
 	function onInputSelectMouse(){
@@ -5381,31 +5398,27 @@ function bodyJS(){
 					withCredentials: false
 				},
 				success: function (data){
-					document.getElementById('inputGetMouse').value = 'Get';
+					document.getElementById('inputGetMouse').value = 'Refresh Uncaught Mouse List';
 					document.getElementById('inputGetMouse').disabled = '';
-					window.localStorage.setItem('Last Record Uncaught', Date.now());
 					console.log(data.treasure_map);
 					if(data.treasure_map.groups !== null && data.treasure_map.groups !== undefined){
-						document.getElementById('inputSelectMouse').disabled = '';
-						var selectMouseList = document.getElementById('selectMouseList');
-						var optionEle;
-						for(var i=0;i<data.treasure_map.groups[0].mice.length;i++){
-							optionEle = document.createElement('option');
-							optionEle.setAttribute('value', data.treasure_map.groups[0].mice[i].name);
-							optionEle.innerText = data.treasure_map.groups[0].mice[i].name;
-							selectMouseList.appendChild(optionEle);
+						var arrUncaught = new Array(data.treasure_map.groups[0].mice.length);
+						for(i=0;i<data.treasure_map.groups[0].mice.length;i++){
+							arrUncaught[i] = data.treasure_map.groups[0].mice[i].name;
 						}
+						window.localStorage.setItem('Last Record Uncaught', arrUncaught.join(","));
+						initControlsMapHunting();
 					}
 				},
 				error: function (error){
-					document.getElementById('inputGetMouse').value = 'Get';
+					document.getElementById('inputGetMouse').value = 'Refresh Uncaught Mouse List';
 					document.getElementById('inputGetMouse').disabled = '';
 					console.error('onInputGetMouse ajax:',error);
 				}
 			});
 		}
 		catch (e) {
-			document.getElementById('inputGetMouse').value = 'Get';
+			document.getElementById('inputGetMouse').value = 'Refresh Uncaught Mouse List';
 			document.getElementById('inputGetMouse').disabled = '';
 			console.error('onInputGetMouse',e);
 		}
