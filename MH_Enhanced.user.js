@@ -5,6 +5,7 @@
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @require		https://code.jquery.com/jquery-2.2.2.min.js
+// @require		https://github.com/devcnn88/MHAutoBotEnhanced/raw/master/traps.js
 // @include		http://mousehuntgame.com/*
 // @include		https://mousehuntgame.com/*
 // @include		http://www.mousehuntgame.com/*
@@ -128,6 +129,15 @@ var objTrapList = {
 	base : [],
 	trinket : [],
 	bait : []
+};
+
+// // Trap Collection
+var objTrapCollection = {
+	weapon : [],
+	base : [],
+	trinket : [],
+	bait : [],
+	count : 0
 };
 
 // // Best weapon/base/charm/bait pre-determined by user. Edit ur best weapon/base/charm/bait in ascending order. e.g. [best, better, good]
@@ -454,7 +464,29 @@ window.addEventListener("message", receiveMessage, false);
 if (debugKR)
 	CallKRSolver();
 
+var getTrapPort;
+var getMapPort;
+if(chrome.runtime.id !== null && chrome.runtime.id !== undefined){
+	getTrapPort = chrome.runtime.connect({name: 'main'});
+	getTrapPort.onMessage.addListener(function(msg) {
+		if(msg.type == 'charm')
+			msg.type = 'trinket';
+		if(objTrapCollection.hasOwnProperty(msg.type)){
+			objTrapCollection[msg.type] = msg.result;
+			if(msg.type == 'trinket')
+				objTrapCollection[msg.type].unshift('None');
+			objTrapCollection.count++;
+		}
+	});
+	getMapPort = chrome.runtime.connect({name: 'map'});
+	getMapPort.onMessage.addListener(function(msg) {
+		console.log(msg);
+		if(msg.array.length > 0)
+			checkCaughtMouse(msg.obj, msg.array);
+	});
+}
 exeScript();
+getTrapCollection();
 
 function exeScript() {
 	console.pdebug("exeScript() Start");
@@ -650,6 +682,68 @@ function exeScript() {
 	return;
 }
 
+function getTrapCollection(){
+	var intervalGTC;
+	try{
+		for (var prop in objTrapCollection) {
+			if(objTrapCollection.hasOwnProperty(prop) && prop !== 'count') {
+				if(getTrapPort === null || getTrapPort === undefined){
+					objTrapCollection[prop] = getTrap(prop);
+					objTrapCollection.count++;
+				}
+				else{
+					getTrapPort.postMessage({request: "get", type: prop});
+				}
+			}
+		}
+		
+		intervalGTC = setInterval( function () {
+			if (objTrapCollection.count == 4) {
+				// get charm collection for Zokor
+				var selectZokorTrinket = document.getElementById('selectZokorTrinket');
+				var selectWeapon = document.getElementById('selectWeapon');
+				var selectBase = document.getElementById('selectBase');
+				var selectTrinket = document.getElementById('selectTrinket');
+				var selectBait = document.getElementById('selectBait');
+				var optionEle;
+				for (var prop in objTrapCollection) {
+					if(objTrapCollection.hasOwnProperty(prop) && prop !== 'count') {
+						for(var i=0;i<objTrapCollection[prop].length;i++){
+							optionEle = document.createElement("option");
+							optionEle.setAttribute('value', objTrapCollection[prop][i]);
+							optionEle.innerText = objTrapCollection[prop][i];
+							if(prop == 'weapon'){
+								if(!isNullOrUndefined(selectWeapon))
+									selectWeapon.appendChild(optionEle);
+							}
+							else if(prop == 'base'){
+								if(!isNullOrUndefined(selectBase))
+									selectBase.appendChild(optionEle);
+							}
+							else if(prop == 'trinket'){
+								if(!isNullOrUndefined(selectZokorTrinket))
+									selectZokorTrinket.appendChild(optionEle);
+								if(!isNullOrUndefined(selectTrinket))
+									selectTrinket.appendChild(optionEle);
+							}
+							else if(prop == 'bait'){
+								if(!isNullOrUndefined(selectBait))
+									selectBait.appendChild(optionEle);
+							}
+						}
+					}
+				}
+				clearInterval(intervalGTC);
+				intervalGTC = null;
+				return;
+			}
+		}, 1000);	
+	}
+	catch (e){
+		console.perror('getTrapCollection:',e);
+	}
+}
+
 function GetTrapCheckTime(){
 	try {
 		var passiveElement = document.getElementsByClassName('passive');
@@ -801,8 +895,14 @@ function eventLocationCheck(caller) {
 			SCCustom(); break;
 		case 'Labyrinth':
 			labyrinth(); break;
+		case 'Zokor':
+			zokor(); break;
 		case 'Fiery Warpath':
 			fw(); break;
+		case 'BC/JOD':
+			balackCoveJOD(); break;
+		case 'FG/AR':
+			forbiddenGroveAR(); break;
 		case 'Test':
 			checkThenArm(null, 'bait', 'Gouda');
 			disarmTrap('trinket');
@@ -810,6 +910,75 @@ function eventLocationCheck(caller) {
         default:
             break;
     }
+}
+
+function mapHunting(){
+	var objDefaultMapHunting = {
+		status : false,
+		afterMouseCaught : 'None',
+		weapon : 'None',
+		base : 'None',
+		trinket : 'None',
+		bait : 'None'
+	};
+	var objMapHunting = JSON.parse(getStorageToVariableStr('MapHunting', JSON.stringify(objDefaultMapHunting)));
+	var bHasMap = (getPageVariable('user.quests.QuestRelicHunter.view_state') == 'hasMap');
+	if(!objMapHunting.status || !bHasMap || objMapHunting.afterMouseCaught == 'None')
+		return;
+
+	checkCaughtMouse(objMapHunting);
+}
+
+function checkCaughtMouse(obj, arrUpdatedUncaught){
+	var arrUncaughtMouse = [];
+	if(!(Array.isArray(arrUpdatedUncaught)))
+		arrUpdatedUncaught = [];
+
+	if(arrUpdatedUncaught.length == 0){
+		var nRemaining = -1;
+		var classTreasureMap = document.getElementsByClassName('mousehuntHud-userStat treasureMap')[0];
+		if(classTreasureMap.children[2].textContent.toLowerCase().indexOf('remaining') > -1)
+			nRemaining = parseInt(classTreasureMap.children[2].textContent);
+		
+		if(Number.isNaN(nRemaining) || nRemaining == -1)
+			return;
+
+		var temp = getStorageToVariableStr('Last Record Uncaught', null);
+		if(temp !== null && temp !== undefined)
+			arrUncaughtMouse = temp.split(",");	
+		
+		if(arrUncaughtMouse.length != nRemaining){
+			// get updated uncaught mouse list
+			arrUncaughtMouse = [];
+			if(getMapPort === null || getMapPort === undefined){
+				// direct call jquery
+			}
+			else{
+				getMapPort.postMessage({
+					request: "getUncaught",
+					unique_hash: getPageVariable('user.unique_hash'),
+					url: window.location.origin + '/managers/ajax/users/relichunter.php',
+					objMapHunting : obj
+				});
+			}
+			return;
+		}
+	}
+	else{
+		setStorage('Last Record Uncaught', arrUpdatedUncaught.join(","));
+		arrUncaughtMouse = arrUpdatedUncaught.slice();
+	}
+	
+	console.pdebug('Uncaught:', arrUncaughtMouse);
+	var nIndex = arrUncaughtMouse.indexOf(objMapHunting.afterMouseCaught);
+	if(nIndex < 0){ // mouse was caught, change trap setup
+		objMapHunting.afterMouseCaught = 'None';
+		setStorage('MapHunting', JSON.stringify(objMapHunting));
+		checkThenArm(null, 'weapon', objMapHunting.weapon);
+		checkThenArm(null, 'base', objMapHunting.base);
+		checkThenArm(null, 'trinket', objMapHunting.trinket);
+		checkThenArm(null, 'bait', objMapHunting.bait);
+	}
 }
 
 function GetCurrentLocation(){
@@ -1009,6 +1178,57 @@ function seasonalGarden(useZUMIn){
 
 function zugzwangTower(useZUMIn){
 	
+}
+
+function balackCoveJOD(){
+	var curLoc = GetCurrentLocation();
+	if(curLoc.indexOf('Jungle') > -1){
+		checkThenArm(null, 'bait', 'Gouda');
+		checkThenArm('best', 'weapon', bestShadow);
+	}
+	else if(curLoc.indexOf('Balack') > -1){
+		var i = 0;
+		var objBC = {
+			arrTide : ['Low Rising', 'Mid Rising', 'High Rising', 'High Ebbing', 'Mid Ebbing', 'Low Ebbing'],
+			arrLength : [24, 3, 1, 1, 3, 24],
+			arrAll : []
+		};
+		var nTimeStamp = Math.floor(Date.now()/1000);
+		var nFirstTideTimeStamp = 1294708860;
+		var nTideLength = 1200; // 20min
+		for(i=0;i<objBC.arrTide.length;i++){
+			objBC.arrAll = objBC.arrAll.concat(new Array(objBC.arrLength[i]).fill(objBC.arrTide[i]));
+		}
+		var nTideTotalLength = sumData(objBC.arrLength);
+		var nDiff = nTimeStamp - nFirstTideTimeStamp;
+		var nIndexCurrentTide = Math.floor(nDiff/nTideLength) % nTideTotalLength;
+		var tideNameCurrent = objBC.arrAll[nIndexCurrentTide];
+		var tideNameNext;
+		if(tideNameCurrent.indexOf('Low') > -1)
+			tideNameNext = 'Mid Rising';
+		else if(tideNameCurrent.indexOf('High') > -1)
+			tideNameNext = 'Mid Ebbing';
+		else if(tideNameCurrent == 'Mid Rising')
+			tideNameNext = 'High Rising';
+		else if(tideNameCurrent == 'Mid Ebbing')
+			tideNameNext = 'Low Ebbing';
+		
+		var nTideDist = objBC.arrAll.indexOf(tideNameNext) + nTideTotalLength - nIndexCurrentTide;
+		nTideDist = nTideDist % nTideTotalLength;
+		var nNextTideTime = nTideDist*nTideLength - nDiff%nTideLength;
+		console.plog('Current Tide:', objBC.arrAll[nIndexCurrentTide], 'Next Tide:', tideNameNext, 'In', timeformat(nNextTideTime));
+		if(nNextTideTime <= nextActiveTime && tideNameNext.indexOf('High') > -1){ // total seconds left to next high tide less than next active time
+			checkThenArm(null, 'bait', 'Vanilla Stilton');
+		}
+	}
+}
+
+function forbiddenGroveAR(){
+	var curLoc = GetCurrentLocation();
+	if(curLoc.indexOf('Acolyte Realm') > -1){
+		checkThenArm('best', 'weapon', bestForgotten);
+		checkThenArm(null, 'bait', 'Runic Cheese');
+	}
 }
 
 function SunkenCity(isAggro) {
@@ -1494,6 +1714,19 @@ function labyrinth() {
 		disarmTrap('trinket');
 		return;
 	}
+}
+
+function zokor(){
+	if (GetCurrentLocation().indexOf("Zokor") < 0)
+		return;
+	
+	var objZokorDefault = {
+		bossStatus : ['ACTIVE', 'INCOMING', 'DEFEATED'],
+		bait : new Array(3).fill('Gouda'),
+		charm : new Array(3).fill('None')
+	};
+
+	var objZokor = JSON.parse(getStorageToVariableStr('Zokor', JSON.stringify(objZokorDefault)));
 }
 
 function fw(){
@@ -2553,6 +2786,7 @@ function retrieveData() {
 		// get trap check time
 		CalculateNextTrapCheckInMinute();
 		eventLocationCheck('retrieveData()');
+		mapHunting();
 	}
 	catch (e) {
 		console.perror('retrieveData',e);
@@ -2685,6 +2919,7 @@ function action() {
 
         isHornSounding = undefined;
 		eventLocationCheck('action()');
+		mapHunting();
     }
 }
 
@@ -3310,18 +3545,55 @@ function embedTimer(targetPage) {
 			
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Turn on/off Map Hunting feature"><b>Map Hunting</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+            preferenceHTMLStr += '<select id="selectMapHunting" onChange="onSelectMapHuntingChanged();">';
+            preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trUncaughtMouse" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Click button Get to retrieve all uncaught mouse"><b>Uncaught Mouse</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+            preferenceHTMLStr += '<select id="selectMouseList"></select>';
+			preferenceHTMLStr += '<input type="button" id="inputSelectMouse" title="Click to select the mouse from the left dropdown list" value="Select This Mouse" onclick="onInputSelectMouse();" disabled>&nbsp;&nbsp;';
+			preferenceHTMLStr += '<input type="button" id="inputGetMouse" title="Click to Get all uncaught mouse from treasure map" value="Get" onclick="onInputGetMouse();">';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trMapHuntingTrapSetup" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select trap setup after a mouse was caught"><b>After <u><i>None</i></u> caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+            preferenceHTMLStr += '<select id="selectWeapon" style="width: 75px"></select>';
+			preferenceHTMLStr += '<select id="selectBase" style="width: 75px"></select>';
+			preferenceHTMLStr += '<select id="selectTrinket" style="width: 75px"></select>';
+			preferenceHTMLStr += '<select id="selectBait" style="width: 75px"></select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr>';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select id="eventAlgo" onChange="window.sessionStorage.setItem(\'eventLocation\', value); showOrHideTr(value);">';
             preferenceHTMLStr += '<option value="None" selected>None</option>';
 			preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
+			preferenceHTMLStr += '<option value="BC/JOD">BC => JOD</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift Custom">Burroughs Rift Custom</option>';
             preferenceHTMLStr += '<option value="Charge Egg 2016 Medium + High">Charge Egg 2016 Medium + High</option>';
             preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
+			preferenceHTMLStr += '<option value="FG/AR">FG => AR</option>';
 			preferenceHTMLStr += '<option value="Fiery Warpath">Fiery Warpath</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
@@ -3329,6 +3601,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
 			preferenceHTMLStr += '<option value="Test">Test</option>';
+			preferenceHTMLStr += '<option value="Zokor">Zokor</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -3485,6 +3758,28 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="FEWEST_ONLY">Fewest Clue Only</option>';
 			preferenceHTMLStr += '<option value="SHORTEST_FEWEST">Shortest Length => Fewest Clue</option>';
 			preferenceHTMLStr += '<option value="FEWEST_SHORTEST">Fewest Clue => Shortest Length </option>';
+            preferenceHTMLStr += '</select>';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trZokorTrapSetup" style="display:none;">';
+            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<a title="Select trap setup under different boss status"><b>Trap Setup When</b></a>';
+            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectZokorBossStatus" onChange="onSelectZokorBossStatus();">';
+			preferenceHTMLStr += '<option value="ACTIVE">Boss Active</option>';
+			preferenceHTMLStr += '<option value="INCOMING">Boss Incoming</option>';
+			preferenceHTMLStr += '<option value="DEFEATED">Boss Defeated</option>';
+            preferenceHTMLStr += '</select>&nbsp;&nbsp;';
+			preferenceHTMLStr += '<select id="selectZokorBait" onChange="onSelectZokorBait();">';
+			preferenceHTMLStr += '<option value="Glowing Gruyere">GG</option>';
+			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
+			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
+			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+            preferenceHTMLStr += '</select>&nbsp;&nbsp;';
+			preferenceHTMLStr += '<select id="selectZokorTrinket" onChange="onSelectZokorTrinket();">';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -3671,7 +3966,7 @@ function embedTimer(targetPage) {
             headerElement.parentNode.insertBefore(timerDivElement, headerElement);
 
             timerDivElement = null;
-
+			
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('type', "text/javascript");
 			scriptElement.innerHTML = functionToHTMLString(bodyJS);
@@ -4426,6 +4721,10 @@ function CalculateNextTrapCheckInMinute() {
 //   General Function - Start
 // ################################################################################################
 
+function isNullOrUndefined(obj){
+	return (obj === null || obj === undefined);
+}
+
 function getAllIndices(arr, val) {
     var indices = [];
     for(var i = 0; i < arr.length; i++){
@@ -4983,6 +5282,145 @@ function bodyJS(){
 		}
 	}
 	
+	function onSelectMapHuntingChanged(){
+		saveMapHunting();
+		initControlsMapHunting();
+	}
+	
+	function saveMapHunting(){
+		var selectMapHunting = document.getElementById('selectMapHunting');
+		var selectMouseList = document.getElementById('selectMouseList');
+		var selectWeapon = document.getElementById('selectWeapon');
+		var selectBase = document.getElementById('selectBase');
+		var selectTrinket = document.getElementById('selectTrinket');
+		var selectBait = document.getElementById('selectBait');
+		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
+		var objDefaultMapHunting = {
+			status : false,
+			afterMouseCaught : 'None',
+			weapon : 'None',
+			base : 'None',
+			trinket : 'None',
+			bait : 'None'
+		};
+		var storageValue = JSON.parse(window.sessionStorage.getItem('MapHunting'));
+		if(storageValue === null || storageValue === undefined)
+			storageValue = objDefaultMapHunting;
+		storageValue.status = (selectMapHunting.value == 'true');
+		storageValue.afterMouseCaught = trMapHuntingTrapSetup.getElementsByTagName('i')[0].textContent;
+		storageValue.weapon = selectWeapon.value;
+		storageValue.base = selectBase.value;
+		storageValue.trinket = selectTrinket.value;
+		storageValue.bait = selectBait.value;
+		window.sessionStorage.setItem('MapHunting', JSON.stringify(storageValue));
+	}
+	
+	function initControlsMapHunting(){
+		var trUncaughtMouse = document.getElementById('trUncaughtMouse');
+		var selectMapHunting = document.getElementById('selectMapHunting');
+		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
+		var selectWeapon = document.getElementById('selectWeapon');
+		var selectBase = document.getElementById('selectBase');
+		var selectTrinket = document.getElementById('selectTrinket');
+		var selectBait = document.getElementById('selectBait');
+		var storageValue = window.sessionStorage.getItem('MapHunting');
+		if(storageValue === null || storageValue === undefined){
+			selectMapHunting.selectedIndex = 0;
+			trUncaughtMouse.style.display = 'none';
+			trMapHuntingTrapSetup.style.display = 'none';
+			selectWeapon.selectedIndex = -1;
+			selectBase.selectedIndex = -1;
+			selectTrinket.selectedIndex = -1;
+			selectBait.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			trUncaughtMouse.style.display = (storageValue.status) ? 'table-row' : 'none';
+			trMapHuntingTrapSetup.style.display = (storageValue.status) ? 'table-row' : 'none';
+			trMapHuntingTrapSetup.getElementsByTagName('b')[0].innerHTML = 'After <u><i>' + storageValue.afterMouseCaught + '</i></u> caught';
+			selectWeapon.value = storageValue.weapon;
+			selectBase.value = storageValue.base;
+			selectTrinket.value = storageValue.trinket;
+			selectBait.value = storageValue.bait;
+		}
+	}
+	
+	function onInputSelectMouse(){
+		document.getElementById('trMapHuntingTrapSetup').getElementsByTagName('i')[0].textContent = document.getElementById('selectMouseList').value;
+		saveMapHunting();
+	}
+	
+	function onInputGetMouse(){
+		var classTreasureMap = document.getElementsByClassName('mousehuntHud-userStat treasureMap')[0];
+		if(classTreasureMap.children[2].textContent.toLowerCase().indexOf('remaining') < 0)
+			return;
+
+		document.getElementById('inputGetMouse').value = 'Processing...';
+		document.getElementById('inputGetMouse').disabled = 'disabled';
+		try {
+			var objData = {
+				sn : 'Hitgrab',
+				hg_is_ajax : 1,
+				action : 'info',
+				uh : user.unique_hash
+			};
+			
+			jQuery.ajax({
+				type: 'POST',
+				url: '/managers/ajax/users/relichunter.php',
+				data: objData,
+				contentType: 'application/x-www-form-urlencoded',
+				dataType: 'json',
+				xhrFields: {
+					withCredentials: false
+				},
+				success: function (data){
+					document.getElementById('inputGetMouse').value = 'Get';
+					document.getElementById('inputGetMouse').disabled = '';
+					window.localStorage.setItem('Last Record Uncaught', Date.now());
+					console.log(data.treasure_map);
+					if(data.treasure_map.groups !== null && data.treasure_map.groups !== undefined){
+						document.getElementById('inputSelectMouse').disabled = '';
+						var selectMouseList = document.getElementById('selectMouseList');
+						var optionEle;
+						for(var i=0;i<data.treasure_map.groups[0].mice.length;i++){
+							optionEle = document.createElement('option');
+							optionEle.setAttribute('value', data.treasure_map.groups[0].mice[i].name);
+							optionEle.innerText = data.treasure_map.groups[0].mice[i].name;
+							selectMouseList.appendChild(optionEle);
+						}
+					}
+				},
+				error: function (error){
+					document.getElementById('inputGetMouse').value = 'Get';
+					document.getElementById('inputGetMouse').disabled = '';
+					console.error('onInputGetMouse ajax:',error);
+				}
+			});
+		}
+		catch (e) {
+			document.getElementById('inputGetMouse').value = 'Get';
+			document.getElementById('inputGetMouse').disabled = '';
+			console.error('onInputGetMouse',e);
+		}
+	}
+	
+	function onSelectWeaponChanged(){
+		saveMapHunting();
+	}
+	
+	function onSelectBaseChanged(){
+		saveMapHunting();
+	}
+	
+	function onSelectTrinketChanged(){
+		saveMapHunting();
+	}
+	
+	function onSelectBaitChanged(){
+		saveMapHunting();
+	}
+	
 	function setLocalToSession(){
 		var key;
 		for(var i=0;i<window.localStorage.length;i++){
@@ -4990,7 +5428,8 @@ function bodyJS(){
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
-				key.indexOf("SGZT")>-1 ){
+				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
+				key.indexOf("MapHunting")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -5007,7 +5446,8 @@ function bodyJS(){
 			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
-				key.indexOf("SGZT")>-1 ){
+				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
+				key.indexOf("MapHunting")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -5020,7 +5460,7 @@ function bodyJS(){
 		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
 		var scHuntBaitEle = document.getElementById('scHuntBait');
 		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
-		if (storageValue === null){
+		if (storageValue === null || storageValue === undefined){
 			scHuntZoneEnableEle.selectedIndex = 0;
 			scHuntBait.selectedIndex = 0;
 			scHuntTrinketEle.selectedIndex = 0;
@@ -5075,7 +5515,7 @@ function bodyJS(){
 			lastHunt : 0
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
-		if(storageValue === null)
+		if(storageValue === null || storageValue === undefined)
 			storageValue = objDefaultHallwayPriorities;
 		
 		if(selectedRange == 'between0and14'){
@@ -5097,7 +5537,7 @@ function bodyJS(){
 
 	function loadDistricFocus(){
 		var storageValue = window.sessionStorage.getItem('Labyrinth_DistrictFocus');
-		if(storageValue === null)
+		if(storageValue === null || storageValue === undefined)
 			storageValue = 'None';
 		
 		document.getElementById('labyrinthDistrict').value = storageValue;
@@ -5126,7 +5566,7 @@ function bodyJS(){
 			securityDisarm : false,
 			lastHunt : 0
 		};
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			storageValue = JSON.stringify(objDefaultHallwayPriorities);
 			storageValue = JSON.parse(storageValue);
 		}
@@ -5172,7 +5612,7 @@ function bodyJS(){
 
 	function loadLG(){
 		var storageValue = window.sessionStorage.getItem('LGArea');
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			storageValue = 'true,25';
 			window.sessionStorage.setItem('LGArea', storageValue);
 		}
@@ -5230,7 +5670,7 @@ function bodyJS(){
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			selectFWFocusType.selectedIndex = -1;
 			selectFWPriorities.selectedIndex = -1;
 			selectFWCheese.selectedIndex = -1;
@@ -5261,7 +5701,7 @@ function bodyJS(){
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			var obj = {
 				focusType : 'NORMAL',
 				priorities : 'HIGHEST',
@@ -5289,7 +5729,7 @@ function bodyJS(){
 	function onSelectBRHuntMistTierChanged(){
 		var hunt = document.getElementById('selectBRHuntMistTier').value;
 		var storageValue = window.sessionStorage.getItem('BRCustom');
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			var objBR = {
 				hunt : '',
 				toggle : 1,
@@ -5331,7 +5771,7 @@ function bodyJS(){
 		var trinket = document.getElementById('selectBRTrapTrinket');
 		var bait = document.getElementById('selectBRTrapBait');
 		var storageValue = window.sessionStorage.getItem('BRCustom');
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			toggle.value = 1;
 			hunt.selectedIndex = 0;
 			weapon.selectedIndex = -1;
@@ -5360,7 +5800,7 @@ function bodyJS(){
 		var trinket = document.getElementById('selectBRTrapTrinket').value;
 		var bait = document.getElementById('selectBRTrapBait').value;
 		var storageValue = window.sessionStorage.getItem('BRCustom');
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			var objBR = {
 				hunt : '',
 				toggle : 1,
@@ -5392,7 +5832,7 @@ function bodyJS(){
 	function saveSGZT(){
 		var selectUseZUM = document.getElementById('selectUseZUM');
 		var storageValue = window.sessionStorage.getItem('SGZT');
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			var objSGZT = {
 				useZUMIn : 'None'
 			};
@@ -5406,12 +5846,65 @@ function bodyJS(){
 	function initControlsSGZT(){
 		var selectUseZUM = document.getElementById('selectUseZUM');
 		var storageValue = window.sessionStorage.getItem('SGZT');
-		if(storageValue === null){
+		if(storageValue === null || storageValue === undefined){
 			selectUseZUM.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
 			selectUseZUM.value = storageValue.useZUMIn;
+		}
+	}
+	
+	function onSelectZokorBossStatus(){
+		initControlsZokor();
+	}
+	
+	function onSelectZokorBait(){
+		saveZokor();
+	}
+	
+	function onSelectZokorTrinket(){
+		saveZokor();
+	}
+	
+	function saveZokor(){
+		var selectZokorBossStatus = document.getElementById('selectZokorBossStatus');
+		var selectZokorBait = document.getElementById('selectZokorBait');
+		var selectZokorTrinket = document.getElementById('selectZokorTrinket');
+		var storageValue = window.sessionStorage.getItem('Zokor');
+		if(storageValue === null || storageValue === undefined){
+			var objZokor = {
+				bossStatus : ['ACTIVE', 'INCOMING', 'DEFEATED'],
+				bait : new Array(3).fill('Gouda'),
+				charm : new Array(3).fill('None')
+			};
+			storageValue = JSON.stringify(objZokor);
+		}
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.bossStatus.indexOf(selectZokorBossStatus.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.bait[nIndex] = selectZokorBait.value;
+		storageValue.charm[nIndex] = selectZokorTrinket.value;
+		window.sessionStorage.setItem('Zokor', JSON.stringify(storageValue));
+	}
+	
+	function initControlsZokor(){
+		var selectZokorBossStatus = document.getElementById('selectZokorBossStatus');
+		var selectZokorBait = document.getElementById('selectZokorBait');
+		var selectZokorTrinket = document.getElementById('selectZokorTrinket');
+		var storageValue = window.sessionStorage.getItem('Zokor');
+		if(storageValue === null || storageValue === undefined){
+			selectZokorBait.selectedIndex = -1;
+			selectZokorTrinket.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			var nIndex = storageValue.bossStatus.indexOf(selectZokorBossStatus.value);
+			if(nIndex < -1)
+				nIndex = 0;
+			selectZokorBait.value = storageValue.bait[nIndex];
+			selectZokorTrinket.value = storageValue.charm[nIndex];
 		}
 	}
 	
@@ -5431,6 +5924,7 @@ function bodyJS(){
 		document.getElementById('trBRToggle').style.display = 'none';
 		document.getElementById('trBRTrapSetup').style.display = 'none';
 		document.getElementById('trUseZum').style.display = 'none';
+		document.getElementById('trZokorTrapSetup').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -5466,6 +5960,11 @@ function bodyJS(){
 			document.getElementById('trUseZum').style.display = 'table-row';
 			initControlsSGZT();
 		}
+		else if(algo == 'Zokor'){
+			document.getElementById('trZokorTrapSetup').style.display = 'table-row';
+			initControlsZokor();
+		}
+		initControlsMapHunting();
 	}
 }
 // ################################################################################################
