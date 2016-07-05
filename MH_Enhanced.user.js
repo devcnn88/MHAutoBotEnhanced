@@ -972,14 +972,14 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	}
 	
 	console.pdebug('Uncaught:', arrUncaughtMouse);
-	var nIndex = arrUncaughtMouse.indexOf(objMapHunting.afterMouseCaught);
+	var nIndex = arrUncaughtMouse.indexOf(obj.afterMouseCaught);
 	if(nIndex < 0){ // mouse was caught, change trap setup
-		objMapHunting.afterMouseCaught = 'None';
-		setStorage('MapHunting', JSON.stringify(objMapHunting));
-		checkThenArm(null, 'weapon', objMapHunting.weapon);
-		checkThenArm(null, 'base', objMapHunting.base);
-		checkThenArm(null, 'trinket', objMapHunting.trinket);
-		checkThenArm(null, 'bait', objMapHunting.bait);
+		obj.afterMouseCaught = 'None';
+		setStorage('MapHunting', JSON.stringify(obj));
+		checkThenArm(null, 'weapon', obj.weapon);
+		checkThenArm(null, 'base', obj.base);
+		checkThenArm(null, 'trinket', obj.trinket);
+		checkThenArm(null, 'bait', obj.bait);
 	}
 }
 
