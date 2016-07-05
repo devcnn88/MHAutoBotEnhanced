@@ -3567,7 +3567,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select id="selectMouseList"></select>';
 			preferenceHTMLStr += '<input type="button" id="inputSelectMouse" title="Click to select the mouse from the left dropdown list" value="Select This Mouse" onclick="onInputSelectMouse();" disabled>&nbsp;&nbsp;';
-			preferenceHTMLStr += '<input type="button" id="inputGetMouse" title="Click to Get all uncaught mouse from treasure map" value="Get" onclick="onInputGetMouse();">';
+			preferenceHTMLStr += '<input type="button" id="inputGetMouse" title="Click to Get all uncaught mouse from treasure map" value="Get Uncaught Mouse List" onclick="onInputGetMouse();">';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
