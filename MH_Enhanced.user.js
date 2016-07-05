@@ -3310,6 +3310,12 @@ function embedTimer(targetPage) {
 			
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+            preferenceHTMLStr += '<td style="height:24px" colspan="2">';
+            preferenceHTMLStr += '<div style="width: 100%; height: 1px; background: #FFFFFF; overflow: hidden;">';
+            preferenceHTMLStr += '</td>';
+            preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
@@ -3433,41 +3439,52 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
-			preferenceHTMLStr += '<tr id="labyrinthMaxClue" style="display:none;">';
+			preferenceHTMLStr += '<tr id="trPriorities15" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<a title="Select the range that max clue fall under"><b>Clues Range</b></a>';
-            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues less than 15"><b>Priorities (Focus-District Clues < 15)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<select id="clueRange" onChange="loadLabyrinthHallway();">';
-			preferenceHTMLStr += '<option value="between0and14">Focus-District Clues< 15</option>';
-			preferenceHTMLStr += '<option value="between15and59">15 < Focus-District Clues< 60</option>';
-			preferenceHTMLStr += '<option value="between60and100">Focus-District Clues> 60</option>';
-            preferenceHTMLStr += '</select>';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '</tr>';
-			
-			preferenceHTMLStr += '<tr id="labyrinthHallway" style="display:none;">';
-            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<a title="Select the hallway length priorities after unlocking certain tier doors"><b>Priorities</b></a>';
-            preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<select id="hallwayEpic" onChange="saveLabyrinthHallway();">';
-			preferenceHTMLStr += '<option value="le">Long Epic Hallway First</option>';
-			preferenceHTMLStr += '<option value="se">Short Epic Hallway First</option>';
-            preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="hallwaySuperior" onChange="saveLabyrinthHallway();">';
-			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>';
-			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>';
-            preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="hallwayPlain" onChange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<select id="selectHallway15Plain" onChange="saveLabyrinthHallway();">';
 			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>';
-			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>';
+			preferenceHTMLStr += '<option value="SP">Short Plain Hallway First</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
+			preferenceHTMLStr += '<tr id="trPriorities1560" style="display:table-row;">'
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues within 15 and 60"><b>Priorities (15 < Focus-District Clues < 60)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>'
+			preferenceHTMLStr += '<td style="height:24px">'
+			preferenceHTMLStr += '<select id="selectHallway1560Plain" onchange="saveLabyrinthHallway();">'
+			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>'
+			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>'
+			preferenceHTMLStr += '</select>'
+			preferenceHTMLStr += '<select id="selectHallway1560Superior" onchange="saveLabyrinthHallway();">'
+			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>'
+			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>'
+			preferenceHTMLStr += '</select>'
+			preferenceHTMLStr += '</td>'
+			preferenceHTMLStr += '</tr>'
+				
+			preferenceHTMLStr += '<tr id="trPriorities60" style="display:none;">'
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+			preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues more than 60"><b>Priorities (Focus-District Clues > 60)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">'
+			preferenceHTMLStr += '<select id="selectHallway60Plain" onchange="saveLabyrinthHallway();">'
+			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>'
+			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>'
+			preferenceHTMLStr += '</select>'
+			preferenceHTMLStr += '<select id="selectHallway60Superior" onchange="saveLabyrinthHallway();">'
+			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>'
+			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>'
+			preferenceHTMLStr += '</select>'
+			preferenceHTMLStr += '<select id="selectHallway60Epic" onchange="saveLabyrinthHallway();">'
+			preferenceHTMLStr += '<option value="le">Long Epic Hallway First</option>'
+			preferenceHTMLStr += '<option value="se">Short Epic Hallway First</option>'
+			preferenceHTMLStr += '</select>'
+			preferenceHTMLStr += '</td>'
+			preferenceHTMLStr += '</tr>'
+
 			preferenceHTMLStr += '<tr id="labyrinthOtherHallway" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Choose doors other than focused door when there is no available focused door to be choosen"><b>Open Non-Focus Door</b></a>';
@@ -5062,10 +5079,12 @@ function bodyJS(){
 	}
 
 	function saveLabyrinthHallway(){
-		var hallwayPlain = document.getElementById('hallwayPlain');
-		var hallwaySuperior = document.getElementById('hallwaySuperior');
-		var hallwayEpic = document.getElementById('hallwayEpic');
-		var selectedRange = document.getElementById('clueRange').value;
+		var selectHallway15Plain = document.getElementById('selectHallway15Plain');
+		var selectHallway1560Plain = document.getElementById('selectHallway1560Plain');
+		var selectHallway1560Superior = document.getElementById('selectHallway1560Superior');
+		var selectHallway60Plain = document.getElementById('selectHallway60Plain');
+		var selectHallway60Superior = document.getElementById('selectHallway60Superior');
+		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
 			between15and59  : ['SP','LS'],
@@ -5079,16 +5098,9 @@ function bodyJS(){
 		if(storageValue === null)
 			storageValue = objDefaultHallwayPriorities;
 		
-		if(selectedRange == 'between0and14'){
-			storageValue[selectedRange] = [hallwayPlain.value];
-		}
-		else if(selectedRange == 'between15and59'){
-			storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value];
-		}
-		else if(selectedRange == 'between60and100'){
-			storageValue[selectedRange] = [hallwayPlain.value,hallwaySuperior.value,hallwayEpic.value];
-		}
-		
+		storageValue.between0and14 = [selectHallway15Plain.value];
+		storageValue.between15and59 = [selectHallway1560Plain.value, selectHallway1560Superior.value];
+		storageValue.between60and100 = [selectHallway60Plain.value, selectHallway60Superior.value, selectHallway60Epic.value];
 		storageValue.chooseOtherDoors = (document.getElementById('chooseOtherDoors').value == 'true');
 		storageValue.typeOtherDoors = document.getElementById('typeOtherDoors').value;
 		storageValue.securityDisarm = (document.getElementById('selectLabyrinthDisarm').value == 'true');
@@ -5108,13 +5120,16 @@ function bodyJS(){
 		var selectedDistrict = document.getElementById('labyrinthDistrict').value;
 		var inputLabyrinthLastHunt = document.getElementById('inputLabyrinthLastHunt');
 		var selectLabyrinthDisarm = document.getElementById('selectLabyrinthDisarm');
-		document.getElementById('labyrinthMaxClue').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
-		document.getElementById('labyrinthHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('trPriorities15').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('trPriorities1560').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
+		document.getElementById('trPriorities60').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
 		document.getElementById('labyrinthOtherHallway').style.display = (selectedDistrict == 'None') ? 'none' : 'table-row';
-		var hallwayPlain = document.getElementById('hallwayPlain');
-		var hallwaySuperior = document.getElementById('hallwaySuperior');
-		var hallwayEpic = document.getElementById('hallwayEpic');
-		var selectedRange = document.getElementById('clueRange').value;
+		var selectHallway15Plain = document.getElementById('selectHallway15Plain');
+		var selectHallway1560Plain = document.getElementById('selectHallway1560Plain');
+		var selectHallway1560Superior = document.getElementById('selectHallway1560Superior');
+		var selectHallway60Plain = document.getElementById('selectHallway60Plain');
+		var selectHallway60Superior = document.getElementById('selectHallway60Superior');
+		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
 		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
@@ -5138,28 +5153,14 @@ function bodyJS(){
 		if(selectedDistrict == 'None')
 			return;
 		
-		if(selectedRange == 'between0and14'){
-			hallwayPlain.value = storageValue[selectedRange][0];
-			hallwaySuperior.disabled = 'disabled';
-			hallwayEpic.disabled = 'disabled';
-		}
-		else if(selectedRange == 'between15and59'){
-			hallwayPlain.value = storageValue[selectedRange][0];
-			hallwaySuperior.value = storageValue[selectedRange][1];
-			hallwaySuperior.disabled = '';
-			hallwayEpic.disabled = 'disabled';
-		}
-		else if(selectedRange == 'between60and100'){
-			hallwayPlain.value = storageValue[selectedRange][0];
-			hallwaySuperior.value = storageValue[selectedRange][1];
-			hallwayEpic.value = storageValue[selectedRange][2];
-			hallwaySuperior.disabled = '';
-			hallwayEpic.disabled = '';
-		}
-		
-		if(!hallwayEpic.disabled && (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING'))
-			hallwayEpic.disabled = 'disabled';
+		selectHallway15Plain.value = storageValue.between0and14[0];
+		selectHallway1560Plain.value = storageValue.between15and59[0];
+		selectHallway1560Superior.value = storageValue.between15and59[1];
+		selectHallway60Plain.value = storageValue.between60and100[0];
+		selectHallway60Superior.value = storageValue.between60and100[1];
+		selectHallway60Epic.value = storageValue.between60and100[2];
 
+		selectHallway60Epic.style = (selectedDistrict == 'TREASURY' || selectedDistrict == 'FARMING') ? 'display:none' : 'display:inline';
 		selectChooseOtherDoors.value = (storageValue.chooseOtherDoors) ? 'true' : 'false';
 		typeOtherDoors.value = storageValue.typeOtherDoors;
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
@@ -5420,8 +5421,9 @@ function bodyJS(){
 		document.getElementById('lgArea').style.display = 'none';
 		document.getElementById('scCustom').style.display = 'none';
 		document.getElementById('labyrinth').style.display = 'none';
-		document.getElementById('labyrinthMaxClue').style.display = 'none';
-		document.getElementById('labyrinthHallway').style.display = 'none';
+		document.getElementById('trPriorities15').style.display = 'none';
+		document.getElementById('trPriorities1560').style.display = 'none';
+		document.getElementById('trPriorities60').style.display = 'none';
 		document.getElementById('labyrinthOtherHallway').style.display = 'none';
 		document.getElementById('trLabyrinthDisarm').style.display = 'none';
 		document.getElementById('trFWWave').style.display = 'none';
@@ -5442,8 +5444,9 @@ function bodyJS(){
 		}
 		else if(algo == 'Labyrinth'){
 			document.getElementById('labyrinth').style.display = 'table-row';
-			document.getElementById('labyrinthMaxClue').style.display = 'table-row';
-			document.getElementById('labyrinthHallway').style.display = 'table-row';
+			document.getElementById('trPriorities15').style.display = 'table-row';
+			document.getElementById('trPriorities1560').style.display = 'table-row';
+			document.getElementById('trPriorities60').style.display = 'table-row';
 			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
 			document.getElementById('trLabyrinthDisarm').style.display = 'table-row';
 			loadDistricFocus();
