@@ -3576,10 +3576,10 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<a title="Select trap setup after a mouse was caught"><b>After <u><i>None</i></u> caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
-            preferenceHTMLStr += '<select id="selectWeapon" style="width: 75px"></select>';
-			preferenceHTMLStr += '<select id="selectBase" style="width: 75px"></select>';
-			preferenceHTMLStr += '<select id="selectTrinket" style="width: 75px"></select>';
-			preferenceHTMLStr += '<select id="selectBait" style="width: 75px"></select>';
+            preferenceHTMLStr += '<select id="selectWeapon" style="width: 75px" onchange="onSelectWeaponChanged();"></select>';
+			preferenceHTMLStr += '<select id="selectBase" style="width: 75px" onchange="onSelectBaseChanged();"></select>';
+			preferenceHTMLStr += '<select id="selectTrinket" style="width: 75px" onchange="onSelectTrinketChanged();"></select>';
+			preferenceHTMLStr += '<select id="selectBait" style="width: 75px" onchange="onSelectBaitChanged();"></select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 
