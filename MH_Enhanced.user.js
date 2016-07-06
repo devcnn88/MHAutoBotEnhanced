@@ -473,7 +473,7 @@ if(chrome.runtime.id !== null && chrome.runtime.id !== undefined){
 			msg.type = 'trinket';
 		if(objTrapCollection.hasOwnProperty(msg.type)){
 			objTrapCollection[msg.type] = msg.result;
-			if(msg.type == 'trinket')
+			if(msg.type == 'trinket' || msg.type == 'bait')
 				objTrapCollection[msg.type].unshift('None');
 			objTrapCollection.count++;
 		}
