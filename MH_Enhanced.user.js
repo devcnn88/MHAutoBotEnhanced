@@ -976,13 +976,17 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	if(nIndex < 0){ // mouse was caught, change trap setup
 		obj.afterMouseCaught = 'None';
 		setStorage('MapHunting', JSON.stringify(obj));
-		checkThenArm(null, 'weapon', obj.weapon);
-		checkThenArm(null, 'base', obj.base);
-		checkThenArm(null, 'bait', obj.bait);
-		if(obj.trinket == 'None')
-			disarmTrap('trinket');
-		else
-			checkThenArm(null, 'trinket', obj.trinket);
+		for (var prop in obj) {
+			if(obj.hasOwnProperty(prop) && 
+				(prop == 'weapon' || prop == 'base' || prop == 'trinket' || prop == 'bait')) {
+				if(obj[prop] != 'Remain'){
+					if(obj[prop] == 'None')
+						disarmTrap(prop);
+					else
+						checkThenArm(null, prop, obj[prop]);
+				}
+			}
+		}
 	}
 }
 
@@ -3576,10 +3580,18 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<a title="Select trap setup after a mouse was caught"><b>After <u><i>None</i></u> caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
-            preferenceHTMLStr += '<select id="selectWeapon" style="width: 75px" onchange="onSelectWeaponChanged();"></select>';
-			preferenceHTMLStr += '<select id="selectBase" style="width: 75px" onchange="onSelectBaseChanged();"></select>';
-			preferenceHTMLStr += '<select id="selectTrinket" style="width: 75px" onchange="onSelectTrinketChanged();"></select>';
-			preferenceHTMLStr += '<select id="selectBait" style="width: 75px" onchange="onSelectBaitChanged();"></select>';
+            preferenceHTMLStr += '<select id="selectWeapon" style="width: 75px" onchange="onSelectWeaponChanged();">';
+			preferenceHTMLStr += '<option value="Remain">Remain</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBase" style="width: 75px" onchange="onSelectBaseChanged();">';
+			preferenceHTMLStr += '<option value="Remain">Remain</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectTrinket" style="width: 75px" onchange="onSelectTrinketChanged();">';
+			preferenceHTMLStr += '<option value="Remain">Remain</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBait" style="width: 75px" onchange="onSelectBaitChanged();">';
+			preferenceHTMLStr += '<option value="Remain">Remain</option>';
+			preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 
