@@ -875,10 +875,10 @@ function BurroughRift(minMist, maxMist, nToggle)
 				nCount20++;
 				if(nCount20 >= nToggle){
 					nCount20 = 0;
-					setStorage('BR20_Count', nCount20);
 					console.pdebug('Stop mist...');
 					fireEvent(mistButton, 'click');
 				}
+				setStorage('BR20_Count', nCount20);
 			}
 		}
 		else{
