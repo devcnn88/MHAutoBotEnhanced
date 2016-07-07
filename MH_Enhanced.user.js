@@ -926,7 +926,8 @@ function mapHunting(){
 		bait : 'None'
 	};
 	var objMapHunting = JSON.parse(getStorageToVariableStr('MapHunting', JSON.stringify(objDefaultMapHunting)));
-	var bHasMap = (getPageVariable('user.quests.QuestRelicHunter.view_state') == 'hasMap');
+	var strViewState = getPageVariable('user.quests.QuestRelicHunter.view_state');
+	var bHasMap = (strViewState == 'hasMap' || strViewState == 'hasReward');
 	if(!objMapHunting.status || !bHasMap || objMapHunting.afterMouseCaught == 'None')
 		return;
 
@@ -938,7 +939,8 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	if(!(Array.isArray(arrUpdatedUncaught)))
 		arrUpdatedUncaught = [];
 
-	if(arrUpdatedUncaught.length == 0){
+	var bHasReward = (getPageVariable('user.quests.QuestRelicHunter.view_state') == 'hasReward');
+	if(!bHasReward && arrUpdatedUncaught.length == 0){
 		var nRemaining = -1;
 		var classTreasureMap = document.getElementsByClassName('mousehuntHud-userStat treasureMap')[0];
 		if(classTreasureMap.children[2].textContent.toLowerCase().indexOf('remaining') > -1)
@@ -994,7 +996,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	
 	console.pdebug('Uncaught:', arrUncaughtMouse);
 	var nIndex = arrUncaughtMouse.indexOf(obj.afterMouseCaught);
-	if(nIndex < 0){ // mouse was caught, change trap setup
+	if(nIndex < 0 || bHasReward){ // mouse/last mouse was caught, change trap setup
 		obj.afterMouseCaught = 'None';
 		setStorage('MapHunting', JSON.stringify(obj));
 		for (var prop in obj) {
