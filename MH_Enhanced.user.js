@@ -804,7 +804,7 @@ function eventLocationCheck(caller) {
 		case 'Fiery Warpath':
 			fw(); break;
 		case 'Test':
-			checkThenArm(null, 'bait', 'Gouda');
+			checkThenArm(null, 'weapon', 'Arcane Capturing Rod Of Never Yielding Mystery');
 			disarmTrap('trinket');
 			break;
         default:
@@ -2079,8 +2079,12 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 			return;
 		}
 		else{
+			var nIndex = -1;
 			for (var i = 0; i < name.length; i++) {
 				for (var j = 0; j < objTrapList[category].length; j++) {
+					nIndex = objTrapList[category][j].indexOf("...");
+					if(nIndex > -1)
+						name[i] = name[i].substr(0,nIndex);
 					if (objTrapList[category][j].indexOf(name[i]) == 0){
 						console.plog('Best', category, 'found:', name[i], 'Currently Armed:', userVariable);
 						if (userVariable.indexOf(name[i]) == 0) {
@@ -2178,6 +2182,7 @@ function armTrap(sort, trap, name) {
     var tagGroupElement = document.getElementsByClassName('tagGroup');
     var tagElement;
     var nameElement;
+	var nIndex = -1;
 	var nameArray = name;
 	
     if (sort == 'best')
@@ -2192,6 +2197,9 @@ function armTrap(sort, trap, name) {
             for (var j = 0; j < tagElement.length; ++j)
             {
                 nameElement = tagElement[j].getElementsByClassName('name')[0].innerText;
+				nIndex = nameElement.indexOf("...");
+				if(nIndex > -1)
+					name = name.substr(0, nIndex);
                 if (nameElement.indexOf(name) == 0)
                 {
                     if(tagElement[j].getAttribute('class').indexOf('selected')<0)	// only click when not arming
