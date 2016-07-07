@@ -3310,12 +3310,6 @@ function embedTimer(targetPage) {
 			
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<td style="height:24px" colspan="2">';
-            preferenceHTMLStr += '<div style="width: 100%; height: 1px; background: #FFFFFF; overflow: hidden;">';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '</tr>';
-			
-			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
@@ -3455,13 +3449,13 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues within 15 and 60"><b>Priorities (15 < Focus-District Clues < 60)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>'
 			preferenceHTMLStr += '<td style="height:24px">'
-			preferenceHTMLStr += '<select id="selectHallway1560Plain" onchange="saveLabyrinthHallway();">'
-			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>'
-			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>'
-			preferenceHTMLStr += '</select>'
 			preferenceHTMLStr += '<select id="selectHallway1560Superior" onchange="saveLabyrinthHallway();">'
 			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>'
 			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>'
+			preferenceHTMLStr += '</select>'
+			preferenceHTMLStr += '<select id="selectHallway1560Plain" onchange="saveLabyrinthHallway();">'
+			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>'
+			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>'
 			preferenceHTMLStr += '</select>'
 			preferenceHTMLStr += '</td>'
 			preferenceHTMLStr += '</tr>'
@@ -3470,17 +3464,17 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues more than 60"><b>Priorities (Focus-District Clues > 60)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">'
-			preferenceHTMLStr += '<select id="selectHallway60Plain" onchange="saveLabyrinthHallway();">'
-			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>'
-			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>'
+			preferenceHTMLStr += '<select id="selectHallway60Epic" onchange="saveLabyrinthHallway();">'
+			preferenceHTMLStr += '<option value="le">Long Epic Hallway First</option>'
+			preferenceHTMLStr += '<option value="se">Short Epic Hallway First</option>'
 			preferenceHTMLStr += '</select>'
 			preferenceHTMLStr += '<select id="selectHallway60Superior" onchange="saveLabyrinthHallway();">'
 			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>'
 			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>'
 			preferenceHTMLStr += '</select>'
-			preferenceHTMLStr += '<select id="selectHallway60Epic" onchange="saveLabyrinthHallway();">'
-			preferenceHTMLStr += '<option value="le">Long Epic Hallway First</option>'
-			preferenceHTMLStr += '<option value="se">Short Epic Hallway First</option>'
+			preferenceHTMLStr += '<select id="selectHallway60Plain" onchange="saveLabyrinthHallway();">'
+			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>'
+			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>'
 			preferenceHTMLStr += '</select>'
 			preferenceHTMLStr += '</td>'
 			preferenceHTMLStr += '</tr>'
