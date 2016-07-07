@@ -689,6 +689,8 @@ function getTrapCollection(){
 			if(objTrapCollection.hasOwnProperty(prop) && prop !== 'count') {
 				if(getTrapPort === null || getTrapPort === undefined){
 					objTrapCollection[prop] = getTrap(prop);
+					if(prop == 'trinket' || prop == 'bait')
+						objTrapCollection[prop].unshift('None');
 					objTrapCollection.count++;
 				}
 				else{
