@@ -3618,6 +3618,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
 			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
 			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
+			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
 			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBRTrapTrinket" onchange="onSelectBRTrapTrinketChanged();">';
