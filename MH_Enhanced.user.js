@@ -3233,6 +3233,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="viewKR">';
 			var replaced = "";
 			var temp = [];
+			var nTimezoneOffset = -(new Date().getTimezoneOffset()) * 60000;
 			for(var i=0;i<keyKR.length;i++){
 				if (keyKR[i].indexOf("KR" + separator) > -1){
 					temp = keyKR[i].split(separator);
@@ -3241,6 +3242,7 @@ function embedTimer(targetPage) {
 					if (temp[0] == NaN)
 						temp[0] = 0;
 					
+					temp[0] += nTimezoneOffset;
 					temp[0] = (new Date(temp[0])).toISOString();
 					replaced = temp.join("&nbsp;&nbsp;");
 					preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + replaced +'</option>';
