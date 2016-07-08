@@ -1755,10 +1755,26 @@ function zokor(){
 	var objZokorDefault = {
 		bossStatus : ['ACTIVE', 'INCOMING', 'DEFEATED'],
 		bait : new Array(3).fill('Gouda'),
-		charm : new Array(3).fill('None')
+		trinket : new Array(3).fill('None')
 	};
 
 	var objZokor = JSON.parse(getStorageToVariableStr('Zokor', JSON.stringify(objZokorDefault)));
+	var nIndex = -1;
+	var strBossStatus;
+	if(strBossStatus == 'active')
+		nIndex = 0;
+	else if(strBossStatus == 'incoming')
+		nIndex = 1;
+	else if(strBossStatus == 'defeated')
+		nIndex = 2;
+	
+	if(nIndex > -1){
+		checkThenArm(null, 'bait', objZokor.bait[nIndex]);
+		if(objZokor.trinket[nIndex] == 'None')
+			disarmTrap('trinket');
+		else
+			checkThenArm(null, 'trinket', objZokor.trinket[nIndex]);
+	}
 }
 
 function fw(){
@@ -5954,7 +5970,7 @@ function bodyJS(){
 			var objZokor = {
 				bossStatus : ['ACTIVE', 'INCOMING', 'DEFEATED'],
 				bait : new Array(3).fill('Gouda'),
-				charm : new Array(3).fill('None')
+				trinket : new Array(3).fill('None')
 			};
 			storageValue = JSON.stringify(objZokor);
 		}
@@ -5963,7 +5979,7 @@ function bodyJS(){
 		if(nIndex < 0)
 			nIndex = 0;
 		storageValue.bait[nIndex] = selectZokorBait.value;
-		storageValue.charm[nIndex] = selectZokorTrinket.value;
+		storageValue.trinket[nIndex] = selectZokorTrinket.value;
 		window.sessionStorage.setItem('Zokor', JSON.stringify(storageValue));
 	}
 	
@@ -5982,7 +5998,7 @@ function bodyJS(){
 			if(nIndex < -1)
 				nIndex = 0;
 			selectZokorBait.value = storageValue.bait[nIndex];
-			selectZokorTrinket.value = storageValue.charm[nIndex];
+			selectZokorTrinket.value = storageValue.trinket[nIndex];
 		}
 	}
 	
