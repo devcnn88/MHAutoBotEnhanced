@@ -1764,7 +1764,13 @@ function labyrinth() {
 }
 
 function zokor(){
-	if (GetCurrentLocation().indexOf("Zokor") < 0)
+	var loc = GetCurrentLocation();
+	if (loc.indexOf("Labyrinth") > -1){
+		setStorage('eventLocation', 'Labyrinth');
+		labyrinth();
+		return;
+	}
+	else if (loc.indexOf("Zokor") < 0)
 		return;
 	
 	var objZokorDefault = {
