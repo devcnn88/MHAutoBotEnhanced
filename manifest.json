@@ -15,7 +15,7 @@
 		"exclude_globs": [  ],
 		"exclude_matches": [  ],
 		"include_globs": [ "http://mousehuntgame.com/*", "https://mousehuntgame.com/*", "http://www.mousehuntgame.com/*", "https://www.mousehuntgame.com/*", "http://apps.facebook.com/mousehunt/*", "https://apps.facebook.com/mousehunt/*", "http://hi5.com/friend/games/MouseHunt*", "http://mousehunt.hi5.hitgrab.com/*" ],
-		"js": [ "traps.js", "jquery-2.2.2.min.js", "MH_Enhanced.user.js" ],
+		"js": [ "traps.js", "MH_Enhanced.user.js" ],
 		"matches": [ "http://*/*", "https://*/*" ],
 		"run_at": "document_idle"
 	} ],
