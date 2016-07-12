@@ -203,7 +203,7 @@ if (indexDC > -1)
 {
 	var temp = bestSCBase[0];
 	bestSCBase[0] = bestSCBase[indexDC];
-	bestSCBase[indexDC] = temp;	
+	bestSCBase[indexDC] = temp;
 }
 else
 {
@@ -256,7 +256,8 @@ var objDefaultHallwayPriorities = {
 	chooseOtherDoors : false,
 	typeOtherDoors : "SHORTEST_FEWEST",
 	securityDisarm : false,
-	lastHunt : 0
+	lastHunt : 0,
+	armOtherBase : 'false'
 };
 var objLength = {
 	SHORT : 0,
@@ -319,7 +320,7 @@ var debugKR = false;
 function saveToSessionStorage(){
 	var str = "";
 	for(var i=0;i<arguments.length;i++){
-		if(arguments[i] !== null && typeof arguments[i] === 'object'){ // if it is object
+		if(!isNullOrUndefined(arguments[i]) && typeof arguments[i] === 'object'){ // if it is object
 			str += JSON.stringify(arguments[i]);
 		}
 		else
@@ -494,7 +495,7 @@ function exeScript() {
     // check the trap check setting first
 	trapCheckTimeDiff = GetTrapCheckTime();
 
-    if (trapCheckTimeDiff == 60 || trapCheckTimeDiff == 0) {
+    if (trapCheckTimeDiff == 60 || trapCheckTimeDiff === 0) {
         trapCheckTimeDiff = 00;
     }
     else if (trapCheckTimeDiff < 0 || trapCheckTimeDiff > 60) {
@@ -536,7 +537,7 @@ function exeScript() {
     else if (window.location.href.indexOf("mousehuntgame.com") != -1) {
         // need to check if it is running in mobile version
         var version = getCookie("switch_to");
-        if (version != null && version == "mobile") {
+        if (version !== null && version == "mobile") {
             // from mousehunt game mobile version
             mhMobilePlatform = true;
         }
@@ -707,6 +708,7 @@ function getTrapCollection(){
 				var selectBase = document.getElementById('selectBase');
 				var selectTrinket = document.getElementById('selectTrinket');
 				var selectBait = document.getElementById('selectBait');
+				var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 				var optionEle, optionEle2;
 				for (var prop in objTrapCollection) {
 					if(objTrapCollection.hasOwnProperty(prop) && prop !== 'count') {
@@ -721,6 +723,10 @@ function getTrapCollection(){
 							else if(prop == 'base'){
 								if(!isNullOrUndefined(selectBase))
 									selectBase.appendChild(optionEle);
+								if(!isNullOrUndefined(selectLabyrinthOtherBase)){
+									optionEle2 = optionEle.cloneNode(true);
+									selectLabyrinthOtherBase.appendChild(optionEle2);
+								}
 							}
 							else if(prop == 'trinket'){
 								if(!isNullOrUndefined(selectZokorTrinket))
@@ -762,7 +768,7 @@ function GetTrapCheckTime(){
 	catch (e) {
 		console.perror('GetTrapCheckTime',e);
 		var tempStorage = getStorage('TrapCheckTimeOffset');
-		if (tempStorage == null) {
+		if (isNullOrUndefined(tempStorage)) {
 		    tempStorage = 00;
 			setStorage("TrapCheckTimeOffset", tempStorage);
 		}
@@ -908,8 +914,7 @@ function eventLocationCheck(caller) {
 		case 'FG/AR':
 			forbiddenGroveAR(); break;
 		case 'Test':
-			checkThenArm(null, 'bait', 'Gouda');
-			disarmTrap('trinket');
+			checkThenArm(null, 'base', undefined);
 			break;
         default:
             break;
@@ -940,7 +945,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 		arrUpdatedUncaught = [];
 
 	var bHasReward = (getPageVariable('user.quests.QuestRelicHunter.view_state') == 'hasReward');
-	if(!bHasReward && arrUpdatedUncaught.length == 0){
+	if(!bHasReward && arrUpdatedUncaught.length === 0){
 		var nRemaining = -1;
 		var classTreasureMap = document.getElementsByClassName('mousehuntHud-userStat treasureMap')[0];
 		if(classTreasureMap.children[2].textContent.toLowerCase().indexOf('remaining') > -1)
@@ -1518,7 +1523,6 @@ function labyrinth() {
 		return;
 
 	checkThenArm('best', 'weapon', bestForgotten);
-	checkThenArm('best', 'base', bestLabyBase);
 	var labyStatus = getPageVariable("user.quests.QuestLabyrinth.status");
 	var isAtEntrance = (labyStatus=="intersection entrance");
 	var isAtHallway = (labyStatus=="hallway");
@@ -1530,6 +1534,17 @@ function labyrinth() {
 	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
 	console.pdebug('District to focus:', districtFocus);
 	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
+	if(objHallwayPriorities.armOtherBase != 'false'){
+		var charmArmed = getPageVariable('user.trinket_name');
+		if(charmArmed.indexOf('Compass Magnet') === 0){
+			checkThenArm(null, 'base', objHallwayPriorities.armOtherBase);
+		}
+		else
+			checkThenArm('best', 'base', bestLabyBase);
+	}
+	else
+		checkThenArm('best', 'base', bestLabyBase);
+	
 	if(isAtHallway){
 		if(objHallwayPriorities.securityDisarm){
 			var strCurHallwayTier = document.getElementsByClassName('labyrinthHUD-hallwayName')[0].textContent.split(' ')[1].toUpperCase();
@@ -1656,7 +1671,7 @@ function labyrinth() {
 				var arrTemp = [];
 				var nMin = Number.MAX_SAFE_INTEGER;
 				var nMinIndex = -1;
-				if(objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") == 0){ // SHORTEST_ONLY / SHORTEST_FEWEST
+				if(objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") === 0){ // SHORTEST_ONLY / SHORTEST_FEWEST
 					if(objShortestLength.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") > -1){
 						for(var i=0;i<objShortestLength.indices.length;i++){
 							if(objDoors.clue[objShortestLength.indices[i]] < nMin){
@@ -1670,7 +1685,7 @@ function labyrinth() {
 					else
 						arrTemp = objShortestLength.indices;
 				}
-				else if(objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") == 0){ // FEWEST_ONLY / FEWEST_SHORTEST
+				else if(objHallwayPriorities.typeOtherDoors.indexOf("FEWEST") === 0){ // FEWEST_ONLY / FEWEST_SHORTEST
 					if(objFewestClue.count > 1 && objHallwayPriorities.typeOtherDoors.indexOf("SHORTEST") > -1){
 						var strTemp = "";
 						for(var i=0;i<objFewestClue.indices.length;i++){
@@ -1717,7 +1732,7 @@ function labyrinth() {
 			for (var j=0;j<3;j++)
 				arr.push(j+1 + (objHallwayPriorities[range].length-1-i)*3);
 			
-			if(objHallwayPriorities[range][i].indexOf(objCodename.LONG) == 0)
+			if(objHallwayPriorities[range][i].indexOf(objCodename.LONG) === 0)
 				arrAll = arrAll.concat(arr.reverse());
 			else
 				arrAll = arrAll.concat(arr);
@@ -1988,7 +2003,7 @@ function livingGarden(isAutoPour) {
     checkThenArm('best', 'weapon', bestHydro);
 	checkThenArm('best', 'base', bestLGBase);
 	var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
-    if (pourEstimate.innerText != "")
+    if (pourEstimate.innerText !== "")
     {
         // Not pouring
 		console.pdebug('Filling...');
@@ -2182,7 +2197,7 @@ function DisarmLGSpecialCharm(locationName)
 		{
 			for (var i = 0; i < obj[prop].length; ++i)
 			{
-				if (charmArmed.indexOf(obj[prop][i]) == 0)
+				if (charmArmed.indexOf(obj[prop][i]) === 0)
 				{
 					disarmTrap('trinket');
 					return;
@@ -2237,20 +2252,20 @@ function checkCharge2016(stopDischargeAt){
 		console.pdebug('Current Charge:', charge, 'Discharging:', isDischarge, 'Stop Discharge At:', stopDischargeAt);
 		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
 		var eggstra = {};
-		eggstra["quantity"] = parseInt(charmContainer.children[0].children[0].innerText);
-		eggstra["link"] = charmContainer.children[0].children[1];
-		eggstra["isArmed"] = (eggstra.link.getAttribute('class').indexOf('active') > 0);
-		eggstra["canArm"] = (eggstra.quantity > 0 && !eggstra.isArmed);
+		eggstra.quantity = parseInt(charmContainer.children[0].children[0].innerText);
+		eggstra.link = charmContainer.children[0].children[1];
+		eggstra.isArmed = (eggstra.link.getAttribute('class').indexOf('active') > 0);
+		eggstra.canArm = (eggstra.quantity > 0 && !eggstra.isArmed);
 		var eggstraCharge = {};
-		eggstraCharge["quantity"] = parseInt(charmContainer.children[1].children[0].innerText);
-		eggstraCharge["link"] = charmContainer.children[1].children[1];
-		eggstraCharge["isArmed"] = (eggstraCharge.link.getAttribute('class').indexOf('active') > 0);
-		eggstraCharge["canArm"] = (eggstraCharge.quantity > 0 && !eggstraCharge.isArmed);
+		eggstraCharge.quantity = parseInt(charmContainer.children[1].children[0].innerText);
+		eggstraCharge.link = charmContainer.children[1].children[1];
+		eggstraCharge.isArmed = (eggstraCharge.link.getAttribute('class').indexOf('active') > 0);
+		eggstraCharge.canArm = (eggstraCharge.quantity > 0 && !eggstraCharge.isArmed);
 		var eggscavator = {};
-		eggscavator["quantity"] = parseInt(charmContainer.children[2].children[0].innerText);
-		eggscavator["link"] = charmContainer.children[2].children[1];
-		eggscavator["isArmed"] = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
-		eggscavator["canArm"] = (eggscavator.quantity > 0 && !eggscavator.isArmed);
+		eggscavator.quantity = parseInt(charmContainer.children[2].children[0].innerText);
+		eggscavator.link = charmContainer.children[2].children[1];
+		eggscavator.isArmed = (eggscavator.link.getAttribute('class').indexOf('active') > 0);
+		eggscavator.canArm = (eggscavator.quantity > 0 && !eggscavator.isArmed);
 
         if (charge == 20) {
             setStorage("discharge", "true");
@@ -2337,17 +2352,20 @@ function checkCharge(stopDischargeAt) {
 
 function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon/base/charm/trinket/bait
 {
+	if(isNullOrUndefined(name))
+		return;
+
 	if (category == "charm")
         category = "trinket";
 	
-	if(isForcedRetry===undefined || isForcedRetry===null)
+	if(isNullOrUndefined(isForcedRetry))
 		isForcedRetry = true;
 
     var trapArmed = undefined;
 	var userVariable = getPageVariable("user." + category + "_name");
     if (sort == 'best') {
 		getTrapList(category);
-		if (objTrapList[category].length == 0){
+		if (objTrapList[category].length === 0){
 			var intervalCTA1 = setInterval(
 				function (){
 					if (!arming){
@@ -2362,9 +2380,9 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 		else{
 			for (var i = 0; i < name.length; i++) {
 				for (var j = 0; j < objTrapList[category].length; j++) {
-					if (objTrapList[category][j].indexOf(name[i]) == 0){
+					if (objTrapList[category][j].indexOf(name[i]) === 0){
 						console.plog('Best', category, 'found:', name[i], 'Currently Armed:', userVariable);
-						if (userVariable.indexOf(name[i]) == 0) {
+						if (userVariable.indexOf(name[i]) === 0) {
 							trapArmed = true;
 							arming = false;
 							closeTrapSelector(category);
@@ -2376,14 +2394,14 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 						}
 					}
 				}
-				if (trapArmed == false)
+				if (trapArmed === false)
 					break;
 			}
 		}
     }
     else
     {
-        trapArmed = (userVariable.indexOf(name) == 0);
+        trapArmed = (userVariable.indexOf(name) === 0);
     }
 
 	if (trapArmed === undefined && isForcedRetry){
@@ -2396,7 +2414,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
         var intervalCTA = setInterval(
             function ()
             {
-                if (arming == false)
+                if (arming === false)
                 {
                     clickThenArmTrapInterval(sort, category, name);
                     clearInterval(intervalCTA);
@@ -2473,7 +2491,7 @@ function armTrap(sort, trap, name) {
             for (var j = 0; j < tagElement.length; ++j)
             {
                 nameElement = tagElement[j].getElementsByClassName('name')[0].innerText;
-                if (nameElement.indexOf(name) == 0)
+                if (nameElement.indexOf(name) === 0)
                 {
                     if(tagElement[j].getAttribute('class').indexOf('selected')<0)	// only click when not arming
 						fireEvent(tagElement[j], 'click');
@@ -2492,7 +2510,7 @@ function armTrap(sort, trap, name) {
         }
 		console.pdebug(name, 'not found');
 		for(var i=0;i<objTrapList[trap].length;i++){
-			if(objTrapList[trap][i].indexOf(name) == 0){
+			if(objTrapList[trap][i].indexOf(name) === 0){
 				objTrapList[trap].splice(i,1);
 				setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
 				break;
@@ -2620,7 +2638,7 @@ function retrieveDataFirst() {
 					hasPuzzleStartIndex += 12;
 					var hasPuzzleEndIndex = scriptString.indexOf(",", hasPuzzleStartIndex);
 					var hasPuzzleString = scriptString.substring(hasPuzzleStartIndex, hasPuzzleEndIndex);
-					isKingReward = !(hasPuzzleString == 'false');
+					isKingReward = (hasPuzzleString != 'false');
 
 					gotPuzzle = true;
 
@@ -2670,7 +2688,7 @@ function retrieveDataFirst() {
 
 			// get last location
 			var huntLocationCookie = getStorage("huntLocation");
-			if (huntLocationCookie == undefined || huntLocationCookie == null) {
+			if (isNullOrUndefined(huntLocationCookie)) {
 				huntLocation = currentLocation;
 				setStorage("huntLocation", currentLocation);
 			}
@@ -2682,7 +2700,7 @@ function retrieveDataFirst() {
 
 			// get last king reward time
 			var lastKingRewardDate = getStorage("lastKingRewardDate");
-			if (lastKingRewardDate == undefined || lastKingRewardDate == null) {
+			if (isNullOrUndefined(lastKingRewardDate)) {
 				lastKingRewardSumTime = -1;
 			}
 			else {
@@ -2714,7 +2732,7 @@ function retrieveDataFirst() {
 
 function GetHornTime() {
 	var huntTimerElement = document.getElementById('huntTimer');
-	if (huntTimerElement != null) {
+	if (huntTimerElement !== null) {
 		huntTimerElement = huntTimerElement.textContent;
 		if (huntTimerElement.length == 4) huntTimerElement = '0' + huntTimerElement;
 		var totalSec;
@@ -2741,7 +2759,7 @@ function GetHornTime() {
 
 function getKingRewardStatus() {
 	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
-	if (header != null) {
+	if (header !== null) {
 		var textContentLowerCase = header.textContent.toLowerCase();
 		if (textContentLowerCase.indexOf("king reward") > -1 ||
 			textContentLowerCase.indexOf("king's reward") > -1 ||
@@ -2749,7 +2767,7 @@ function getKingRewardStatus() {
 			return true;
 		}
 		else
-			return (getPageVariable('user.has_puzzle') == 'true');		
+			return (getPageVariable('user.has_puzzle') == 'true');
 	}
 	else
 		return false;
@@ -2776,7 +2794,7 @@ function getCurrentLocation() {
 	}
 	else {
 		tempLocation = document.getElementById('hud_location');
-		if (tempLocation != null)
+		if (!isNullOrUndefined(tempLocation))
 			return tempLocation.textContent;
 		else
 			return "";
@@ -2796,7 +2814,7 @@ function retrieveData() {
 		baitQuantity = getBaitQuantity();
 		nextActiveTime = GetHornTime();
 
-		if (nextActiveTime == "" || isNaN(nextActiveTime)) {
+		if (nextActiveTime === "" || isNaN(nextActiveTime)) {
 			// fail to retrieve data, might be due to slow network
 
 			// reload the page to see it fix the problem
@@ -2811,7 +2829,7 @@ function retrieveData() {
 			if (!aggressiveMode) {
 				// calculation base on the js in Mousehunt
 				var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
-				if (timerInterval != "" && !isNaN(timerInterval) && timerInterval == 1) {
+				if (timerInterval !== "" && !isNaN(timerInterval) && timerInterval == 1) {
 					additionalDelayTime = 2;
 				}
 
@@ -2930,7 +2948,7 @@ function action() {
 
         // pause script
     }
-    else if (baitQuantity == 0) {
+    else if (baitQuantity === 0) {
         // update timer
         displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
         displayLocation(huntLocation);
@@ -2960,7 +2978,7 @@ function action() {
         }
         headerElement = undefined;
 
-        if (isHornSounding == false) {
+        if (isHornSounding === false) {
             // start timer
             window.setTimeout(function () { countdownTimer(); }, timerRefreshInterval * 1000);
         }
@@ -3022,7 +3040,7 @@ function countdownTimer() {
 
 			// pause script
 		}
-		else if (baitQuantity == 0) {
+		else if (baitQuantity === 0) {
 			// update timer
 			displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
 			displayLocation(huntLocation);
@@ -3265,7 +3283,7 @@ function embedTimer(targetPage) {
 
                 var lastKingRewardDate = getStorage("lastKingRewardDate");
                 var lastDateStr;
-                if (lastKingRewardDate == undefined || lastKingRewardDate == null) {
+                if (isNullOrUndefined(lastKingRewardDate)) {
                     lastDateStr = "-";
                 }
                 else {
@@ -3342,7 +3360,7 @@ function embedTimer(targetPage) {
             }
 
             var showPreference = getStorage('showPreference');
-            if (showPreference == undefined || showPreference == null) {
+			if (isNullOrUndefined(showPreference)) {
                 showPreference = false;
                 setStorage("showPreference", showPreference);
             }
@@ -3367,7 +3385,7 @@ function embedTimer(targetPage) {
 					document.getElementById(\'eventAlgo\').value = selectedAlgo;\
 				}\
 				">';
-            if (showPreference == true)
+            if (showPreference === true)
                 showPreferenceLinkStr += '<b>[Hide Preference]</b>';
             else
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
@@ -3507,14 +3525,14 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="viewKR">';
 			var replaced = "";
-			var temp = [];
+			temp = [];
 			var nTimezoneOffset = -(new Date().getTimezoneOffset()) * 60000;
 			for(var i=0;i<keyKR.length;i++){
 				if (keyKR[i].indexOf("KR" + separator) > -1){
 					temp = keyKR[i].split(separator);
 					temp.splice(0,1);
 					temp[0] = parseInt(temp[0]);
-					if (temp[0] == NaN)
+					if (Number.isNaN(temp[0]))
 						temp[0] = 0;
 					
 					temp[0] += nTimezoneOffset;
@@ -3770,6 +3788,15 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trLabyrinthArmOtherBase" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to arm other base if Compass Magnet Charm is currently armed"><b>Arm Other Base</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectLabyrinthOtherBase" style="width: 75px" onchange="onSelectLabyrinthOtherBase();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;If Compass Magnet Charm is armed';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr id="trPriorities15" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues less than 15"><b>Priorities (Focus-District Clues < 15)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -3782,39 +3809,39 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 
-			preferenceHTMLStr += '<tr id="trPriorities1560" style="display:table-row;">'
+			preferenceHTMLStr += '<tr id="trPriorities1560" style="display:table-row;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-			preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues within 15 and 60"><b>Priorities (15 < Focus-District Clues < 60)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>'
-			preferenceHTMLStr += '<td style="height:24px">'
-			preferenceHTMLStr += '<select id="selectHallway1560Superior" onchange="saveLabyrinthHallway();">'
-			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>'
-			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>'
-			preferenceHTMLStr += '</select>'
-			preferenceHTMLStr += '<select id="selectHallway1560Plain" onchange="saveLabyrinthHallway();">'
-			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>'
-			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>'
-			preferenceHTMLStr += '</select>'
-			preferenceHTMLStr += '</td>'
-			preferenceHTMLStr += '</tr>'
+			preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues within 15 and 60"><b>Priorities (15 < Focus-District Clues < 60)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectHallway1560Superior" onchange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>';
+			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectHallway1560Plain" onchange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>';
+			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 				
-			preferenceHTMLStr += '<tr id="trPriorities60" style="display:none;">'
+			preferenceHTMLStr += '<tr id="trPriorities60" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues more than 60"><b>Priorities (Focus-District Clues > 60)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
-			preferenceHTMLStr += '<td style="height:24px">'
-			preferenceHTMLStr += '<select id="selectHallway60Epic" onchange="saveLabyrinthHallway();">'
-			preferenceHTMLStr += '<option value="le">Long Epic Hallway First</option>'
-			preferenceHTMLStr += '<option value="se">Short Epic Hallway First</option>'
-			preferenceHTMLStr += '</select>'
-			preferenceHTMLStr += '<select id="selectHallway60Superior" onchange="saveLabyrinthHallway();">'
-			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>'
-			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>'
-			preferenceHTMLStr += '</select>'
-			preferenceHTMLStr += '<select id="selectHallway60Plain" onchange="saveLabyrinthHallway();">'
-			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>'
-			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>'
-			preferenceHTMLStr += '</select>'
-			preferenceHTMLStr += '</td>'
-			preferenceHTMLStr += '</tr>'
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectHallway60Epic" onchange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="le">Long Epic Hallway First</option>';
+			preferenceHTMLStr += '<option value="se">Short Epic Hallway First</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectHallway60Superior" onchange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="ls">Long Superior Hallway First</option>';
+			preferenceHTMLStr += '<option value="ss">Short Superior Hallway First</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectHallway60Plain" onchange="saveLabyrinthHallway();">';
+			preferenceHTMLStr += '<option value="lp">Long Plain Hallway First</option>';
+			preferenceHTMLStr += '<option value="sp">Short Plain Hallway First</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 
 			preferenceHTMLStr += '<tr id="labyrinthOtherHallway" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -4024,7 +4051,7 @@ function embedTimer(targetPage) {
 
             var preferenceDiv = document.createElement('div');
             preferenceDiv.setAttribute('id', 'preferenceDiv');
-            if (showPreference == true)
+            if (showPreference === true)
                 preferenceDiv.setAttribute('style', 'display: block');
             else
                 preferenceDiv.setAttribute('style', 'display: none');
@@ -4122,7 +4149,7 @@ function getTrapList(category){
 
 	for (var i=0;i<arrObjList.length;i++){
 		temp = getStorageToVariableStr("TrapList" + capitalizeFirstLetter(arrObjList[i]), "");
-		if (temp == ""){
+		if (temp === ""){
 			objTrapList[arrObjList[i]] = [];
 		}
 		else{
@@ -4199,7 +4226,7 @@ function getStorageToVariableInt(storageName, defaultInt)
 {
 	var temp = getStorage(storageName);
 	var tempInt = defaultInt;
-    if (temp == undefined || temp == null) {
+    if (isNullOrUndefined(temp)) {
         setStorage(storageName, defaultInt);
     }
     else {
@@ -4213,7 +4240,7 @@ function getStorageToVariableInt(storageName, defaultInt)
 function getStorageToVariableStr(storageName, defaultStr)
 {
 	var temp = getStorage(storageName);
-    if (temp == undefined || temp == null) {
+    if (isNullOrUndefined(temp)) {
         setStorage(storageName, defaultStr);
         temp = defaultStr;
     }
@@ -4223,11 +4250,11 @@ function getStorageToVariableStr(storageName, defaultStr)
 function getStorageToVariableBool(storageName, defaultBool)
 {
 	var temp = getStorage(storageName);
-    if (temp == undefined || temp == null) {
+	if (isNullOrUndefined(temp)) {
         setStorage(storageName, defaultBool.toString());
 		return defaultBool;
     }
-    else if (temp == true || temp.toLowerCase() == "true") {
+    else if (temp === true || temp.toLowerCase() == "true") {
         return true;
     }
     else {
@@ -4280,7 +4307,7 @@ function displayKingRewardSumTime(timeStr) {
 // ################################################################################################
 
 function soundHorn() {
-	var isAtCampPage = (isNewUI)? (document.getElementById('journalContainer') != null) : (document.getElementById('huntingTips') != null) ;
+	var isAtCampPage = (isNewUI)? (document.getElementById('journalContainer') !== null) : (document.getElementById('huntingTips') !== null) ;
 	if (!isAtCampPage) {
 		displayTimer("Not At Camp Page", "Not At Camp Page", "Not At Camp Page");
 		return;
@@ -4512,7 +4539,7 @@ function embedScript() {
 
     // change the function call of horn
 	var testNewUI = document.getElementById('header');
-	if (testNewUI != null) {
+	if (!isNullOrUndefined(testNewUI)) {
 		// old UI
 		isNewUI = false;
 		strHornButton = 'hornbutton';
@@ -4809,7 +4836,7 @@ function ajaxPost(postURL, objData, callback, throwerror){
 				withCredentials: false
 			},
 			success: callback,
-			error: throwerror, 
+			error: throwerror,
 		});
 	}
 	catch (e) {
@@ -4887,7 +4914,7 @@ function countUnique(arrIn){
 	var  objCount = {
 		value : [],
 		count : [],
-	}; 
+	};
 
 	arrIn.forEach(function(i) {
 		var index = objCount.value.indexOf(i);
@@ -4899,7 +4926,7 @@ function countUnique(arrIn){
 			objCount.count[index]++;
 		}
 	});
-	
+
 	return objCount;
 }
 
@@ -5021,7 +5048,7 @@ function setSessionStorage(name, value) {
 
 function removeSessionStorage(name) {
     // check if the web browser support HTML5 storage
-    if ('sessionStorage' in window && window['sessionStorage'] !== null) {
+    if ('sessionStorage' in window && !isNullOrUndefined(window.sessionStorage)) {
         window.sessionStorage.removeItem(name);
     }
     name = undefined;
@@ -5029,7 +5056,7 @@ function removeSessionStorage(name) {
 
 function getSessionStorage(name) {
     // check if the web browser support HTML5 storage
-    if ('sessionStorage' in window && window['sessionStorage'] !== null) {
+    if ('sessionStorage' in window && !isNullOrUndefined(window.sessionStorage)) {
         return (window.sessionStorage.getItem(name));
     }
     name = undefined;
@@ -5037,13 +5064,13 @@ function getSessionStorage(name) {
 
 function clearSessionStorage() {
     // check if the web browser support HTML5 storage
-    if ('sessionStorage' in window && window['sessionStorage'] !== null)
+    if ('sessionStorage' in window && !isNullOrUndefined(window.sessionStorage))
         window.sessionStorage.clear();
 }
 
 function setStorage(name, value) {
     // check if the web browser support HTML5 storage
-    if ('localStorage' in window && window['localStorage'] !== null) {
+    if ('localStorage' in window && !isNullOrUndefined(window.localStorage)) {
         window.localStorage.setItem(name, value);
     }
 
@@ -5053,7 +5080,7 @@ function setStorage(name, value) {
 
 function removeStorage(name) {
     // check if the web browser support HTML5 storage
-    if ('localStorage' in window && window['localStorage'] !== null) {
+    if ('localStorage' in window && !isNullOrUndefined(window.localStorage)) {
         window.localStorage.removeItem(name);
     }
     name = undefined;
@@ -5061,7 +5088,7 @@ function removeStorage(name) {
 
 function getStorage(name) {
     // check if the web browser support HTML5 storage
-    if ('localStorage' in window && window['localStorage'] !== null) {
+    if ('localStorage' in window && !isNullOrUndefined(window.localStorage)) {
         return (window.localStorage.getItem(name));
     }
     name = undefined;
@@ -5104,7 +5131,7 @@ function disarmTrap(trapSelector) {
 	var strTemp = "";
 	var intervalDisarm = setInterval(
 		function (){
-			if(arming == false){
+			if(arming === false){
 				clickTrapSelector(trapSelector);
 				var intervalDT = setInterval(
 					function () {
@@ -5138,9 +5165,10 @@ function disarmTrap(trapSelector) {
 }
 
 function fireEvent(element, event) {
-    if (document.createEventObject) {
+    var evt;
+	if (document.createEventObject) {
         // dispatch for IE
-        var evt = document.createEventObject();
+        evt = document.createEventObject();
 
         try {
             return element.fireEvent('on' + event, evt);
@@ -5153,7 +5181,7 @@ function fireEvent(element, event) {
     }
     else {
         // dispatch for firefox + others
-        var evt = document.createEvent("HTMLEvents");
+        evt = document.createEvent("HTMLEvents");
         evt.initEvent(event, true, true); // event type,bubbling,cancelable
 
         try {
@@ -5336,7 +5364,7 @@ function bodyJS(){
 		var temp = '';
 		for(var i=0;i<window.localStorage.length;i++){
 			temp = window.localStorage.key(i);
-			if(temp.indexOf('KR') == 0)
+			if(temp.indexOf('KR') === 0)
 				continue;
 			objPreference[temp] = window.localStorage.getItem(temp);
 		}
@@ -5546,7 +5574,7 @@ function bodyJS(){
 	}
 
 	function setSessionToLocal(){
-		if(window.sessionStorage.length==0)
+		if(window.sessionStorage.length===0)
 			return;
 		
 		window.localStorage.setItem('eventLocation', window.sessionStorage.getItem('eventLocation'));
@@ -5606,6 +5634,10 @@ function bodyJS(){
 		saveLabyrinthHallway();
 	}
 	
+	function onSelectLabyrinthOtherBase(){
+		saveLabyrinthHallway();
+	}
+	
 	function onInputLabyrinthLastHuntChanged(){
 		saveLabyrinthHallway();
 	}
@@ -5617,6 +5649,7 @@ function bodyJS(){
 		var selectHallway60Plain = document.getElementById('selectHallway60Plain');
 		var selectHallway60Superior = document.getElementById('selectHallway60Superior');
 		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
+		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
 			between15and59  : ['SP','LS'],
@@ -5624,7 +5657,8 @@ function bodyJS(){
 			chooseOtherDoors : false,
 			typeOtherDoors : "SHORTEST_ONLY",
 			securityDisarm : false,
-			lastHunt : 0
+			lastHunt : 0,
+			armOtherBase : 'false'
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		if(storageValue === null || storageValue === undefined)
@@ -5637,6 +5671,7 @@ function bodyJS(){
 		storageValue.typeOtherDoors = document.getElementById('typeOtherDoors').value;
 		storageValue.securityDisarm = (document.getElementById('selectLabyrinthDisarm').value == 'true');
 		storageValue.lastHunt = parseInt(document.getElementById('inputLabyrinthLastHunt').value);
+		storageValue.armOtherBase = selectLabyrinthOtherBase.value;
 		window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
 	}
 
@@ -5664,6 +5699,7 @@ function bodyJS(){
 		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
 		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
+		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
@@ -5672,7 +5708,8 @@ function bodyJS(){
 			chooseOtherDoors : false,
 			typeOtherDoors : "SHORTEST_ONLY",
 			securityDisarm : false,
-			lastHunt : 0
+			lastHunt : 0,
+			armOtherBase : 'false'
 		};
 		if(storageValue === null || storageValue === undefined){
 			storageValue = JSON.stringify(objDefaultHallwayPriorities);
@@ -5696,6 +5733,7 @@ function bodyJS(){
 		selectChooseOtherDoors.value = (storageValue.chooseOtherDoors) ? 'true' : 'false';
 		typeOtherDoors.value = storageValue.typeOtherDoors;
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
+		selectLabyrinthOtherBase.value = storageValue.armOtherBase;
 	}
 
 	function saveLG(){
@@ -6011,6 +6049,7 @@ function bodyJS(){
 		document.getElementById('trPriorities60').style.display = 'none';
 		document.getElementById('labyrinthOtherHallway').style.display = 'none';
 		document.getElementById('trLabyrinthDisarm').style.display = 'none';
+		document.getElementById('trLabyrinthArmOtherBase').style.display = 'none';
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
@@ -6035,6 +6074,7 @@ function bodyJS(){
 			document.getElementById('trPriorities60').style.display = 'table-row';
 			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
 			document.getElementById('trLabyrinthDisarm').style.display = 'table-row';
+			document.getElementById('trLabyrinthArmOtherBase').style.display = 'table-row';
 			loadDistricFocus();
 			loadLabyrinthHallway();
 		}

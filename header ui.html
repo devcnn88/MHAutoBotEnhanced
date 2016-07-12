@@ -290,6 +290,14 @@
 						<input type="number" id="inputLabyrinthLastHunt" min="1" max="10" style="width:40px" value="10" onchange="onInputLabyrinthLastHuntChanged();">&nbsp;Hunt(s) in Hallway Near 100 Total Clues
 					</td>
 				</tr>
+				<tr id="trLabyrinthArmOtherBase" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select to arm other base if Compass Magnet Charm is currently armed"><b>Arm Other Base</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectLabyrinthOtherBase" onchange="onSelectLabyrinthOtherBase();">
+							<option value="false">False</option>
+						</select>&nbsp;&nbsp;If Compass Magnet Charm is armed
+					</td>
+				</tr>
 				<tr id="trPriorities15" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select hallway priorities when focus-district clues less than 15"><b>Priorities (Focus-District Clues < 15)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -748,6 +756,10 @@
 		saveLabyrinthHallway();
 	}
 	
+	function onSelectLabyrinthOtherBase(){
+		saveLabyrinthHallway();
+	}
+	
 	function onInputLabyrinthLastHuntChanged(){
 		saveLabyrinthHallway();
 	}
@@ -759,6 +771,7 @@
 		var selectHallway60Plain = document.getElementById('selectHallway60Plain');
 		var selectHallway60Superior = document.getElementById('selectHallway60Superior');
 		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
+		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
 			between15and59  : ['SP','LS'],
@@ -766,7 +779,8 @@
 			chooseOtherDoors : false,
 			typeOtherDoors : "SHORTEST_ONLY",
 			securityDisarm : false,
-			lastHunt : 0
+			lastHunt : 0,
+			armOtherBase : 'None'
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		if(storageValue === null)
@@ -779,6 +793,7 @@
 		storageValue.typeOtherDoors = document.getElementById('typeOtherDoors').value;
 		storageValue.securityDisarm = (document.getElementById('selectLabyrinthDisarm').value == 'true');
 		storageValue.lastHunt = parseInt(document.getElementById('inputLabyrinthLastHunt').value);
+		storageValue.armOtherBase = selectLabyrinthOtherBase.value;
 		window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
 	}
 	
@@ -806,6 +821,7 @@
 		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
 		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
+		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
@@ -814,7 +830,8 @@
 			chooseOtherDoors : false,
 			typeOtherDoors : "SHORTEST_ONLY",
 			securityDisarm : false,
-			lastHunt : 0
+			lastHunt : 0,
+			armOtherBase : 'None'
 		};
 		if(storageValue === null){
 			storageValue = JSON.stringify(objDefaultHallwayPriorities);
@@ -838,6 +855,7 @@
 		selectChooseOtherDoors.value = storageValue.chooseOtherDoors.toString();
 		typeOtherDoors.value = storageValue.typeOtherDoors;
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
+		selectLabyrinthOtherBase.value = storageValue.armOtherBase;
 	}
 	
 	function saveLG(){
@@ -1153,6 +1171,7 @@
 		document.getElementById('trPriorities60').style.display = 'none';
 		document.getElementById('labyrinthOtherHallway').style.display = 'none';
 		document.getElementById('trLabyrinthDisarm').style.display = 'none';
+		document.getElementById('trLabyrinthArmOtherBase').style.display = 'none';
 		document.getElementById('trFWWave').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
@@ -1177,6 +1196,7 @@
 			document.getElementById('trPriorities60').style.display = 'table-row';
 			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
 			document.getElementById('trLabyrinthDisarm').style.display = 'table-row';
+			document.getElementById('trLabyrinthArmOtherBase').style.display = 'table-row';
 			loadDistricFocus();
 			loadLabyrinthHallway();
 		}
