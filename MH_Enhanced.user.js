@@ -1786,6 +1786,9 @@ function zokor(){
 	console.plog('District Tier:', objAncientCity.district_tier, 'Boss Status:', objAncientCity.boss);
 	if(objAncientCity.district_tier < 3)
 		return;
+
+	checkThenArm('best', 'weapon', bestForgotten);
+	checkThenArm('best', 'base', bestLuckBase);
 	if(nIndex > -1){
 		checkThenArm(null, 'bait', objZokor.bait[nIndex]);
 		if(objZokor.trinket[nIndex] == 'None')
