@@ -1774,21 +1774,17 @@ function zokor(){
 		return;
 	
 	var objZokorDefault = {
-		bossStatus : ['ACTIVE', 'INCOMING', 'DEFEATED'],
+		bossStatus : ['INCOMING', 'ACTIVE', 'DEFEATED'],
 		bait : new Array(3).fill('Gouda'),
 		trinket : new Array(3).fill('None')
 	};
 
 	var objZokor = JSON.parse(getStorageToVariableStr('Zokor', JSON.stringify(objZokorDefault)));
-	var nIndex = -1;
-	var strBossStatus;
-	if(strBossStatus == 'active')
-		nIndex = 0;
-	else if(strBossStatus == 'incoming')
-		nIndex = 1;
-	else if(strBossStatus == 'defeated')
-		nIndex = 2;
-	
+	var objAncientCity = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestAncientCity)'));
+	var nIndex = objZokor.bossStatus.indexOf(objAncientCity.boss);
+	console.plog('District Tier:', objAncientCity.district_tier, 'Boss Status:', objAncientCity.boss);
+	if(objAncientCity.district_tier < 3)
+		return;
 	if(nIndex > -1){
 		checkThenArm(null, 'bait', objZokor.bait[nIndex]);
 		if(objZokor.trinket[nIndex] == 'None')
@@ -3877,8 +3873,8 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectZokorBossStatus" onChange="onSelectZokorBossStatus();">';
-			preferenceHTMLStr += '<option value="ACTIVE">Boss Active</option>';
 			preferenceHTMLStr += '<option value="INCOMING">Boss Incoming</option>';
+			preferenceHTMLStr += '<option value="ACTIVE">Boss Active</option>';
 			preferenceHTMLStr += '<option value="DEFEATED">Boss Defeated</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;';
 			preferenceHTMLStr += '<select id="selectZokorBait" onChange="onSelectZokorBait();">';
@@ -6012,7 +6008,7 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('Zokor');
 		if(storageValue === null || storageValue === undefined){
 			var objZokor = {
-				bossStatus : ['ACTIVE', 'INCOMING', 'DEFEATED'],
+				bossStatus : ['INCOMING', 'ACTIVE', 'DEFEATED'],
 				bait : new Array(3).fill('Gouda'),
 				trinket : new Array(3).fill('None')
 			};
@@ -6039,7 +6035,7 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = storageValue.bossStatus.indexOf(selectZokorBossStatus.value);
-			if(nIndex < -1)
+			if(nIndex < 0)
 				nIndex = 0;
 			selectZokorBait.value = storageValue.bait[nIndex];
 			selectZokorTrinket.value = storageValue.trinket[nIndex];
