@@ -1781,6 +1781,7 @@ function zokor(){
 
 	var objZokor = JSON.parse(getStorageToVariableStr('Zokor', JSON.stringify(objZokorDefault)));
 	var objAncientCity = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestAncientCity)'));
+	objAncientCity.boss = objAncientCity.boss.toUpperCase();
 	var nIndex = objZokor.bossStatus.indexOf(objAncientCity.boss);
 	console.plog('District Tier:', objAncientCity.district_tier, 'Boss Status:', objAncientCity.boss);
 	if(objAncientCity.district_tier < 3)
