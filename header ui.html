@@ -232,10 +232,10 @@
 						<input type="number" id="lgSalt" min="1" max="50" size="5" value="25" onchange="saveLG();">
 					</td>
 				</tr>
-				<tr id="scCustom" style="display:none;">
+				<tr id="trSCCustom" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="scHuntZone" onchange="loadSCCustomAlgo();">
+						<select id="selectSCHuntZone" onchange="initControlsSCCustom();">
 							<option value="ZONE_DEFAULT">Default</option>
 							<option value="ZONE_CORAL">Coral</option>
 							<option value="ZONE_SCALE">Scale</option>
@@ -246,21 +246,30 @@
 							<option value="ZONE_OXYGEN">Oxygen</option>
 							<option value="ZONE_BONUS">Bonus</option>
 						</select>
-						<select id="scHuntZoneEnable" onchange="saveSCCustomAlgo();">
+						<select id="selectSCHuntZoneEnable" onchange="onSelectSCHuntZoneEnable();">
 							<option value="true">Hunt</option>
 							<option value="false">Jet Through</option>
 						</select>
-						<select id="scHuntBait" onchange="saveSCCustomAlgo();">
+						<select id="selectSCHuntBait" onchange="onSelectSCHuntBait();">
 							<option value="Brie">Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SUPER|brie+</option>
 						</select>
-						<select id="scHuntTrinket" onchange="saveSCCustomAlgo();">
+						<select id="selectSCHuntTrinket" onchange="onSelectSCHuntTrinket();">
 							<option value="None">None</option>
 							<option value="EAC">EAC</option>
 							<option value="scAnchorTreasure">GAC, EAC</option>
 							<option value="scAnchorDanger">SAC, EAC</option>
 							<option value="UAC">UAC</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trSCCustomUseSmartJet" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select to always use Smart Water Jet Charm"><b>Use Smart Jet</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectSCUseSmartJet" onchange="onSelectSCUseSmartJet();">
+							<option value="false">False</option>
+							<option value="true">True</option>
 						</select>
 					</td>
 				</tr>
@@ -685,7 +694,7 @@
 		var key;
 		for(var i=0;i<window.localStorage.length;i++){
 			key = window.localStorage.key(i);
-			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
+			if(key.indexOf("SCCustom")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
@@ -703,7 +712,7 @@
 		var key;
 		for(var i=0;i<window.sessionStorage.length;i++){
 			key = window.sessionStorage.key(i);
-			if(key.indexOf("SCCustom_")>-1 || key.indexOf("Labyrinth_")>-1 ||
+			if(key.indexOf("SCCustom")>-1 || key.indexOf("Labyrinth_")>-1 ||
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
@@ -713,36 +722,79 @@
 		}
 	}
 	
-	function loadSCCustomAlgo()
-	{
-		var selectedZone = document.getElementById('scHuntZone').value;
-		var storageValue = window.sessionStorage.getItem('SCCustom_' + selectedZone);
-		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
-		var scHuntBaitEle = document.getElementById('scHuntBait');
-		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
-		if (storageValue === null){
-			scHuntZoneEnableEle.selectedIndex = 0;
-			scHuntBait.selectedIndex = 0;
-			scHuntTrinketEle.selectedIndex = 0;
-			window.sessionStorage.setItem('SCCustom_' + selectedZone, [scHuntZoneEnableEle.value,scHuntBaitEle.value,scHuntTrinketEle.value]);
-		}
-		else{
-			storageValue = storageValue.split(',');
-			scHuntZoneEnableEle.value = storageValue[0];
-			scHuntBaitEle.value = storageValue[1];
-			scHuntTrinketEle.value = storageValue[2];
-		}
+	function onSelectSCHuntZoneEnable(){
+		saveSCCustomAlgo();
 	}
 	
-	function saveSCCustomAlgo()
-	{	
-		var scHuntZoneEle = document.getElementById('scHuntZone');
-		var scHuntZoneEnableEle = document.getElementById('scHuntZoneEnable');
-		var scHuntBaitEle = document.getElementById('scHuntBait');
-		var scHuntTrinketEle = document.getElementById('scHuntTrinket');
-		var key = 'SCCustom_' + scHuntZoneEle.value;
-		var value = scHuntZoneEnableEle.value + ',' + scHuntBaitEle.value + ',' + scHuntTrinketEle.value;
-		window.sessionStorage.setItem(key, value);
+	function onSelectSCHuntBait(){
+		saveSCCustomAlgo();
+	}
+	
+	function onSelectSCHuntTrinket(){
+		saveSCCustomAlgo();
+	}
+	
+	function onSelectSCUseSmartJet(){
+		saveSCCustomAlgo();
+	}
+	
+	function initControlsSCCustom(){
+		var selectSCHuntZone = document.getElementById('selectSCHuntZone');
+		var selectSCHuntZoneEnable = document.getElementById('selectSCHuntZoneEnable');
+		var selectSCHuntBait = document.getElementById('selectSCHuntBait');
+		var selectSCHuntTrinket = document.getElementById('selectSCHuntTrinket');
+		var selectSCUseSmartJet = document.getElementById('selectSCUseSmartJet');
+		var storageValue = window.sessionStorage.getItem('SCCustom');
+		if (storageValue === null || storageValue === undefined){
+			var objSCCustomDefault = {
+				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
+				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+				isHunt : new Array(10).fill(true),
+				bait : new Array(10).fill('Gouda'),
+				trinket : new Array(10).fill('None'),
+				useSmartJet : false
+			};
+			storageValue = JSON.stringify(objSCCustomDefault);
+		}
+		
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.zone.indexOf(selectSCHuntZone.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		selectSCHuntZoneEnable.value = storageValue.isHunt[nIndex];
+		selectSCHuntBait.value = storageValue.bait[nIndex];
+		selectSCHuntTrinket.value = storageValue.trinket[nIndex];
+		selectSCUseSmartJet.value = storageValue.useSmartJet;
+	}
+	
+	function saveSCCustomAlgo(){	
+		var selectSCHuntZone = document.getElementById('selectSCHuntZone');
+		var selectSCHuntZoneEnable = document.getElementById('selectSCHuntZoneEnable');
+		var selectSCHuntBait = document.getElementById('selectSCHuntBait');
+		var selectSCHuntTrinket = document.getElementById('selectSCHuntTrinket');
+		var selectSCUseSmartJet = document.getElementById('selectSCUseSmartJet');
+		var storageValue = window.sessionStorage.getItem('SCCustom');
+		if (storageValue === null || storageValue === undefined){
+			var objSCCustomDefault = {
+				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
+				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+				isHunt : new Array(10).fill(true),
+				bait : new Array(10).fill('Gouda'),
+				trinket : new Array(10).fill('None'),
+				useSmartJet : false
+			};
+			storageValue = JSON.stringify(objSCCustomDefault);
+		}
+		
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.zone.indexOf(selectSCHuntZone.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.isHunt[nIndex] = (selectSCHuntZoneEnable.value === 'true');
+		storageValue.bait[nIndex] = selectSCHuntBait.value;
+		storageValue.trinket[nIndex] = selectSCHuntTrinket.value;
+		storageValue.useSmartJet = (selectSCUseSmartJet.value === 'true');
+		window.sessionStorage.setItem('SCCustom', JSON.stringify(storageValue));
 	}
 	
 	function saveDistrictFocus(value){
@@ -1164,7 +1216,8 @@
 	
 	function showOrHideTr(algo){
 		document.getElementById('lgArea').style.display = 'none';
-		document.getElementById('scCustom').style.display = 'none';
+		document.getElementById('trSCCustom').style.display = 'none';
+		document.getElementById('trSCCustomUseSmartJet').style.display = 'none';
 		document.getElementById('labyrinth').style.display = 'none';
 		document.getElementById('trPriorities15').style.display = 'none';
 		document.getElementById('trPriorities1560').style.display = 'none';
@@ -1186,8 +1239,9 @@
 			loadLG();
 		}
 		else if(algo == 'Sunken City Custom'){
-			document.getElementById('scCustom').style.display = 'table-row';
-			loadSCCustomAlgo();
+			document.getElementById('trSCCustom').style.display = 'table-row';
+			document.getElementById('trSCCustomUseSmartJet').style.display = 'table-row';
+			initControlsSCCustom();
 		}
 		else if(algo == 'Labyrinth'){
 			document.getElementById('labyrinth').style.display = 'table-row';
