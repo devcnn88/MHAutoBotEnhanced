@@ -920,16 +920,17 @@ function eventLocationCheck(caller) {
 function mapHunting(){
 	var objDefaultMapHunting = {
 		status : false,
-		afterMouseCaught : 'None',
-		weapon : 'None',
-		base : 'None',
-		trinket : 'None',
-		bait : 'None'
+		selectedMouse : [],
+		logic : 'OR',
+		weapon : 'Remain',
+		base : 'Remain',
+		trinket : 'Remain',
+		bait : 'Remain'
 	};
 	var objMapHunting = JSON.parse(getStorageToVariableStr('MapHunting', JSON.stringify(objDefaultMapHunting)));
 	var strViewState = getPageVariable('user.quests.QuestRelicHunter.view_state');
 	var bHasMap = (strViewState == 'hasMap' || strViewState == 'hasReward');
-	if(!objMapHunting.status || !bHasMap || objMapHunting.afterMouseCaught == 'None')
+	if(!objMapHunting.status || !bHasMap || objMapHunting.selectedMouse.length === 0)
 		return;
 
 	checkCaughtMouse(objMapHunting);
@@ -996,9 +997,24 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	}
 	
 	console.pdebug('Uncaught:', arrUncaughtMouse);
-	var nIndex = arrUncaughtMouse.indexOf(obj.afterMouseCaught);
-	if(nIndex < 0 || bHasReward){ // mouse/last mouse was caught, change trap setup
-		obj.afterMouseCaught = 'None';
+	var i;
+	var bChangeTrap = false;
+	var arrIndex = [];
+	for(i=0;i<obj.selectedMouse.length;i++){
+		arrIndex.push(obj.selectedMouse[i].indexOf(arrUncaughtMouse));
+	}
+	if(obj.logic == 'AND'){
+		bChangeTrap = (countArrayElement(-1, arrIndex) == arrIndex.length || bHasReward);
+	}
+	else{
+		bChangeTrap = (countArrayElement(-1, arrIndex) > 0 || bHasReward);
+	}
+
+	if(bChangeTrap){
+		for(i=arrIndex.length-1;i>=0;i--){
+			if(arrIndex[i] == -1)
+				obj.selectedMouse.splice(i,1);
+		}
 		setStorage('MapHunting', JSON.stringify(obj));
 		for (var prop in obj) {
 			if(obj.hasOwnProperty(prop) && 
@@ -3607,7 +3623,7 @@ function embedTimer(targetPage) {
 			
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<a title="Turn on/off Map Hunting feature"><b>Map Hunting</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '<a title="Turn on/off Map Hunting feature"><b>Season 4 Map Hunting</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select id="selectMapHunting" onChange="onSelectMapHuntingChanged();">';
@@ -3628,9 +3644,27 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trSelectedUncaughtMouse" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select desired uncaught mouse"><b>Selected Mouse</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input type="text" id="inputUncaughtMouse" value="" disabled>&nbsp;&nbsp;';
+			preferenceHTMLStr += '<input type="button" id="inputClearUncaughtMouse" title="Click to clear the selected mouse" value="Clear" onclick="onInputClearUncaughtMouse();">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trCatchLogic" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select desired catch logic"><b>Catch Logic</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectCatchLogic" onchange="onSelectCatchLogicChanged();">';
+			preferenceHTMLStr += '<option value="OR">When either one of the Selected Mouse was caught</option>';
+			preferenceHTMLStr += '<option value="AND">When all of the Selected Mouse were caught</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr id="trMapHuntingTrapSetup" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<a title="Select trap setup after a mouse was caught"><b>After <u><i>None</i></u> caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+            preferenceHTMLStr += '<a title="Select trap setup after a mouse was caught"><b>After Caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
             preferenceHTMLStr += '<select id="selectWeapon" style="width: 75px" onchange="onSelectWeaponChanged();">';
@@ -5451,20 +5485,26 @@ function bodyJS(){
 		var selectBase = document.getElementById('selectBase');
 		var selectTrinket = document.getElementById('selectTrinket');
 		var selectBait = document.getElementById('selectBait');
-		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
+		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
+		var selectCatchLogic = document.getElementById('selectCatchLogic');
 		var objDefaultMapHunting = {
 			status : false,
-			afterMouseCaught : 'None',
-			weapon : 'None',
-			base : 'None',
-			trinket : 'None',
-			bait : 'None'
+			selectedMouse : [],
+			logic : 'OR',
+			weapon : 'Remain',
+			base : 'Remain',
+			trinket : 'Remain',
+			bait : 'Remain'
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('MapHunting'));
 		if(storageValue === null || storageValue === undefined)
 			storageValue = objDefaultMapHunting;
 		storageValue.status = (selectMapHunting.value == 'true');
-		storageValue.afterMouseCaught = trMapHuntingTrapSetup.getElementsByTagName('i')[0].textContent;
+		if(inputUncaughtMouse.value === '')
+			storageValue.selectedMouse = [];
+		else
+			storageValue.selectedMouse = inputUncaughtMouse.value.split(',');
+		storageValue.logic = selectCatchLogic.value;
 		storageValue.weapon = selectWeapon.value;
 		storageValue.base = selectBase.value;
 		storageValue.trinket = selectTrinket.value;
@@ -5474,9 +5514,13 @@ function bodyJS(){
 	
 	function initControlsMapHunting(){
 		var trUncaughtMouse = document.getElementById('trUncaughtMouse');
+		var trSelectedUncaughtMouse = document.getElementById('trSelectedUncaughtMouse');
+		var trCatchLogic = document.getElementById('trCatchLogic');
 		var selectMapHunting = document.getElementById('selectMapHunting');
 		var selectMouseList = document.getElementById('selectMouseList');
 		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
+		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
+		var selectCatchLogic = document.getElementById('selectCatchLogic');
 		var selectWeapon = document.getElementById('selectWeapon');
 		var selectBase = document.getElementById('selectBase');
 		var selectTrinket = document.getElementById('selectTrinket');
@@ -5486,6 +5530,8 @@ function bodyJS(){
 			selectMapHunting.selectedIndex = 0;
 			trUncaughtMouse.style.display = 'none';
 			trMapHuntingTrapSetup.style.display = 'none';
+			inputUncaughtMouse.value = '';
+			selectCatchLogic.selectedIndex = -1;
 			selectWeapon.selectedIndex = -1;
 			selectBase.selectedIndex = -1;
 			selectTrinket.selectedIndex = -1;
@@ -5495,8 +5541,11 @@ function bodyJS(){
 			storageValue = JSON.parse(storageValue);
 			selectMapHunting.value = storageValue.status;
 			trUncaughtMouse.style.display = (storageValue.status) ? 'table-row' : 'none';
+			trSelectedUncaughtMouse.style.display = (storageValue.status) ? 'table-row' : 'none';
+			trCatchLogic.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trMapHuntingTrapSetup.style.display = (storageValue.status) ? 'table-row' : 'none';
-			trMapHuntingTrapSetup.getElementsByTagName('i')[0].textContent = storageValue.afterMouseCaught;
+			inputUncaughtMouse.value = storageValue.selectedMouse.join(',');
+			selectCatchLogic.value = storageValue.logic;
 			selectWeapon.value = storageValue.weapon;
 			selectBase.value = storageValue.base;
 			selectTrinket.value = storageValue.trinket;
@@ -5521,7 +5570,14 @@ function bodyJS(){
 	}
 	
 	function onInputSelectMouse(){
-		document.getElementById('trMapHuntingTrapSetup').getElementsByTagName('i')[0].textContent = document.getElementById('selectMouseList').value;
+		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
+		var selectMouseList = document.getElementById('selectMouseList');
+		if(inputUncaughtMouse.value.indexOf(selectMouseList.value) < 0){
+			if(inputUncaughtMouse.value.length !== 0)
+				inputUncaughtMouse.value = selectMouseList.value + ',' + inputUncaughtMouse.value;
+			else
+				inputUncaughtMouse.value = selectMouseList.value;
+		}
 		saveMapHunting();
 	}
 	
@@ -5574,6 +5630,15 @@ function bodyJS(){
 			document.getElementById('inputGetMouse').disabled = '';
 			console.error('onInputGetMouse',e);
 		}
+	}
+	
+	function onInputClearUncaughtMouse(){
+		document.getElementById('inputUncaughtMouse').value = "";
+		saveMapHunting();
+	}
+	
+	function onSelectCatchLogicChanged(){
+		saveMapHunting();
 	}
 	
 	function onSelectWeaponChanged(){

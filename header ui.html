@@ -164,13 +164,37 @@
 						<input type="button" id="inputGetMouse" title="Click to Get all uncaught mouse from treasure map" value="Get Uncaught Mouse List" onclick="onInputGetMouse();">
 					</td>
 				</tr>
-				<tr id="trMapHuntingTrapSetup" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select trap setup after a mouse was caught"><b>After <u><i>None</i></u> caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+				<tr id="trSelectedUncaughtMouse" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select desired uncaught mouse"><b>Selected Mouse</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="selectWeapon" onchange="onSelectWeaponChanged();"></select>
-						<select id="selectBase" onchange="onSelectBaseChanged();"></select>
-						<select id="selectTrinket" onchange="onSelectTrinketChanged();"></select>
-						<select id="selectBait" onchange="onSelectBaitChanged();"></select>
+						<input type="text" id="inputUncaughtMouse" value="" disabled>&nbsp;&nbsp;
+						<input type="button" id="inputClearUncaughtMouse" title="Click to clear the selected mouse" value="Clear" onclick="onInputClearUncaughtMouse();">
+					</td>
+				</tr>
+				<tr id="trCatchLogic" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select desired catch logic"><b>Catch Logic</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectCatchLogic" onchange="onSelectCatchLogicChanged();">
+							<option value="OR">When either one of the Selected Mouse was caught</option>
+							<option value="AND">When all of the Selected Mouse were caught</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trMapHuntingTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup after a mouse was caught"><b>After caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectWeapon" onchange="onSelectWeaponChanged();">
+							<option value="Remain">Remain</option>
+						</select>
+						<select id="selectBase" onchange="onSelectBaseChanged();">
+							<option value="Remain">Remain</option>
+						</select>
+						<select id="selectTrinket" onchange="onSelectTrinketChanged();">
+							<option value="Remain">Remain</option>
+						</select>
+						<select id="selectBait" onchange="onSelectBaitChanged();">
+							<option value="Remain">Remain</option>
+						</select>
 					</td>
 				</tr>
 				<tr>
@@ -582,21 +606,27 @@
 		var selectBase = document.getElementById('selectBase');
 		var selectTrinket = document.getElementById('selectTrinket');
 		var selectBait = document.getElementById('selectBait');
-		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
+		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
+		var selectCatchLogic = document.getElementById('selectCatchLogic');
 		var objDefaultMapHunting = {
 			status : false,
-			afterMouseCaught : 'None',
-			weapon : 'None',
-			base : 'None',
-			trinket : 'None',
-			bait : 'None'
+			selectedMouse : [],
+			logic : 'OR',
+			weapon : 'Remain',
+			base : 'Remain',
+			trinket : 'Remain',
+			bait : 'Remain'
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('MapHunting'));
 		if(storageValue === null || storageValue === undefined)
 			storageValue = objDefaultMapHunting;
 		
 		storageValue.status = (selectMapHunting.value == 'true');
-		storageValue.afterMouseCaught = trMapHuntingTrapSetup.getElementsByTagName('i')[0].textContent;
+		if(inputUncaughtMouse.value === '')
+			storageValue.selectedMouse = [];
+		else
+			storageValue.selectedMouse = inputUncaughtMouse.value.split(',');
+		storageValue.logic = selectCatchLogic.value;
 		storageValue.weapon = selectWeapon.value;
 		storageValue.base = selectBase.value;
 		storageValue.trinket = selectTrinket.value;
@@ -606,8 +636,12 @@
 	
 	function initControlsMapHunting(){
 		var trUncaughtMouse = document.getElementById('trUncaughtMouse');
+		var trSelectedUncaughtMouse = document.getElementById('trSelectedUncaughtMouse');
+		var trCatchLogic = document.getElementById('trCatchLogic');
 		var selectMapHunting = document.getElementById('selectMapHunting');
 		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
+		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
+		var selectCatchLogic = document.getElementById('selectCatchLogic');
 		var selectWeapon = document.getElementById('selectWeapon');
 		var selectBase = document.getElementById('selectBase');
 		var selectTrinket = document.getElementById('selectTrinket');
@@ -617,6 +651,8 @@
 			selectMapHunting.selectedIndex = 0;
 			trUncaughtMouse.style.display = 'none';
 			trMapHuntingTrapSetup.style.display = 'none';
+			inputUncaughtMouse.value = '';
+			selectCatchLogic.selectedIndex = -1;
 			selectWeapon.selectedIndex = -1;
 			selectBase.selectedIndex = -1;
 			selectTrinket.selectedIndex = -1;
@@ -626,8 +662,11 @@
 			storageValue = JSON.parse(storageValue);
 			selectMapHunting.value = storageValue.status;
 			trUncaughtMouse.style.display = (storageValue.status) ? 'table-row' : 'none';
+			trSelectedUncaughtMouse.style.display = (storageValue.status) ? 'table-row' : 'none';
+			trCatchLogic.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trMapHuntingTrapSetup.style.display = (storageValue.status) ? 'table-row' : 'none';
-			trMapHuntingTrapSetup.getElementsByTagName('i')[0].textContent = storageValue.afterMouseCaught;
+			inputUncaughtMouse.value = storageValue.selectedMouse.join(',');
+			selectCatchLogic.value = storageValue.logic;
 			selectWeapon.value = storageValue.weapon;
 			selectBase.value = storageValue.base;
 			selectTrinket.value = storageValue.trinket;
@@ -636,7 +675,14 @@
 	}
 	
 	function onInputSelectMouse(){
-		document.getElementById('trMapHuntingTrapSetup').getElementsByTagName('i')[0].textContent = document.getElementById('selectMouseList').value;
+		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
+		var selectMouseList = document.getElementById('selectMouseList');
+		if(inputUncaughtMouse.value.indexOf(selectMouseList.value) < 0){
+			if(inputUncaughtMouse.value.length !== 0)
+				inputUncaughtMouse.value = selectMouseList.value + ',' + inputUncaughtMouse.value;
+			else
+				inputUncaughtMouse.value = selectMouseList.value;
+		}
 		saveMapHunting();
 	}
 	
@@ -672,6 +718,15 @@
 		} catch (e) {
 			console.perror('refreshTrapList',e);
 		}
+	}
+	
+	function onInputClearUncaughtMouse(){
+		document.getElementById('inputUncaughtMouse').value = "";
+		saveMapHunting();
+	}
+	
+	function onSelectCatchLogicChanged(){
+		saveMapHunting();
 	}
 	
 	function onSelectWeaponChanged(){
