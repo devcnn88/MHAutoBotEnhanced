@@ -261,6 +261,14 @@ var objLength = {
 	LONG : 2
 };
 
+// // Furoma Rift
+var objFRBattery = {
+	level : [1,2,3,4,5,6,7,8,9,10],
+	name : ["one","two","three","four","five","six","seven","eight","nine","ten"],
+	capacity : [20,45,75,120,200,310,450,615,790,975],
+	cumulative : [20,65,140,260,460,770,1220,1835,2625,3600]
+};
+
 // == Advance User Preference Setting (End) ==
 
 
@@ -314,8 +322,9 @@ var debugKR = false;
 
 // console logging
 function saveToSessionStorage(){
+	var i;
 	var str = "";
-	for(var i=0;i<arguments.length;i++){
+	for(i=0;i<arguments.length;i++){
 		if(!isNullOrUndefined(arguments[i]) && typeof arguments[i] === 'object'){ // if it is object
 			str += JSON.stringify(arguments[i]);
 		}
@@ -326,7 +335,7 @@ function saveToSessionStorage(){
 	}
 	var key = "";
 	var arrLog = [];
-	for(var i=0;i<window.sessionStorage.length;i++){
+	for(i=0;i<window.sessionStorage.length;i++){
 		key = window.sessionStorage.key(i);
 		if(key.indexOf("Log_") > -1)
 			arrLog.push(key);
@@ -334,7 +343,7 @@ function saveToSessionStorage(){
 	if (arrLog.length > maxSaveLog){
 		arrLog = arrLog.sort();
 		var count = Math.floor(maxSaveLog / 2);
-		for(var i=0;i<count;i++)
+		for(i=0;i<count;i++)
 			removeSessionStorage(arrLog[i]);
 	}
 	try{
@@ -342,7 +351,7 @@ function saveToSessionStorage(){
 	}
 	catch (e){
 		if(e.name == "QuotaExceededError"){
-			for(var i=0;i<window.sessionStorage.length;i++){
+			for(i=0;i<window.sessionStorage.length;i++){
 				key = window.sessionStorage.key(i);
 				if(key.indexOf('Log_') > -1)
 					removeSessionStorage(key);
@@ -908,6 +917,8 @@ function eventLocationCheck(caller) {
 			zokor(); break;
 		case 'Fiery Warpath':
 			fw(); break;
+		case 'Furoma Rift':
+			fRift(); break;
 		case 'BC/JOD':
 			balackCoveJOD(); break;
 		case 'FG/AR':
@@ -2013,6 +2024,96 @@ function fw(){
 		}
 	}
 	checkThenArm(null, 'bait', objFW.cheese[objFW.streak]);
+}
+
+function fRift(){
+	if(GetCurrentLocation().indexOf('Furoma Rift') < 0)
+		return;
+	
+	var objFRDefault = {
+		enter : 0,
+		retreat : 0,
+		weapon : new Array(11).fill(''),
+		base : new Array(11).fill(''),
+		trinket : new Array(11).fill(''),
+		bait : new Array(11).fill('')
+	};
+
+	var objFR = JSON.parse(getStorageToVariableStr('FRift', JSON.stringify(objFRDefault)));
+	objFR.enter = parseInt(objFR.enter);
+	objFR.retreat = parseInt(objFR.retreat);
+	var bInPagoda = (getPageVariable('user.quests.QuestRiftFuroma.view_state') == 'pagoda');
+	var i;
+	if(bInPagoda){
+		var nCurBatteryLevel = 0;
+		var nRemainingEnergy = parseInt(getPageVariable('user.quests.QuestRiftFuroma.droid.remaining_energy'));
+		if(Number.isNaN(nRemainingEnergy)){
+			console.plog('Remaining Energy:', nRemainingEnergy);
+			return;
+		}
+		for(i=objFRBattery.cumulative.length-1;i>=0;i--){
+			if(nRemainingEnergy <= objFRBattery.cumulative[i])
+				nCurBatteryLevel = i+1;
+			else
+				break;
+		}
+		console.plog('In Pagoda, Current Battery Level:', nCurBatteryLevel, 'Remaining Energy:', nRemainingEnergy);
+		if(nCurBatteryLevel <= objFR.retreat){
+			fRiftArmTrap(objFR, 0);
+			if(nCurBatteryLevel !== 0){
+				// retreat
+				fireEvent(document.getElementsByClassName('riftFuromaHUD-leavePagoda')[0], 'click');
+				window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
+			}
+		}
+		else{
+			fRiftArmTrap(objFR, nCurBatteryLevel);
+		}
+	}
+	else{
+		var nFullBatteryLevel = 0;
+		var classBattery = document.getElementsByClassName('riftFuromaHUD-battery');
+		var nStoredEnerchi = parseInt(document.getElementsByClassName('total_energy')[0].children[1].innerText);
+		if(classBattery.length < 1 || Number.isNaN(nStoredEnerchi))
+			return;
+		for(i=0;i<objFRBattery.cumulative.length;i++){
+			if(nStoredEnerchi >= objFRBattery.cumulative[i])
+				nFullBatteryLevel = i+1;
+			else
+				break;
+		}
+		console.log('In Training Ground, Fully Charged Battery Level:', nFullBatteryLevel, 'Stored Enerchi:', nStoredEnerchi);
+		if(nFullBatteryLevel >= objFR.enter){
+			fRiftArmTrap(objFR, nFullBatteryLevel);
+			// enter
+			fireEvent(classBattery[nFullBatteryLevel-1], 'click');
+			window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
+		}
+		else{
+			fRiftArmTrap(objFR, 0);
+		}
+	}
+}
+
+function fRiftArmTrap(obj, nIndex){
+	checkThenArm(null, 'weapon', obj.weapon[nIndex]);
+	checkThenArm(null, 'base', obj.base[nIndex]);
+	checkThenArm(null, 'bait', obj.bait[nIndex]);
+	if(obj.trinket[nIndex] == 'NoAbove'){
+		var charmArmed = getPageVariable("user.trinket_name");
+		var optionTrinket = document.getElementById('selectFRTrapTrinket').children;
+		for(var i=0;i<optionTrinket.length;i++){
+			if (charmArmed.indexOf(optionTrinket[i].value) === 0){
+				disarmTrap('trinket');
+				break;
+			}
+		}
+	}
+	else if(obj.trinket[nIndex] == 'None'){
+		disarmTrap('trinket');
+	}
+	else
+		checkThenArm(null, 'trinket', obj.trinket[nIndex]);
 }
 
 function livingGarden(isAutoPour) {
@@ -3717,6 +3818,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<option value="Charge Egg 2016 High">Charge Egg 2016 High</option>';
 			preferenceHTMLStr += '<option value="FG/AR">FG => AR</option>';
 			preferenceHTMLStr += '<option value="Fiery Warpath">Fiery Warpath</option>';
+			preferenceHTMLStr += '<option value="Furoma Rift">Furoma Rift</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="SG/ZT">Seasonal Garden</option>';
@@ -3727,6 +3829,79 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trFREnterBattery" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select which battery level to enter Pagoda"><b>Enter at Battery</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectEnterAtBattery" onchange="onSelectEnterAtBattery();">';
+			for(var i=1;i<=10;i++)
+				preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trFRRetreatBattery" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select which battery level to retreat from  Pagoda"><b>Retreat at Battery</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectRetreatAtBattery" onchange="onSelectRetreatAtBattery();">';
+			for(var i=0;i<=10;i++)
+				preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trFRTrapSetupAtBattery" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup for each battery"><b>Trap Setup at Battery</b></a>&nbsp;&nbsp;';
+			preferenceHTMLStr += '<select id="selectTrapSetupAtBattery" onchange="onSelectTrapSetupAtBattery();">';
+			for(var i=0;i<=10;i++)
+				preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFRTrapWeapon" onchange="onSelectFRTrapWeaponChanged();">';
+			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
+			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
+			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
+			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
+			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFRTrapBase" onchange="onSelectFRTrapBaseChanged();">';
+			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
+			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
+			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
+			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
+			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
+			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFRTrapTrinket" onchange="onSelectFRTrapTrinketChanged();">';
+			preferenceHTMLStr += '<option value="Rift Ultimate Luck">Rift Ultimate Luck</option>';
+			preferenceHTMLStr += '<option value="Rift Ultimate Power">Rift Ultimate Power</option>';
+			preferenceHTMLStr += '<option value="Ultimate Luck">Ultimate Luck</option>';
+			preferenceHTMLStr += '<option value="Ultimate Power">Ultimate Power</option>';
+			preferenceHTMLStr += '<option value="Rift Power">Rift Power</option>';
+			preferenceHTMLStr += '<option value="Super Rift Vacuum">Super Rift Vacuum</option>';
+			preferenceHTMLStr += '<option value="Rift Vacuum">Rift Vacuum</option>';
+			preferenceHTMLStr += '<option value="Enerchi">Enerchi</option>';
+			preferenceHTMLStr += '<option value="Super Cactus">Super Cactus</option>';
+			preferenceHTMLStr += '<option value="NoAbove">None of the above</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFRTrapBait" onchange="onSelectFRTrapBaitChanged();">';
+			preferenceHTMLStr += '<option value="Ascended">Ascended</option>';
+			preferenceHTMLStr += '<option value="Null Onyx Gorgonzola">Null Onyx Gorgonzola</option>';
+			preferenceHTMLStr += '<option value="Rift Rumble">Rift Rumble</option>';
+			preferenceHTMLStr += '<option value="Rift Glutter">Rift Glutter</option>';
+			preferenceHTMLStr += '<option value="Rift Susheese">Rift Susheese</option>';
+			preferenceHTMLStr += '<option value="Rift Combat">Rift Combat</option>';
+			preferenceHTMLStr += '<option value="Master Fusion">Master Fusion</option>';
+			preferenceHTMLStr += '<option value="Maki String">Maki</option>';
+			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
+			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
+			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
+			preferenceHTMLStr += '<option value="Marble String">Marble</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr id="trUseZum" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -5675,7 +5850,7 @@ function bodyJS(){
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
-				key.indexOf("MapHunting")>-1){
+				key.indexOf("FRift")>-1 || key.indexOf("MapHunting")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -5693,7 +5868,7 @@ function bodyJS(){
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
-				key.indexOf("MapHunting")>-1){
+				key.indexOf("FRift")>-1 || key.indexOf("MapHunting")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -6191,6 +6366,96 @@ function bodyJS(){
 		}
 	}
 	
+	function onSelectEnterAtBattery(){
+		saveFR();
+	}
+	
+	function onSelectRetreatAtBattery(){
+		saveFR();
+	}
+	
+	function onSelectTrapSetupAtBattery(){
+		initControlsFR();
+	}
+	
+	function onSelectFRTrapWeaponChanged(){
+		saveFR();
+	}
+	
+	function onSelectFRTrapBaseChanged(){
+		saveFR();
+	}
+	
+	function onSelectFRTrapTrinketChanged(){
+		saveFR();
+	}
+	
+	function onSelectFRTrapBaitChanged(){
+		saveFR();
+	}
+	
+	function saveFR(){
+		var selectEnterAtBattery = document.getElementById('selectEnterAtBattery');
+		var selectRetreatAtBattery = document.getElementById('selectRetreatAtBattery');
+		var nIndex = document.getElementById('selectTrapSetupAtBattery').selectedIndex;
+		var weapon = document.getElementById('selectFRTrapWeapon').value;
+		var base = document.getElementById('selectFRTrapBase').value;
+		var trinket = document.getElementById('selectFRTrapTrinket').value;
+		var bait = document.getElementById('selectFRTrapBait').value;
+		var storageValue = window.sessionStorage.getItem('FRift');
+		if(storageValue === null || storageValue === undefined){
+			var objFR = {
+				enter : 0,
+				retreat : 0,
+				weapon : new Array(11).fill(''),
+				base : new Array(11).fill(''),
+				trinket : new Array(11).fill(''),
+				bait : new Array(11).fill('')
+			};
+			storageValue = JSON.stringify(objFR);
+		}
+		storageValue = JSON.parse(storageValue);
+		storageValue.enter = parseInt(selectEnterAtBattery.value);
+		storageValue.retreat = parseInt(selectRetreatAtBattery.value);
+		storageValue.weapon[nIndex] = weapon;
+		storageValue.base[nIndex] = base;
+		storageValue.trinket[nIndex] = trinket;
+		storageValue.bait[nIndex] = bait;
+		window.sessionStorage.setItem('FRift', JSON.stringify(storageValue));
+	}
+	
+	function initControlsFR(nCurBatteryLevel){
+		var selectEnterAtBattery = document.getElementById('selectEnterAtBattery');
+		var selectRetreatAtBattery = document.getElementById('selectRetreatAtBattery');
+		var selectTrapSetupAtBattery = document.getElementById('selectTrapSetupAtBattery');
+		var selectFRTrapWeapon = document.getElementById('selectFRTrapWeapon');
+		var selectFRTrapBase = document.getElementById('selectFRTrapBase');
+		var selectFRTrapTrinket = document.getElementById('selectFRTrapTrinket');
+		var selectFRTrapBait = document.getElementById('selectFRTrapBait');
+		var storageValue = window.sessionStorage.getItem('FRift');
+		if(Number.isInteger(nCurBatteryLevel))
+			selectTrapSetupAtBattery.value = nCurBatteryLevel;
+		if(storageValue === null || storageValue === undefined){
+			selectEnterAtBattery.selectedIndex = -1;
+			selectRetreatAtBattery.selectedIndex = -1;
+			selectFRTrapWeapon.selectedIndex = -1;
+			selectFRTrapBase.selectedIndex = -1;
+			selectFRTrapTrinket.selectedIndex = -1;
+			selectFRTrapBait.selectedIndex = -1;
+			selectTrapSetupAtBattery.selectedIndex = 0;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectEnterAtBattery.value = storageValue.enter;
+			selectRetreatAtBattery.value = storageValue.retreat;
+			var nIndex = selectTrapSetupAtBattery.selectedIndex;
+			selectFRTrapWeapon.value = storageValue.weapon[nIndex];
+			selectFRTrapBase.value = storageValue.base[nIndex];
+			selectFRTrapTrinket.value = storageValue.trinket[nIndex];
+			selectFRTrapBait.value = storageValue.bait[nIndex];
+		}
+	}
+	
 	function showOrHideTr(algo){
 		document.getElementById('lgArea').style.display = 'none';
 		document.getElementById('trSCCustom').style.display = 'none';
@@ -6211,6 +6476,9 @@ function bodyJS(){
 		document.getElementById('trBRTrapSetup').style.display = 'none';
 		document.getElementById('trUseZum').style.display = 'none';
 		document.getElementById('trZokorTrapSetup').style.display = 'none';
+		document.getElementById('trFREnterBattery').style.display = 'none';
+		document.getElementById('trFRRetreatBattery').style.display = 'none';
+		document.getElementById('trFRTrapSetupAtBattery').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -6248,6 +6516,36 @@ function bodyJS(){
 		else if(algo == 'SG/ZT'){
 			document.getElementById('trUseZum').style.display = 'table-row';
 			initControlsSGZT();
+		}
+		else if(algo == 'Furoma Rift'){
+			document.getElementById('trFREnterBattery').style.display = 'table-row';
+			document.getElementById('trFRRetreatBattery').style.display = 'table-row';
+			document.getElementById('trFRTrapSetupAtBattery').style.display = 'table-row';
+			var nCurBatteryLevel = 0;
+			try{
+				var bInPagoda = ((user.quests.QuestRiftFuroma.view_state) == 'pagoda');
+				if(bInPagoda){
+					var classCharge = document.getElementsByClassName('riftFuromaHUD-droid-charge');
+					if(classCharge.length > 0){
+						var nRemainingEnergy = parseInt(classCharge[0].innerText);
+						if(Number.isInteger(nRemainingEnergy)){
+							var arrCumulative = [20,65,140,260,460,770,1220,1835,2625,3600];
+							for(var i=arrCumulative.length-1;i>=0;i--){
+								if(nRemainingEnergy <= arrCumulative[i])
+									nCurBatteryLevel = i+1;
+								else
+									break;
+							}
+						}
+					}
+				}
+			}
+			catch(e){
+				console.log('Not in Furoma Rift');
+			}
+			finally{
+				initControlsFR(nCurBatteryLevel);
+			}
 		}
 		else if(algo == 'Zokor'){
 			document.getElementById('trZokorTrapSetup').style.display = 'table-row';
