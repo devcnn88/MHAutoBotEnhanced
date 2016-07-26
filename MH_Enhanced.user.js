@@ -1007,7 +1007,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	var bChangeTrap = false;
 	var arrIndex = [];
 	for(i=0;i<obj.selectedMouse.length;i++){
-		arrIndex.push(obj.selectedMouse[i].indexOf(arrUncaughtMouse));
+		arrIndex.push(arrUncaughtMouse.indexOf(obj.selectedMouse[i]));
 	}
 	if(obj.logic == 'AND'){
 		bChangeTrap = (countArrayElement(-1, arrIndex) == arrIndex.length || bHasReward);
