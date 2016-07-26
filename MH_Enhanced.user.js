@@ -995,7 +995,10 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 		}
 	}
 	else{
-		setStorage('Last Record Uncaught', arrUpdatedUncaught.join(","));
+		if(bHasReward)
+			setStorage('Last Record Uncaught', '');
+		else
+			setStorage('Last Record Uncaught', arrUpdatedUncaught.join(","));
 		arrUncaughtMouse = arrUpdatedUncaught.slice();
 	}
 	
