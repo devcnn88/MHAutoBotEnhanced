@@ -70,7 +70,7 @@ var krStartHourDelayMax = 30;
 
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
-var kingsRewardRetryMax = 3;
+var kingsRewardRetryMax = 2;
 
 // // State to indicate whether to save KR image into localStorage or not
 var saveKRImage = true;
@@ -370,11 +370,14 @@ function FinalizePuzzleImageAnswer(answer)
 	if (answer.length != 5)
     {
 	    //Get a new puzzle
-	    if (kingsRewardRetry > kingsRewardRetryMax)
+	    if (kingsRewardRetry >= kingsRewardRetryMax)
 	    {
 	        kingsRewardRetry = 0;
 			setStorage("KingsRewardRetry", kingsRewardRetry);
-			alert('Max retry. Pls solve it manually.');
+			var strTemp = 'Max ' + kingsRewardRetryMax + 'retries. Pls solve it manually ASAP.';
+			alert(strTemp);
+			displayTimer(strTemp, strTemp, strTemp);
+			console.perror(strTemp);
 			return;
 	    }
 	    else
@@ -4829,11 +4832,14 @@ function CheckKRAnswerCorrectness()
 	var pageMsg = document.getElementById('pagemessage');
 	if (pageMsg && pageMsg.innerText.toLowerCase().indexOf("unable to claim reward") > -1) // KR answer not correct, re-run OCR
 	{
-		if (kingsRewardRetry > kingsRewardRetryMax)
+		if (kingsRewardRetry >= kingsRewardRetryMax)
 	    {
 	        kingsRewardRetry = 0;
 			setStorage("KingsRewardRetry", kingsRewardRetry);
-			alert('Max retry. Pls solve it manually.');
+			var strTemp = 'Max ' + kingsRewardRetryMax + 'retries. Pls solve it manually ASAP.';
+			alert(strTemp);
+			displayTimer(strTemp, strTemp, strTemp);
+			console.perror(strTemp);
 			return;
 	    }
 		++kingsRewardRetry;
