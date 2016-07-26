@@ -466,7 +466,7 @@ if (debugKR)
 
 var getTrapPort;
 var getMapPort;
-if(chrome.runtime.id !== null && chrome.runtime.id !== undefined){
+if(!isNullOrUndefined(chrome.runtime.id)){
 	getTrapPort = chrome.runtime.connect({name: 'main'});
 	getTrapPort.onMessage.addListener(function(msg) {
 		if(msg.type == 'charm')
@@ -955,7 +955,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 			return;
 
 		var temp = getStorageToVariableStr('Last Record Uncaught', null);
-		if(temp !== null && temp !== undefined)
+		if(!isNullOrUndefined(temp))
 			arrUncaughtMouse = temp.split(",");	
 		
 		if(arrUncaughtMouse.length != nRemaining){
@@ -3404,10 +3404,8 @@ function embedTimer(targetPage) {
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
             showPreferenceLinkStr += '</a>';
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
-			var getLogStr = '<a id="idGetLog" name="GetLog" title="Click to get saved log" onclick="onIdGetLogClicked();">';
-			getLogStr += '<b>[Get Log]</b></a>&nbsp;&nbsp;&nbsp;';
-			var getPreferenceStr = '<a id="idGetPreference" name="GetPreference" title="Click to get saved preference" onclick="onIdGetPreferenceClicked();">';
-			getPreferenceStr += '<b>[Get Preference]</b></a>&nbsp;&nbsp;&nbsp;';
+			var getLogPreferenceStr = '<a id="idGetLogAndPreference" name="GetLogAndPreference" title="Click to get saved log & preference" onclick="onIdGetLogPreferenceClicked();">';
+			getLogPreferenceStr += '<b>[Get Log & Preference]</b></a>&nbsp;&nbsp;&nbsp;';
 			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="\
 				window.localStorage.removeItem(\'TrapListWeapon\');\
 				window.localStorage.removeItem(\'TrapListBase\');\
@@ -3417,7 +3415,7 @@ function embedTimer(targetPage) {
 				window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);\
 				">';
 			clearTrapListStr += '<b>[Clear Trap List]</b></a>&nbsp;&nbsp;&nbsp;';
-            showPreferenceSpan.innerHTML = getLogStr + getPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
+            showPreferenceSpan.innerHTML = getLogPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
             showPreferenceLinkDiv.appendChild(showPreferenceSpan);
             showPreferenceLinkStr = null;
             showPreferenceSpan = null;
@@ -5111,7 +5109,7 @@ function browserDetection() {
 
 function setSessionStorage(name, value) {
     // check if the web browser support HTML5 storage
-    if ('sessionStorage' in window && window['sessionStorage'] !== null) {
+    if ('sessionStorage' in window && !isNullOrUndefined(window.sessionStorage)) {
         window.sessionStorage.setItem(name, value);
     }
 
@@ -5432,38 +5430,33 @@ function refreshTrapList() {
 }
 
 function bodyJS(){
-	function onIdGetPreferenceClicked(){
-		var objPreference = {};
-		var temp = '';
-		for(var i=0;i<window.localStorage.length;i++){
-			temp = window.localStorage.key(i);
-			if(temp.indexOf('KR') === 0)
-				continue;
-			objPreference[temp] = window.localStorage.getItem(temp);
-		}
-		saveFile(JSON.stringify(objPreference),'preference.txt');
-	}
-	
-	function onIdGetLogClicked(){
-		var key;
+	function onIdGetLogPreferenceClicked(){
+		var i;
 		var str = "";
 		var temp;
 		var arrLog = [];
-		for(var i=0;i<window.sessionStorage.length;i++){
-			key = window.sessionStorage.key(i);
-			if(key.indexOf('Log_') > -1)
-				arrLog.push(key);
+		for(i=0;i<window.localStorage.length;i++){
+			temp = window.localStorage.key(i);
+			if(temp.indexOf('KR') === 0)
+				continue;
+			str += temp + '|' + window.localStorage.getItem(temp);
+			str += "\r\n";
+		}
+		for(i=0;i<window.sessionStorage.length;i++){
+			temp = window.sessionStorage.key(i);
+			if(temp.indexOf('Log_') > -1)
+				arrLog.push(temp);
 		}
 		arrLog = arrLog.sort();
-		for(var i=0;i<arrLog.length;i++){
+		for(i=0;i<arrLog.length;i++){
 			temp = parseInt(arrLog[i].split('_')[1]);
 			temp = (Number.isInteger(temp)) ? (new Date(temp)).toISOString() : arrLog[i];
 			str += temp + "|" + window.sessionStorage.getItem(arrLog[i]);
 			str += "\r\n";
 		}
-		saveFile(str,'log.txt');
+		saveFile(str,'log_preference.txt');
 	}
-	
+
 	function saveFile(content, filename){
 		var pom = document.createElement('a');
 		pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
