@@ -4807,6 +4807,7 @@ function embedScript() {
 		alert("New UI might not work properly with this script. Use at your own risk");
 		document.getElementById('titleElement').innerHTML += " - <font color='red'><b>Pls use Classic UI(i.e. Non-FreshCoat Layout) for fully working features</b></font>";
 	}
+	setStorage('NewUI', isNewUI);
 
 	var hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
     var oriStr = hornButtonLink.getAttribute('onclick').toString();
@@ -5283,6 +5284,7 @@ function browserDetection() {
     else if (userAgentStr.indexOf("chrome") >= 0) {
         browserName = "chrome";
     }
+	setStorage('UserAgent', userAgentStr);
     userAgentStr = null;
 
     try {
