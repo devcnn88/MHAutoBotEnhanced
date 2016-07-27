@@ -3650,6 +3650,8 @@ function embedTimer(targetPage) {
 			var replaced = "";
 			temp = [];
 			var nTimezoneOffset = -(new Date().getTimezoneOffset()) * 60000;
+			var count = 1;
+			var maxLen = keyKR.length.toString().length;
 			for(var i=0;i<keyKR.length;i++){
 				if (keyKR[i].indexOf("KR" + separator) > -1){
 					temp = keyKR[i].split(separator);
@@ -3661,7 +3663,13 @@ function embedTimer(targetPage) {
 					temp[0] += nTimezoneOffset;
 					temp[0] = (new Date(temp[0])).toISOString();
 					replaced = temp.join("&nbsp;&nbsp;");
+					temp = count.toString();
+					while(temp.length < maxLen){
+						temp = '0' + temp;
+					}
+					replaced = temp + '. ' + replaced;
 					preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + replaced +'</option>';
+					count++;
 				}
 			}
             preferenceHTMLStr += '</select>';
