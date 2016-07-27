@@ -8,10 +8,19 @@ var objTrap = {
 var getTrap = (function(type){return objTrap[type].sort().slice();});
 
 var port;
-if(chrome.runtime.id !== null && chrome.runtime.id !== undefined){
-	port = chrome.runtime.connect({name: 'traps'});
-	port.onMessage.addListener(function(msg) {
-		if(objTrap.hasOwnProperty(msg.type))
-			port.postMessage({type: msg.type, result: getTrap(msg.type)});
-	});
+try{
+	if(!isNullOrUndefined(chrome.runtime.id)){
+		port = chrome.runtime.connect({name: 'traps'});
+		port.onMessage.addListener(function(msg) {
+			if(objTrap.hasOwnProperty(msg.type))
+				port.postMessage({type: msg.type, result: getTrap(msg.type)});
+		});
+	}
+}
+catch (e){
+	// not chrome extension
+}
+
+function isNullOrUndefined(obj){
+	return (obj === null || obj === undefined);
 }

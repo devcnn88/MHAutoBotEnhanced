@@ -475,25 +475,31 @@ if (debugKR)
 
 var getTrapPort;
 var getMapPort;
-if(!isNullOrUndefined(chrome.runtime.id)){
-	getTrapPort = chrome.runtime.connect({name: 'main'});
-	getTrapPort.onMessage.addListener(function(msg) {
-		if(msg.type == 'charm')
-			msg.type = 'trinket';
-		if(objTrapCollection.hasOwnProperty(msg.type)){
-			objTrapCollection[msg.type] = msg.result;
-			if(msg.type == 'trinket' || msg.type == 'bait')
-				objTrapCollection[msg.type].unshift('None');
-			objTrapCollection.count++;
-		}
-	});
-	getMapPort = chrome.runtime.connect({name: 'map'});
-	getMapPort.onMessage.addListener(function(msg) {
-		console.log(msg);
-		if(msg.array.length > 0)
-			checkCaughtMouse(msg.obj, msg.array);
-	});
+try{
+	if(!isNullOrUndefined(chrome.runtime.id)){
+		getTrapPort = chrome.runtime.connect({name: 'main'});
+		getTrapPort.onMessage.addListener(function(msg) {
+			if(msg.type == 'charm')
+				msg.type = 'trinket';
+			if(objTrapCollection.hasOwnProperty(msg.type)){
+				objTrapCollection[msg.type] = msg.result;
+				if(msg.type == 'trinket' || msg.type == 'bait')
+					objTrapCollection[msg.type].unshift('None');
+				objTrapCollection.count++;
+			}
+		});
+		getMapPort = chrome.runtime.connect({name: 'map'});
+		getMapPort.onMessage.addListener(function(msg) {
+			console.log(msg);
+			if(msg.array.length > 0)
+				checkCaughtMouse(msg.obj, msg.array);
+		});
+	}	
 }
+catch (e){
+	// not chrome extension
+}
+
 exeScript();
 getTrapCollection();
 
