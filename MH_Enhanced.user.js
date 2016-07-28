@@ -69,7 +69,7 @@ var krStartHourDelayMax = 30;
 
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
-var kingsRewardRetryMax = 2;
+var kingsRewardRetryMax = 3;
 
 // // State to indicate whether to save KR image into localStorage or not
 var saveKRImage = true;
