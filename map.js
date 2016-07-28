@@ -18,9 +18,11 @@ function mapSolver(){
 			}
 			if(arrUncaught.length > 0){
 				var btn = document.createElement('input');
+				var strOnClick = "window.open('http://olf.github.io/mhmapsolver/?mice=" + encodeURI(arrUncaught.join('/')) + "','mhmapsolver')";
+				btn.setAttribute('type', 'button');
 				btn.setAttribute('id', 'inputOpenMapSolver');
 				btn.setAttribute('value', 'Open Map Solver');
-				btn.onclick = "window.open(http://olf.github.io/mhmapsolver/?mice=" + encodeURI(arrUncaught.join('/')) + ",'mhmapsolver')";
+				btn.setAttribute('onclick', strOnClick);
 				document.getElementsByClassName("treasureMapPopup-header hasImage")[0].appendChild(btn);
 			}
 		}
