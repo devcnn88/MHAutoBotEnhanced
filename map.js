@@ -3,11 +3,18 @@ mapSolver();
 
 function mapSolver(){
 	if(document.getElementById('inputOpenMapSolver') === null){
-		classElement = document.querySelectorAll('.treasureMapPopup-mice-groups.uncaughtmice .treasureMapPopup-mice-group-mouse-name span');
-		if(classElement.length > 0){
+		var classMiceGroups = document.getElementsByClassName('treasureMapPopup-mice-groups');
+		if(classMiceGroups.length > 0){
+			var i,j;
 			var arrUncaught = [];
-			for(var i=0;i<classElement.length;i++){
-				arrUncaught.push(classElement[i].textContent);
+			var classMouseName;
+			for(i=0;i<classMiceGroups.length;i++){
+				if(classMiceGroups[i].getAttribute('class').toLowerCase().indexOf('uncaught') > -1){
+					classMouseName = classMiceGroups[i].getElementsByClassName('treasureMapPopup-mice-group-mouse-name');
+					for(j=0;j<classMouseName.length;j++){
+						arrUncaught.push(classMouseName[j].textContent);
+					}
+				}
 			}
 			if(arrUncaught.length > 0){
 				var btn = document.createElement('input');
