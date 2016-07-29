@@ -2784,12 +2784,12 @@ function GetHornTime() {
 	var huntTimerElement = document.getElementById('huntTimer');
 	if (huntTimerElement !== null) {
 		huntTimerElement = huntTimerElement.textContent;
-		if (huntTimerElement.length == 4) huntTimerElement = '0' + huntTimerElement;
 		var totalSec;
 		if (isNewUI) {
-			var strTemp = new Date().toDateString() + ' 00:' + huntTimerElement;
-			var huntingTime = new Date(strTemp);
-			totalSec = huntingTime.getMinutes() * 60 + huntingTime.getSeconds();
+			arrTime = huntTimerElement.split(":");
+			for(var i=0;i<arrTime.length;i++)
+				arrTime[i] = parseInt(arrTime[i]);
+			totalSec = arrTime[0] * 60 + arrTime[1];
 		}
 		else {
 			var temp = parseInt(huntTimerElement);
@@ -2809,7 +2809,7 @@ function GetHornTime() {
 
 function getKingRewardStatus() {
 	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
-	if (header !== null) {
+	if (headerOrHud !== null) {
 		var textContentLowerCase = header.textContent.toLowerCase();
 		if (textContentLowerCase.indexOf("king reward") > -1 ||
 			textContentLowerCase.indexOf("king's reward") > -1 ||
@@ -2852,6 +2852,7 @@ function getCurrentLocation() {
 }
 
 function retrieveData() {
+	if(isNewUI) console.plog('retrieveData');
 	try {
 		// get next horn time
 		browser = browserDetection();
@@ -4540,9 +4541,11 @@ function displayKingRewardSumTime(timeStr) {
 // ################################################################################################
 
 function soundHorn() {
+	if(isNewUI) console.plog('soundHorn');
 	var isAtCampPage = (isNewUI)? (document.getElementById('journalContainer') !== null) : (document.getElementById('huntingTips') !== null) ;
 	if (!isAtCampPage) {
 		displayTimer("Not At Camp Page", "Not At Camp Page", "Not At Camp Page");
+		window.setTimeout(function () { soundHorn(); }, timerRefreshInterval * 1000);
 		return;
 	}
 
@@ -4653,6 +4656,7 @@ function soundHorn() {
 }
 
 function afterSoundingHorn() {
+	if(isNewUI) console.plog('afterSoundingHorn');
     var scriptNode = document.getElementById("scriptNode");
     if (scriptNode) {
         scriptNode.setAttribute("soundedHornAtt", "false");
@@ -4784,7 +4788,7 @@ function embedScript() {
 		strHornButton = 'mousehuntHud-huntersHorn-container';
         strCampButton = 'camp';
 		alert("New UI might not work properly with this script. Use at your own risk");
-		document.getElementById('titleElement').innerHTML += " - <font color='red'><b>Pls use Classic UI(i.e. Non-FreshCoat Layout) for fully working features</b></font>";
+		document.getElementById('titleElement').innerHTML += " - <font color='red'><b>Pls use Classic UI (i.e. Non-FreshCoat Layout) for fully working features</b></font>";
 	}
 	setStorage('NewUI', isNewUI);
 
@@ -5025,7 +5029,8 @@ function CheckKRAnswerCorrectness()
 // ################################################################################################
 
 function trapCheck() {
-    // update timer
+    if(isNewUI) console.plog('trapCheck');
+	// update timer
     displayTimer("Checking The Trap...", "Checking trap now...", "Checking trap now...");
 
     // simulate mouse click on the camp button
@@ -5047,6 +5052,7 @@ function CalculateNextTrapCheckInMinute() {
         checkTimeDelay = checkTimeDelayMin + Math.round(Math.random() * (checkTimeDelayMax - checkTimeDelayMin));
         checkTime = (now.getMinutes() >= trapCheckTimeDiff) ? 3600 + temp : temp;
         checkTime += checkTimeDelay;
+		if(isNewUI) console.plog('checkTime;', checkTime);
         now = undefined;
         temp = undefined;
     }
