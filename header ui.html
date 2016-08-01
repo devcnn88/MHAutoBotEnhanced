@@ -228,6 +228,46 @@
 							<option value="Labyrinth">Labyrinth</option>
 							<option value="Zokor">Zokor</option>
 							<option value="SG/ZT">Seasonal Garden</option>
+							<option value="ZT">Zugzwang's Tower</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trZTFocus" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select to chesspiece side to focus"><b>Side to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectZTFocus" onchange="onSelectZTFocus();">
+							<option value="MYSTIC">Mystic</option>
+							<option value="TECHNIC">Technic</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trZTTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based certain chesspiece order"><b>Trap Setup for </b></a>
+						<select id="selectZTMouseOrder" onchange="onSelectZTMouseOrder();">
+							<option value="PAWN">Pawn</option>
+							<option value="KNIGHT">Knight</option>
+							<option value="BISHOP">Bishop</option>
+							<option value="ROOK">Rook</option>
+							<option value="QUEEN">Queen</option>
+							<option value="KING">King</option>
+							<option value="CHESSMASTER">Chessmaster</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectZTWeapon" onchange="onSelectZTWeapon();">
+							<option value="Pincher">Focused-Side Pawn Pincher</option>
+							<option value="BPT/OAT">Focused-Side Trap BPT/OAT</option>
+						</select>
+						<select id="selectZTBase" onchange="onSelectZTBase();">
+						</select>
+						<select id="selectZTTrinket" onchange="onSelectZTTrinket();">
+							<option value="None">None</option>
+						</select>
+						<select id="selectZTBait" onchange="onSelectZTBait();">
+							<option value="Brie">Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SB+</option>
+							<option value="Checkmate">Checkmate</option>
 						</select>
 					</td>
 				</tr>
@@ -559,6 +599,10 @@
 	</div>
 </div>
 <script type="text/javascript">
+	function isNullOrUndefined(obj){
+		return (obj === null || obj === undefined);
+	}
+
 	function onIdGetPreferenceClicked(){
 		var objPreference = {};
 		var temp = '';
@@ -753,7 +797,7 @@
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
-				key.indexOf("MapHunting")>-1){
+				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -771,7 +815,7 @@
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
-				key.indexOf("MapHunting")>-1){
+				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -1216,6 +1260,95 @@
 		}
 	}
 	
+	function onSelectZTFocus(){
+		var selectZTFocus = document.getElementById('selectZTFocus');
+		var selectZTWeapon = document.getElementById('selectZTWeapon');
+		if(selectZTFocus.value == 'MYSTIC'){
+		
+		}
+		else if(selectZTFocus.value == 'TECHNIC'){
+		}
+		saveZT();
+	}
+	
+	function onSelectZTMouseOrder(){
+		initControlsZT();
+	}
+	
+	function onSelectZTWeapon(){
+		saveZT();
+	}
+	
+	function onSelectZTBase(){
+		saveZT();
+	}
+	
+	function onSelectZTTrinket(){
+		saveZT();
+	}
+	
+	function onSelectZTBait(){
+		saveZT();
+	}
+
+	function initControlsZT(){
+		var selectZTFocus = document.getElementById('selectZTFocus');
+		var selectZTMouseOrder = document.getElementById('selectZTMouseOrder');
+		var selectZTWeapon = document.getElementById('selectZTWeapon');
+		var selectZTBase = document.getElementById('selectZTBase');
+		var selectZTTrinket = document.getElementById('selectZTTrinket');
+		var selectZTBait = document.getElementById('selectZTBait');
+		var storageValue = window.sessionStorage.getItem('ZTower');
+		if(isNullOrUndefined(storageValue)){
+			selectZTWeapon.selectedIndex = -1;
+			selectZTBase.selectedIndex = -1;
+			selectZTTrinket.selectedIndex = -1;
+			selectZTBait.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectZTFocus.value = storageValue.focus;
+			var nIndex = storageValue.order.indexOf(selectZTMouseOrder.value);
+			if(nIndex < 0)
+				nIndex = 0;
+			selectZTWeapon.value = storageValue.weapon[nIndex];
+			selectZTBase.value = storageValue.base[nIndex];
+			selectZTTrinket.value = storageValue.trinket[nIndex];
+			selectZTBait.value = storageValue.bait[nIndex];
+		}
+	}
+	
+	function saveZT(){
+		var selectZTFocus = document.getElementById('selectZTFocus');
+		var selectZTMouseOrder = document.getElementById('selectZTMouseOrder');
+		var selectZTWeapon = document.getElementById('selectZTWeapon');
+		var selectZTBase = document.getElementById('selectZTBase');
+		var selectZTTrinket = document.getElementById('selectZTTrinket');
+		var selectZTBait = document.getElementById('selectZTBait');
+		var storageValue = window.sessionStorage.getItem('ZTower');
+		if(isNullOrUndefined(storageValue)){
+			var objZT = {
+				focus : 'Mystic',
+				order : ['PAWN', 'KNIGHT', 'BISHOP', 'ROOK', 'QUEEN', 'KING', 'CHESSMASTER'],
+				weapon : new Array(7).fill(''),
+				base : new Array(7).fill(''),
+				trinket : new Array(7).fill('None'),
+				bait : new Array(7).fill('Gouda'),
+			};
+			storageValue = JSON.stringify(objZT);
+		}
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectZTMouseOrder.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.focus = selectZTFocus.value;
+		storageValue.weapon[nIndex] = selectZTWeapon.value;
+		storageValue.base[nIndex] = selectZTBase.value;
+		storageValue.trinket[nIndex] = selectZTTrinket.value;
+		storageValue.bait[nIndex] = selectZTBait.value;
+		window.sessionStorage.setItem('ZTower', JSON.stringify(storageValue));
+	}
+	
 	function onSelectZokorBossStatus(){
 		initControlsZokor();
 	}
@@ -1262,7 +1395,7 @@
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = storageValue.bossStatus.indexOf(selectZokorBossStatus.value);
-			if(nIndex < -1)
+			if(nIndex < 0)
 				nIndex = 0;
 			selectZokorBait.value = storageValue.bait[nIndex];
 			selectZokorTrinket.value = storageValue.charm[nIndex];
@@ -1289,6 +1422,8 @@
 		document.getElementById('trBRTrapSetup').style.display = 'none';
 		document.getElementById('trUseZum').style.display = 'none';
 		document.getElementById('trZokorTrapSetup').style.display = 'none';
+		document.getElementById('trZTFocus').style.display = 'none';
+		document.getElementById('trZTTrapSetup').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('lgArea').style.display = 'table-row';
 			loadLG();
@@ -1326,6 +1461,11 @@
 		else if(algo == 'SG/ZT'){
 			document.getElementById('trUseZum').style.display = 'table-row';
 			initControlsSGZT();
+		}
+		else if(algo == 'ZT'){
+			document.getElementById('trZTFocus').style.display = 'table-row';
+			document.getElementById('trZTTrapSetup').style.display = 'table-row';
+			initControlsZT();
 		}
 		else if(algo == 'Zokor'){
 			document.getElementById('trZokorTrapSetup').style.display = 'table-row';
