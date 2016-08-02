@@ -6599,13 +6599,6 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			selectZTFocus.value = storageValue.focus;
-			var nIndex = storageValue.order.indexOf(selectZTMouseOrder.value);
-			if(nIndex < 0)
-				nIndex = 0;
-			selectZTWeapon.value = storageValue.weapon[nIndex];
-			selectZTBase.value = storageValue.base[nIndex];
-			selectZTTrinket.value = storageValue.trinket[nIndex];
-			selectZTBait.value = storageValue.bait[nIndex];
 			if(bAutoChangeMouseOrder && user.location.indexOf('Zugzwang\'s Tower') > -1){
 				var nProgress = (storageValue.focus == 'MYSTIC') ? user.viewing_atts.zzt_mage_progress : user.viewing_atts.zzt_tech_progress;
 				nProgress = parseInt(nProgress);
@@ -6628,6 +6621,13 @@ function bodyJS(){
 						selectZTMouseOrder.value = 'CHESSMASTER';
 				}
 			}
+			var nIndex = storageValue.order.indexOf(selectZTMouseOrder.value);
+			if(nIndex < 0)
+				nIndex = 0;
+			selectZTWeapon.value = storageValue.weapon[nIndex];
+			selectZTBase.value = storageValue.base[nIndex];
+			selectZTTrinket.value = storageValue.trinket[nIndex];
+			selectZTBait.value = storageValue.bait[nIndex];
 		}
 	}
 	
