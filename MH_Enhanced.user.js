@@ -1144,7 +1144,7 @@ function sgOrZT(){
 function seasonalGarden(useZUMIn){
 	var cheeseArmed = getPageVariable('user.bait_name');
 	if(cheeseArmed.indexOf('Checkmate') > -1)
-		checkThenArm(null, 'bait', 'Guda');
+		checkThenArm(null, 'bait', 'Gouda');
 	
 	var objSG = {
 		season : ['Spring', 'Summer', 'Fall', 'Winter'],
@@ -4994,7 +4994,7 @@ function CallKRSolver()
 function CheckKRAnswerCorrectness()
 {
 	var pageMsg = document.getElementById('pagemessage');
-	if (pageMsg && pageMsg.innerText.toLowerCase().indexOf("unable to claim reward") > -1) // KR answer not correct, re-run OCR
+	if (!isNullOrUndefined(pageMsg) && pageMsg.innerText.toLowerCase().indexOf("unable to claim reward") > -1) // KR answer not correct, re-run OCR
 	{
 		if (kingsRewardRetry >= kingsRewardRetryMax)
 	    {
