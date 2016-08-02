@@ -391,15 +391,20 @@ function FinalizePuzzleImageAnswer(answer)
 	    {
 	        ++kingsRewardRetry;
 			setStorage("KingsRewardRetry", kingsRewardRetry);
-	        var tagName = document.getElementsByTagName("a");
-            for (var i = 0; i < tagName.length; i++)
-            {
-                if (tagName[i].innerText == "Click here to get a new one!")
-                {
-					fireEvent(tagName[i], 'click');
-                    return;
-                }
-            }
+			if(isNewUI){
+				
+			}
+			else{
+				var tagName = document.getElementsByTagName("a");
+				for (var i = 0; i < tagName.length; i++)
+				{
+					if (tagName[i].innerText == "Click here to get a new one!")
+					{
+						fireEvent(tagName[i], 'click');
+						return;
+					}
+				}
+			}
 	    }
     }
     else
@@ -454,7 +459,7 @@ function receiveMessage(event)
 					setStorage(strKR, processedImg);
 				}
 				catch (e){
-					console.perror('receiveMessage',e);
+					console.perror('receiveMessage',e.message);
 				}
 			}
 			FinalizePuzzleImageAnswer(result);
@@ -697,7 +702,7 @@ function GetTrapCheckTime(){
 		else throw 'passiveElement not found';
 	}
 	catch (e) {
-		console.perror('GetTrapCheckTime',e);
+		console.perror('GetTrapCheckTime',e.message);
 		var tempStorage = getStorage('TrapCheckTimeOffset');
 		if (isNullOrUndefined(tempStorage)) {
 		    tempStorage = 00;
@@ -1169,7 +1174,13 @@ function seasonalGarden(){
 }
 
 function zugzwangTower(){
-	if(GetCurrentLocation().indexOf("Zugzwang's Tower") < 0)
+	var loc = GetCurrentLocation();
+	if (loc.indexOf("Seasonal Garden") > -1){
+		setStorage('eventLocation', 'SG');
+		seasonalGarden();
+		return;
+	}
+	else if (loc.indexOf("Zugzwang's Tower") < 0)
 		return;
 
 	var objZTDefault = {
@@ -1182,6 +1193,50 @@ function zugzwangTower(){
 	};
 	
 	var objZT = JSON.parse(getStorageToVariableStr('ZTower', JSON.stringify(objZTDefault)));
+	var nProgress = -1;
+	if(objZT.focus == 'MYSTIC')
+		nProgress = parseInt(getPageVariable('user.viewing_atts.zzt_mage_progress'));
+	else
+		nProgress = parseInt(getPageVariable('user.viewing_atts.zzt_tech_progress'));
+
+	if(Number.isNaN(nProgress))
+		return;
+	
+	var strUnlock = "";
+	if(nProgress <= 7)
+		strUnlock = 'PAWN';
+	else if(nProgress <= 9)
+		strUnlock = 'KNIGHT';
+	else if(nProgress <= 11)
+		strUnlock = 'BISHOP';
+	else if(nProgress <= 13)
+		strUnlock = 'ROOK';
+	else if(nProgress <= 14)
+		strUnlock = 'QUEEN';
+	else if(nProgress <= 15)
+		strUnlock = 'KING';
+	else if(nProgress <= 16)
+		strUnlock = 'CHESSMASTER';
+	
+	var nIndex = objZT.order.indexOf(strUnlock);
+	console.plog(capitalizeFirstLetter(objZT.focus), 'Progress:', nProgress, 'Unlock:', strUnlock);
+	if(nIndex == -1 || strUnlock === "")
+		return;
+
+	if(objZT.weapon[nIndex] == 'MPP/TPP')
+		objZT.weapon[nIndex] = (objZT.focus == 'MYSTIC') ? 'Mystic Pawn Pincher' : 'Technic Pawn Pincher';
+	else if(objZT.weapon[nIndex] == 'BPT/OAT')
+		objZT.weapon[nIndex] = (objZT.focus == 'MYSTIC') ? 'Blackstone Pass Trap' : 'Obvious Ambush Trap';
+	
+	for (var prop in objZT) {
+		if(objZT.hasOwnProperty(prop) && 
+			(prop == 'weapon' || prop == 'base' || prop == 'trinket' || prop == 'bait')) {
+			if(objZT[prop][nIndex] == 'None')
+				disarmTrap(prop);
+			else
+				checkThenArm(null, prop, objZT[prop][nIndex]);
+		}
+	}
 }
 
 function balackCoveJOD(){
@@ -1715,7 +1770,7 @@ function labyrinth() {
 		window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
 	}
 	catch (e){
-		console.perror('labyrinth',e);
+		console.perror('labyrinth',e.message);
 		checkThenArm(null, 'bait', 'Gouda');
 		disarmTrap('trinket');
 		return;
@@ -2360,7 +2415,7 @@ function checkCharge2016(stopDischargeAt){
 		}
     }
     catch (e) {
-        console.perror('checkCharge2016',e);
+        console.perror('checkCharge2016',e.message);
     }
 }
 function checkCharge(stopDischargeAt) {
@@ -2401,7 +2456,7 @@ function checkCharge(stopDischargeAt) {
         return;
     }
     catch (e) {
-        console.perror('checkCharge',e);
+        console.perror('checkCharge',e.message);
     }
 }
 
@@ -2853,7 +2908,7 @@ function retrieveDataFirst() {
 		return (retrieveSuccess);
 	}
 	catch (e) {
-		console.perror('retrieveDataFirst',e);
+		console.perror('retrieveDataFirst',e.message);
 	}
 	finally {
 		retrieveSuccess = undefined;
@@ -2985,7 +3040,7 @@ function retrieveData() {
 		mapHunting();
 	}
 	catch (e) {
-		console.perror('retrieveData',e);
+		console.perror('retrieveData',e.message);
 	}
 }
 
@@ -3276,7 +3331,7 @@ function countdownTimer() {
 		}
 	}
 	catch (e) {
-		console.perror('countdownTimer',e);
+		console.perror('countdownTimer',e.message);
 	}
 }
 
@@ -3942,7 +3997,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectZTWeapon" style="width: 75px" onchange="onSelectZTWeapon();">';
-			preferenceHTMLStr += '<option value="Pincher">Focused-Side Pawn Pincher</option>';
+			preferenceHTMLStr += '<option value="MPP/TPP">Focused-Side Pawn Pincher</option>';
 			preferenceHTMLStr += '<option value="BPT/OAT">Focused-Side Trap BPT/OAT</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectZTBase" style="width: 75px" onchange="onSelectZTBase();">';
@@ -3951,6 +4006,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectZTBait" onchange="onSelectZTBait();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie">Brie</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
@@ -4502,7 +4558,7 @@ function loadPreferenceSettingFromStorage() {
 			setStorage('SCCustom', JSON.stringify(objSCCustomBackward));
 	}
 	catch (e){
-		console.perror('loadPreferenceSettingFromStorage',e);
+		console.perror('loadPreferenceSettingFromStorage',e.message);
 	}
 	getTrapList();
 }
@@ -5056,10 +5112,15 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 		{
 			strTemp = "Reloading...";
 			displayTimer(strTemp, strTemp, strTemp);
-			// simulate mouse click on the camp button
-			var campElement = document.getElementsByClassName(strCampButton)[0].firstChild;
-			fireEvent(campElement, 'click');
-			campElement = null;
+			if(isNewUI){
+				reloadPage(false);
+			}
+			else{
+				// simulate mouse click on the camp button
+				var campElement = document.getElementsByClassName(strCampButton)[0].firstChild;
+				fireEvent(campElement, 'click');
+				campElement = null;
+			}
 
 			// reload the page if click on the camp button fail
 			window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
@@ -5645,7 +5706,7 @@ function getPageVariable(variableName) {
 		return value;
 	}
 	catch (e) {
-		console.perror('getPageVariable',e);
+		console.perror('getPageVariable',e.message);
 		return "";
 	}
 }
@@ -5782,7 +5843,7 @@ function refreshTrapList() {
 			}
 		});
 	} catch (e) {
-		console.perror('refreshTrapList',e);
+		console.perror('refreshTrapList',e.message);
 	}
 }
 
@@ -5992,7 +6053,7 @@ function bodyJS(){
 		catch (e) {
 			document.getElementById('inputGetMouse').value = 'Refresh Uncaught Mouse List';
 			document.getElementById('inputGetMouse').disabled = '';
-			console.error('onInputGetMouse',e);
+			console.error('onInputGetMouse',e.message);
 		}
 	}
 	
@@ -6518,7 +6579,9 @@ function bodyJS(){
 		saveZT();
 	}
 
-	function initControlsZT(){
+	function initControlsZT(bAutoChangeMouseOrder){
+		if(isNullOrUndefined(bAutoChangeMouseOrder))
+			bAutoChangeMouseOrder = false;
 		var selectZTFocus = document.getElementById('selectZTFocus');
 		var selectZTMouseOrder = document.getElementById('selectZTMouseOrder');
 		var selectZTWeapon = document.getElementById('selectZTWeapon');
@@ -6531,6 +6594,7 @@ function bodyJS(){
 			selectZTBase.selectedIndex = -1;
 			selectZTTrinket.selectedIndex = -1;
 			selectZTBait.selectedIndex = -1;
+			selectZTMouseOrder.selectedIndex = 0;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -6542,6 +6606,28 @@ function bodyJS(){
 			selectZTBase.value = storageValue.base[nIndex];
 			selectZTTrinket.value = storageValue.trinket[nIndex];
 			selectZTBait.value = storageValue.bait[nIndex];
+			if(bAutoChangeMouseOrder && user.location.indexOf('Zugzwang\'s Tower') > -1){
+				var nProgress = (storageValue.focus == 'MYSTIC') ? user.viewing_atts.zzt_mage_progress : user.viewing_atts.zzt_tech_progress;
+				nProgress = parseInt(nProgress);
+				if(Number.isNaN(nProgress))
+					selectZTMouseOrder.selectedIndex = 0;
+				else{
+					if(nProgress <= 7)
+						selectZTMouseOrder.value = 'PAWN';
+					else if(nProgress <= 9)
+						selectZTMouseOrder.value = 'KNIGHT';
+					else if(nProgress <= 11)
+						selectZTMouseOrder.value = 'BISHOP';
+					else if(nProgress <= 13)
+						selectZTMouseOrder.value = 'ROOK';
+					else if(nProgress <= 14)
+						selectZTMouseOrder.value = 'QUEEN';
+					else if(nProgress <= 15)
+						selectZTMouseOrder.value = 'KING';
+					else if(nProgress <= 16)
+						selectZTMouseOrder.value = 'CHESSMASTER';
+				}
+			}
 		}
 	}
 	
@@ -6785,7 +6871,7 @@ function bodyJS(){
 		else if(algo == 'ZT'){
 			document.getElementById('trZTFocus').style.display = 'table-row';
 			document.getElementById('trZTTrapSetup').style.display = 'table-row';
-			initControlsZT();
+			initControlsZT(true);
 		}
 		else if(algo == 'Furoma Rift'){
 			document.getElementById('trFREnterBattery').style.display = 'table-row';
