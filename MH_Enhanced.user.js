@@ -1971,7 +1971,7 @@ function fRift(){
 	var i;
 	if(bInPagoda){
 		var nCurBatteryLevel = 0;
-		var nRemainingEnergy = parseInt(getPageVariable('user.quests.QuestRiftFuroma.droid.remaining_energy'));
+		var nRemainingEnergy = parseInt(getPageVariable('user.quests.QuestRiftFuroma.droid.remaining_energy').replace(/,/g, ''));
 		if(Number.isNaN(nRemainingEnergy)){
 			console.plog('Remaining Energy:', nRemainingEnergy);
 			return;
@@ -1998,7 +1998,7 @@ function fRift(){
 	else{
 		var nFullBatteryLevel = 0;
 		var classBattery = document.getElementsByClassName('riftFuromaHUD-battery');
-		var nStoredEnerchi = parseInt(document.getElementsByClassName('total_energy')[0].children[1].innerText);
+		var nStoredEnerchi = parseInt(document.getElementsByClassName('total_energy')[0].children[1].innerText.replace(/,/g, ''));
 		if(classBattery.length < 1 || Number.isNaN(nStoredEnerchi))
 			return;
 		for(i=0;i<objFRBattery.cumulative.length;i++){
