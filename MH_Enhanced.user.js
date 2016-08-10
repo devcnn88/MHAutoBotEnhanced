@@ -2091,20 +2091,12 @@ function fRift(){
 function fRiftArmTrap(obj, nIndex){
 	checkThenArm(null, 'weapon', obj.weapon[nIndex]);
 	checkThenArm(null, 'base', obj.base[nIndex]);
+	if(obj.bait[nIndex] == 'ANY_MASTER')
+		checkThenArm('best', 'bait', ['Rift Glutter', 'Rift Susheese', 'Rift Combat']);
+	else
 	checkThenArm(null, 'bait', obj.bait[nIndex]);
-	if(obj.trinket[nIndex] == 'NoAbove'){
-		var charmArmed = getPageVariable("user.trinket_name");
-		var optionTrinket = document.getElementById('selectFRTrapTrinket').children;
-		for(var i=0;i<optionTrinket.length;i++){
-			if (charmArmed.indexOf(optionTrinket[i].value) === 0){
+	if(obj.trinket[nIndex] == 'None')
 				disarmTrap('trinket');
-				break;
-			}
-		}
-	}
-	else if(obj.trinket[nIndex] == 'None'){
-		disarmTrap('trinket');
-	}
 	else
 		checkThenArm(null, 'trinket', obj.trinket[nIndex]);
 }
@@ -3944,26 +3936,17 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
 			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectFRTrapTrinket" onchange="onSelectFRTrapTrinketChanged();">';
-			preferenceHTMLStr += '<option value="Rift Ultimate Luck">Rift Ultimate Luck</option>';
-			preferenceHTMLStr += '<option value="Rift Ultimate Power">Rift Ultimate Power</option>';
-			preferenceHTMLStr += '<option value="Ultimate Luck">Ultimate Luck</option>';
-			preferenceHTMLStr += '<option value="Ultimate Power">Ultimate Power</option>';
-			preferenceHTMLStr += '<option value="Rift Power">Rift Power</option>';
-			preferenceHTMLStr += '<option value="Super Rift Vacuum">Super Rift Vacuum</option>';
-			preferenceHTMLStr += '<option value="Rift Vacuum">Rift Vacuum</option>';
-			preferenceHTMLStr += '<option value="Enerchi">Enerchi</option>';
-			preferenceHTMLStr += '<option value="Super Cactus">Super Cactus</option>';
-			preferenceHTMLStr += '<option value="NoAbove">None of the above</option>';
+			preferenceHTMLStr += '<select id="selectFRTrapTrinket" style="width: 75px" onchange="onSelectFRTrapTrinketChanged();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectFRTrapBait" onchange="onSelectFRTrapBaitChanged();">';
+			preferenceHTMLStr += '<select id="selectFRTrapBait" style="width: 75px" onchange="onSelectFRTrapBaitChanged();">';
 			preferenceHTMLStr += '<option value="Ascended">Ascended</option>';
 			preferenceHTMLStr += '<option value="Null Onyx Gorgonzola">Null Onyx Gorgonzola</option>';
 			preferenceHTMLStr += '<option value="Rift Rumble">Rift Rumble</option>';
 			preferenceHTMLStr += '<option value="Rift Glutter">Rift Glutter</option>';
 			preferenceHTMLStr += '<option value="Rift Susheese">Rift Susheese</option>';
 			preferenceHTMLStr += '<option value="Rift Combat">Rift Combat</option>';
+			preferenceHTMLStr += '<option value="ANY_MASTER">Glutter/Susheese/Combat</option>';
 			preferenceHTMLStr += '<option value="Master Fusion">Master Fusion</option>';
 			preferenceHTMLStr += '<option value="Maki String">Maki</option>';
 			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
@@ -4432,6 +4415,7 @@ function embedTimer(targetPage) {
 			var selectZTWeapon = document.getElementById('selectZTWeapon');
 			var selectZTBase = document.getElementById('selectZTBase');
 			var selectZTTrinket = document.getElementById('selectZTTrinket');
+			var selectFRTrapTrinket = document.getElementById('selectFRTrapTrinket');
 			var optionEle;
 			var arrOptionEle = new Array(3);
 			for (var prop in objTrapCollection) {
@@ -4471,6 +4455,10 @@ function embedTimer(targetPage) {
 							if(!isNullOrUndefined(selectZTTrinket)){
 								arrOptionEle[1] = optionEle.cloneNode(true);
 								selectZTTrinket.appendChild(arrOptionEle[1]);
+							}
+							if(!isNullOrUndefined(selectFRTrapTrinket)){
+								arrOptionEle[2] = optionEle.cloneNode(true);
+								selectFRTrapTrinket.appendChild(arrOptionEle[2]);
 							}
 						}
 						else if(prop == 'bait'){
@@ -4556,6 +4544,30 @@ function loadPreferenceSettingFromStorage() {
 		}
 		if(objSCCustomBackward.zone.length > 0)
 			setStorage('SCCustom', JSON.stringify(objSCCustomBackward));
+		
+		// Backward compatibility of SGZT
+		keyValue = getStorage("SGZT");
+		if(!isNullOrUndefined(keyValue)){
+			setStorage("SGarden", keyValue);
+			removeStorage("SGZT");
+		}
+		
+		// Backward compatibility of FRift
+		keyValue = getStorage("FRift");
+		if(!isNullOrUndefined(keyValue)){
+			var obj = JSON.parse(keyValue);
+			var bResave = false;
+			for(i=0;i<obj.trinket.length;i++){
+				if(obj.trinket[i] == 'None' || obj.trinket[i] == 'NoAbove' || obj.trinket[i] === '' || isNullOrUndefined(obj.trinket[i]))
+					continue;
+				if(obj.trinket[i].indexOf('Charm') < 0){
+					obj.trinket[i] += ' Charm';
+					bResave = true;
+				}
+			}
+			if(bResave)
+				setStorage("FRift", JSON.stringify(obj));
+		}
 	}
 	catch (e){
 		console.perror('loadPreferenceSettingFromStorage',e.message);
