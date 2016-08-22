@@ -1855,12 +1855,11 @@ function fw(){
 		if(objFW.priorities == 'HIGHEST')
 			indexMinMax = maxIndex(objFW.population[objFW.focusType]);
 		else{
-			temp = objFW.population[objFW.focusType].slice();
-			for(var i=0;i<temp.length;i++){
-				if(temp[i] < 1)
-					temp[i] = Number.MAX_SAFE_INTEGER;
+			for(var i=0;i<objFW.population[objFW.focusType].length;i++){
+				if(objFW.population[objFW.focusType][i] < 1)
+					objFW.population[objFW.focusType][i] = Number.MAX_SAFE_INTEGER;
 			}
-			indexMinMax = minIndex(temp);
+            indexMinMax = minIndex(objFW.population[objFW.focusType]);
 		}
 		index = objPopulation.name.indexOf(objFW.streakMouse);
 		if(index > -1){
