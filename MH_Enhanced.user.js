@@ -169,7 +169,7 @@ var objPopulation = {
 };
 
 // // Living Garden Preference
-var bestLGBase = ['Hothouse Base'];
+var bestLGBase = ['Living Base', 'Hothouse Base'];
 bestLGBase = bestLGBase.concat(bestLuckBase);
 var bestSalt = ['Super Salt', 'Grub Salt'];
 var redSpongeCharm = ['Red Double', 'Red Sponge'];
