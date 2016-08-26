@@ -25,6 +25,20 @@
 			onclick="onIdGetPreferenceClicked();"><b>[Get Preference]</b></a>&nbsp;&nbsp;&nbsp;
 		</span>
 		<span>
+			<a id="showTrapLink" name="showTrapLink" 
+			onclick=
+			"if (document.getElementById('showTrapLink').innerHTML == '<b>[Hide Trap Setting]</b>') { 
+				document.getElementById('trapSettingDiv').style.display='none';  
+				document.getElementById('showTrapLink').innerHTML='<b>[Show Trap Setting]</b>'; 
+			} 
+			else {
+				setLocalToSession();
+				document.getElementById('trapSettingDiv').style.display='block'; 
+				document.getElementById('showTrapLink').innerHTML='<b>[Hide Trap Setting]</b>'; 
+				initControlsBestTrap();
+			}"><b>[Show Trap Setting]</b></a>&nbsp;&nbsp;&nbsp;
+		</span>
+		<span>
 			<a id="showPreferenceLink" name="showPreferenceLink" 
 			onclick=
 			"if (document.getElementById('showPreferenceLink').innerHTML == '<b>[Hide Preference]</b>') { 
@@ -42,6 +56,60 @@
 		</span>
 	</div>
 <hr>
+	<div id="trapSettingDiv" style="display: none;">
+		<table border="0" width="100%">
+			<tbody>
+				<tr>
+					<td style="height:24px; text-align:right;"><b>Best Weapon for </b>
+						<select id="selectBestTrapPowerType" onchange="onSelectBestTrapPowerType();">
+							<option value="arcane">Arcane</option>
+							<option value="draconic">Draconic</option>
+							<option value="forgotten">Forgotten</option>
+							<option value="hydro">Hydro</option>
+							<option value="law">Law</option>
+							<option value="physical">Physical</option>
+							<option value="rift">Rift</option>
+							<option value="shadow">Shadow</option>
+							<option value="tactical">Tactical</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectBestTrapWeapon" onchange="onSelectBestTrapWeapon();">
+							<option value="Pincher">Focused-Side Pawn Pincher</option>
+							<option value="BPT/OAT">Focused-Side Trap BPT/OAT</option>
+							<option value="Arcane 1">Arcane 1</option>
+							<option value="Arcane 2">Arcane 2</option>
+							<option value="Physical 1">Physical 1</option>
+							<option value="Physical 2">Physical 2</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><b>Best Base for </b>
+						<select id="selectBestTrapBaseType" onchange="onSelectBestTrapBaseType();">
+							<option value="luck">Luck</option>
+							<option value="power">Power</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectBestTrapBase" onchange="onSelectBestTrapBase();">
+							<option value="Minotaur Base">Minotaur Base</option>
+							<option value="Rift Base">Rift Base</option>
+							<option value="20 Luck Base">20 Luck Base</option>
+							<option value="20k Power Base">20k Power Base</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;" colspan="2">
+						<input type="button" id="inputBestTrapSaveInput" title="Save changes of best weapon or base without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">
+						<input type="button" id="inputBestTrapSaveReloadInput" title="Save changes of best weapon or base with reload, take effect immediately" value="Apply & Reload" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<hr>
+	</div>
 	<div id="preferenceDiv" style="display: none;">
 		<table border="0" width="100%">
 			<tbody>
@@ -194,6 +262,15 @@
 						</select>
 						<select id="selectBait" onchange="onSelectBaitChanged();">
 							<option value="Remain">Remain</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trMapHuntingLeave" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select to leave map after catch logic is fulfilled"><b>Leave Map After Caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectLeaveMap" onchange="onSelectLeaveMap();">
+							<option value="false">False</option>
+							<option value="true">True</option>
 						</select>
 					</td>
 				</tr>
@@ -650,6 +727,7 @@
 		var selectBase = document.getElementById('selectBase');
 		var selectTrinket = document.getElementById('selectTrinket');
 		var selectBait = document.getElementById('selectBait');
+		var selectLeaveMap = document.getElementById('selectLeaveMap');
 		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
 		var selectCatchLogic = document.getElementById('selectCatchLogic');
 		var objDefaultMapHunting = {
@@ -659,7 +737,8 @@
 			weapon : 'Remain',
 			base : 'Remain',
 			trinket : 'Remain',
-			bait : 'Remain'
+			bait : 'Remain',
+			leave : false
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('MapHunting'));
 		if(storageValue === null || storageValue === undefined)
@@ -675,6 +754,7 @@
 		storageValue.base = selectBase.value;
 		storageValue.trinket = selectTrinket.value;
 		storageValue.bait = selectBait.value;
+		storageValue.leave = (selectLeaveMap.value == 'true');
 		window.sessionStorage.setItem('MapHunting', JSON.stringify(storageValue));
 	}
 	
@@ -684,23 +764,27 @@
 		var trCatchLogic = document.getElementById('trCatchLogic');
 		var selectMapHunting = document.getElementById('selectMapHunting');
 		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
+		var trMapHuntingLeave = document.getElementById('trMapHuntingLeave');
 		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
 		var selectCatchLogic = document.getElementById('selectCatchLogic');
 		var selectWeapon = document.getElementById('selectWeapon');
 		var selectBase = document.getElementById('selectBase');
 		var selectTrinket = document.getElementById('selectTrinket');
 		var selectBait = document.getElementById('selectBait');
+		var selectLeaveMap = document.getElementById('selectLeaveMap');
 		var storageValue = window.sessionStorage.getItem('MapHunting');
 		if(storageValue === null){
 			selectMapHunting.selectedIndex = 0;
 			trUncaughtMouse.style.display = 'none';
 			trMapHuntingTrapSetup.style.display = 'none';
+			trMapHuntingLeave.style.display = 'none';
 			inputUncaughtMouse.value = '';
 			selectCatchLogic.selectedIndex = -1;
 			selectWeapon.selectedIndex = -1;
 			selectBase.selectedIndex = -1;
 			selectTrinket.selectedIndex = -1;
 			selectBait.selectedIndex = -1;
+			selectLeaveMap.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -709,12 +793,14 @@
 			trSelectedUncaughtMouse.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trCatchLogic.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trMapHuntingTrapSetup.style.display = (storageValue.status) ? 'table-row' : 'none';
+			trMapHuntingLeave.style.display = (storageValue.status) ? 'table-row' : 'none';
 			inputUncaughtMouse.value = storageValue.selectedMouse.join(',');
 			selectCatchLogic.value = storageValue.logic;
 			selectWeapon.value = storageValue.weapon;
 			selectBase.value = storageValue.base;
 			selectTrinket.value = storageValue.trinket;
 			selectBait.value = storageValue.bait;
+			selectLeaveMap.value = storageValue.leave;
 		}
 	}
 	
@@ -789,6 +875,10 @@
 		saveMapHunting();
 	}
 	
+	function onSelectLeaveMap(){
+		saveMapHunting();
+	}
+	
 	function setLocalToSession(){
 		var key;
 		for(var i=0;i<window.localStorage.length;i++){
@@ -797,7 +887,8 @@
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
-				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1){
+				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1 ||
+				key.indexOf("BestTrap")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -815,11 +906,94 @@
 				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
-				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1){
+				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1 ||
+				key.indexOf("BestTrap")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
 	}
+	
+	function onSelectBestTrapPowerType(){
+		initControlsBestTrap();
+	}
+	
+	function onSelectBestTrapWeapon(){
+		saveBestTrap();
+	}
+	
+	function onSelectBestTrapBaseType(){
+		initControlsBestTrap();
+	}
+	
+	function onSelectBestTrapBase(){
+		saveBestTrap();
+	}
+	
+	function initControlsBestTrap(){
+		var selectBestTrapPowerType = document.getElementById('selectBestTrapPowerType');
+		var selectBestTrapWeapon = document.getElementById('selectBestTrapWeapon');
+		var selectBestTrapBaseType = document.getElementById('selectBestTrapBaseType');
+		var selectBestTrapBase = document.getElementById('selectBestTrapBase');
+		var storageValue = window.sessionStorage.getItem('BestTrap');
+		if (storageValue === null || storageValue === undefined){
+			var objBestTrapDefault = {
+				weapon : {
+					arcane : '',
+					draconic : '',
+					forgotten : '',
+					hydro : '',
+					law : '',
+					physical : '',
+					rift : '',
+					shadow : '',
+					tactical : ''
+				},
+				base : {
+					luck : '',
+					power : ''
+				}
+			};
+			storageValue = JSON.stringify(objBestTrapDefault);
+		}
+		
+		storageValue = JSON.parse(storageValue);
+		selectBestTrapWeapon.value = storageValue.weapon[selectBestTrapPowerType.value];
+		selectBestTrapBase.value = storageValue.base[selectBestTrapBaseType.value];
+	}
+	
+	function saveBestTrap(){
+		var selectBestTrapPowerType = document.getElementById('selectBestTrapPowerType');
+		var selectBestTrapWeapon = document.getElementById('selectBestTrapWeapon');
+		var selectBestTrapBaseType = document.getElementById('selectBestTrapBaseType');
+		var selectBestTrapBase = document.getElementById('selectBestTrapBase');
+		var storageValue = window.sessionStorage.getItem('BestTrap');
+		if (storageValue === null || storageValue === undefined){
+			var objBestTrapDefault = {
+				weapon : {
+					arcane : '',
+					draconic : '',
+					forgotten : '',
+					hydro : '',
+					law : '',
+					physical : '',
+					rift : '',
+					shadow : '',
+					tactical : ''
+				},
+				base : {
+					luck : '',
+					power : ''
+				}
+			};
+			storageValue = JSON.stringify(objBestTrapDefault);
+		}
+
+		storageValue = JSON.parse(storageValue);
+		storageValue.weapon[selectBestTrapPowerType.value] = selectBestTrapWeapon.value;
+		storageValue.base[selectBestTrapBaseType.value] = selectBestTrapBase.value;
+		window.sessionStorage.setItem('BestTrap', JSON.stringify(storageValue));
+	}
+	
 	
 	function onSelectSCHuntZoneEnable(){
 		saveSCCustomAlgo();

@@ -139,24 +139,27 @@ var objTrapCollection = {
 };
 
 // // Best weapon/base/charm/bait pre-determined by user. Edit ur best weapon/base/charm/bait in ascending order. e.g. [best, better, good]
-var bestPhysical = ['Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
-var bestTactical = ['Chrome Sphynx Wrath', 'Sphynx Wrath', 'Zugzwang\'s Ultimate Move', 'Zugzwang\'s First Move'];
-var bestHydro = ['School of Sharks', 'Rune Shark Trap', 'Chrome Phantasmic Oasis Trap', 'Phantasmic Oasis Trap', 'Oasis Water Node Trap', 'Steam Laser Mk. III', 'Steam Laser Mk. II', 'Steam Laser Mk. I', 'Ancient Spear Gun'];
-var bestArcane = ['Event Horizon', 'Grand Arcanum Trap', 'Chrome Arcane Capturing Rod', 'Arcane Blast Trap', 'Arcane Capturing Rod Of Nev'];
-var bestShadow = ['Temporal Turbine', 'Clockwork Portal Trap', 'Reaper\'s Perch', 'Dreaded Totem Trap', 'Candy Crusher Trap', 'Clockapult of Time', 'Clockapult of Winter Past'];
-var bestForgotten = ['Infinite Labyrinth', 'Endless Labyrinth', 'Crystal Crucible', 'Stale Cupcake Golem', 'Tarannosaurus Rex Trap', 'Crystal Mineral Crusher', 'The Forgotten Art of Dance'];
-var bestDraconic = ['Dragon Lance', 'Ice Maiden'];
-var bestRiftLuck = ['Mysteriously unYielding', 'Multi-Crystal Laser', 'Crystal Tower'];
-var bestRiftPower = ['Mysteriously unYielding', 'Focused Crystal Laser', 'Biomolecular Re-atomizer Trap', 'Crystal Tower'];
-var bestRiftBase = ['Fissure Base', 'Rift Base', 'Fracture Base'];
-var bestPowerBase = ['Minotaur Base', 'Tidal Base', 'Golden Tournament Base', 'Spellbook Base'];
-var bestLuckBase = ['Minotaur Base', 'Fissure Base', 'Rift Base', 'Attuned Enerchi Induction Base',  'Monkey Jade Base', 'Sheep Jade Base', 'Depth Charge Base', 'Horse Jade Base', 'Snake Jade Base', 'Dragon Jade Base', 'Eerier Base', 'Papyrus Base'];
-var bestAttBase = ['Birthday Drag', 'Cheesecake Base'];
-var wasteCharm = ['Tarnished', 'Wealth'];
+var objBestTrap = {
+	weapon : {
+		arcane : ['Event Horizon','Grand Arcanum Trap','Chrome Arcane Capturing Rod','Arcane Blast Trap','Arcane Capturing Rod Of Nev'],
+		draconic : ['Dragon Lance','Ice Maiden'],
+		forgotten : ['Infinite Labyrinth','Endless Labyrinth','Crystal Crucible','Stale Cupcake Golem','Tarannosaurus Rex Trap','Crystal Mineral Crusher','The Forgotten Art of Dance'],
+		hydro : ['School of Sharks','Rune Shark Trap','Chrome Phantasmic Oasis Trap','Phantasmic Oasis Trap','Oasis Water Node Trap','Steam Laser Mk. III','Steam Laser Mk. II','Steam Laser Mk. I','Ancient Spear Gun'],
+		law : ['The Law Draw','Law Laser Trap','Engine Doubler','Bandit Deflector','Supply Grabber','S.L.A.C. II','S.L.A.C.'],
+		physical : ['Chrome MonstroBot','Sandstorm MonstroBot','Sandtail Sentinel','Enraged RhinoBot'],
+		rift : ['Mysteriously unYielding','Multi-Crystal Laser','Focused Crystal Laser','Biomolecular Re-atomizer Trap','Crystal Tower'],
+		shadow : ['Temporal Turbine','Clockwork Portal Trap','Reaper\'s Perch','Dreaded Totem Trap','Candy Crusher Trap','Clockapult of Time','Clockapult of Winter Past'],
+		tactical : ['Chrome Sphynx Wrath','Sphynx Wrath','Zugzwang\'s Ultimate Move','Zugzwang\'s First Move']
+	},
+	base : {
+		luck : ['Minotaur Base','Fissure Base','Rift Base','Attuned Enerchi Induction Base','Monkey Jade Base','Sheep Jade Base','Depth Charge Base','Horse Jade Base','Snake Jade Base','Dragon Jade Base','Eerier Base','Papyrus Base'],
+		power : ['Minotaur Base','Tidal Base','Golden Tournament Base','Spellbook Base']
+	}
+};
 
 // // Fiery Warpath Preference
-var bestFWWave4Weapon = ['Warden Slayer Trap', 'Chrome MonstroBot', 'Sandstorm MonstroBot', 'Sandtail Sentinel', 'Enraged RhinoBot'];
-var bestFWWave4Base = ['Physical Brace Base'].concat(bestLuckBase);
+var bestFWWave4Weapon = ['Warden Slayer Trap'];
+var bestFWWave4Base = ['Physical Brace Base'];
 var commanderCharm = ['Super Warpath Commander\'s', 'Warpath Commander\'s'];
 var objPopulation = {
 	WARRIOR : 0,
@@ -170,7 +173,6 @@ var objPopulation = {
 
 // // Living Garden Preference
 var bestLGBase = ['Living Base', 'Hothouse Base'];
-bestLGBase = bestLGBase.concat(bestLuckBase);
 var bestSalt = ['Super Salt', 'Grub Salt'];
 var redSpongeCharm = ['Red Double', 'Red Sponge'];
 var yellowSpongeCharm = ['Yellow Double', 'Yellow Sponge'];
@@ -195,20 +197,7 @@ var objSCZone = {
 	ZONE_BONUS : 9
 };
 
-var bestSCBase = bestLuckBase.slice();
-var indexDC = bestSCBase.indexOf('Depth Charge Base');
-if (indexDC > -1)
-{
-	var temp = bestSCBase[0];
-	bestSCBase[0] = bestSCBase[indexDC];
-	bestSCBase[indexDC] = temp;
-}
-else
-{
-	bestSCBase = ['Depth Charge Base'];
-	bestSCBase = bestSCBase.concat(bestLuckBase);
-}
-
+var bestSCBase = ['Depth Charge Base'];
 var objSCTrap = {
 	scOxyBait : ['Fishy Fromage', 'Gouda'],
 	TT : 'Treasure Trawling',
@@ -225,7 +214,6 @@ var chargeMedium = 12;
 
 // // Labyrinth
 var bestLabyBase = ['Minotaur Base', 'Labyrinth Base'];
-bestLabyBase = bestLabyBase.concat(bestLuckBase).concat(bestPowerBase);
 var objCodename = {
 	FEALTY : "y",
 	TECH : "h",
@@ -391,18 +379,19 @@ function FinalizePuzzleImageAnswer(answer)
 	    {
 	        ++kingsRewardRetry;
 			setStorage("KingsRewardRetry", kingsRewardRetry);
-			if(isNewUI){
-				
-			}
-			else{
-				var tagName = document.getElementsByTagName("a");
-				for (var i = 0; i < tagName.length; i++)
+			var tagName = document.getElementsByTagName("a");
+			for (var i = 0; i < tagName.length; i++)
+			{
+				if (tagName[i].innerText == "Click here to get a new one!")
 				{
-					if (tagName[i].innerText == "Click here to get a new one!")
-					{
-						fireEvent(tagName[i], 'click');
-						return;
+					fireEvent(tagName[i], 'click');
+					if(isNewUI){
+						var myFrame = document.getElementById('myFrame');
+						if(!isNullOrUndefined(myFrame))
+							document.body.removeChild(myFrame);
+						window.setTimeout(function () { CallKRSolver(); }, 1000);
 					}
+					return;
 				}
 			}
 	    }
@@ -699,7 +688,7 @@ function GetTrapCheckTime(){
 			setStorage("TrapCheckTimeOffset", time);
 			return parseInt(time);
 		}
-		else throw 'passiveElement not found';
+		else throw new Error('passiveElement not found');
 	}
 	catch (e) {
 		console.perror('GetTrapCheckTime',e.message);
@@ -789,7 +778,7 @@ function ZTalgo() {
                 else if (checkMouse("Knight")) {
                     //arm Sphynx Wrath
                     checkThenArm(null, "weapon", "Sphynx Wrath");
-                    checkThenArm('best', 'base', bestPowerBase);
+                    checkThenArm('best', 'base', objBestTrap.base.power);
                 }
                 clearInterval(intervalZT);
                 intervalZT = null;
@@ -854,8 +843,8 @@ function eventLocationCheck(caller) {
 		case 'FG/AR':
 			forbiddenGroveAR(); break;
 		case 'Test':
-			checkThenArm('best', 'base', bestLuckBase);
-			checkThenArm('best', 'weapon', bestArcane);
+			checkThenArm('best', 'base', objBestTrap.base.luck);
+			checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 			checkThenArm(null, 'trinket', 'Dragonbane');
 			checkThenArm(null, 'bait', 'Radioactive');
 			break;
@@ -872,7 +861,8 @@ function mapHunting(){
 		weapon : 'Remain',
 		base : 'Remain',
 		trinket : 'Remain',
-		bait : 'Remain'
+		bait : 'Remain',
+		leave : false
 	};
 	var objMapHunting = JSON.parse(getStorageToVariableStr('MapHunting', JSON.stringify(objDefaultMapHunting)));
 	var strViewState = getPageVariable('user.quests.QuestRelicHunter.view_state');
@@ -953,6 +943,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	console.pdebug('Uncaught:', arrUncaughtMouse);
 	var i;
 	var bChangeTrap = false;
+	var bCanLeave = false;
 	var arrIndex = [];
 	for(i=0;i<obj.selectedMouse.length;i++){
 		arrIndex.push(arrUncaughtMouse.indexOf(obj.selectedMouse[i]));
@@ -963,7 +954,8 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	else{
 		bChangeTrap = (countArrayElement(-1, arrIndex) > 0 || bHasReward);
 	}
-
+	
+	bCanLeave = !bHasReward && bChangeTrap;
 	if(bChangeTrap){
 		for(i=arrIndex.length-1;i>=0;i--){
 			if(arrIndex[i] == -1)
@@ -980,6 +972,30 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 						checkThenArm(null, prop, obj[prop]);
 				}
 			}
+		}
+	}
+	
+	if(bCanLeave && obj.leave){
+		var objData = {
+			sn : 'Hitgrab',
+			hg_is_ajax : 1,
+			action : 'discard',
+			uh : getPageVariable('user.unique_hash')
+		};
+		if(isNullOrUndefined(getMapPort)){
+			// direct call jquery
+			ajaxPost(window.location.origin + '/managers/ajax/users/relichunter.php', objData, function (data){
+				console.plog('Map discarded');
+			}, function (error){
+				console.perror('ajax discard:',error);
+			});
+		}
+		else{
+			getMapPort.postMessage({
+				request: "discard",
+				data: objData,
+				url: window.location.origin + '/managers/ajax/users/relichunter.php',
+			});
 		}
 	}
 }
@@ -1102,25 +1118,15 @@ function BRCustom(){
 	checkThenArm(null, 'weapon', objBR.weapon[nIndex]);
 	checkThenArm(null, 'base', objBR.base[nIndex]);
 	checkThenArm(null, 'bait', objBR.bait[nIndex]);
-	if(objBR.trinket[nIndex] == 'NoAbove'){
-		var charmArmed = getPageVariable("user.trinket_name");
-		var optionTrinket = document.getElementById('selectBRTrapTrinket').children;
-		for(var i=0;i<optionTrinket.length;i++){
-			if (charmArmed.indexOf(optionTrinket[i].value) === 0){
-				disarmTrap('trinket');
-				break;
-			}
-		}
-	}
-	else if(objBR.trinket[nIndex] == 'None'){
+	if(objBR.trinket[nIndex] == 'None')
 		disarmTrap('trinket');
-	}
 	else
 		checkThenArm(null, 'trinket', objBR.trinket[nIndex]);
 }
 
 function LGGeneral(isAutoPour) {
     var loc = GetCurrentLocation();
+	bestLGBase = arrayConcatUnique(bestLGBase, objBestTrap.base.luck);
 	switch (loc)
     {
         case 'Living Garden':
@@ -1154,7 +1160,7 @@ function seasonalGarden(){
 	};
 	var objSG = JSON.parse(getStorageToVariableStr('SGarden', JSON.stringify(objSGDefault)));
 	objSG.season = ['Spring', 'Summer', 'Fall', 'Winter'];
-	objSG.trap = [bestPhysical.slice(), bestTactical.slice(), bestShadow.slice(), bestHydro.slice()];
+	objSG.trap = [objBestTrap.weapon.physical.slice(), objBestTrap.weapon.tactical.slice(), objBestTrap.weapon.shadow.slice(), objBestTrap.weapon.hydro.slice()];
 	var nTimeStamp = Date.parse(new Date())/1000;
 	var nFirstSeasonTimeStamp = 1283328000;
 	var nSeasonLength = 288000; // 80hr
@@ -1243,7 +1249,7 @@ function balackCoveJOD(){
 	var curLoc = GetCurrentLocation();
 	if(curLoc.indexOf('Jungle') > -1){
 		checkThenArm(null, 'bait', 'Gouda');
-		checkThenArm('best', 'weapon', bestShadow);
+		checkThenArm('best', 'weapon', objBestTrap.weapon.shadow);
 	}
 	else if(curLoc.indexOf('Balack') > -1){
 		var i = 0;
@@ -1285,7 +1291,7 @@ function balackCoveJOD(){
 function forbiddenGroveAR(){
 	var curLoc = GetCurrentLocation();
 	if(curLoc.indexOf('Acolyte Realm') > -1){
-		checkThenArm('best', 'weapon', bestForgotten);
+		checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 		checkThenArm(null, 'bait', 'Runic Cheese');
 	}
 }
@@ -1297,15 +1303,16 @@ function SunkenCity(isAggro) {
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
 	console.pdebug('Current Zone:', zone);
 	var currentZone = GetSunkenCityZone(zone);
-	checkThenArm('best', 'weapon', bestHydro);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 	if (currentZone == objSCZone.ZONE_NOT_DIVE)
 	{
-		checkThenArm('best', 'base', bestLuckBase);
+		checkThenArm('best', 'base', objBestTrap.base.luck);
 		checkThenArm(null, 'trinket', 'Oxygen Burst');
 		checkThenArm('best', 'bait', objSCTrap.scOxyBait);
 		return;
 	}
 	
+	bestSCBase = bestSCBase.concat(objBestTrap.base.luck);
 	checkThenArm('best', 'base', bestSCBase);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.pdebug('Dive Distance(m):', distance);
@@ -1382,9 +1389,9 @@ function SCCustom() {
 	
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
 	var zoneID = GetSunkenCityZone(zone);
-	checkThenArm('best', 'weapon', bestHydro);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 	if (zoneID == objSCZone.ZONE_NOT_DIVE){
-		checkThenArm('best', 'base', bestLuckBase);
+		checkThenArm('best', 'base', objBestTrap.base.luck);
 		checkThenArm(null, 'trinket', 'Oxygen Burst');
 		checkThenArm('best', 'bait', objSCTrap.scOxyBait);
 		return;
@@ -1402,6 +1409,7 @@ function SCCustom() {
 	console.pdebug(objSCCustom);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.plog('Current Zone:', zone, 'at meter', distance);
+	bestSCBase = bestSCBase.concat(objBestTrap.base.luck);
 	checkThenArm('best', 'base', bestSCBase);
 	var canJet = false;
 	if (!objSCCustom[zoneID].isHunt){
@@ -1536,7 +1544,7 @@ function labyrinth() {
 	if (GetCurrentLocation().indexOf("Labyrinth") < 0)
 		return;
 
-	checkThenArm('best', 'weapon', bestForgotten);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 	var labyStatus = getPageVariable("user.quests.QuestLabyrinth.status");
 	var isAtEntrance = (labyStatus=="intersection entrance");
 	var isAtHallway = (labyStatus=="hallway");
@@ -1547,6 +1555,7 @@ function labyrinth() {
 	console.pdebug("Entrance:", isAtEntrance, "Intersection:", isAtIntersection, "Exit:", isAtExit);
 	var districtFocus = getStorageToVariableStr('Labyrinth_DistrictFocus', 'None');
 	console.pdebug('District to focus:', districtFocus);
+	bestLabyBase = bestLabyBase.concat(objBestTrap.base.luck).concat(objBestTrap.base.power);
 	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
 	if(objHallwayPriorities.armOtherBase != 'false'){
 		var charmArmed = getPageVariable('user.trinket_name');
@@ -1801,8 +1810,8 @@ function zokor(){
 	if(objAncientCity.district_tier < 3)
 		return;
 
-	checkThenArm('best', 'weapon', bestForgotten);
-	checkThenArm('best', 'base', bestLuckBase);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
+	checkThenArm('best', 'base', objBestTrap.base.luck);
 	if(nIndex > -1){
 		checkThenArm(null, 'bait', objZokor.bait[nIndex]);
 		if(objZokor.trinket[nIndex] == 'None')
@@ -1820,13 +1829,15 @@ function fw(){
 	wave = parseInt(wave);
     
     if (wave == 4){
+		bestFWWave4Weapon = ['Warden Slayer Trap'].concat(objBestTrap.weapon.physical);
+		bestFWWave4Base = ['Physical Brace Base'].concat(objBestTrap.base.luck);
 		checkThenArm('best', 'weapon', bestFWWave4Weapon);
 		checkThenArm('best', 'base', bestFWWave4Base);
 		checkThenArm(null, 'bait', 'Gouda');
         return;
     }
 
-	checkThenArm('best', 'base', bestLuckBase);
+	checkThenArm('best', 'base', objBestTrap.base.luck);
 	var nStreakLength = document.getElementById('selectFWStreak').children.length;
 	var objDefaultFW = {
 		focusType : 'NORMAL',
@@ -1895,13 +1906,13 @@ function fw(){
 			if(objFW.lastSoldierConfig == 'CONFIG_GOUDA'){
 				index = objFW.population.active.indexOf(1);
 				if(index == objPopulation.CAVALRY)
-					checkThenArm('best', 'weapon', bestTactical);
+					checkThenArm('best', 'weapon', objBestTrap.weapon.tactical);
 				else if(index == objPopulation.MAGE)
-					checkThenArm('best', 'weapon', bestHydro);
+					checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 				else if(index == objPopulation.ARTILLERY)
-					checkThenArm('best', 'weapon', bestArcane);
+					checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 				else
-					checkThenArm('best', 'weapon', bestPhysical);
+					checkThenArm('best', 'weapon', objBestTrap.weapon.physical);
 				if(charmArmed.indexOf('Warpath') > -1)
 					disarmTrap('trinket');
 			}
@@ -1911,7 +1922,7 @@ function fw(){
 	if(objFW.special[objFW.streak] == 'COMMANDER')
 		checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' Commander\'s');
 	else if(objFW.special[objFW.streak] == 'GARGANTUA'){
-		checkThenArm('best', 'weapon', bestDraconic);
+		checkThenArm('best', 'weapon', objBestTrap.weapon.draconic);
 		if(charmArmed.indexOf('Warpath') > -1)
 			disarmTrap('trinket');
 	}
@@ -1927,7 +1938,7 @@ function fw(){
 				if(objFW.population[objFW.focusType][i] < 1)
 					objFW.population[objFW.focusType][i] = Number.MAX_SAFE_INTEGER;
 			}
-            indexMinMax = minIndex(objFW.population[objFW.focusType]);
+			indexMinMax = minIndex(objFW.population[objFW.focusType]);
 		}
 		index = objPopulation.name.indexOf(objFW.streakMouse);
 		if(index > -1){
@@ -1942,21 +1953,9 @@ function fw(){
 
 		if(objFW.streak === 0 || bCurrentStreakZeroPopulation || bWrongSoldierTypeStreak){
 			objFW.streak = 0;
-			// objFW.focusType = objFW.focusType.toLowerCase();
-			// if(objFW.priorities == 'HIGHEST')
-				// index = maxIndex(objFW.population[objFW.focusType]);
-			// else{
-				// temp = objFW.population[objFW.focusType].slice();
-				// for(var i=0;i<temp.length;i++){
-					// if(temp[i] < 1)
-						// temp[i] = Number.MAX_SAFE_INTEGER;
-				// }
-				// index = minIndex(temp);
-			// }
-
 			temp = objFW.population[objFW.focusType][indexMinMax];
 			if(objFW.focusType.toUpperCase() == 'NORMAL'){
-				checkThenArm('best', 'weapon', bestPhysical);
+				checkThenArm('best', 'weapon', objBestTrap.weapon.physical);
 				var count = countArrayElement(temp, objFW.population[objFW.focusType]);
 				if(count > 1){
 					if(objFW.population[objFW.focusType][objPopulation.SCOUT] == temp)
@@ -1978,15 +1977,15 @@ function fw(){
 				}
 				indexMinMax += 3;
 				if(indexMinMax == objPopulation.CAVALRY){
-					checkThenArm('best', 'weapon', bestTactical);
+					checkThenArm('best', 'weapon', objBestTrap.weapon.tactical);
 					checkThenArm(null, 'trinket', objFW.charmType[0] + ' Cavalry');
 				}
 				else if(indexMinMax == objPopulation.MAGE){
-					checkThenArm('best', 'weapon', bestHydro);
+					checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 					checkThenArm(null, 'trinket', objFW.charmType[0] + ' Mage');
 				}
 				else if(indexMinMax == objPopulation.ARTILLERY){
-					checkThenArm('best', 'weapon', bestArcane);
+					checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 					if(charmArmed.indexOf('Warpath') > -1)
 						disarmTrap('trinket');
 				}
@@ -2006,13 +2005,13 @@ function fw(){
 			}
 
 			if(index == objPopulation.CAVALRY)
-				checkThenArm('best', 'weapon', bestTactical);
+				checkThenArm('best', 'weapon', objBestTrap.weapon.tactical);
 			else if(index == objPopulation.MAGE)
-				checkThenArm('best', 'weapon', bestHydro);
+				checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 			else if(index == objPopulation.ARTILLERY)
-				checkThenArm('best', 'weapon', bestArcane);
+				checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 			else
-				checkThenArm('best', 'weapon', bestPhysical);
+				checkThenArm('best', 'weapon', objBestTrap.weapon.physical);
 		}
 	}
 	checkThenArm(null, 'bait', objFW.cheese[objFW.streak]);
@@ -2093,15 +2092,15 @@ function fRiftArmTrap(obj, nIndex){
 	if(obj.bait[nIndex] == 'ANY_MASTER')
 		checkThenArm('best', 'bait', ['Rift Glutter', 'Rift Susheese', 'Rift Combat']);
 	else
-	checkThenArm(null, 'bait', obj.bait[nIndex]);
+		checkThenArm(null, 'bait', obj.bait[nIndex]);
 	if(obj.trinket[nIndex] == 'None')
-				disarmTrap('trinket');
+		disarmTrap('trinket');
 	else
 		checkThenArm(null, 'trinket', obj.trinket[nIndex]);
 }
 
 function livingGarden(isAutoPour) {
-    checkThenArm('best', 'weapon', bestHydro);
+    checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 	checkThenArm('best', 'base', bestLGBase);
 	var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
     if (pourEstimate.innerText !== "")
@@ -2154,7 +2153,7 @@ function lostCity() {
     else
         checkThenArm(null, 'trinket', 'Searcher');
 	
-	checkThenArm('best', 'weapon', bestArcane);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 	checkThenArm('best', 'base', bestLGBase);
 	checkThenArm(null, 'bait', 'Dewthief');
     return;
@@ -2173,7 +2172,7 @@ function sandDunes() {
     else
         checkThenArm(null, 'trinket', 'Grubling Chow');
 	
-	checkThenArm('best', 'weapon', bestShadow);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.shadow);
 	checkThenArm('best', 'base', bestLGBase);
 	checkThenArm(null, 'bait', 'Dewthief');
     return;
@@ -2184,7 +2183,7 @@ function twistedGarden(isAutoPour) {
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
     var charmArmed = getPageVariable('user.trinket_name');
     console.pdebug('Red:', red, 'Yellow:', yellow);
-	checkThenArm('best', 'weapon', bestHydro);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
 	if (red <= 8 && yellow <= 8)
 		checkThenArm('best', 'trinket', redPlusYellow);
@@ -2257,7 +2256,7 @@ function cursedCity() {
 		checkThenArm('best', 'trinket', cursedCityCharm);
     }
 	
-	checkThenArm('best', 'weapon', bestArcane);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 	checkThenArm('best', 'base', bestLGBase);
 	checkThenArm(null, 'bait', 'Graveblossom');
     return;
@@ -2275,7 +2274,7 @@ function sandCrypts() {
 			checkThenArm('best', 'trinket', bestSalt);
     }
 	
-	checkThenArm('best', 'weapon', bestShadow);
+	checkThenArm('best', 'weapon', objBestTrap.weapon.shadow);
 	checkThenArm('best', 'base', bestLGBase);
 	checkThenArm(null, 'bait', 'Graveblossom');
     return;
@@ -2510,7 +2509,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
     }
 
 	if (trapArmed === undefined && isForcedRetry){
-		console.plog(name.join("/"), "not found in TrapList", capitalizeFirstLetter(category));
+		console.plog(name.join("/"), "not found in TrapList" + capitalizeFirstLetter(category));
 		clearTrapList(category);
 		checkThenArm(sort, category, name, false);
 	}
@@ -2666,7 +2665,7 @@ function armTrapNewUI(sort, trap, name){
 				}
 					
 				console.pdebug(name + ' armed');
-				return FOUND;
+				return ARMED;
 			}
 		}
 
@@ -2901,42 +2900,40 @@ function retrieveDataFirst() {
 	catch (e) {
 		console.perror('retrieveDataFirst',e.message);
 	}
-	finally {
-		retrieveSuccess = undefined;
-	}
 }
 
 function GetHornTime() {
 	var huntTimerElement = document.getElementById('huntTimer');
+	var totalSec = 900;
 	if (huntTimerElement !== null) {
 		huntTimerElement = huntTimerElement.textContent;
-		var totalSec;
-		if (isNewUI) {
-			arrTime = huntTimerElement.split(":");
+		if(huntTimerElement.toLowerCase().indexOf('ready') > -1)
+			totalSec = 0;
+		else if (isNewUI) {
+			var arrTime = huntTimerElement.split(":");
 			for(var i=0;i<arrTime.length;i++)
 				arrTime[i] = parseInt(arrTime[i]);
 			totalSec = arrTime[0] * 60 + arrTime[1];
 		}
 		else {
 			var temp = parseInt(huntTimerElement);
-			if (!isNaN(temp)) {
+			if(Number.isInteger(temp))
 				totalSec = temp * 60;
-			}
-			else {
-				totalSec = 0;
-			}
 		}
-		return totalSec;
 	}
-	else {
-		return 900;
-	}
+
+	return totalSec;
 }
 
 function getKingRewardStatus() {
+	return (getPageVariable('user.has_puzzle') == 'true');
 	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
 	if (headerOrHud !== null) {
 		var textContentLowerCase = headerOrHud.textContent.toLowerCase();
+		if(bLog === true){
+			console.plog('user.has_puzzle:', getPageVariable('user.has_puzzle'));
+			console.plog('textContentLowerCase:', textContentLowerCase);
+		}
 		if (textContentLowerCase.indexOf("king reward") > -1 ||
 			textContentLowerCase.indexOf("king's reward") > -1 ||
 			textContentLowerCase.indexOf("kings reward") > -1) {
@@ -2999,8 +2996,12 @@ function retrieveData() {
 		else {
 			// got the timer right!
 
-			// calculate the delay
-			hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
+			if(nextActiveTime === 0)
+				hornTimeDelay = 0;
+			else{
+				// calculate the delay
+				hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
+			}
 
 			if (!aggressiveMode) {
 				// calculation base on the js in Mousehunt
@@ -3169,7 +3170,7 @@ function countdownTimer() {
 	try {
 		if (isKingReward) {
 			// update timer
-			displayTimer("King's Reward!", "King's Reward!", "King's Reward");
+			displayTimer("King's Reward!", "King's Reward!", "King's Reward!");
 			displayKingRewardSumTime("Now");
 
 			// record last king's reward time
@@ -3178,11 +3179,17 @@ function countdownTimer() {
 			nowDate = undefined;
 			lastKingRewardSumTime = 0;
 
-			// reload the page so that the sound can be play
-			// simulate mouse click on the camp button
-			fireEvent(document.getElementsByClassName(strCampButton)[0].firstChild, 'click');
-
-			// reload the page if click on camp button fail
+			if(isNewUI){
+				console.plog('reload the page when KR');
+				reloadPage(false);
+			}
+			else{
+				// reload the page so that the sound can be play
+				// simulate mouse click on the camp button
+				fireEvent(document.getElementsByClassName(strCampButton)[0].firstChild, 'click');
+			}
+			
+			// reload the page if click on the camp button fail
 			window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
 		}
 		else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
@@ -3855,6 +3862,16 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trMapHuntingLeave" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to leave map after catch logic is fulfilled"><b>Leave Map After Caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectLeaveMap" onchange="onSelectLeaveMap();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px" colspan="2">';
@@ -4336,16 +4353,16 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
 			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectBRTrapTrinket" onchange="onSelectBRTrapTrinketChanged();">';
-			preferenceHTMLStr += '<option value="Rift Ultimate Luck">Rift Ultimate Luck</option>';
-			preferenceHTMLStr += '<option value="Rift Ultimate Power">Rift Ultimate Power</option>';
-			preferenceHTMLStr += '<option value="Ultimate Luck">Ultimate Luck</option>';
-			preferenceHTMLStr += '<option value="Ultimate Power">Ultimate Power</option>';
-			preferenceHTMLStr += '<option value="Rift Power">Rift Power</option>';
-			preferenceHTMLStr += '<option value="Super Rift Vacuum">Super Rift Vacuum</option>';
-			preferenceHTMLStr += '<option value="Rift Vacuum">Rift Vacuum</option>';
-			preferenceHTMLStr += '<option value="Enerchi">Enerchi</option>';
-			preferenceHTMLStr += '<option value="NoAbove">None of the above</option>';
+			preferenceHTMLStr += '<select id="selectBRTrapTrinket" style="width: 75px" onchange="onSelectBRTrapTrinketChanged();">';
+			// preferenceHTMLStr += '<option value="Rift Ultimate Luck">Rift Ultimate Luck</option>';
+			// preferenceHTMLStr += '<option value="Rift Ultimate Power">Rift Ultimate Power</option>';
+			// preferenceHTMLStr += '<option value="Ultimate Luck">Ultimate Luck</option>';
+			// preferenceHTMLStr += '<option value="Ultimate Power">Ultimate Power</option>';
+			// preferenceHTMLStr += '<option value="Rift Power">Rift Power</option>';
+			// preferenceHTMLStr += '<option value="Super Rift Vacuum">Super Rift Vacuum</option>';
+			// preferenceHTMLStr += '<option value="Rift Vacuum">Rift Vacuum</option>';
+			// preferenceHTMLStr += '<option value="Enerchi">Enerchi</option>';
+			// preferenceHTMLStr += '<option value="NoAbove">None of the above</option>';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBRTrapBait" onchange="onSelectBRTrapBaitChanged();">';
@@ -4415,8 +4432,10 @@ function embedTimer(targetPage) {
 			var selectZTBase = document.getElementById('selectZTBase');
 			var selectZTTrinket = document.getElementById('selectZTTrinket');
 			var selectFRTrapTrinket = document.getElementById('selectFRTrapTrinket');
+			var selectBRTrapTrinket = document.getElementById('selectBRTrapTrinket');
+			var nIndex = -1;
 			var optionEle;
-			var arrOptionEle = new Array(3);
+			var arrOptionEle = new Array(4);
 			for (var prop in objTrapCollection) {
 				if(objTrapCollection.hasOwnProperty(prop)) {
 					objTrapCollection[prop] = objTrapCollection[prop].sort();
@@ -4428,36 +4447,54 @@ function embedTimer(targetPage) {
 							if(!isNullOrUndefined(selectWeapon))
 								selectWeapon.appendChild(optionEle);
 							if(!isNullOrUndefined(selectZTWeapon)){
-								arrOptionEle[0] = optionEle.cloneNode(true);
-								selectZTWeapon.appendChild(arrOptionEle[0]);
+								// nIndex = 0;
+								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
+								// selectZTWeapon.appendChild(arrOptionEle[nIndex]);
+								selectZTWeapon.appendChild(optionEle.cloneNode(true));
 							}
 						}
 						else if(prop == 'base'){
 							if(!isNullOrUndefined(selectBase))
 								selectBase.appendChild(optionEle);
 							if(!isNullOrUndefined(selectLabyrinthOtherBase)){
-								arrOptionEle[0] = optionEle.cloneNode(true);
-								selectLabyrinthOtherBase.appendChild(arrOptionEle[0]);
+								// nIndex = 0;
+								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
+								// selectLabyrinthOtherBase.appendChild(arrOptionEle[nIndex]);
+								selectLabyrinthOtherBase.appendChild(optionEle.cloneNode(true));
 							}
 							if(!isNullOrUndefined(selectZTBase)){
-								arrOptionEle[1] = optionEle.cloneNode(true);
-								selectZTBase.appendChild(arrOptionEle[1]);
+								// nIndex = 1;
+								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
+								// selectZTBase.appendChild(arrOptionEle[nIndex]);
+								selectZTBase.appendChild(optionEle.cloneNode(true));
 							}
 						}
 						else if(prop == 'trinket'){
 							if(!isNullOrUndefined(selectZokorTrinket))
 								selectZokorTrinket.appendChild(optionEle);
 							if(!isNullOrUndefined(selectTrinket)){
-								arrOptionEle[0] = optionEle.cloneNode(true);
-								selectTrinket.appendChild(arrOptionEle[0]);
+								// nIndex = 0;
+								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
+								// selectTrinket.appendChild(arrOptionEle[nIndex]);
+								selectTrinket.appendChild(optionEle.cloneNode(true));
 							}
 							if(!isNullOrUndefined(selectZTTrinket)){
-								arrOptionEle[1] = optionEle.cloneNode(true);
-								selectZTTrinket.appendChild(arrOptionEle[1]);
+								// nIndex = 1;
+								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
+								// selectZTTrinket.appendChild(arrOptionEle[nIndex]);
+								selectZTTrinket.appendChild(optionEle.cloneNode(true));
 							}
 							if(!isNullOrUndefined(selectFRTrapTrinket)){
-								arrOptionEle[2] = optionEle.cloneNode(true);
-								selectFRTrapTrinket.appendChild(arrOptionEle[2]);
+								// nIndex = 2;
+								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
+								// selectFRTrapTrinket.appendChild(arrOptionEle[nIndex]);
+								selectFRTrapTrinket.appendChild(optionEle.cloneNode(true));
+							}
+							if(!isNullOrUndefined(selectBRTrapTrinket)){
+								//nIndex = 3;
+								//arrOptionEle[nIndex] = optionEle.cloneNode(true);
+								//selectBRTrapTrinket.appendChild(arrOptionEle[nIndex]);
+								selectBRTrapTrinket.appendChild(optionEle.cloneNode(true));
 							}
 						}
 						else if(prop == 'bait'){
@@ -4518,6 +4555,8 @@ function loadPreferenceSettingFromStorage() {
 
 		// Backward compatibility of SCCustom
 		var keyValue = "";
+		var obj = {};
+		var bResave = false;
 		var objSCCustomBackward = {
 			zone : ['ZONE_NOT_DIVE'],
 			zoneID : [0],
@@ -4551,11 +4590,28 @@ function loadPreferenceSettingFromStorage() {
 			removeStorage("SGZT");
 		}
 		
+		// Backward compatibility of BRCustom
+		keyValue = getStorage("BRCustom");
+		if(!isNullOrUndefined(keyValue)){
+			obj = JSON.parse(keyValue);
+			bResave = false;
+			for(i=0;i<obj.trinket.length;i++){
+				if(obj.trinket[i] == 'None' || obj.trinket[i] == 'NoAbove' || obj.trinket[i] === '' || isNullOrUndefined(obj.trinket[i]))
+					continue;
+				if(obj.trinket[i].indexOf('Charm') < 0){
+					obj.trinket[i] += ' Charm';
+					bResave = true;
+				}
+			}
+			if(bResave)
+				setStorage("BRCustom", JSON.stringify(obj));
+		}
+		
 		// Backward compatibility of FRift
 		keyValue = getStorage("FRift");
 		if(!isNullOrUndefined(keyValue)){
-			var obj = JSON.parse(keyValue);
-			var bResave = false;
+			obj = JSON.parse(keyValue);
+			bResave = false;
 			for(i=0;i<obj.trinket.length;i++){
 				if(obj.trinket[i] == 'None' || obj.trinket[i] == 'NoAbove' || obj.trinket[i] === '' || isNullOrUndefined(obj.trinket[i]))
 					continue;
@@ -4832,7 +4888,8 @@ function soundHorn() {
             }
             else {
                 // some one steal the horn!
-
+				
+				if(isNewUI) console.plog("Horn missing:",headerStatus);
                 // update timer
                 displayTimer("Synchronizing Data...", "Hunter horn is missing. Synchronizing data...", "Hunter horn is missing. Synchronizing data...");
 
@@ -4846,7 +4903,7 @@ function soundHorn() {
                 headerStatus = null;
 
                 // double check if the horn was already sounded
-                window.setTimeout(function () { afterSoundingHorn(); }, 5000);
+                window.setTimeout(function () { afterSoundingHorn(true); }, 5000);
             }
         }
         else {
@@ -4871,7 +4928,7 @@ function soundHorn() {
     }
 }
 
-function afterSoundingHorn() {
+function afterSoundingHorn(bLog) {
     var scriptNode = document.getElementById("scriptNode");
     if (scriptNode) {
         scriptNode.setAttribute("soundedHornAtt", "false");
@@ -4883,6 +4940,7 @@ function afterSoundingHorn() {
         // double check if the horn image is still visible after the script already sound it
         var headerStatus = headerElement.getAttribute('class');
 		headerStatus = headerStatus.toLowerCase();
+		if(bLog === true) console.plog('headerStatus:', headerStatus);
         if (headerStatus.indexOf("hornready") != -1) {
             // seen like the horn is not functioning well
 
@@ -5031,7 +5089,7 @@ function embedScript() {
 
 function kingRewardAction() {
     // update timer
-    displayTimer("King's Reward!", "King's Reward", "King's Reward!");
+    displayTimer("King's Reward!", "King's Reward!", "King's Reward!");
     displayLocation("-");
 
     // play music if needed
@@ -5163,6 +5221,7 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 
 function checkResumeButton() {
     var found = false;
+	var resumeElement;
 	if (isNewUI) {
         var krFormClass = document.getElementsByTagName('form')[0].className;
         if (krFormClass.indexOf("noPuzzle") > -1) {
@@ -5173,11 +5232,23 @@ function checkResumeButton() {
             fireEvent(resumeElement, 'click');
             resumeElement = null;
 
-            // reload url if click fail
-            window.setTimeout(function () { reloadWithMessage("Fail to click on resume button. Reloading...", false); }, 6000);
-
-            // recheck if the resume button is click because some time even the url reload also fail
-            window.setTimeout(function () { checkResumeButton(); }, 10000);
+			var nRetry = 5;
+			var intervalCRB1 = setInterval( function (){
+				if (isNullOrUndefined(document.getElementById('journalContainer'))) {
+					// not at camp page
+					--nRetry;
+					if(nRetry <= 0){
+						// reload url if click fail
+						reloadWithMessage("Fail to click on resume button. Reloading...", false);
+						clearInterval(intervalCRB1);
+					}
+				}
+				else{
+					retrieveData(true);
+					countdownTimer();
+					clearInterval(intervalCRB1);
+				}
+			}, 1000);
             found = true;
         }
         krFormClass = null;
@@ -5192,7 +5263,7 @@ function checkResumeButton() {
 					// found resume button
 
 					// simulate mouse click on the horn
-					var resumeElement = linkElementList[i].parentNode;
+					resumeElement = linkElementList[i].parentNode;
 					fireEvent(resumeElement, 'click');
 					resumeElement = null;
 
@@ -5244,25 +5315,49 @@ function CallKRSolver()
 
 function CheckKRAnswerCorrectness()
 {
-	var pageMsg = document.getElementById('pagemessage');
-	if (!isNullOrUndefined(pageMsg) && pageMsg.innerText.toLowerCase().indexOf("unable to claim reward") > -1) // KR answer not correct, re-run OCR
-	{
-		if (kingsRewardRetry >= kingsRewardRetryMax)
-	    {
-	        kingsRewardRetry = 0;
-			setStorage("KingsRewardRetry", kingsRewardRetry);
-			var strTemp = 'Max ' + kingsRewardRetryMax + 'retries. Pls solve it manually ASAP.';
-			alert(strTemp);
-			displayTimer(strTemp, strTemp, strTemp);
-			console.perror(strTemp);
-			return;
-	    }
-		++kingsRewardRetry;
-		setStorage("KingsRewardRetry", kingsRewardRetry);
-		CallKRSolver();
+	var strTemp = '';
+	if(isNewUI){
+		var codeError = document.getElementsByClassName("mousehuntPage-puzzle-form-code-error");
+		for(var i=0;i<codeError.length;i++){
+			if(codeError[i].innerText.toLowerCase().indexOf("incorrect claim code") > -1){
+				if (kingsRewardRetry >= kingsRewardRetryMax){
+					kingsRewardRetry = 0;
+					setStorage("KingsRewardRetry", kingsRewardRetry);
+					strTemp = 'Max ' + kingsRewardRetryMax + 'retries. Pls solve it manually ASAP.';
+					alert(strTemp);
+					displayTimer(strTemp, strTemp, strTemp);
+					console.perror(strTemp);
+				}
+				else{
+					++kingsRewardRetry;
+					setStorage("KingsRewardRetry", kingsRewardRetry);
+					CallKRSolver();
+				}
+				return;
+			}
+		}
 	}
-	else
-		window.setTimeout(function () { CheckKRAnswerCorrectness(); }, 1000);
+	else{
+		var pageMsg = document.getElementById('pagemessage');
+		if (!isNullOrUndefined(pageMsg) && pageMsg.innerText.toLowerCase().indexOf("unable to claim reward") > -1){ // KR answer not correct, re-run OCR
+			if (kingsRewardRetry >= kingsRewardRetryMax){
+				kingsRewardRetry = 0;
+				setStorage("KingsRewardRetry", kingsRewardRetry);
+				strTemp = 'Max ' + kingsRewardRetryMax + 'retries. Pls solve it manually ASAP.';
+				alert(strTemp);
+				displayTimer(strTemp, strTemp, strTemp);
+				console.perror(strTemp);
+			}
+			else{
+				++kingsRewardRetry;
+				setStorage("KingsRewardRetry", kingsRewardRetry);
+				CallKRSolver();
+			}
+			return;
+		}
+	}
+
+	window.setTimeout(function () { CheckKRAnswerCorrectness(); }, 1000);
 }
 
 // ################################################################################################
@@ -5286,7 +5381,7 @@ function trapCheck() {
 
     // reload the page if click on camp button fail
     // window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
-	retrieveData();
+	window.setTimeout(function () { retrieveData(); }, 5000);
 	window.setTimeout(function () { countdownTimer(); }, timerRefreshInterval * 1000);
     // eventLocationCheck();
 }
@@ -5398,8 +5493,18 @@ function maxIndex(data){
 	return index;
 }
 
+function arrayConcatUnique(arrOriginal, arrConcat){
+	var nIndex = -1;
+	var arrTemp = arrOriginal.slice();
+	for(var i=0;i<arrConcat.length;i++){
+		if(arrTemp.indexOf(arrConcat[i]) < 0)
+			arrTemp.push(arrConcat[i]);
+	}
+	return arrTemp;
+}
+
 function countUnique(arrIn){
-	var  objCount = {
+	var objCount = {
 		value : [],
 		count : [],
 	};
@@ -5498,7 +5603,7 @@ function functionToHTMLString(func){
 }
 
 function replaceAll(str, find, replace) {
-  return str.replace(new RegExp(find, 'g'), replace);
+	return str.replace(new RegExp(find, 'g'), replace);
 }
 
 function browserDetection() {
@@ -5917,6 +6022,7 @@ function bodyJS(){
 		var selectBase = document.getElementById('selectBase');
 		var selectTrinket = document.getElementById('selectTrinket');
 		var selectBait = document.getElementById('selectBait');
+		var selectLeaveMap = document.getElementById('selectLeaveMap');
 		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
 		var selectCatchLogic = document.getElementById('selectCatchLogic');
 		var objDefaultMapHunting = {
@@ -5926,7 +6032,8 @@ function bodyJS(){
 			weapon : 'Remain',
 			base : 'Remain',
 			trinket : 'Remain',
-			bait : 'Remain'
+			bait : 'Remain',
+			leave : false
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('MapHunting'));
 		if(isNullOrUndefined(storageValue))
@@ -5941,6 +6048,7 @@ function bodyJS(){
 		storageValue.base = selectBase.value;
 		storageValue.trinket = selectTrinket.value;
 		storageValue.bait = selectBait.value;
+		storageValue.leave = (selectLeaveMap.value == 'true');
 		window.sessionStorage.setItem('MapHunting', JSON.stringify(storageValue));
 	}
 	
@@ -5951,23 +6059,27 @@ function bodyJS(){
 		var selectMapHunting = document.getElementById('selectMapHunting');
 		var selectMouseList = document.getElementById('selectMouseList');
 		var trMapHuntingTrapSetup = document.getElementById('trMapHuntingTrapSetup');
+		var trMapHuntingLeave = document.getElementById('trMapHuntingLeave');
 		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
 		var selectCatchLogic = document.getElementById('selectCatchLogic');
 		var selectWeapon = document.getElementById('selectWeapon');
 		var selectBase = document.getElementById('selectBase');
 		var selectTrinket = document.getElementById('selectTrinket');
 		var selectBait = document.getElementById('selectBait');
+		var selectLeaveMap = document.getElementById('selectLeaveMap');
 		var storageValue = window.sessionStorage.getItem('MapHunting');
 		if(isNullOrUndefined(storageValue)){
 			selectMapHunting.selectedIndex = 0;
 			trUncaughtMouse.style.display = 'none';
 			trMapHuntingTrapSetup.style.display = 'none';
+			trMapHuntingLeave.style.display = 'none';
 			inputUncaughtMouse.value = '';
 			selectCatchLogic.selectedIndex = -1;
 			selectWeapon.selectedIndex = -1;
 			selectBase.selectedIndex = -1;
 			selectTrinket.selectedIndex = -1;
 			selectBait.selectedIndex = -1;
+			selectLeaveMap.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -5976,12 +6088,14 @@ function bodyJS(){
 			trSelectedUncaughtMouse.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trCatchLogic.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trMapHuntingTrapSetup.style.display = (storageValue.status) ? 'table-row' : 'none';
+			trMapHuntingLeave.style.display = (storageValue.status) ? 'table-row' : 'none';
 			inputUncaughtMouse.value = storageValue.selectedMouse.join(',');
 			selectCatchLogic.value = storageValue.logic;
 			selectWeapon.value = storageValue.weapon;
 			selectBase.value = storageValue.base;
 			selectTrinket.value = storageValue.trinket;
 			selectBait.value = storageValue.bait;
+			selectLeaveMap.value = storageValue.leave;
 		}
 		storageValue = window.localStorage.getItem('Last Record Uncaught');
 		if(!isNullOrUndefined(storageValue)){
@@ -6090,6 +6204,10 @@ function bodyJS(){
 	}
 	
 	function onSelectBaitChanged(){
+		saveMapHunting();
+	}
+
+	function onSelectLeaveMap(){
 		saveMapHunting();
 	}
 	

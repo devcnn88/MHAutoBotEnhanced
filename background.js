@@ -27,6 +27,12 @@ chrome.runtime.onConnect.addListener(function(port) {
 					mapPort.postMessage([]);
 				});
 			}
+			else if(msg.request == "discard"){
+				ajaxPost(msg.url, msg.data, function (data){
+				}, function (error){
+					console.error('mapPort ajax:',error);
+				});
+			}
 		});
 	}
 });
