@@ -1408,11 +1408,11 @@ function SCCustom() {
 	objSCCustom = JSON.parse(getStorageToVariableStr('SCCustom', JSON.stringify(objSCCustomDefault)));
 	console.pdebug(objSCCustom);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
-	console.plog('Current Zone:', zone, 'at meter', distance);
+	console.plog('Current Zone:', zone, 'ID', zoneID, 'at meter', distance);
 	bestSCBase = bestSCBase.concat(objBestTrap.base.luck);
 	checkThenArm('best', 'base', bestSCBase);
 	var canJet = false;
-	if (!objSCCustom[zoneID].isHunt){
+	if (!objSCCustom.isHunt[zoneID]){
 		var nextZoneName = [];
 		var nextZoneLeft = [];
 		var nextZoneID = [];
@@ -1424,7 +1424,7 @@ function SCCustom() {
 			nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].left'));
 			nextZoneID[i] = GetSunkenCityZone(nextZoneName[i]);
 			distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
-			isNextZoneInHuntZone[i] = (objSCCustom[nextZoneID[i]].isHunt);
+			isNextZoneInHuntZone[i] = (objSCCustom.isHunt[nextZoneID[i]]);
 			console.plog('Next Zone:', nextZoneName[i], 'in meter', distanceToNextZone[i], 'Is In Hunt Zone:', isNextZoneInHuntZone[i]);
 		}
 		
@@ -1458,18 +1458,18 @@ function SCCustom() {
 		}
 	}
 	
-	if (objSCCustom[zoneID].isHunt || !canJet){
+	if (objSCCustom.isHunt[zoneID] || !canJet){
 		// hunt here
-		var bestOrNull = Array.isArray(objSCCustom[zoneID].bait) ? 'best' : null;
-		checkThenArm(bestOrNull, 'bait', objSCCustom[zoneID].bait);
-		if (objSCCustom[zoneID].trinket == "NoSC")
+		var bestOrNull = Array.isArray(objSCCustom.bait[zoneID]) ? 'best' : null;
+		checkThenArm(bestOrNull, 'bait', objSCCustom.bait[zoneID]);
+		if (objSCCustom.trinket[zoneID] == "NoSC")
 			DisarmSCSpecialCharm();
-		else if (objSCCustom[zoneID].trinket == "None")
+		else if (objSCCustom.trinket[zoneID] == "None")
 			disarmTrap('trinket');
 		else {
-			if(objSCTrap.hasOwnProperty(objSCCustom[zoneID].trinket)){
-				bestOrNull = Array.isArray(objSCTrap[objSCCustom[zoneID].trinket]) ? 'best' : null;
-				checkThenArm(bestOrNull, 'trinket', objSCTrap[objSCCustom[zoneID].trinket]);
+			if(objSCTrap.hasOwnProperty(objSCCustom.trinket[zoneID])){
+				bestOrNull = Array.isArray(objSCTrap[objSCCustom.trinket[zoneID]]) ? 'best' : null;
+				checkThenArm(bestOrNull, 'trinket', objSCTrap[objSCCustom.trinket[zoneID]]);
 			}
 		}
 	}
