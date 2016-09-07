@@ -4362,7 +4362,7 @@ function loadPreferenceSettingFromStorage() {
 				}
 			}
 		}
-		if(objSCCustomBackward.zone.length > 0)
+		if(objSCCustomBackward.zone.length > 1)
 			setStorage('SCCustom', JSON.stringify(objSCCustomBackward));
 	}
 	catch (e){
