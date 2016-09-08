@@ -143,7 +143,7 @@ var objBestTrap = {
 	weapon : {
 		arcane : ['Event Horizon','Grand Arcanum Trap','Chrome Arcane Capturing Rod','Arcane Blast Trap','Arcane Capturing Rod Of Nev'],
 		draconic : ['Dragon Lance','Ice Maiden'],
-		forgotten : ['Infinite Labyrinth','Endless Labyrinth','Crystal Crucible','Stale Cupcake Golem','Tarannosaurus Rex Trap','Crystal Mineral Crusher','The Forgotten Art of Dance'],
+		forgotten : ['Infinite Labyrinth Trap','Endless Labyrinth Trap','Crystal Crucible Trap','Stale Cupcake Golem Trap','Tarannosaurus Rex Trap','Crystal Mineral Crusher Trap','The Forgotten Art of Dance'],
 		hydro : ['School of Sharks','Rune Shark Trap','Chrome Phantasmic Oasis Trap','Phantasmic Oasis Trap','Oasis Water Node Trap','Steam Laser Mk. III','Steam Laser Mk. II','Steam Laser Mk. I','Ancient Spear Gun'],
 		law : ['The Law Draw','Law Laser Trap','Engine Doubler','Bandit Deflector','Supply Grabber','S.L.A.C. II','S.L.A.C.'],
 		physical : ['Chrome MonstroBot','Sandstorm MonstroBot','Sandtail Sentinel','Enraged RhinoBot'],
@@ -197,7 +197,7 @@ var objSCZone = {
 	ZONE_BONUS : 9
 };
 
-var bestSCBase = ['Depth Charge Base'];
+var bestSCBase = ['Minotaur Base', 'Depth Charge Base'];
 var objSCTrap = {
 	scOxyBait : ['Fishy Fromage', 'Gouda'],
 	TT : 'Treasure Trawling',
@@ -287,7 +287,6 @@ var checkMouseResult = null;
 var mouseList = [];
 var discharge = false;
 var arming = false;
-var best = 0;
 var kingsRewardRetry = 0;
 var objSCCustom = {};
 var keyKR = [];
@@ -389,7 +388,7 @@ function FinalizePuzzleImageAnswer(answer)
 						var myFrame = document.getElementById('myFrame');
 						if(!isNullOrUndefined(myFrame))
 							document.body.removeChild(myFrame);
-						window.setTimeout(function () { CallKRSolver(); }, 1000);
+						window.setTimeout(function () { CallKRSolver(); }, 6000);
 					}
 					return;
 				}
@@ -2187,15 +2186,13 @@ function twistedGarden(isAutoPour) {
 	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
 	if (red <= 8 && yellow <= 8)
 		checkThenArm('best', 'trinket', redPlusYellow);
-    else if (red < 10)
-    {
+    else if (red < 10){
         if (red <= 8)
             checkThenArm('best', 'trinket', redSpongeCharm);
         else
             checkThenArm(null, 'trinket', 'Red Sponge');
     }
-    else if (red == 10 && yellow < 10)
-    {
+    else if (red == 10 && yellow < 10){
         if (yellow <=8)
             checkThenArm('best', 'trinket', yellowSpongeCharm);
         else
@@ -2205,10 +2202,9 @@ function twistedGarden(isAutoPour) {
         if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
             disarmTrap('trinket');
 		
-		if (isAutoPour) {
+		if (!(Number.isNan(red) || Number.isNaN(yellow)) && isAutoPour) {
 			var pourButton = document.getElementsByClassName('pour')[0];
-			if (pourButton)
-			{
+			if (pourButton){
 				fireEvent(pourButton, 'click');
 				if (document.getElementsByClassName('confirm button')[0])
 					window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
@@ -3566,6 +3562,7 @@ function embedTimer(targetPage) {
 					document.getElementById(\'preferenceDiv\').style.display=\'block\';\
 					document.getElementById(\'showPreferenceLink\').innerHTML=\'<b>[Hide Preference]</b>\';\
 					document.getElementById(\'eventAlgo\').value = selectedAlgo;\
+					initControlsBestTrap();\
 				}\
 				">';
             if (showPreference === true)
@@ -3754,6 +3751,38 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Weapon for </b></a>';
+			preferenceHTMLStr += '<select id="selectBestTrapPowerType" onchange="onSelectBestTrapPowerType();">';
+			preferenceHTMLStr += '<option value="arcane">Arcane</option>';
+			preferenceHTMLStr += '<option value="draconic">Draconic</option>';
+			preferenceHTMLStr += '<option value="forgotten">Forgotten</option>';
+			preferenceHTMLStr += '<option value="hydro">Hydro</option>';
+			preferenceHTMLStr += '<option value="law">Law</option>';
+			preferenceHTMLStr += '<option value="physical">Physical</option>';
+			preferenceHTMLStr += '<option value="rift">Rift</option>';
+			preferenceHTMLStr += '<option value="shadow">Shadow</option>';
+			preferenceHTMLStr += '<option value="tactical">Tactical</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBestTrapWeapon" style="width: 300px" onchange="onSelectBestTrapWeapon();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Base for </b></a>';
+			preferenceHTMLStr += '<select id="selectBestTrapBaseType" onchange="onSelectBestTrapBaseType();">';
+			preferenceHTMLStr += '<option value="luck">Luck</option>';
+			preferenceHTMLStr += '<option value="power">Power</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;'
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBestTrapBase" onchange="onSelectBestTrapBase();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
             preferenceHTMLStr += '(Changes above this line only take place after user save the preference) ';
             preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="\
@@ -3769,6 +3798,7 @@ function embedTimer(targetPage) {
 				window.localStorage.setItem(\'AutoSolveKRDelayMax\', 	document.getElementById(\'AutoSolveKRDelayMaxInput\').value);\
 				window.localStorage.setItem(\'SaveKRImage\', 			document.getElementById(\'SaveKRImageInput\').value);\
 				window.localStorage.setItem(\'PauseLocation\', 			document.getElementById(\'PauseLocationInput\').value);\
+				setSessionToLocal();\
 				for(var i=0;i<window.sessionStorage.length;i++){\
 					window.sessionStorage.removeItem(window.sessionStorage.key(i));\
 				}\
@@ -4383,8 +4413,8 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
             preferenceHTMLStr += '</table>';
-
-            var preferenceDiv = document.createElement('div');
+			
+			var preferenceDiv = document.createElement('div');
             preferenceDiv.setAttribute('id', 'preferenceDiv');
             if (showPreference === true)
                 preferenceDiv.setAttribute('style', 'display: block');
@@ -4433,6 +4463,8 @@ function embedTimer(targetPage) {
 			var selectZTTrinket = document.getElementById('selectZTTrinket');
 			var selectFRTrapTrinket = document.getElementById('selectFRTrapTrinket');
 			var selectBRTrapTrinket = document.getElementById('selectBRTrapTrinket');
+			var selectBestTrapBase = document.getElementById('selectBestTrapBase');
+			var selectBestTrapWeapon = document.getElementById('selectBestTrapWeapon');
 			var nIndex = -1;
 			var optionEle;
 			var arrOptionEle = new Array(4);
@@ -4446,54 +4478,36 @@ function embedTimer(targetPage) {
 						if(prop == 'weapon'){
 							if(!isNullOrUndefined(selectWeapon))
 								selectWeapon.appendChild(optionEle);
-							if(!isNullOrUndefined(selectZTWeapon)){
-								// nIndex = 0;
-								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
-								// selectZTWeapon.appendChild(arrOptionEle[nIndex]);
+							if(!isNullOrUndefined(selectZTWeapon))
 								selectZTWeapon.appendChild(optionEle.cloneNode(true));
-							}
+							if(!isNullOrUndefined(selectBestTrapWeapon))
+								selectBestTrapWeapon.appendChild(optionEle.cloneNode(true));
 						}
 						else if(prop == 'base'){
 							if(!isNullOrUndefined(selectBase))
 								selectBase.appendChild(optionEle);
 							if(!isNullOrUndefined(selectLabyrinthOtherBase)){
-								// nIndex = 0;
-								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
-								// selectLabyrinthOtherBase.appendChild(arrOptionEle[nIndex]);
 								selectLabyrinthOtherBase.appendChild(optionEle.cloneNode(true));
 							}
 							if(!isNullOrUndefined(selectZTBase)){
-								// nIndex = 1;
-								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
-								// selectZTBase.appendChild(arrOptionEle[nIndex]);
 								selectZTBase.appendChild(optionEle.cloneNode(true));
 							}
+							if(!isNullOrUndefined(selectBestTrapBase))
+								selectBestTrapBase.appendChild(optionEle.cloneNode(true));
 						}
 						else if(prop == 'trinket'){
 							if(!isNullOrUndefined(selectZokorTrinket))
 								selectZokorTrinket.appendChild(optionEle);
 							if(!isNullOrUndefined(selectTrinket)){
-								// nIndex = 0;
-								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
-								// selectTrinket.appendChild(arrOptionEle[nIndex]);
 								selectTrinket.appendChild(optionEle.cloneNode(true));
 							}
 							if(!isNullOrUndefined(selectZTTrinket)){
-								// nIndex = 1;
-								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
-								// selectZTTrinket.appendChild(arrOptionEle[nIndex]);
 								selectZTTrinket.appendChild(optionEle.cloneNode(true));
 							}
 							if(!isNullOrUndefined(selectFRTrapTrinket)){
-								// nIndex = 2;
-								// arrOptionEle[nIndex] = optionEle.cloneNode(true);
-								// selectFRTrapTrinket.appendChild(arrOptionEle[nIndex]);
 								selectFRTrapTrinket.appendChild(optionEle.cloneNode(true));
 							}
 							if(!isNullOrUndefined(selectBRTrapTrinket)){
-								//nIndex = 3;
-								//arrOptionEle[nIndex] = optionEle.cloneNode(true);
-								//selectBRTrapTrinket.appendChild(arrOptionEle[nIndex]);
 								selectBRTrapTrinket.appendChild(optionEle.cloneNode(true));
 							}
 						}
@@ -4628,6 +4642,7 @@ function loadPreferenceSettingFromStorage() {
 		console.perror('loadPreferenceSettingFromStorage',e.message);
 	}
 	getTrapList();
+	getBestTrap();
 }
 
 function getTrapList(category){
@@ -4727,6 +4742,22 @@ function getTrapListFromTrapSelector(sort, category, name, isForcedRetry){
             }
         }, 1000);
     return;
+}
+
+function getBestTrap(){
+	var obj = getStorageToVariableStr("BestTrap", "");
+	if(!(isNullOrUndefined(obj) || obj === "")){
+		obj = JSON.parse(obj);
+		for (var prop in obj) {
+			if(obj.hasOwnProperty(prop) && objBestTrap.hasOwnProperty(prop)){
+				for(var prop1 in obj[prop]){
+					if(obj[prop].hasOwnProperty(prop1) && objBestTrap[prop].hasOwnProperty(prop1)){
+						objBestTrap[prop][prop1] = arrayConcatUnique([obj[prop][prop1]], objBestTrap[prop][prop1]);
+					}
+				}
+			}
+		}
+	}
 }
 
 function getStorageToVariableInt(storageName, defaultInt)
@@ -5494,12 +5525,25 @@ function maxIndex(data){
 }
 
 function arrayConcatUnique(arrOriginal, arrConcat){
+	if(!Array.isArray(arrOriginal))
+		arrOriginal = [arrOriginal];
+	if(!Array.isArray(arrConcat))
+		arrConcat = [arrConcat];
+	// var nIndex = -1;
+	// var arrTemp = arrOriginal.slice();
+	// for(var i=0;i<arrConcat.length;i++){
+		// if(arrTemp.indexOf(arrConcat[i]) < 0)
+			// arrTemp.push(arrConcat[i]);
+	// }
+	// return arrTemp;
 	var nIndex = -1;
-	var arrTemp = arrOriginal.slice();
-	for(var i=0;i<arrConcat.length;i++){
-		if(arrTemp.indexOf(arrConcat[i]) < 0)
-			arrTemp.push(arrConcat[i]);
+	var arrTemp = arrConcat.slice();
+	for(var i=0;i<arrOriginal.length;i++){
+		nIndex = arrTemp.indexOf(arrOriginal[i]);
+		if(nIndex > -1)
+			arrTemp.splice(nIndex, 1);
 	}
+	arrTemp = arrOriginal.concat(arrTemp);
 	return arrTemp;
 }
 
@@ -6220,7 +6264,7 @@ function bodyJS(){
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGarden")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("FRift")>-1 || key.indexOf("MapHunting")>-1 ||
-				key.indexOf("ZTower")>-1){
+				key.indexOf("ZTower")>-1 || key.indexOf("BestTrap")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -6239,10 +6283,91 @@ function bodyJS(){
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGarden")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("FRift")>-1 || key.indexOf("MapHunting")>-1 ||
-				key.indexOf("ZTower")>-1){
+				key.indexOf("ZTower")>-1 || key.indexOf("BestTrap")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
+	}
+	
+	function onSelectBestTrapPowerType(){
+		initControlsBestTrap();
+	}
+	
+	function onSelectBestTrapWeapon(){
+		saveBestTrap();
+	}
+	
+	function onSelectBestTrapBaseType(){
+		initControlsBestTrap();
+	}
+	
+	function onSelectBestTrapBase(){
+		saveBestTrap();
+	}
+	
+	function initControlsBestTrap(){
+		var selectBestTrapPowerType = document.getElementById('selectBestTrapPowerType');
+		var selectBestTrapWeapon = document.getElementById('selectBestTrapWeapon');
+		var selectBestTrapBaseType = document.getElementById('selectBestTrapBaseType');
+		var selectBestTrapBase = document.getElementById('selectBestTrapBase');
+		var storageValue = window.sessionStorage.getItem('BestTrap');
+		if (isNullOrUndefined(storageValue)){
+			var objBestTrapDefault = {
+				weapon : {
+					arcane : '',
+					draconic : '',
+					forgotten : '',
+					hydro : '',
+					law : '',
+					physical : '',
+					rift : '',
+					shadow : '',
+					tactical : ''
+				},
+				base : {
+					luck : '',
+					power : ''
+				}
+			};
+			storageValue = JSON.stringify(objBestTrapDefault);
+		}
+		
+		storageValue = JSON.parse(storageValue);
+		selectBestTrapWeapon.value = storageValue.weapon[selectBestTrapPowerType.value];
+		selectBestTrapBase.value = storageValue.base[selectBestTrapBaseType.value];
+	}
+	
+	function saveBestTrap(){
+		var selectBestTrapPowerType = document.getElementById('selectBestTrapPowerType');
+		var selectBestTrapWeapon = document.getElementById('selectBestTrapWeapon');
+		var selectBestTrapBaseType = document.getElementById('selectBestTrapBaseType');
+		var selectBestTrapBase = document.getElementById('selectBestTrapBase');
+		var storageValue = window.sessionStorage.getItem('BestTrap');
+		if (storageValue === null || storageValue === undefined){
+			var objBestTrapDefault = {
+				weapon : {
+					arcane : '',
+					draconic : '',
+					forgotten : '',
+					hydro : '',
+					law : '',
+					physical : '',
+					rift : '',
+					shadow : '',
+					tactical : ''
+				},
+				base : {
+					luck : '',
+					power : ''
+				}
+			};
+			storageValue = JSON.stringify(objBestTrapDefault);
+		}
+
+		storageValue = JSON.parse(storageValue);
+		storageValue.weapon[selectBestTrapPowerType.value] = selectBestTrapWeapon.value;
+		storageValue.base[selectBestTrapBaseType.value] = selectBestTrapBase.value;
+		window.sessionStorage.setItem('BestTrap', JSON.stringify(storageValue));
 	}
 
 	function onSelectSCHuntZoneEnable(){
@@ -7041,4 +7166,4 @@ function bodyJS(){
 }
 // ################################################################################################
 //   HTML Function - End
-// ################################################################################################
+// #################################################################################################

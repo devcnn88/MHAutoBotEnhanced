@@ -25,20 +25,6 @@
 			onclick="onIdGetPreferenceClicked();"><b>[Get Preference]</b></a>&nbsp;&nbsp;&nbsp;
 		</span>
 		<span>
-			<a id="showTrapLink" name="showTrapLink" 
-			onclick=
-			"if (document.getElementById('showTrapLink').innerHTML == '<b>[Hide Trap Setting]</b>') { 
-				document.getElementById('trapSettingDiv').style.display='none';  
-				document.getElementById('showTrapLink').innerHTML='<b>[Show Trap Setting]</b>'; 
-			} 
-			else {
-				setLocalToSession();
-				document.getElementById('trapSettingDiv').style.display='block'; 
-				document.getElementById('showTrapLink').innerHTML='<b>[Hide Trap Setting]</b>'; 
-				initControlsBestTrap();
-			}"><b>[Show Trap Setting]</b></a>&nbsp;&nbsp;&nbsp;
-		</span>
-		<span>
 			<a id="showPreferenceLink" name="showPreferenceLink" 
 			onclick=
 			"if (document.getElementById('showPreferenceLink').innerHTML == '<b>[Hide Preference]</b>') { 
@@ -52,64 +38,11 @@
 				document.getElementById('preferenceDiv').style.display='block'; 
 				document.getElementById('showPreferenceLink').innerHTML='<b>[Hide Preference]</b>'; 
 				document.getElementById('eventAlgo').value = selectedAlgo;
+				initControlsBestTrap();
 			}"><b>[Show Preference]</b></a>&nbsp;&nbsp;&nbsp;
 		</span>
 	</div>
 <hr>
-	<div id="trapSettingDiv" style="display: none;">
-		<table border="0" width="100%">
-			<tbody>
-				<tr>
-					<td style="height:24px; text-align:right;"><b>Best Weapon for </b>
-						<select id="selectBestTrapPowerType" onchange="onSelectBestTrapPowerType();">
-							<option value="arcane">Arcane</option>
-							<option value="draconic">Draconic</option>
-							<option value="forgotten">Forgotten</option>
-							<option value="hydro">Hydro</option>
-							<option value="law">Law</option>
-							<option value="physical">Physical</option>
-							<option value="rift">Rift</option>
-							<option value="shadow">Shadow</option>
-							<option value="tactical">Tactical</option>
-						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
-					</td>
-					<td style="height:24px">
-						<select id="selectBestTrapWeapon" onchange="onSelectBestTrapWeapon();">
-							<option value="Pincher">Focused-Side Pawn Pincher</option>
-							<option value="BPT/OAT">Focused-Side Trap BPT/OAT</option>
-							<option value="Arcane 1">Arcane 1</option>
-							<option value="Arcane 2">Arcane 2</option>
-							<option value="Physical 1">Physical 1</option>
-							<option value="Physical 2">Physical 2</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td style="height:24px; text-align:right;"><b>Best Base for </b>
-						<select id="selectBestTrapBaseType" onchange="onSelectBestTrapBaseType();">
-							<option value="luck">Luck</option>
-							<option value="power">Power</option>
-						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
-					</td>
-					<td style="height:24px">
-						<select id="selectBestTrapBase" onchange="onSelectBestTrapBase();">
-							<option value="Minotaur Base">Minotaur Base</option>
-							<option value="Rift Base">Rift Base</option>
-							<option value="20 Luck Base">20 Luck Base</option>
-							<option value="20k Power Base">20k Power Base</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td style="height:24px; text-align:right;" colspan="2">
-						<input type="button" id="inputBestTrapSaveInput" title="Save changes of best weapon or base without reload, take effect after current hunt" value="Apply" onclick="setSessionToLocal();">
-						<input type="button" id="inputBestTrapSaveReloadInput" title="Save changes of best weapon or base with reload, take effect immediately" value="Apply & Reload" onclick="setSessionToLocal();">&nbsp;&nbsp;&nbsp;
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<hr>
-	</div>
 	<div id="preferenceDiv" style="display: none;">
 		<table border="0" width="100%">
 			<tbody>
@@ -191,6 +124,47 @@
 					</td>
 				</tr>
 				<tr>
+					<td style="height:24px; text-align:right;"><b>Best Weapon for </b>
+						<select id="selectBestTrapPowerType" onchange="onSelectBestTrapPowerType();">
+							<option value="arcane">Arcane</option>
+							<option value="draconic">Draconic</option>
+							<option value="forgotten">Forgotten</option>
+							<option value="hydro">Hydro</option>
+							<option value="law">Law</option>
+							<option value="physical">Physical</option>
+							<option value="rift">Rift</option>
+							<option value="shadow">Shadow</option>
+							<option value="tactical">Tactical</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectBestTrapWeapon" onchange="onSelectBestTrapWeapon();">
+							<option value="Pincher">Focused-Side Pawn Pincher</option>
+							<option value="BPT/OAT">Focused-Side Trap BPT/OAT</option>
+							<option value="Arcane 1">Arcane 1</option>
+							<option value="Arcane 2">Arcane 2</option>
+							<option value="Physical 1">Physical 1</option>
+							<option value="Physical 2">Physical 2</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><b>Best Base for </b>
+						<select id="selectBestTrapBaseType" onchange="onSelectBestTrapBaseType();">
+							<option value="luck">Luck</option>
+							<option value="power">Power</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectBestTrapBase" onchange="onSelectBestTrapBase();">
+							<option value="Minotaur Base">Minotaur Base</option>
+							<option value="Rift Base">Rift Base</option>
+							<option value="20 Luck Base">20 Luck Base</option>
+							<option value="20k Power Base">20k Power Base</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
 					<td style="height:24px; text-align:right;" colspan="2">(Changes above this line only take place after user save the preference) <input type="button" id="PreferenceSaveInput" value="Save"
 					onclick=
 					"window.localStorage.setItem('AggressiveMode',document.getElementById('AggressiveModeInput').value);
@@ -205,6 +179,7 @@
 					window.localStorage.setItem('AutoSolveKRDelayMax', document.getElementById('AutoSolveKRDelayMaxInput').value);					
 					window.localStorage.setItem('SaveKRImage',document.getElementById('SaveKRImageInput').value);
 					window.localStorage.setItem('PauseLocation',document.getElementById('PauseLocationInput').value);
+					setSessionToLocal();
 					">&nbsp;&nbsp;&nbsp;</td>
 				</tr>
 				<tr>
