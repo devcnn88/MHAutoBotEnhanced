@@ -519,6 +519,20 @@
 							<option value="1">1</option>
 							<option value="2">2</option>
 							<option value="3">3</option>
+							<option value="4">4</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trFWTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on certain FW wave"><b>Trap Setup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFWTrapSetupWeapon" onchange="onSelectFWTrapSetupWeapon();">
+							<option value="Weapon A">Weapon A</option>
+							<option value="Weapon B">Weapon B</option>
+						</select>
+						<select id="selectFWTrapSetupBase" onchange="onSelectFWTrapSetupBase();">
+							<option value="Base A">Base A</option>
+							<option value="Base B">Base B</option>
 						</select>
 					</td>
 				</tr>
@@ -1185,6 +1199,15 @@
 				option[i].style = (nWave==1) ? 'display:none' : '';
 		}
 		initControlsFW();
+			
+	}
+	
+	function onSelectFWTrapSetupWeapon(){
+		saveFW();
+	}
+	
+	function onSelectFWTrapSetupBase(){
+		saveFW();
 	}
 	
 	function onSelectFWStreakChanged(){
@@ -1216,6 +1239,9 @@
 	}
 	
 	function initControlsFW(){
+		var selectFWWave = document.getElementById('selectFWWave');
+		var selectFWTrapSetupWeapon = document.getElementById('selectFWTrapSetupWeapon');
+		var selectFWTrapSetupBase = document.getElementById('selectFWTrapSetupBase');		
 		var selectFWStreak = document.getElementById('selectFWStreak');
 		var selectFWFocusType = document.getElementById('selectFWFocusType');
 		var selectFWPriorities = document.getElementById('selectFWPriorities');
@@ -1223,8 +1249,10 @@
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
-		var storageValue = window.sessionStorage.getItem('FW_Wave' + document.getElementById('selectFWWave').value);
+		var storageValue = window.sessionStorage.getItem('FW_Wave' + selectFWWave.value);
 		if(storageValue === null){
+			selectFWTrapSetupWeapon.selectedIndex = -1;
+			selectFWTrapSetupBase.selectedIndex = -1;
 			selectFWFocusType.selectedIndex = -1;
 			selectFWPriorities.selectedIndex = -1;
 			selectFWCheese.selectedIndex = -1;
@@ -1234,6 +1262,8 @@
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
+			selectFWTrapSetupWeapon.value = storageValue.weapon[selectFWWave.selectedIndex];
+			selectFWTrapSetupBase.value = storageValue.base[selectFWWave.selectedIndex];
 			selectFWFocusType.value = storageValue.focusType;
 			selectFWPriorities.value = storageValue.priorities;
 			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
@@ -1241,10 +1271,23 @@
 			selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
 			selectFWLastTypeConfig.value = storageValue.lastSoldierConfig;
 		}
+		if(selectFWWave.value == 4){
+			document.getElementById('trFWStreak').style.display = 'none';
+			document.getElementById('trFWFocusType').style.display = 'none';
+			document.getElementById('trFWLastType').style.display = 'none';
+		}
+		else{
+			document.getElementById('trFWStreak').style.display = 'table-row';
+			document.getElementById('trFWFocusType').style.display = 'table-row';
+			document.getElementById('trFWLastType').style.display = 'table-row';
+		}
 	}
 	
 	function saveFW(){
-		var nWave = document.getElementById('selectFWWave').value;
+		var selectFWWave = document.getElementById('selectFWWave');
+		var selectFWTrapSetupWeapon = document.getElementById('selectFWTrapSetupWeapon');
+		var selectFWTrapSetupBase = document.getElementById('selectFWTrapSetupBase');
+		var nWave = selectFWWave.value;
 		var selectFWStreak = document.getElementById('selectFWStreak');
 		var nStreak = parseInt(selectFWStreak.value);
 		var nStreakLength = selectFWStreak.children.length;
@@ -1257,6 +1300,8 @@
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
 		if(storageValue === null){
 			var obj = {
+				weapon : new Array(4),
+				base : new Array(4),
 				focusType : 'NORMAL',
 				priorities : 'HIGHEST',
 				cheese : new Array(nStreakLength),
@@ -1267,6 +1312,8 @@
 			storageValue = JSON.stringify(obj);
 		}
 		storageValue = JSON.parse(storageValue);
+		storageValue.weapon[nWave-1] = selectFWTrapSetupWeapon.value;
+		storageValue.base[nWave-1] = selectFWTrapSetupBase.value;
 		storageValue.focusType = selectFWFocusType.value;
 		storageValue.priorities = selectFWPriorities.value;
 		storageValue.cheese[nStreak] = selectFWCheese.value;
@@ -1563,6 +1610,7 @@
 		document.getElementById('trLabyrinthDisarm').style.display = 'none';
 		document.getElementById('trLabyrinthArmOtherBase').style.display = 'none';
 		document.getElementById('trFWWave').style.display = 'none';
+		document.getElementById('trFWTrapSetup').style.display = 'none';
 		document.getElementById('trFWStreak').style.display = 'none';
 		document.getElementById('trFWFocusType').style.display = 'none';
 		document.getElementById('trFWLastType').style.display = 'none';
@@ -1595,6 +1643,7 @@
 		}
 		else if(algo == 'Fiery Warpath'){
 			document.getElementById('trFWWave').style.display = 'table-row';
+			document.getElementById('trFWTrapSetup').style.display = 'table-row';
 			document.getElementById('trFWStreak').style.display = 'table-row';
 			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('trFWLastType').style.display = 'table-row';
