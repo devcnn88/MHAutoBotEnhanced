@@ -329,8 +329,6 @@
 						<select id="selectUseZUM" onchange="onSelectUseZUMChanged();">
 							<option value="None">None</option>
 							<option value="ALL">All Season</option>
-							<!-- <option value="ZT_ONLY">ZT Only</option>
-							<option value="SG_ZT">SG & ZT</option> -->
 							<option value="SPRING">Spring</option>
 							<option value="SUMMER">Summer</option>
 							<option value="FALL">Fall</option>
@@ -338,14 +336,92 @@
 						</select>
 					</td>
 				</tr>
-				<tr id="lgArea" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select auto pour status"><b>Auto Pour</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+				<tr id="trLGTGAutoFill" style="display:none;">
+					<td style="height:24px; text-align:right;"><b>Auto Fill in </b>
+						<select id="selectLGTGAutoFillSide" onchange="onSelectLGTGAutoFillSide();">
+							<option value="LG">Living Garden</option>
+							<option value="TG">Twisted Garden</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
 					<td style="height:24px">
-						<select id="lgAutoPour" onchange="saveLG();">
+						<select id="selectLGTGAutoFillState" onchange="onSelectLGTGAutoFillState();">
 							<option value="false">False</option>
 							<option value="true">True</option>
-						</select>&nbsp;&nbsp;<a title="Max number of salt before hunting King Grub"><b>Salt Charge:</b></a>&emsp;
-						<input type="number" id="lgSalt" min="1" max="50" size="5" value="25" onchange="saveLG();">
+						</select>
+					</td>
+				</tr>
+				<tr id="trLGTGAutoPour" style="display:none;">
+					<td style="height:24px; text-align:right;"><b>Auto Pour in </b>
+						<select id="selectLGTGAutoPourSide" onchange="onSelectLGTGAutoPourSide();">
+							<option value="LG">Living Garden</option>
+							<option value="TG">Twisted Garden</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectLGTGAutoPourState" onchange="onSelectLGTGAutoPourState();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trPourTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><b>After Poured in </b>
+						<select id="selectLGTGSide" onchange="onSelectLGTGSide();">
+							<option value="LG">Living Garden</option>
+							<option value="TG">Twisted Garden</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectLGTGBase" onchange="onSelectLGTGBase();">
+							<option value="Living Base">Living Base</option>
+							<option value="Luck Base">Luck Base</option>
+						</select>
+						<select id="selectLGTGTrinket" onchange="onSelectLGTGTrinket();">
+							<option value="None">None</option>
+							<option value="Ancient Charm">Ancient Charm</option>
+							<option value="Super Cactus Charm">Super Cactus Charm</option>
+						</select>
+						<select id="selectLGTGBait" onchange="onSelectLGTGBait();">
+							<option value="None">None</option>
+							<option value="Gouda">Gouda</option>
+							<option value="Duskshade Camembert">Duskshade Camembert</option>
+							<option value="Lunaria Camembert">Lunaria Camembert</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trCurseLiftedTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><b>After Curse Lifted in </b>
+						<select id="selectLCCCSide" onchange="onSelectLCCCSide();">
+							<option value="LC">Lost City</option>
+							<option value="CC">Cursed City</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectLCCCBase" onchange="onSelectLCCCBase();">
+							<option value="Living Base">Living Base</option>
+							<option value="Luck Base">Luck Base</option>
+						</select>
+						<select id="selectLCCCTrinket" onchange="onSelectLCCCTrinket();">
+							<option value="None">None</option>
+							<option value="Ancient Charm">Ancient Charm</option>
+							<option value="Super Cactus Charm">Super Cactus Charm</option>
+							<option value="Safeguard Charm">Safeguard Charm</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trSaltedTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><b>Trap Setup </b>
+						<select id="selectSaltedStatus" onchange="onSelectSaltedStatus();">
+							<option value="before">During</option>
+							<option value="after">After</option>
+						</select><b> Salt Charging</b>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectSCBase" onchange="onSelectSCBase();">
+							<option value="Living Base">Living Base</option>
+							<option value="Luck Base">Luck Base</option>
+						</select>&nbsp;&nbsp;<a title="Max number of salt before hunting King Grub"><b>Salt Charge : </b></a>
+						<input type="number" id="inputKGSalt" min="1" max="50" size="5" value="25" onchange="onInputKGSaltChanged();">
 					</td>
 				</tr>
 				<tr id="trSCCustom" style="display:none;">
@@ -1171,23 +1247,160 @@
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 		selectLabyrinthOtherBase.value = storageValue.armOtherBase;
 	}
-	
-	function saveLG(){
-		var isPour = (document.getElementById('lgAutoPour').value == 'true');
-		var maxSalt = document.getElementById('lgSalt').value;
-		window.sessionStorage.setItem('LGArea', isPour + ',' + maxSalt);
+
+	function onSelectLGTGAutoPourSide(){
+		initControlsLG();
 	}
 	
-	function loadLG(){
-		var storageValue = window.sessionStorage.getItem('LGArea');
-		if(storageValue === null){
-			storageValue = 'true,25';
-			window.sessionStorage.setItem('LGArea', storageValue);
-		}
+	function onSelectLGTGAutoPourState(){
+		saveLG();
+	}
 
-		storageValue = storageValue.split(',');
-		document.getElementById('lgAutoPour').value = storageValue[0];
-		document.getElementById('lgSalt').value = parseInt(storageValue[1]);
+	function onSelectLGTGAutoFillSide(){
+		initControlsLG();
+	}
+	
+	function onSelectLGTGAutoFillState(){
+		saveLG();
+	}
+	
+	function onSelectLGTGSide(){
+		initControlsLG();
+	}
+	
+	function onSelectLGTGBase(){
+		saveLG();
+	}
+	
+	function onSelectLGTGTrinket(){
+		saveLG();
+	}
+	
+	function onSelectLGTGBait(){
+		saveLG();
+	}
+	
+	function onSelectLCCCSide(){
+		initControlsLG();
+	}
+	
+	function onSelectLCCCBase(){
+		saveLG();
+	}
+	
+	function onSelectLCCCTrinket(){
+		saveLG();
+	}
+	
+	function onSelectSaltedStatus(){
+		initControlsLG();
+	}
+	
+	function onSelectSCBase(){
+		saveLG();
+	}
+	
+	function onInputKGSaltChanged(){
+		saveLG();
+	}
+	
+	function saveLG(){
+		var selectLGTGAutoFillSide = document.getElementById('selectLGTGAutoFillSide');
+		var selectLGTGAutoFillState = document.getElementById('selectLGTGAutoFillState');
+		var selectLGTGAutoPourSide = document.getElementById('selectLGTGAutoPourSide');
+		var selectLGTGAutoPourState = document.getElementById('selectLGTGAutoPourState');
+		var selectLGTGSide = document.getElementById('selectLGTGSide');
+		var selectLGTGBase = document.getElementById('selectLGTGBase');
+		var selectLGTGTrinket = document.getElementById('selectLGTGTrinket');
+		var selectLGTGBait = document.getElementById('selectLGTGBait');
+		var selectLCCCSide = document.getElementById('selectLCCCSide');
+		var selectLCCCBase = document.getElementById('selectLCCCBase');
+		var selectLCCCTrinket = document.getElementById('selectLCCCTrinket');
+		var selectSaltedStatus = document.getElementById('selectSaltedStatus');
+		var selectSCBase = document.getElementById('selectSCBase');
+		var inputKGSalt = document.getElementById('inputKGSalt');
+		var storageValue = window.sessionStorage.getItem('LGArea');
+		if(storageValue === null || storageValue === undefined){
+			var objLGTemplate = {
+				isAutoFill : false,
+				isAutoPour : false,
+				maxSaltCharged : 25,
+				base : {
+					before : undefined,
+					after : undefined
+				},
+				trinket : {
+					before : undefined,
+					after : undefined
+				},
+				bait : {
+					before : undefined,
+					after : undefined
+				}
+			};
+			var objAllLG = {
+				LG : JSON.parse(JSON.stringify(objLGTemplate)),
+				TG : JSON.parse(JSON.stringify(objLGTemplate)),
+				LC : JSON.parse(JSON.stringify(objLGTemplate)),
+				CC : JSON.parse(JSON.stringify(objLGTemplate)),
+				SD : JSON.parse(JSON.stringify(objLGTemplate)),
+				SC : JSON.parse(JSON.stringify(objLGTemplate)),
+			};
+			storageValue = JSON.stringify(objAllLG);
+		}
+		storageValue = JSON.parse(storageValue);
+		storageValue[selectLGTGAutoFillSide.value].isAutoFill = (selectLGTGAutoFillState.value == 'true');
+		storageValue[selectLGTGAutoPourSide.value].isAutoPour = (selectLGTGAutoPourState.value == 'true');
+		storageValue[selectLGTGSide.value].base.after = selectLGTGBase.value;
+		storageValue[selectLGTGSide.value].base.after = selectLGTGBase.value;
+		storageValue[selectLGTGSide.value].trinket.after = selectLGTGTrinket.value;
+		storageValue[selectLGTGSide.value].bait.after = selectLGTGBait.value;
+		storageValue[selectLCCCSide.value].base.after = selectLCCCBase.value;
+		storageValue[selectLCCCSide.value].trinket.after = selectLCCCTrinket.value;
+		storageValue.SC.base[selectSaltedStatus.value] = selectSCBase.value;
+		storageValue.SC.maxSaltCharged = inputKGSalt.value;
+		window.sessionStorage.setItem('LGArea', JSON.stringify(storageValue));
+	}
+	
+	function initControlsLG(){
+		var selectLGTGAutoFillSide = document.getElementById('selectLGTGAutoFillSide');
+		var selectLGTGAutoFillState = document.getElementById('selectLGTGAutoFillState');
+		var selectLGTGAutoPourSide = document.getElementById('selectLGTGAutoPourSide');
+		var selectLGTGAutoPourState = document.getElementById('selectLGTGAutoPourState');
+		var selectLGTGSide = document.getElementById('selectLGTGSide');
+		var selectLGTGBase = document.getElementById('selectLGTGBase');
+		var selectLGTGTrinket = document.getElementById('selectLGTGTrinket');
+		var selectLGTGBait = document.getElementById('selectLGTGBait');
+		var selectLCCCSide = document.getElementById('selectLCCCSide');
+		var selectLCCCBase = document.getElementById('selectLCCCBase');
+		var selectLCCCTrinket = document.getElementById('selectLCCCTrinket');
+		var selectSaltedStatus = document.getElementById('selectSaltedStatus');
+		var selectSCBase = document.getElementById('selectSCBase');
+		var inputKGSalt = document.getElementById('inputKGSalt');
+		var storageValue = window.sessionStorage.getItem('LGArea');
+		if(storageValue === null || storageValue === undefined){
+			selectLGTGAutoFillState.selectedIndex = -1;
+			selectLGTGAutoPourState.selectedIndex = -1;
+			selectLGTGBase.selectedIndex = -1;
+			selectLGTGTrinket.selectedIndex = -1;
+			selectLGTGBait.selectedIndex = -1;
+			selectLCCCBase.selectedIndex = -1;
+			selectLCCCTrinket.selectedIndex = -1;
+			selectSCBase.selectedIndex = -1;
+			inputKGSalt.value = 25;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectLGTGAutoFillState.value = storageValue[selectLGTGAutoFillSide.value].isAutoFill;
+			selectLGTGAutoPourState.value = storageValue[selectLGTGAutoPourSide.value].isAutoPour;
+			selectLGTGBase.value = storageValue[selectLGTGSide.value].base.after;
+			selectLGTGTrinket.value = storageValue[selectLGTGSide.value].trinket.after;
+			selectLGTGBait.value = storageValue[selectLGTGSide.value].bait.after;
+			selectLCCCBase.value = storageValue[selectLCCCSide.value].base.after;
+			selectLCCCTrinket.value = storageValue[selectLCCCSide.value].trinket.after;
+			selectSCBase.value = storageValue.SC.base[selectSaltedStatus.value];
+			inputKGSalt.value = storageValue.SC.maxSaltCharged;
+		}
 	}
 	
 	function onSelectFWWaveChanged(){
@@ -1607,7 +1820,11 @@
 	}
 	
 	function showOrHideTr(algo){
-		document.getElementById('lgArea').style.display = 'none';
+		document.getElementById('trLGTGAutoFill').style.display = 'none';
+		document.getElementById('trLGTGAutoPour').style.display = 'none';
+		document.getElementById('trPourTrapSetup').style.display = 'none';
+		document.getElementById('trCurseLiftedTrapSetup').style.display = 'none';
+		document.getElementById('trSaltedTrapSetup').style.display = 'none';
 		document.getElementById('trSCCustom').style.display = 'none';
 		document.getElementById('trSCCustomUseSmartJet').style.display = 'none';
 		document.getElementById('labyrinth').style.display = 'none';
@@ -1630,8 +1847,12 @@
 		document.getElementById('trZTFocus').style.display = 'none';
 		document.getElementById('trZTTrapSetup').style.display = 'none';
 		if(algo == 'All LG Area'){
-			document.getElementById('lgArea').style.display = 'table-row';
-			loadLG();
+			document.getElementById('trLGTGAutoFill').style.display = 'table-row';
+			document.getElementById('trLGTGAutoPour').style.display = 'table-row';
+			document.getElementById('trPourTrapSetup').style.display = 'table-row';
+			document.getElementById('trCurseLiftedTrapSetup').style.display = 'table-row';
+			document.getElementById('trSaltedTrapSetup').style.display = 'table-row';
+			initControlsLG();
 		}
 		else if(algo == 'Sunken City Custom'){
 			document.getElementById('trSCCustom').style.display = 'table-row';
