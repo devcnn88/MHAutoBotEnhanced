@@ -4790,7 +4790,7 @@ function loadPreferenceSettingFromStorage() {
 		
 		// Remove old LG
 		keyValue = getStorage("LGArea");
-		if(!isNullOrUndefined(keyValue) && typeof keyValue !== 'object'){
+		if(!isNullOrUndefined(keyValue) && keyValue.split(",").length == 2){
 			removeStorage("LGArea");
 			removeSessionStorage("LGArea");
 		}
