@@ -75,7 +75,7 @@ var kingsRewardRetryMax = 3;
 var saveKRImage = true;
 
 // // Maximum number of KR image to be saved into localStorage
-var maxSaveKRImage = 100;
+var maxSaveKRImage = 75;
 
 // // The script will pause if player at different location that hunt location set before. (true/false)
 // // Note: Make sure you set showTimerInPage to true in order to know what is happening.
