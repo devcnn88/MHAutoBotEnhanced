@@ -4238,6 +4238,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;';
 			preferenceHTMLStr += '<select id="selectZokorTrinket" onChange="onSelectZokorTrinket();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
