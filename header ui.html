@@ -1262,8 +1262,12 @@
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			selectFWTrapSetupWeapon.value = storageValue.weapon[selectFWWave.selectedIndex];
-			selectFWTrapSetupBase.value = storageValue.base[selectFWWave.selectedIndex];
+			if(isNullOrUndefined(storageValue.weapon))
+				storageValue.weapon = 'Sandtail Sentinel';
+			if(isNullOrUndefined(storageValue.base))
+				storageValue.base = 'Physical Brace Base';
+			selectFWTrapSetupWeapon.value = storageValue.weapon;
+			selectFWTrapSetupBase.value = storageValue.base;
 			selectFWFocusType.value = storageValue.focusType;
 			selectFWPriorities.value = storageValue.priorities;
 			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
@@ -1300,8 +1304,8 @@
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
 		if(storageValue === null){
 			var obj = {
-				weapon : new Array(4),
-				base : new Array(4),
+				weapon : '',
+				base : '',
 				focusType : 'NORMAL',
 				priorities : 'HIGHEST',
 				cheese : new Array(nStreakLength),
@@ -1312,8 +1316,12 @@
 			storageValue = JSON.stringify(obj);
 		}
 		storageValue = JSON.parse(storageValue);
-		storageValue.weapon[nWave-1] = selectFWTrapSetupWeapon.value;
-		storageValue.base[nWave-1] = selectFWTrapSetupBase.value;
+		if(isNullOrUndefined(storageValue.weapon))
+			storageValue.weapon = 'Sandtail Sentinel';
+		if(isNullOrUndefined(storageValue.base))
+			storageValue.base = 'Physical Brace Base';
+		storageValue.weapon = selectFWTrapSetupWeapon.value;
+		storageValue.base = selectFWTrapSetupBase.value;
 		storageValue.focusType = selectFWFocusType.value;
 		storageValue.priorities = selectFWPriorities.value;
 		storageValue.cheese[nStreak] = selectFWCheese.value;

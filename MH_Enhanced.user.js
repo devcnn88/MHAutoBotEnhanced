@@ -1826,19 +1826,9 @@ function fw(){
 
 	var wave = getPageVariable('user.viewing_atts.desert_warpath.wave');
 	wave = parseInt(wave);
-    
-    if (wave == 4){
-		bestFWWave4Weapon = ['Warden Slayer Trap'].concat(objBestTrap.weapon.physical);
-		bestFWWave4Base = ['Physical Brace Base'].concat(objBestTrap.base.luck);
-		checkThenArm('best', 'weapon', bestFWWave4Weapon);
-		checkThenArm('best', 'base', bestFWWave4Base);
-		checkThenArm(null, 'bait', 'Gouda');
-        return;
-    }
-
-	checkThenArm('best', 'base', objBestTrap.base.luck);
-	var nStreakLength = document.getElementById('selectFWStreak').children.length;
 	var objDefaultFW = {
+		weapon : 'Sandtail Sentinel',
+		base : 'Physical Brace',
 		focusType : 'NORMAL',
 		priorities : 'HIGHEST',
 		cheese : new Array(nStreakLength),
@@ -1847,6 +1837,14 @@ function fw(){
 		lastSoldierConfig : 'CONFIG_GOUDA'
 	};
 	var objFW = JSON.parse(getStorageToVariableStr('FW_Wave'+wave,JSON.stringify(objDefaultFW)));
+	checkThenArm(null, 'base', objFW.base);
+    if (wave == 4){
+		checkThenArm(null, 'weapon', objFW.weapon);
+		checkThenArm(null, 'bait', 'Gouda');
+        return;
+    }
+	
+	var nStreakLength = document.getElementById('selectFWStreak').children.length;
 	objFW.streak = parseInt(document.getElementsByClassName('streak_quantity')[0].innerText);
     console.pdebug('Wave:', wave, 'Streak:', objFW.streak);
 	if(Number.isNaN(objFW.streak) || objFW.streak < 0 || objFW.streak >= nStreakLength)
@@ -1911,7 +1909,7 @@ function fw(){
 				else if(index == objPopulation.ARTILLERY)
 					checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 				else
-					checkThenArm('best', 'weapon', objBestTrap.weapon.physical);
+					checkThenArm(null, 'weapon', objFW.weapon);
 				if(charmArmed.indexOf('Warpath') > -1)
 					disarmTrap('trinket');
 			}
@@ -1954,7 +1952,7 @@ function fw(){
 			objFW.streak = 0;
 			temp = objFW.population[objFW.focusType][indexMinMax];
 			if(objFW.focusType.toUpperCase() == 'NORMAL'){
-				checkThenArm('best', 'weapon', objBestTrap.weapon.physical);
+				checkThenArm(null, 'weapon', objFW.weapon);
 				var count = countArrayElement(temp, objFW.population[objFW.focusType]);
 				if(count > 1){
 					if(objFW.population[objFW.focusType][objPopulation.SCOUT] == temp)
@@ -2010,7 +2008,7 @@ function fw(){
 			else if(index == objPopulation.ARTILLERY)
 				checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 			else
-				checkThenArm('best', 'weapon', objBestTrap.weapon.physical);
+				checkThenArm(null, 'weapon', objFW.weapon);
 		}
 	}
 	checkThenArm(null, 'bait', objFW.cheese[objFW.streak]);
@@ -4267,7 +4265,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr id="trFWTrapSetup" style="display:none;">';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on certain FW wave"><b>Trap Setup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on certain FW wave"><b>Physical Trap Setup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectFWTrapSetupWeapon" style="width: 75px" onchange="onSelectFWTrapSetupWeapon();">';
 			preferenceHTMLStr += '</select>';
@@ -6676,11 +6674,11 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			if(isNullOrUndefined(storageValue.weapon))
-				storageValue.weapon = new Array(4);
+				storageValue.weapon = 'Sandtail Sentinel';
 			if(isNullOrUndefined(storageValue.base))
-				storageValue.base = new Array(4);
-			selectFWTrapSetupWeapon.value = storageValue.weapon[selectFWWave.selectedIndex];
-			selectFWTrapSetupBase.value = storageValue.base[selectFWWave.selectedIndex];
+				storageValue.base = 'Physical Brace Base';
+			selectFWTrapSetupWeapon.value = storageValue.weapon;
+			selectFWTrapSetupBase.value = storageValue.base;
 			selectFWFocusType.value = storageValue.focusType;
 			selectFWPriorities.value = storageValue.priorities;
 			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
@@ -6730,11 +6728,11 @@ function bodyJS(){
 		}
 		storageValue = JSON.parse(storageValue);
 		if(isNullOrUndefined(storageValue.weapon))
-			storageValue.weapon = new Array(4);
+			storageValue.weapon = 'Sandtail Sentinel';
 		if(isNullOrUndefined(storageValue.base))
-			storageValue.base = new Array(4);
-		storageValue.weapon[nWave-1] = selectFWTrapSetupWeapon.value;
-		storageValue.base[nWave-1] = selectFWTrapSetupBase.value;
+			storageValue.base = 'Physical Brace Base';
+		storageValue.weapon = selectFWTrapSetupWeapon.value;
+		storageValue.base = selectFWTrapSetupBase.value;
 		storageValue.focusType = selectFWFocusType.value;
 		storageValue.priorities = selectFWPriorities.value;
 		storageValue.cheese[nStreak] = selectFWCheese.value;
