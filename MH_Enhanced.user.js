@@ -1558,9 +1558,8 @@ function labyrinth() {
 	var objHallwayPriorities = JSON.parse(getStorageToVariableStr('Labyrinth_HallwayPriorities', JSON.stringify(objDefaultHallwayPriorities)));
 	if(objHallwayPriorities.armOtherBase != 'false'){
 		var charmArmed = getPageVariable('user.trinket_name');
-		if(charmArmed.indexOf('Compass Magnet') === 0){
+		if(charmArmed.indexOf('Compass Magnet') === 0)
 			checkThenArm(null, 'base', objHallwayPriorities.armOtherBase);
-		}
 		else
 			checkThenArm('best', 'base', bestLabyBase);
 	}
@@ -1586,7 +1585,7 @@ function labyrinth() {
 			if(bLanternActive)
 				maxCluePerHunt++;
 			console.plog('Hallway Last Hunt :', lastHunt, 'Total Clues:', totalClue, 'Max Clue Per Hunt:', maxCluePerHunt);
-			if(lastHunt <= objHallwayPriorities.lastHunt && totalClue >= (100-maxCluePerHunt*lastHunt)) // each hunt will loot max 3 clues
+			if(lastHunt <= objHallwayPriorities.lastHunt && totalClue >= (100-maxCluePerHunt*lastHunt))
 				disarmTrap('bait');
 		}
 		return;
@@ -1640,9 +1639,6 @@ function labyrinth() {
 	}
 
 	console.plog(objDoors.debug.join(","));
-	if(parseInt(getPageVariable("user.bait_quantity"))<3)
-		checkThenArm(null, 'bait', 'Gouda');
-
 	var userVariable = undefined;
 	temp = "";
 	var range = "";
