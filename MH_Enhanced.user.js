@@ -4768,8 +4768,8 @@ function getTrapListFromTrapSelector(sort, category, name, isForcedRetry){
 }
 
 function getBestTrap(){
-	var obj = getStorageToVariableStr("BestTrap", "");
-	if(!(isNullOrUndefined(obj) || obj === "")){
+	var obj = getStorage("BestTrap");
+	if(!isNullOrUndefined(obj)){
 		obj = JSON.parse(obj);
 		for (var prop in obj) {
 			if(obj.hasOwnProperty(prop) && objBestTrap.hasOwnProperty(prop)){
@@ -5482,7 +5482,7 @@ function ajaxPost(postURL, objData, callback, throwerror){
 }
 
 function isNullOrUndefined(obj){
-	return (obj === null || obj === undefined);
+	return (obj === null || obj === undefined || obj === 'null' || obj === 'undefined');
 }
 
 function getAllIndices(arr, val) {
@@ -5552,13 +5552,7 @@ function arrayConcatUnique(arrOriginal, arrConcat){
 		arrOriginal = [arrOriginal];
 	if(!Array.isArray(arrConcat))
 		arrConcat = [arrConcat];
-	// var nIndex = -1;
-	// var arrTemp = arrOriginal.slice();
-	// for(var i=0;i<arrConcat.length;i++){
-		// if(arrTemp.indexOf(arrConcat[i]) < 0)
-			// arrTemp.push(arrConcat[i]);
-	// }
-	// return arrTemp;
+
 	var nIndex = -1;
 	var arrTemp = arrConcat.slice();
 	for(var i=0;i<arrOriginal.length;i++){
