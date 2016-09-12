@@ -2502,7 +2502,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 	if (category == "charm")
         category = "trinket";
 
-	if(name.toUpperCase() === 'NONE'){
+	if(!Array.isArray(name) && name.toUpperCase() === 'NONE'){
 		disarmTrap(category);
 		return;
 	}
