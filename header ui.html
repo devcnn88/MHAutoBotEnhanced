@@ -282,6 +282,7 @@
 							<option value="SG/ZT">Seasonal Garden</option>
 							<option value="ZT">Zugzwang's Tower</option>
 						</select>
+						<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();">
 					</td>
 				</tr>
 				<tr id="trZTFocus" style="display:none;">
@@ -1010,6 +1011,38 @@
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
+	}
+	
+	function onInputResetReload(){
+		var eventAlgo = document.getElementById('eventAlgo');
+		var keyName = '';
+		var keyName1 = '';
+		switch (eventAlgo.value) {
+			case 'Burroughs Rift Custom':
+				keyName = 'BRCustom'; break;
+			case 'All LG Area':
+				keyName = 'LGArea'; break;
+			case 'SG':
+				keyName = 'SGarden'; break;
+			case 'ZT':
+				keyName = 'ZTower'; break;
+			case 'Sunken City Custom':
+				keyName = 'SCCustom'; break;
+			case 'Labyrinth':
+				keyName = 'Labyrinth_DistrictFocus';
+				keyName1 = 'Labyrinth_HallwayPriorities';
+				break;
+			case 'Zokor':
+				keyName = 'Zokor'; break;
+			case 'Fiery Warpath':
+				keyName = 'FW'; break;
+			case 'Furoma Rift':
+				keyName = 'FRift'; break;
+			default:
+				break;
+		}
+		window.sessionStorage.removeItem(document.getElementById('eventAlgo').value);
+		window.localStorage.removeItem(document.getElementById('eventAlgo').value);
 	}
 	
 	function onSelectBestTrapPowerType(){
