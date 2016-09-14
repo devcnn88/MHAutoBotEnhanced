@@ -4696,6 +4696,7 @@ function loadPreferenceSettingFromStorage() {
 		}
 
 		// Backward compatibility of SCCustom
+		var temp = "";
 		var keyValue = "";
 		var obj = {};
 		var bResave = false;
@@ -4800,6 +4801,48 @@ function loadPreferenceSettingFromStorage() {
 		if(!isNullOrUndefined(keyValue) && keyValue.split(",").length == 2){
 			removeStorage("LGArea");
 			removeSessionStorage("LGArea");
+		}
+		
+		// Backward compatibility of FW
+		keyValue = getStorage('FW');
+		if(isNullOrUndefined(keyValue)){
+			obj = {};
+			for(i=1;i<=4;i++){
+				temp = 'FW_Wave'+i;
+				keyValue = getStorage(temp);
+				if(!isNullOrUndefined(keyValue)){
+					obj['wave'+i] = JSON.parse(keyValue);
+					removeStorage(temp);
+					removeSessionStorage(temp);
+				}
+				else{
+					obj['wave'+i] = JSON.parse(JSON.stringify(objDefaultFW));
+				}
+			}
+			setStorage('FW', JSON.stringify(obj));
+		}
+		
+		// Backward compatibility of Labyrinth
+		keyValue = getStorage('Labyrinth');
+		if(isNullOrUndefined(keyValue)){
+			obj = {};
+			temp = getStorage('Labyrinth_DistrictFocus');
+			keyValue = getStorage('Labyrinth_HallwayPriorities');
+			if(isNullOrUndefined(keyValue)){
+				obj = JSON.parse(JSON.stringify(objDefaultLaby));
+			}
+			else{
+				obj = JSON.parse(keyValue);
+				if(isNullOrUndefined(temp))
+					temp = 'None';
+				obj.districtFocus = temp;
+			}
+			setStorage('Labyrinth', JSON.stringify(obj));
+			temp = ['Labyrinth_DistrictFocus', 'Labyrinth_HallwayPriorities'];
+			for(i=0;i<temp.length;i++){
+				removeStorage(temp[i]);
+				removeSessionStorage(temp[i]);
+			}
 		}
 	}
 	catch (e){
