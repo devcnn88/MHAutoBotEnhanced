@@ -1015,8 +1015,7 @@
 	
 	function onInputResetReload(){
 		var eventAlgo = document.getElementById('eventAlgo');
-		var keyName = '';
-		var keyName1 = '';
+		var keyName;
 		switch (eventAlgo.value) {
 			case 'Burroughs Rift Custom':
 				keyName = 'BRCustom'; break;
@@ -1029,9 +1028,7 @@
 			case 'Sunken City Custom':
 				keyName = 'SCCustom'; break;
 			case 'Labyrinth':
-				keyName = 'Labyrinth_DistrictFocus';
-				keyName1 = 'Labyrinth_HallwayPriorities';
-				break;
+				keyName = 'Labyrinth'; break;
 			case 'Zokor':
 				keyName = 'Zokor'; break;
 			case 'Fiery Warpath':
@@ -1041,8 +1038,10 @@
 			default:
 				break;
 		}
-		window.sessionStorage.removeItem(document.getElementById('eventAlgo').value);
-		window.localStorage.removeItem(document.getElementById('eventAlgo').value);
+		if(!(keyName === null || keyName === undefined)){
+			window.sessionStorage.removeItem(keyName);
+			window.localStorage.removeItem(keyName);
+		}
 	}
 	
 	function onSelectBestTrapPowerType(){

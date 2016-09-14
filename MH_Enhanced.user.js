@@ -294,7 +294,6 @@ var mouseList = [];
 var discharge = false;
 var arming = false;
 var kingsRewardRetry = 0;
-var objSCCustom = {};
 var keyKR = [];
 var separator = "~";
 
@@ -1117,9 +1116,19 @@ function BRCustom(){
 	if (GetCurrentLocation().indexOf('Burroughs Rift') < 0)
 		return;
 
-	var objBR = getStorageToVariableStr('BRCustom', "");
-	if(objBR === "")
-		return;
+	var objBR = getStorage('BRCustom');
+	if(isNullOrUndefined(objBR)){
+		var objDefaultBRCustom = {
+			hunt : '',
+			toggle : 1,
+			name : ['Red', 'Green', 'Yellow', 'None'],
+			weapon : new Array(4),
+			base : new Array(4),
+			trinket : new Array(4),
+			bait : new Array(4)
+		};
+		objBR = JSON.stringify(objDefaultBRCustom);
+	}
 
 	objBR = JSON.parse(objBR);
 	var mistQuantity = 0;
@@ -1185,10 +1194,14 @@ function seasonalGarden(){
 	if(cheeseArmed.indexOf('Checkmate') > -1)
 		checkThenArm(null, 'bait', 'Gouda');
 	
-	var objSGDefault = {
-		useZUMIn: 'None'
-	};
-	var objSG = JSON.parse(getStorageToVariableStr('SGarden', JSON.stringify(objSGDefault)));
+	var objSG = getStorage('SGarden');
+	if(isNullOrUndefined(objSG)){
+		var objDefaultSG = {
+			useZUMIn: 'None'
+		};
+		objSG = JSON.stringify(objDefaultSG);
+	}
+	objSG = JSON.parse(objSG);
 	objSG.season = ['Spring', 'Summer', 'Fall', 'Winter'];
 	objSG.trap = [objBestTrap.weapon.physical.slice(), objBestTrap.weapon.tactical.slice(), objBestTrap.weapon.shadow.slice(), objBestTrap.weapon.hydro.slice()];
 	var nTimeStamp = Date.parse(new Date())/1000;
@@ -1219,16 +1232,19 @@ function zugzwangTower(){
 	else if (loc.indexOf("Zugzwang's Tower") < 0)
 		return;
 
-	var objZTDefault = {
-		focus : 'MYSTIC',
-		order : ['PAWN', 'KNIGHT', 'BISHOP', 'ROOK', 'QUEEN', 'KING', 'CHESSMASTER'],
-		weapon : new Array(14).fill(''),
-		base : new Array(14).fill(''),
-		trinket : new Array(14).fill('None'),
-		bait : new Array(14).fill('Gouda'),
-	};
-	
-	var objZT = JSON.parse(getStorageToVariableStr('ZTower', JSON.stringify(objZTDefault)));
+	var objZT = getStorage('ZTower');
+	if(isNullOrUndefined(objZT)){
+		var objDefaultZT = {
+			focus : 'MYSTIC',
+			order : ['PAWN', 'KNIGHT', 'BISHOP', 'ROOK', 'QUEEN', 'KING', 'CHESSMASTER'],
+			weapon : new Array(14).fill(''),
+			base : new Array(14).fill(''),
+			trinket : new Array(14).fill('None'),
+			bait : new Array(14).fill('Gouda'),
+		};
+		objZT = JSON.stringify(objDefaultZT);
+	}
+	objZT = JSON.parse(objZT);
 	objZT.focus = objZT.focus.toUpperCase();
 	var nProgressMystic = parseInt(getPageVariable('user.viewing_atts.zzt_mage_progress'));
 	var nProgressTechnic = parseInt(getPageVariable('user.viewing_atts.zzt_tech_progress'));
@@ -1450,15 +1466,19 @@ function SCCustom() {
 		return;
 	}
 
-	var objSCCustomDefault = {
-		zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
-		zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-		isHunt : new Array(9).fill(true),
-		bait : new Array(9).fill('Gouda'),
-		trinket : new Array(9).fill('None'),
-		useSmartJet : false
-	};
-	objSCCustom = JSON.parse(getStorageToVariableStr('SCCustom', JSON.stringify(objSCCustomDefault)));
+	var objSCCustom = getStorage('SCCustom');
+	if(isNullOrUndefined(objSCCustom)){
+		var objDefaultSCCustom = {
+			zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
+			zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+			isHunt : new Array(9).fill(true),
+			bait : new Array(9).fill('Gouda'),
+			trinket : new Array(9).fill('None'),
+			useSmartJet : false
+		};
+		objSCCustom = JSON.stringify(objDefaultSCCustom);
+	}
+	objSCCustom = JSON.parse(objSCCustom);
 	console.pdebug(objSCCustom);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.plog('Current Zone:', zone, 'ID', zoneID, 'at meter', distance);
@@ -1605,7 +1625,10 @@ function labyrinth() {
 	var lastHunt = document.getElementsByClassName('labyrinthHUD-hallway-tile locked').length + 1;
 	var totalClue = parseInt(document.getElementsByClassName('labyrinthHUD-clueBar-totalClues')[0].innerText);
 	console.pdebug("Entrance:", isAtEntrance, "Intersection:", isAtIntersection, "Exit:", isAtExit);
-	var objLaby = JSON.parse(getStorageToVariableStr('Labyrinth', JSON.stringify(objDefaultLaby)));
+	var objLaby = getStorage('Labyrinth');
+	if(isNullOrUndefined(objLaby))
+		objLaby = JSON.stringify(objDefaultLaby);
+	objLaby = JSON.parse(objLaby);
 	console.pdebug('District to focus:', objLaby.districtFocus);
 	bestLabyBase = bestLabyBase.concat(objBestTrap.base.luck).concat(objBestTrap.base.power);
 	if(objLaby.armOtherBase != 'false'){
@@ -1842,14 +1865,17 @@ function zokor(){
 	}
 	else if (loc.indexOf("Zokor") < 0)
 		return;
-	
-	var objZokorDefault = {
-		bossStatus : ['INCOMING', 'ACTIVE', 'DEFEATED'],
-		bait : new Array(3).fill('Gouda'),
-		trinket : new Array(3).fill('None')
-	};
 
-	var objZokor = JSON.parse(getStorageToVariableStr('Zokor', JSON.stringify(objZokorDefault)));
+	var objZokor = getStorage('Zokor');
+	if(isNullOrUndefined(objZokor)){
+		var objDefaultZokor = {
+			bossStatus : ['INCOMING', 'ACTIVE', 'DEFEATED'],
+			bait : new Array(3).fill('Gouda'),
+			trinket : new Array(3).fill('None')
+		};
+		objZokor = JSON.stringify(objDefaultZokor);
+	}
+	objZokor = JSON.parse(objZokor);
 	var objAncientCity = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestAncientCity)'));
 	objAncientCity.boss = objAncientCity.boss.toUpperCase();
 	var nIndex = objZokor.bossStatus.indexOf(objAncientCity.boss);
@@ -1874,13 +1900,17 @@ function fw(){
 
 	var wave = getPageVariable('user.viewing_atts.desert_warpath.wave');
 	wave = parseInt(wave);
-	var objDefaulFWAll = {
-		wave1 : JSON.parse(JSON.stringify(objDefaultFW)),
-		wave2 : JSON.parse(JSON.stringify(objDefaultFW)),
-		wave3 : JSON.parse(JSON.stringify(objDefaultFW)),
-		wave4 : JSON.parse(JSON.stringify(objDefaultFW)),
-	};
-	var objFWAll = JSON.parse(getStorageToVariableStr('FW',JSON.stringify(objDefaulFWAll)));
+	var objFWAll = getStorage('FW');
+	if(isNullOrUndefined(objFWAll)){
+		var objDefaultFWAll = {
+			wave1 : JSON.parse(JSON.stringify(objDefaultFW)),
+			wave2 : JSON.parse(JSON.stringify(objDefaultFW)),
+			wave3 : JSON.parse(JSON.stringify(objDefaultFW)),
+			wave4 : JSON.parse(JSON.stringify(objDefaultFW)),
+		};
+		objFWAll = JSON.stringify(objDefaultFWAll);
+	}
+	objFWAll = JSON.parse(objFWAll);
 	var objFW = objFWAll['wave'+wave];
 	checkThenArm(null, 'base', objFW.base);
     if (wave == 4){
@@ -2062,16 +2092,19 @@ function fRift(){
 	if(GetCurrentLocation().indexOf('Furoma Rift') < 0)
 		return;
 	
-	var objFRDefault = {
-		enter : 0,
-		retreat : 0,
-		weapon : new Array(11).fill(''),
-		base : new Array(11).fill(''),
-		trinket : new Array(11).fill(''),
-		bait : new Array(11).fill('')
-	};
-
-	var objFR = JSON.parse(getStorageToVariableStr('FRift', JSON.stringify(objFRDefault)));
+	var objFR = getStorage('FRift');
+	if(isNullOrUndefined(objFR)){
+		var objDefaultFR = {
+			enter : 0,
+			retreat : 0,
+			weapon : new Array(11).fill(''),
+			base : new Array(11).fill(''),
+			trinket : new Array(11).fill(''),
+			bait : new Array(11).fill('')
+		};
+		objFR = JSON.stringify(objDefaultFR);
+	}
+	objFR = JSON.parse(objFR);
 	objFR.enter = parseInt(objFR.enter);
 	objFR.retreat = parseInt(objFR.retreat);
 	var bInPagoda = (getPageVariable('user.quests.QuestRiftFuroma.view_state') == 'pagoda');
@@ -3996,6 +4029,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Zokor">Zokor</option>';
 			preferenceHTMLStr += '<option value="ZT">Zugzwang\'s Tower</option>';
             preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();' + temp + '">';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
@@ -6492,6 +6526,37 @@ function bodyJS(){
 		}
 	}
 	
+	function onInputResetReload(){
+		var eventAlgo = document.getElementById('eventAlgo');
+		var keyName;
+		switch (eventAlgo.value) {
+			case 'Burroughs Rift Custom':
+				keyName = 'BRCustom'; break;
+			case 'All LG Area':
+				keyName = 'LGArea'; break;
+			case 'SG':
+				keyName = 'SGarden'; break;
+			case 'ZT':
+				keyName = 'ZTower'; break;
+			case 'Sunken City Custom':
+				keyName = 'SCCustom'; break;
+			case 'Labyrinth':
+				keyName = 'Labyrinth'; break;
+			case 'Zokor':
+				keyName = 'Zokor'; break;
+			case 'Fiery Warpath':
+				keyName = 'FW'; break;
+			case 'Furoma Rift':
+				keyName = 'FRift'; break;
+			default:
+				break;
+		}
+		if(!isNullOrUndefined(keyName)){
+			window.sessionStorage.removeItem(keyName);
+			window.localStorage.removeItem(keyName);
+		}
+	}
+	
 	function onSelectBestTrapPowerType(){
 		initControlsBestTrap();
 	}
@@ -6597,7 +6662,7 @@ function bodyJS(){
 		var selectSCUseSmartJet = document.getElementById('selectSCUseSmartJet');
 		var storageValue = window.sessionStorage.getItem('SCCustom');
 		if(isNullOrUndefined(storageValue)){
-			var objSCCustomDefault = {
+			var objDefaultSCCustom = {
 				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
 				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 				isHunt : new Array(10).fill(true),
@@ -6605,7 +6670,7 @@ function bodyJS(){
 				trinket : new Array(10).fill('None'),
 				useSmartJet : false
 			};
-			storageValue = JSON.stringify(objSCCustomDefault);
+			storageValue = JSON.stringify(objDefaultSCCustom);
 		}
 		
 		storageValue = JSON.parse(storageValue);
@@ -6626,7 +6691,7 @@ function bodyJS(){
 		var selectSCUseSmartJet = document.getElementById('selectSCUseSmartJet');
 		var storageValue = window.sessionStorage.getItem('SCCustom');
 		if(isNullOrUndefined(storageValue)){
-			var objSCCustomDefault = {
+			var objDefaultSCCustom = {
 				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
 				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 				isHunt : new Array(10).fill(true),
@@ -6634,7 +6699,7 @@ function bodyJS(){
 				trinket : new Array(10).fill('None'),
 				useSmartJet : false
 			};
-			storageValue = JSON.stringify(objSCCustomDefault);
+			storageValue = JSON.stringify(objDefaultSCCustom);
 		}
 		
 		storageValue = JSON.parse(storageValue);
