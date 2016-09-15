@@ -2044,7 +2044,10 @@ function fw(){
 				if((indexMinMax+3) == objPopulation.ARTILLERY && nSum !=1){
 					temp = objFW.population.special.slice();
 					temp.splice(indexMinMax,1);
-					indexMinMax = minIndex(temp);
+					if(objFW.priorities == 'HIGHEST')
+						indexMinMax = maxIndex(temp);
+					else
+						indexMinMax = minIndex(temp);
 				}
 				indexMinMax += 3;
 				if(indexMinMax == objPopulation.CAVALRY){
