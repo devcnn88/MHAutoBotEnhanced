@@ -1281,10 +1281,14 @@ function zugzwangTower(){
 	if(nIndex == -1)
 		return;
 
-	if(objZT.weapon[nIndex] == 'MPP/TPP')
-		objZT.weapon[nIndex] = (objZT.focus == 'MYSTIC') ? 'Mystic Pawn Pincher' : 'Technic Pawn Pincher';
-	else if(objZT.weapon[nIndex] == 'BPT/OAT')
-		objZT.weapon[nIndex] = (objZT.focus == 'MYSTIC') ? 'Blackstone Pass Trap' : 'Obvious Ambush Trap';
+	if(objZT.weapon[nIndex] == 'MPP/TPP'){
+		if(objZT.focus.indexOf('MYSTIC') === 0)
+			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Technic Pawn Pincher' : 'Mystic Pawn Pincher';
+	}
+	else if(objZT.weapon[nIndex] == 'BPT/OAT'){
+		if(objZT.focus.indexOf('MYSTIC') === 0)
+			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Obvious Ambush Trap' : 'Blackstone Pass Trap';
+	}
 	
 	for (var prop in objZT) {
 		if(objZT.hasOwnProperty(prop) && 
@@ -4652,11 +4656,11 @@ function embedTimer(targetPage) {
 			var selectViewKR = document.getElementById('viewKR');
 			for(var i=0;i<selectViewKR.children.length;i++){
 				if(i < selectViewKR.children.length-1){
-				nCurrent = parseInt(selectViewKR.children[i].value.split('~')[1]);
-				nNext = parseInt(selectViewKR.children[i+1].value.split('~')[1]);
-				if(Math.round((nNext-nCurrent)/60000) < 2)
-					selectViewKR.children[i].style = 'color:red';
-			}
+					nCurrent = parseInt(selectViewKR.children[i].value.split('~')[1]);
+					nNext = parseInt(selectViewKR.children[i+1].value.split('~')[1]);
+					if(Math.round((nNext-nCurrent)/60000) < 2)
+						selectViewKR.children[i].style = 'color:red';
+				}
 				strCurrent = selectViewKR.children[i].value.split('~')[2];
 				if(strCurrent == strCurrent.toUpperCase()){
 					selectViewKR.children[i].style = 'color:magenta';
@@ -7328,26 +7332,24 @@ function bodyJS(){
 				}
 				else{
 					var arrProgress = [];
-					if(selectZTFocus.value.indexOf('MYSTIC') === 0){
+					if(selectZTFocus.value.indexOf('MYSTIC') === 0)
 						arrProgress = [nProgressMystic,nProgressTechnic];
-					}
-					else{
+					else
 						arrProgress = [nProgressTechnic,nProgressMystic];
-					}
-					for(var i=0;i<2;i++){
-						if(arrProgress[i].value <= 7)
+					for(i=0;i<2;i++){
+						if(arrProgress[i] <= 7)
 							arrSelectZTMouseOrder[i].value = 'PAWN';
-						else if(arrProgress[i].value <= 9)
+						else if(arrProgress[i] <= 9)
 							arrSelectZTMouseOrder[i].value = 'KNIGHT';
-						else if(arrProgress[i].value <= 11)
+						else if(arrProgress[i] <= 11)
 							arrSelectZTMouseOrder[i].value = 'BISHOP';
-						else if(arrProgress[i].value <= 13)
+						else if(arrProgress[i] <= 13)
 							arrSelectZTMouseOrder[i].value = 'ROOK';
-						else if(arrProgress[i].value <= 14)
+						else if(arrProgress[i] <= 14)
 							arrSelectZTMouseOrder[i].value = 'QUEEN';
-						else if(arrProgress[i].value <= 15)
+						else if(arrProgress[i] <= 15)
 							arrSelectZTMouseOrder[i].value = 'KING';
-						else if(arrProgress[i].value <= 16)
+						else if(arrProgress[i] <= 16)
 							arrSelectZTMouseOrder[i].value = 'CHESSMASTER';
 					}
 				}
