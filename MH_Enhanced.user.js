@@ -4648,13 +4648,19 @@ function embedTimer(targetPage) {
 			scriptElement = null;
 			
 			// set KR entries color
-			var nCurrent, nNext;
+			var nCurrent, nNext, strCurrent;
 			var selectViewKR = document.getElementById('viewKR');
-			for(var i=0;i<selectViewKR.children.length-1;i++){
+			for(var i=0;i<selectViewKR.children.length;i++){
+				if(i < selectViewKR.children.length-1){
 				nCurrent = parseInt(selectViewKR.children[i].value.split('~')[1]);
 				nNext = parseInt(selectViewKR.children[i+1].value.split('~')[1]);
 				if(Math.round((nNext-nCurrent)/60000) < 2)
 					selectViewKR.children[i].style = 'color:red';
+			}
+				strCurrent = selectViewKR.children[i].value.split('~')[2];
+				if(strCurrent == strCurrent.toUpperCase()){
+					selectViewKR.children[i].style = 'color:magenta';
+				}
 			}
 			
 			// insert trap list
