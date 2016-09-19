@@ -589,7 +589,7 @@ function exeScript() {
             }
             else {
                 // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeformat(errorReloadTime);
+                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
                 window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
         }
@@ -626,7 +626,7 @@ function exeScript() {
             }
             else {
                 // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeformat(errorReloadTime);
+                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
                 window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
         }
@@ -670,7 +670,7 @@ function exeScript() {
             }
             else {
                 // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeformat(errorReloadTime);
+                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
                 window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
         }
@@ -1209,7 +1209,7 @@ function seasonalGarden(){
 	var nSeasonLength = 288000; // 80hr
 	var nSeason = Math.floor((nTimeStamp - nFirstSeasonTimeStamp)/nSeasonLength) % objSG.season.length;
 	var nSeasonNext = nSeasonLength - ((nTimeStamp - nFirstSeasonTimeStamp) % nSeasonLength);
-	console.plog('Current Season:', objSG.season[nSeason], 'Next Season In:', timeformat(nSeasonNext));
+	console.plog('Current Season:', objSG.season[nSeason], 'Next Season In:', timeFormat(nSeasonNext));
 	if(nSeasonNext <= nextActiveTime){ // total seconds left to next season less than next active time
 		nSeason++;
 		if(nSeason >= objSG.season.length)
@@ -1356,7 +1356,7 @@ function balackCoveJOD(){
 		var nTideDist = objBC.arrAll.indexOf(tideNameNext) + nTideTotalLength - nIndexCurrentTide;
 		nTideDist = nTideDist % nTideTotalLength;
 		var nNextTideTime = nTideDist*nTideLength - nDiff%nTideLength;
-		console.plog('Current Tide:', objBC.arrAll[nIndexCurrentTide], 'Next Tide:', tideNameNext, 'In', timeformat(nNextTideTime));
+		console.plog('Current Tide:', objBC.arrAll[nIndexCurrentTide], 'Next Tide:', tideNameNext, 'In', timeFormat(nNextTideTime));
 		if(nNextTideTime <= nextActiveTime && tideNameNext.indexOf('High') > -1){ // total seconds left to next high tide less than next active time
 			checkThenArm(null, 'bait', 'Vanilla Stilton');
 		}
@@ -3353,21 +3353,21 @@ function countdownTimer() {
 				if (enableTrapCheck) {
 					// update timer
 					if (!aggressiveMode) {
-						displayTimer("Horn: " + timeformat(hornTime) + " | Check: " + timeformat(checkTime),
-							timeformat(hornTime) + "  <i>(included extra " + timeformat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
-							timeformat(checkTime) + "  <i>(included extra " + timeformat(checkTimeDelay) + " delay)</i>");
+						displayTimer("Horn: " + timeFormat(hornTime) + " | Check: " + timeFormat(checkTime),
+							timeFormat(hornTime) + "  <i>(included extra " + timeFormat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
+							timeFormat(checkTime) + "  <i>(included extra " + timeFormat(checkTimeDelay) + " delay)</i>");
 					}
 					else {
-						displayTimer("Horn: " + timeformat(hornTime) + " | Check: " + timeformat(checkTime),
-							timeformat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
-							timeformat(checkTime) + "  <i>(included extra " + timeformat(checkTimeDelay) + " delay)</i>");
+						displayTimer("Horn: " + timeFormat(hornTime) + " | Check: " + timeFormat(checkTime),
+							timeFormat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
+							timeFormat(checkTime) + "  <i>(included extra " + timeFormat(checkTimeDelay) + " delay)</i>");
 					}
 				}
 				else {
 					// update timer
 					if (!aggressiveMode) {
-						displayTimer("Horn: " + timeformat(hornTime),
-							timeformat(hornTime) + "  <i>(included extra " + timeformat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
+						displayTimer("Horn: " + timeFormat(hornTime),
+							timeFormat(hornTime) + "  <i>(included extra " + timeFormat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
 							"-");
 
 						// check if user manaually sounded the horn
@@ -3386,8 +3386,8 @@ function countdownTimer() {
 						scriptNode = undefined;
 					}
 					else {
-						displayTimer("Horn: " + timeformat(hornTime),
-							timeformat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
+						displayTimer("Horn: " + timeFormat(hornTime),
+							timeFormat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
 							"-");
 
 						// agressive mode should sound the horn whenever it is possible to do so.
@@ -5452,7 +5452,7 @@ function playKingRewardSound() {
 function kingRewardCountdownTimer(interval, isReloadToSolve)
 {
 	var strTemp = (isReloadToSolve) ? "Reload to solve KR in " : "Solve KR in (extra few sec delay) ";
-	strTemp = strTemp + timeformat(interval);
+	strTemp = strTemp + timeFormat(interval);
 	displayTimer(strTemp, strTemp, strTemp);
 	interval -= timerRefreshInterval;
 	if (interval < 0)
@@ -6135,7 +6135,7 @@ function timeElapsed(dateA, dateB) {
     }
 }
 
-function timeformat(time) {
+function timeFormat(time) {
     var timeString;
     var hr = Math.floor(time / 3600);
     var min = Math.floor((time % 3600) / 60);
