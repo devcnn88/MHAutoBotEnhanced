@@ -5668,8 +5668,9 @@ function trapCheck() {
 
     // reload the page if click on camp button fail
     // window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
-	window.setTimeout(function () { retrieveData(); }, 5000);
-	window.setTimeout(function () { countdownTimer(); }, timerRefreshInterval * 1000);
+	var nDelay = 5000;
+	window.setTimeout(function () { retrieveData(); }, nDelay);
+	window.setTimeout(function () { countdownTimer(); }, nDelay + timerRefreshInterval * 1000);
     // eventLocationCheck();
 }
 
