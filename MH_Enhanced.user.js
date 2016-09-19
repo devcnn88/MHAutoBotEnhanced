@@ -6075,8 +6075,10 @@ function fireEvent(element, event) {
     }
     else {
         // dispatch for firefox + others
-        evt = document.createEvent("HTMLEvents");
-        evt.initEvent(event, true, true); // event type,bubbling,cancelable
+		evt = new MouseEvent(event, {
+			"bubbles": true,
+			"cancelable": true
+		});
 
         try {
             return !element.dispatchEvent(evt);
