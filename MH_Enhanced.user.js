@@ -4080,6 +4080,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectFRTrapBait" style="width: 75px" onchange="onSelectFRTrapBaitChanged();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Ascended">Ascended</option>';
 			preferenceHTMLStr += '<option value="Null Onyx Gorgonzola">Null Onyx Gorgonzola</option>';
 			preferenceHTMLStr += '<option value="Rift Rumble">Rift Rumble</option>';
