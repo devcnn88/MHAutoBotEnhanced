@@ -3268,15 +3268,8 @@ function countdownTimer() {
 			// update timer
 			displayTimer("King's Reward!", "King's Reward!", "King's Reward!");
 			displayKingRewardSumTime("Now");
-
-			// record last king's reward time
-			var nowDate = new Date();
-			setStorage("lastKingRewardDate", nowDate.toString());
-			nowDate = undefined;
 			lastKingRewardSumTime = 0;
-
 			if(isNewUI){
-				console.plog('reload the page when KR');
 				reloadPage(false);
 			}
 			else{
@@ -5385,29 +5378,31 @@ function kingRewardAction() {
     // focus on the answer input
     var inputElementList = document.getElementsByTagName('input');
     if (inputElementList) {
-        var i;
-        for (i = 0; i < inputElementList.length; ++i) {
+        for (var i = 0; i < inputElementList.length; ++i) {
             // check if it is a resume button
             if (inputElementList[i].getAttribute('name') == "puzzle_answer") {
                 inputElementList[i].focus();
                 break;
             }
         }
-        i = null;
     }
     inputElementList = null;
 
-    // record last king's reward time
+    // retrieve last king's reward time
+    var lastDate = getStorage("lastKingRewardDate");
+	lastDate = (isNullOrUndefined(lastDate)) ? new Date(0) : new Date(lastDate);
+	
+	// record last king's reward time
     var nowDate = new Date();
     setStorage("lastKingRewardDate", nowDate.toString());
+	var nTimezoneOffset = -(nowDate.getTimezoneOffset()) * 60000;
+	var nInterval = Math.abs(nowDate - lastDate) / 1000; // in second
 
-	if (!isAutoSolve)
-	{
+	console.plog("Last KR:", new Date(Date.parse(lastDate)+nTimezoneOffset).toISOString(), "Current KR:", new Date(Date.parse(nowDate)+nTimezoneOffset).toISOString(), "Interval:", timeFormat(nInterval));
+	if (!isAutoSolve){
 		var intervalCRB = setInterval(
-			function ()
-			{
-				if (checkResumeButton())
-				{
+			function (){
+				if (checkResumeButton()){
 					clearInterval(intervalCRB);
 					intervalCRB = null;
 					return;
@@ -5427,16 +5422,14 @@ function kingRewardAction() {
 
 	var krStopHourNormalized = krStopHour;
 	var krStartHourNormalized = krStartHour;
-	if (krStopHour > krStartHour) // e.g. Stop to Start => 22 to 06
-	{
+	if (krStopHour > krStartHour){ // e.g. Stop to Start => 22 to 06
 		var offset = 24 - krStopHour;
 		krStartHourNormalized = krStartHour + offset;
 		krStopHourNormalized = 0;
 		nowDate.setHours(nowDate.getHours() + offset);
     }
 
-	if (nowDate.getHours() >= krStopHourNormalized && nowDate.getHours() < krStartHourNormalized)
-	{
+	if (nowDate.getHours() >= krStopHourNormalized && nowDate.getHours() < krStartHourNormalized && nInterval > (5*60)){
 		var krDelayMinute = krStartHourDelayMin + Math.floor(Math.random() * (krStartHourDelayMax - krStartHourDelayMin));
 		krDelaySec += krStartHour * 3600 - (nowDate.getHours() * 3600 + nowDate.getMinutes() * 60 + nowDate.getSeconds());
 		krDelaySec += krDelayMinute * 60;
