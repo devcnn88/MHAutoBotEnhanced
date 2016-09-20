@@ -2558,7 +2558,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 	if (category == "charm")
         category = "trinket";
 
-	if(!Array.isArray(name) && name.toUpperCase() === 'NONE'){
+	if(!Array.isArray(name) && name.toUpperCase().indexOf('NONE') === 0){
 		disarmTrap(category);
 		return;
 	}
@@ -4535,6 +4535,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="SUPER">SUPER|brie+</option>';
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectFWCharmType" onChange="onSelectFWCharmTypeChanged();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Warpath">Warpath</option>';
 			preferenceHTMLStr += '<option value="Super Warpath">Super Warpath</option>';
             preferenceHTMLStr += '</select>';
