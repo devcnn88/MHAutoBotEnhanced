@@ -1197,7 +1197,8 @@ function seasonalGarden(){
 	var objSG = getStorage('SGarden');
 	if(isNullOrUndefined(objSG)){
 		var objDefaultSG = {
-			useZUMIn: 'None'
+			useZUMIn: 'None',
+			disarmBaitAfterCharged : false
 		};
 		objSG = JSON.stringify(objDefaultSG);
 	}
@@ -1225,6 +1226,8 @@ function seasonalGarden(){
 	if(nCurrentAmp+1 >= nMaxAmp){
 		if(getPageVariable('user.trinket_name').indexOf('Amplifier') > -1)
 			disarmTrap('trinket');
+		if(nCurrentAmp >= nMaxAmp && objSG.disarmBaitAfterCharged)
+			disarmTrap('bait');
 	}
 }
 
@@ -4193,6 +4196,16 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trDisarmBait" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to disarm bait when amplifier is fully charged"><b>Disarm Bait</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectSGDisarmBait" onchange="onSelectSGDisarmBait();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;After Amplifier Fully Charged';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 
 			preferenceHTMLStr += '<tr id="trLGTGAutoFill" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Auto Fill in </b></a>';
@@ -7252,29 +7265,39 @@ function bodyJS(){
 		saveSG();
 	}
 	
+	function onSelectSGDisarmBait(){
+		saveSG();
+	}
+	
 	function saveSG(){
 		var selectUseZUM = document.getElementById('selectUseZUM');
+		var selectSGDisarmBait = document.getElementById('selectSGDisarmBait');
 		var storageValue = window.sessionStorage.getItem('SGarden');
 		if(isNullOrUndefined(storageValue)){
 			var objSG = {
-				useZUMIn : 'None'
+				useZUMIn : 'None',
+				disarmBaitAfterCharged : false
 			};
 			storageValue = JSON.stringify(objSG);
 		}
 		storageValue = JSON.parse(storageValue);
 		storageValue.useZUMIn = selectUseZUM.value;
+		storageValue.disarmBaitAfterCharged = (selectSGDisarmBait.value == 'true');
 		window.sessionStorage.setItem('SGarden', JSON.stringify(storageValue));
 	}
 	
 	function initControlsSG(){
 		var selectUseZUM = document.getElementById('selectUseZUM');
+		var selectSGDisarmBait = document.getElementById('selectSGDisarmBait');
 		var storageValue = window.sessionStorage.getItem('SGarden');
 		if(isNullOrUndefined(storageValue)){
 			selectUseZUM.selectedIndex = -1;
+			selectSGDisarmBait.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
 			selectUseZUM.value = storageValue.useZUMIn;
+			selectSGDisarmBait.value = (storageValue.disarmBaitAfterCharged) ? 'true' : 'false';
 		}
 	}
 	
@@ -7577,6 +7600,7 @@ function bodyJS(){
 		document.getElementById('trBRToggle').style.display = 'none';
 		document.getElementById('trBRTrapSetup').style.display = 'none';
 		document.getElementById('trUseZum').style.display = 'none';
+		document.getElementById('trDisarmBait').style.display = 'none';
 		document.getElementById('trZokorTrapSetup').style.display = 'none';
 		document.getElementById('trFREnterBattery').style.display = 'none';
 		document.getElementById('trFRRetreatBattery').style.display = 'none';
@@ -7624,6 +7648,7 @@ function bodyJS(){
 		}
 		else if(algo == 'SG'){
 			document.getElementById('trUseZum').style.display = 'table-row';
+			document.getElementById('trDisarmBait').style.display = 'table-row';
 			initControlsSG();
 		}
 		else if(algo == 'ZT'){

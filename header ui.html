@@ -371,6 +371,15 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="trDisarmBait" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select to disarm bait when amplifier is fully charged"><b>Disarm Bait</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectSGDisarmBait" onchange="onSelectSGDisarmBait();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;After Amplifier Fully Charged
+					</td>
+				</tr>
 				<tr id="trLGTGAutoFill" style="display:none;">
 					<td style="height:24px; text-align:right;"><b>Auto Fill in </b>
 						<select id="selectLGTGAutoFillSide" onchange="onSelectLGTGAutoFillSide();">
@@ -1717,29 +1726,39 @@
 		saveSGZT();
 	}
 	
+	function onSelectSGDisarmBait(){
+		saveSGZT();
+	}
+	
 	function saveSGZT(){
 		var selectUseZUM = document.getElementById('selectUseZUM');
+		var selectSGDisarmBait = document.getElementById('selectSGDisarmBait');
 		var storageValue = window.sessionStorage.getItem('SGZT');
 		if(storageValue === null){
 			var objSGZT = {
-				useZUMIn : 'None'
+				useZUMIn : 'None',
+				disarmBaitAfterCharged : false
 			};
 			storageValue = JSON.stringify(objSGZT);
 		}
 		storageValue = JSON.parse(storageValue);
 		storageValue.useZUMIn = selectUseZUM.value;
+		storageValue.disarmBaitAfterCharged = (selectSGDisarmBait.value == 'true');
 		window.sessionStorage.setItem('SGZT', JSON.stringify(storageValue));
 	}
 	
 	function initControlsSGZT(){
 		var selectUseZUM = document.getElementById('selectUseZUM');
+		var selectSGDisarmBait = document.getElementById('selectSGDisarmBait');
 		var storageValue = window.sessionStorage.getItem('SGZT');
 		if(storageValue === null){
 			selectUseZUM.selectedIndex = -1;
+			selectSGDisarmBait.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
 			selectUseZUM.value = storageValue.useZUMIn;
+			selectSGDisarmBait.value = (storageValue.disarmBaitAfterCharged) ? 'true' : 'false';
 		}
 	}
 	
@@ -1909,6 +1928,7 @@
 		document.getElementById('trBRToggle').style.display = 'none';
 		document.getElementById('trBRTrapSetup').style.display = 'none';
 		document.getElementById('trUseZum').style.display = 'none';
+		document.getElementById('trDisarmBait').style.display = 'none';
 		document.getElementById('trZokorTrapSetup').style.display = 'none';
 		document.getElementById('trZTFocus').style.display = 'none';
 		document.getElementById('trZTTrapSetup1st').style.display = 'none';
@@ -1954,6 +1974,7 @@
 		}
 		else if(algo == 'SG/ZT'){
 			document.getElementById('trUseZum').style.display = 'table-row';
+			document.getElementById('trDisarmBait').style.display = 'table-row';
 			initControlsSGZT();
 		}
 		else if(algo == 'ZT'){
