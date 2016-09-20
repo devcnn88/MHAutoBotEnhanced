@@ -263,6 +263,7 @@
 							showOrHideTr(value);
 							">
 							<option value="None">None</option>
+							<option value="All LG Area">All LG Area</option>
 							<option value="BC/JOD">BC => JOD</option>
 							<option value="Charge Egg 2015">Charge Egg 2015</option>
 							<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>
@@ -273,16 +274,49 @@
 							<option value="FG/AR">FG => AR</option>
 							<option value="Fiery Warpath">Fiery Warpath</option>
 							<option value="Halloween 2015">Halloween 2015</option>
+							<option value="Iceberg">Iceberg</option>
 							<option value="Sunken City">Sunken City</option>
 							<option value="Sunken City Aggro">Sunken City Aggro</option>
 							<option value="Sunken City Custom">Sunken City Custom</option>
-							<option value="All LG Area">All LG Area</option>
 							<option value="Labyrinth">Labyrinth</option>
 							<option value="Zokor">Zokor</option>
 							<option value="SG/ZT">Seasonal Garden</option>
 							<option value="ZT">Zugzwang's Tower</option>
 						</select>
 						<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();">
+					</td>
+				</tr>
+				<tr id="trIceberg" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select to trap setup based on current phase"><b>Trap Setup for</b></a>
+						<select id="selectIcebergPhase" onchange="onSelectIcebergPhase();">
+							<option value="GENERAL">Iceberg General</option>
+							<option value="TREACHEROUS">Treacherous Tunnels</option>
+							<option value="BRUTAL">Brutal Bulwark</option>
+							<option value="BOMBING">Bombing Run</option>
+							<option value="MAD">Mad Depths</option>
+							<option value="ICEWING">Icewing's Lair</option>
+							<option value="HIDDEN">Hidden Depths</option>
+							<option value="DEEP">The Deep Lair</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectIcebergBase" onchange="onSelectIcebergBase();">
+							<option value="Base 1">Base 1</option>
+							<option value="Base 2">Base 2</option>
+						</select>
+						<select id="selectIcebergTrinket" onchange="onSelectIcebergTrinket();">
+							<option value="None">None</option>
+							<option value="Trinket 1">Trinket 1</option>
+							<option value="Trinket 2">Trinket 2</option>
+						</select>
+						<select id="selectIcebergBait" onchange="onSelectIcebergBait();">
+							<option value="None">None</option>
+							<option value="Brie">Brie</option>
+							<option value="Toxic Brie">Toxic Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SB+</option>
+							<option value="Toxic SUPER">Toxic SB+</option>
+						</select>
 					</td>
 				</tr>
 				<tr id="trZTFocus" style="display:none;">
@@ -997,7 +1031,7 @@
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1 ||
-				key.indexOf("BestTrap")>-1){
+				key.indexOf("BestTrap")>-1 || key.indexOf("Iceberg")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -1016,7 +1050,7 @@
 				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1 ||
-				key.indexOf("BestTrap")>-1){
+				key.indexOf("BestTrap")>-1 || key.indexOf("Iceberg")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -1076,29 +1110,14 @@
 		var selectBestTrapBase = document.getElementById('selectBestTrapBase');
 		var storageValue = window.sessionStorage.getItem('BestTrap');
 		if (storageValue === null || storageValue === undefined){
-			var objBestTrapDefault = {
-				weapon : {
-					arcane : '',
-					draconic : '',
-					forgotten : '',
-					hydro : '',
-					law : '',
-					physical : '',
-					rift : '',
-					shadow : '',
-					tactical : ''
-				},
-				base : {
-					luck : '',
-					power : ''
-				}
-			};
-			storageValue = JSON.stringify(objBestTrapDefault);
+			selectBestTrapWeapon.selectedIndex = -1;
+			selectBestTrapBase.selectedIndex = -1;
 		}
-		
-		storageValue = JSON.parse(storageValue);
-		selectBestTrapWeapon.value = storageValue.weapon[selectBestTrapPowerType.value];
-		selectBestTrapBase.value = storageValue.base[selectBestTrapBaseType.value];
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectBestTrapWeapon.value = storageValue.weapon[selectBestTrapPowerType.value];
+			selectBestTrapBase.value = storageValue.base[selectBestTrapBaseType.value];
+		}
 	}
 	
 	function saveBestTrap(){
@@ -1912,6 +1931,69 @@
 		}
 	}
 	
+	function onSelectIcebergPhase(){
+		initControlsIceberg();
+	}
+	
+	function onSelectIcebergBase(){
+		saveIceberg();
+	}
+	
+	function onSelectIcebergBait(){
+		saveIceberg();
+	}
+	
+	function onSelectIcebergTrinket(){
+		saveIceberg();
+	}
+	
+	function saveIceberg(){
+		var selectIcebergPhase = document.getElementById('selectIcebergPhase');
+		var selectIcebergBase = document.getElementById('selectIcebergBase');
+		var selectIcebergBait = document.getElementById('selectIcebergBait');
+		var selectIcebergTrinket = document.getElementById('selectIcebergTrinket');
+		var storageValue = window.sessionStorage.getItem('Iceberg');
+		if(storageValue === null || storageValue === undefined){
+			var objDefaultIceberg = {
+				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
+				base : new Array(8).fill(''),
+				trinket : new Array(8).fill('None'),
+				bait : new Array(8).fill('Gouda')
+			};
+			storageValue = JSON.stringify(objDefaultIceberg);
+		}
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectIcebergPhase.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.base[nIndex] = selectIcebergBase.value;
+		storageValue.bait[nIndex] = selectIcebergBait.value;
+		storageValue.trinket[nIndex] = selectIcebergTrinket.value;
+		window.sessionStorage.setItem('Iceberg', JSON.stringify(storageValue));
+	}
+	
+	function initControlsIceberg(){
+		var selectIcebergPhase = document.getElementById('selectIcebergPhase');
+		var selectIcebergBase = document.getElementById('selectIcebergBase');
+		var selectIcebergBait = document.getElementById('selectIcebergBait');
+		var selectIcebergTrinket = document.getElementById('selectIcebergTrinket');
+		var storageValue = window.sessionStorage.getItem('Iceberg');
+		if(storageValue === null || storageValue === undefined){
+			selectIcebergBase.selectedIndex = -1;
+			selectIcebergBait.selectedIndex = -1;
+			selectIcebergTrinket.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			var nIndex = storageValue.order.indexOf(selectIcebergPhase.value);
+			if(nIndex < 0)
+				nIndex = 0;
+			selectIcebergBase.value = storageValue.base[nIndex];
+			selectIcebergTrinket.value = storageValue.trinket[nIndex];
+			selectIcebergBait.value = storageValue.bait[nIndex];
+		}
+	}
+	
 	function showOrHideTr(algo){
 		document.getElementById('trLGTGAutoFill').style.display = 'none';
 		document.getElementById('trLGTGAutoPour').style.display = 'none';
@@ -1941,6 +2023,7 @@
 		document.getElementById('trZTFocus').style.display = 'none';
 		document.getElementById('trZTTrapSetup1st').style.display = 'none';
 		document.getElementById('trZTTrapSetup2nd').style.display = 'none';
+		document.getElementById('trIceberg').style.display = 'none';
 		if(algo == 'All LG Area'){
 			document.getElementById('trLGTGAutoFill').style.display = 'table-row';
 			document.getElementById('trLGTGAutoPour').style.display = 'table-row';
@@ -1995,6 +2078,10 @@
 		else if(algo == 'Zokor'){
 			document.getElementById('trZokorTrapSetup').style.display = 'table-row';
 			initControlsZokor();
+		}
+		else if(algo == 'Iceberg'){
+			document.getElementById('trIceberg').style.display = 'table-row';
+			initControlsIceberg();
 		}
 		initControlsMapHunting();
 	}
