@@ -6791,10 +6791,6 @@ function bodyJS(){
 		var selectLabyrinthDistrict = document.getElementById('selectLabyrinthDistrict');
 		var inputLabyrinthLastHunt = document.getElementById('inputLabyrinthLastHunt');
 		var selectLabyrinthDisarm = document.getElementById('selectLabyrinthDisarm');
-		document.getElementById('trPriorities15').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
-		document.getElementById('trPriorities1560').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
-		document.getElementById('trPriorities60').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
-		document.getElementById('labyrinthOtherHallway').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
 		var selectHallway15Plain = document.getElementById('selectHallway15Plain');
 		var selectHallway1560Plain = document.getElementById('selectHallway1560Plain');
 		var selectHallway1560Superior = document.getElementById('selectHallway1560Superior');
@@ -6825,9 +6821,13 @@ function bodyJS(){
 		inputLabyrinthLastHunt.value = storageValue.lastHunt;
 		inputLabyrinthLastHunt.disabled = (storageValue.securityDisarm) ? '' : 'disabled';
 		selectLabyrinthDisarm.value = (storageValue.securityDisarm) ? 'true' : 'false';
+		document.getElementById('trPriorities15').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
+		document.getElementById('trPriorities1560').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
+		document.getElementById('trPriorities60').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
+		document.getElementById('labyrinthOtherHallway').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
 		if(selectLabyrinthDistrict.value == 'None')
 			return;
-		
+
 		selectHallway15Plain.value = storageValue.between0and14[0];
 		selectHallway1560Plain.value = storageValue.between15and59[0];
 		selectHallway1560Superior.value = storageValue.between15and59[1];
