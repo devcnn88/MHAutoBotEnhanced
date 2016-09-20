@@ -1809,6 +1809,8 @@ function labyrinth() {
 				}
 				for(var i=0;i<arrTemp.length;i++){
 					if(objDoors.name[arrTemp[i]].indexOf("BROKEN") < 0){
+						checkThenArm(null, 'bait', 'Gouda');
+						disarmTrap('trinket');
 						fireEvent(doorsIntersect[arrTemp[i]], 'click');
 						window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
 						break;
