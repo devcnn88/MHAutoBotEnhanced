@@ -4622,7 +4622,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="15">15</option>';
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectFWCheese" onChange="onSelectFWCheeseChanged();">';
-			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="SUPER">SUPER|brie+</option>';
             preferenceHTMLStr += '</select>';
