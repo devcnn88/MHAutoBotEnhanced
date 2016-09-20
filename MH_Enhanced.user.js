@@ -4190,7 +4190,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectIcebergBait" onchange="onSelectIcebergBait();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
-			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
@@ -4234,7 +4234,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectZTBait1st" onchange="onSelectZTBait();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
-			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
 			preferenceHTMLStr += '<option value="Checkmate">Checkmate</option>';
@@ -4265,7 +4265,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectZTBait2nd" onchange="onSelectZTBait();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
-			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
 			preferenceHTMLStr += '<option value="Checkmate">Checkmate</option>';
@@ -4546,7 +4546,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Glowing Gruyere">GG</option>';
 			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
-			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="None">None</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;';
 			preferenceHTMLStr += '<select id="selectZokorTrinket" onChange="onSelectZokorTrinket();">';
