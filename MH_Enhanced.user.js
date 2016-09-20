@@ -1937,11 +1937,11 @@ function fw(){
 	if(Number.isNaN(objFW.streak) || objFW.streak < 0 || objFW.streak >= g_fwStreakLength)
 		return;
 
-	if(objFW.cheese[objFW.streak] === null)
+	if(isNullOrUndefined(objFW.cheese[objFW.streak]))
 		objFW.cheese[objFW.streak] = 'Gouda';
-	if(objFW.charmType[objFW.streak] === null)
+	if(isNullOrUndefined(objFW.charmType[objFW.streak]))
 		objFW.charmType[objFW.streak] = 'Warpath';
-	if(objFW.special[objFW.streak] === null)
+	if(isNullOrUndefined(objFW.special[objFW.streak]))
 		objFW.special[objFW.streak] = 'None';
 
 	objFW.streakMouse = getPageVariable('user.viewing_atts.desert_warpath.streak.mouse_type');
@@ -2003,8 +2003,12 @@ function fw(){
 			return;
 		}
 	}
-	if(objFW.special[objFW.streak] == 'COMMANDER')
-		checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' Commander\'s');
+	if(objFW.special[objFW.streak] == 'COMMANDER'){
+		if(objFW.charmType[objFW.streak].indexOf('Super') > -1)
+			checkThenArm('best', 'trinket', ["Super Warpath Commander's Charm", "Warpath Commander's Charm"]);
+		else
+			checkThenArm(null, 'trinket', "Warpath Commander's Charm");
+	}
 	else if(objFW.special[objFW.streak] == 'GARGANTUA'){
 		checkThenArm('best', 'weapon', objBestTrap.weapon.draconic);
 		if(charmArmed.indexOf('Warpath') > -1)
