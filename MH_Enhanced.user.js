@@ -1209,17 +1209,23 @@ function seasonalGarden(){
 	var nSeasonLength = 288000; // 80hr
 	var nSeason = Math.floor((nTimeStamp - nFirstSeasonTimeStamp)/nSeasonLength) % objSG.season.length;
 	var nSeasonNext = nSeasonLength - ((nTimeStamp - nFirstSeasonTimeStamp) % nSeasonLength);
-	console.plog('Current Season:', objSG.season[nSeason], 'Next Season In:', timeFormat(nSeasonNext));
+	var nCurrentAmp = parseInt(getPageVariable("user.viewing_atts.zzt_amplifier"));
+	var nMaxAmp = parseInt(getPageVariable("user.viewing_atts.zzt_max_amplifier"));
+	console.plog('Current Amplifier:', nCurrentAmp, 'Current Season:', objSG.season[nSeason], 'Next Season In:', timeFormat(nSeasonNext));
 	if(nSeasonNext <= nextActiveTime){ // total seconds left to next season less than next active time
 		nSeason++;
 		if(nSeason >= objSG.season.length)
 			nSeason = 0;
 	}
 
-	
 	if(objSG.useZUMIn == 'ALL' || objSG.useZUMIn == objSG.season[nSeason].toUpperCase())
 		objSG.trap[nSeason].unshift('Zugzwang\'s Ultimate Move');
 	checkThenArm('best', 'weapon', objSG.trap[nSeason]);
+	
+	if(nCurrentAmp+1 >= nMaxAmp){
+		if(getPageVariable('user.trinket_name').indexOf('Amplifier') > -1)
+			disarmTrap('trinket');
+	}
 }
 
 function zugzwangTower(){
