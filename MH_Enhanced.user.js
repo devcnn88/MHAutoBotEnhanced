@@ -7016,13 +7016,6 @@ function bodyJS(){
 	}
 
 	function onSelectFWWaveChanged(){
-		// show wave X settings
-		var nWave = parseInt(document.getElementById('selectFWWave').value);
-		var option = document.getElementById('selectFWFocusType').children;
-		for(var i=0;i<option.length;i++){
-			if(option[i].innerText.indexOf('Special') > -1)
-				option[i].style = (nWave==1) ? 'display:none' : '';
-		}
 		initControlsFW();
 	}
 	
@@ -7062,7 +7055,9 @@ function bodyJS(){
 		saveFW();
 	}
 
-	function initControlsFW(){
+	function initControlsFW(bAutoChangeWave){
+		if(isNullOrUndefined(bAutoChangeWave))
+			bAutoChangeWave = false;
 		var selectFWWave = document.getElementById('selectFWWave');
 		var selectFWTrapSetupWeapon = document.getElementById('selectFWTrapSetupWeapon');
 		var selectFWTrapSetupBase = document.getElementById('selectFWTrapSetupBase');
@@ -7086,6 +7081,14 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
+			if(bAutoChangeWave && user.location.indexOf('Fiery Warpath') > -1){
+				if(user.viewing_atts.desert_warpath.wave < 1)
+					selectFWWave.value = 1;
+				else if(user.viewing_atts.desert_warpath.wave > 4)
+					selectFWWave.value = 4;
+				else
+					selectFWWave.value = user.viewing_atts.desert_warpath.wave;
+			}
 			var strWave = 'wave'+selectFWWave.value;
 			if(isNullOrUndefined(storageValue[strWave].weapon))
 				storageValue[strWave].weapon = 'Sandtail Sentinel';
@@ -7099,6 +7102,12 @@ function bodyJS(){
 			selectFWCharmType.value = storageValue[strWave].charmType[selectFWStreak.selectedIndex];
 			selectFWSpecial.value = storageValue[strWave].special[selectFWStreak.selectedIndex];
 			selectFWLastTypeConfig.value = storageValue[strWave].lastSoldierConfig;
+		}
+		var nWave = parseInt(selectFWWave.value);
+		var option = selectFWFocusType.children;
+		for(var i=0;i<option.length;i++){
+			if(option[i].innerText.indexOf('Special') > -1)
+				option[i].style = (nWave==1) ? 'display:none' : '';
 		}
 		if(selectFWWave.value == 4){
 			document.getElementById('trFWStreak').style.display = 'none';
@@ -7643,7 +7652,7 @@ function bodyJS(){
 			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('trFWLastType').style.display = 'table-row';
 			document.getElementById('selectFWWave').selectedIndex = 0;
-			onSelectFWWaveChanged();
+			initControlsFW(true);
 		}
 		else if(algo == 'Burroughs Rift Custom'){
 			document.getElementById('trBRConfig').style.display = 'table-row';
