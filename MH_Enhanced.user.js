@@ -817,6 +817,8 @@ function eventLocationCheck(caller) {
 			BRCustom(); break;
 		case 'Halloween 2015':
 			Halloween2015(); break;
+		case 'Iceberg':
+			iceberg(); break;
 		case 'All LG Area':
 			temp = getStorage("LGArea");
 			if(isNullOrUndefined(temp)){
@@ -1060,6 +1062,59 @@ function Halloween2015()
 			}
 		}
 	}
+}
+
+function iceberg(){
+	var loc = GetCurrentLocation();
+    if (loc.indexOf('Iceberg') > -1) {
+        var objIceberg = getStorage('Iceberg');
+		if(isNullOrUndefined(objIceberg)){
+			var objDefaultIceberg = {
+				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
+				base : new Array(8).fill(''),
+				trinket : new Array(8).fill('None'),
+				bait : new Array(8).fill('Gouda')
+			};
+			objIceberg = JSON.stringify(objDefaultIceberg);
+		}
+		objIceberg = JSON.parse(objIceberg);
+		var phase;
+		var nProgress = -1;
+		var classCurrentPhase = document.getElementsByClassName('currentPhase');
+		if(classCurrentPhase.length > 0)
+			phase = classCurrentPhase[0].textContent;
+		else
+			phase = getPageVariable('user.quests.QuestIceberg.current_phase');
+        var classProgress = document.getElementsByClassName('user_progress');
+		if(classProgress.length > 0)
+			nProgress = parseInt(classProgress[0].textContent.replace(',', ''));
+		else
+			nProgress = parseInt(getPageVariable('user.quests.QuestIceberg.user_progress'));
+		checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
+        console.plog('In', phase, 'at', nProgress, 'feets');
+
+        var nIndex = -1;
+		if (nProgress == 300 || nProgress == 600 || nProgress == 1600 || nProgress == 1800)
+			nIndex = 0;
+		else{
+			phase = phase.toUpperCase();
+			for(var i=1;i<objIceberg.order.length;i++){
+				nIndex = phase.indexOf(objIceberg.order[i]);
+				if(nIndex > -1)
+					break;
+			}
+		}
+
+		if(nIndex < 0)
+			return;
+		checkThenArm(null, 'base', objIceberg.base[nIndex]);
+		checkThenArm(null, 'trinket', objIceberg.trinket[nIndex]);
+		checkThenArm(null, 'bait', objIceberg.bait[nIndex]);
+    }
+	else if (loc.indexOf('Slushy Shoreline') > -1) {
+        checkThenArm(null, 'bait', 'Gouda');
+		disarmTrap('trinket');
+    }
 }
 
 function BurroughRift(minMist, maxMist, nToggle)
