@@ -2619,9 +2619,17 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 	if (category == "charm")
         category = "trinket";
 
-	if(!Array.isArray(name) && name.toUpperCase().indexOf('NONE') === 0){
+	if(Array.isArray(name)){
+		if(name.length == 1){
+			sort = null;
+			name = name[0];
+		}
+	}
+	else{
+		if(name.toUpperCase().indexOf('NONE') === 0){
 		disarmTrap(category);
 		return;
+	}
 	}
 
 	if(isNullOrUndefined(isForcedRetry))
@@ -2669,8 +2677,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 			}
 		}
     }
-    else
-    {
+    else{
         trapArmed = (userVariable.indexOf(name) === 0);
     }
 
@@ -2679,13 +2686,10 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 		clearTrapList(category);
 		checkThenArm(sort, category, name, false);
 	}
-    else if (trapArmed === false)
-    {
+    else if (trapArmed === false){
         var intervalCTA = setInterval(
-            function ()
-            {
-                if (arming === false)
-                {
+            function (){
+                if (arming === false){
                     clickThenArmTrapInterval(sort, category, name);
                     clearInterval(intervalCTA);
                     intervalCTA = null;
@@ -2693,8 +2697,6 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
                 }
             }, 1000);
     }
-
-    return;
 }
 
 function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attraction
