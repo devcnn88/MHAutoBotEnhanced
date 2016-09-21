@@ -4826,7 +4826,7 @@ function loadPreferenceSettingFromStorage() {
 		keyKR = [];
 		var keyName = "";
 		var keyRemove = [];
-		var i;
+		var i, j;
 		for(i = 0; i<window.localStorage.length;i++){
 			keyName = window.localStorage.key(i);
 			if(keyName.indexOf("KR-") > -1){ // remove old KR entries
@@ -4903,6 +4903,14 @@ function loadPreferenceSettingFromStorage() {
 							obj[prop] = obj[prop].concat(arrTemp);
 							bResave = true;
 						}
+						if(prop == 'bait'){
+							for(i=0;i<obj[prop].length;i++){
+								if(obj[prop][i] == 'Brie'){
+									obj[prop][i] = 'Brie Cheese';
+									bResave = true;
+								}
+							}
+						}
 				}
 			}
 			if(bResave){
@@ -4974,6 +4982,23 @@ function loadPreferenceSettingFromStorage() {
 			}
 			setStorage('FW', JSON.stringify(obj));
 		}
+		else{
+			obj = JSON.parse(keyValue);
+			bResave = false;
+			for(i=1;i<=4;i++){
+				temp = 'wave'+i;
+				for(j=0;j<obj[temp].cheese.length;j++){
+					if(obj[temp].cheese[j] == 'Brie'){
+						obj[temp].cheese[j] = 'Brie Cheese';
+						bResave = true;
+					}
+				}
+			}
+			if(bResave){
+				setStorage("FW", JSON.stringify(obj));
+				setSessionStorage("FW", JSON.stringify(obj));
+			}
+		}
 		
 		// Backward compatibility of Labyrinth
 		keyValue = getStorage('Labyrinth');
@@ -4995,6 +5020,23 @@ function loadPreferenceSettingFromStorage() {
 			for(i=0;i<temp.length;i++){
 				removeStorage(temp[i]);
 				removeSessionStorage(temp[i]);
+			}
+		}
+		
+		// Backward compatibility of Zokor
+		keyValue = getStorage('Zokor');
+		if(!isNullOrUndefined(keyValue)){
+			obj = JSON.parse(keyValue);
+			bResave = false;
+			for(i=0;i<obj.bait.length;i++){
+				if(obj.bait[i] == 'Brie'){
+					obj.bait[i] = 'Brie Cheese';
+					bResave = true;
+				}
+			}
+			if(bResave){
+				setStorage('Zokor', JSON.stringify(obj));
+				setSessionStorage('Zokor', JSON.stringify(obj));
 			}
 		}
 	}
