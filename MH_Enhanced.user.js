@@ -4091,7 +4091,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Fiery Warpath">Fiery Warpath</option>';
 			preferenceHTMLStr += '<option value="Furoma Rift">Furoma Rift</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
-			preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>';
+			//preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>'; // not tested yet
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="SG">Seasonal Garden</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
