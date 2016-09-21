@@ -756,43 +756,6 @@ function notifyMe(notice, icon, body) {
     }
 }
 
-function ZTalgo() {
-    retrieveMouseList();
-    var intervalZT = setInterval(
-        function () {
-            if (mouseList.length > 0) {
-                if (checkMouse("Chess Master")) {
-                    //arm Uncharged Scholar Charm & Checkmate Cheese
-                    checkThenArm(null, "trinket", "Uncharged Scholar");
-                    checkThenArm(null, "bait", "Checkmate");
-                }
-                else if (checkMouse("King")) {
-                    //arm Checkmate Cheese
-                    checkThenArm(null, "bait", "Checkmate");
-                }
-                else if (checkMouse("Queen")) {
-                    //arm another charm other than rook charm
-                    checkThenArm(null, "trinket", "Super Power");
-                    disarmTrap('trinket');
-                }
-                else if (checkMouse("Rook")) {
-                    //arm rook charm (if available)
-                    checkThenArm(null, "trinket", "Rook Crumble");
-                }
-                else if (checkMouse("Knight")) {
-                    //arm Sphynx Wrath
-                    checkThenArm(null, "weapon", "Sphynx Wrath");
-                    checkThenArm('best', 'base', objBestTrap.base.power);
-                }
-                clearInterval(intervalZT);
-                intervalZT = null;
-                mouseList = [];
-                return;
-            }
-        }, 1000);
-    return;
-}
-
 function eventLocationCheck(caller) {
     var selAlgo = getStorageToVariableStr("eventLocation", "None");
 	console.pdebug('Algorithm Selected:', selAlgo, 'Call From:', caller);
