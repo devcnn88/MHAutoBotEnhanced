@@ -2006,20 +2006,22 @@ function fw(){
 	if(nSum == 1){ // only one soldier type left
 		if(objFW.lastSoldierConfig == 'CONFIG_STREAK')
 			objFW.priorities = 'HIGHEST';
-		else{
-			if(objFW.lastSoldierConfig == 'CONFIG_GOUDA'){
-				index = objFW.population.active.indexOf(1);
-				if(index == objPopulation.CAVALRY)
-					checkThenArm('best', 'weapon', objBestTrap.weapon.tactical);
-				else if(index == objPopulation.MAGE)
-					checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
-				else if(index == objPopulation.ARTILLERY)
-					checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
-				else
-					checkThenArm(null, 'weapon', objFW.weapon);
-				if(charmArmed.indexOf('Warpath') > -1)
-					disarmTrap('trinket');
-			}
+		else if(objFW.lastSoldierConfig == 'CONFIG_UNCHANGED')
+			return;
+		else if(objFW.lastSoldierConfig == 'CONFIG_GOUDA' || objFW.lastSoldierConfig == 'NO_WARPATH'){
+			index = objFW.population.active.indexOf(1);
+			if(index == objPopulation.CAVALRY)
+				checkThenArm('best', 'weapon', objBestTrap.weapon.tactical);
+			else if(index == objPopulation.MAGE)
+				checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
+			else if(index == objPopulation.ARTILLERY)
+				checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
+			else
+				checkThenArm(null, 'weapon', objFW.weapon);
+			if(charmArmed.indexOf('Warpath') > -1)
+				disarmTrap('trinket');
+			if(objFW.lastSoldierConfig == 'CONFIG_GOUDA')
+				checkThenArm(null, 'bait', 'Gouda');
 			return;
 		}
 	}
@@ -4613,6 +4615,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectFWLastTypeConfig" onChange="onSelectFWLastTypeConfigChanged();">';
 			preferenceHTMLStr += '<option value="CONFIG_STREAK">Follow Streak Config</option>';
 			preferenceHTMLStr += '<option value="CONFIG_GOUDA">Gouda & No Warpath Charm</option>';
+			preferenceHTMLStr += '<option value="NO_WARPATH">No Warpath Charm Only</option>';
 			preferenceHTMLStr += '<option value="CONFIG_UNCHANGED">Trap Setup Unchanged</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
