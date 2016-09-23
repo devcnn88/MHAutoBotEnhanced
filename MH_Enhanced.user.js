@@ -3701,8 +3701,11 @@ function embedTimer(targetPage) {
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
             showPreferenceLinkStr += '</a>';
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
+			var restorePreferenceStr = '<input type="file" id="inputFiles" name="files" style="display:none;" onchange="handleFiles(this.files)"/>';
+			restorePreferenceStr += '<a id="idRestore" name="Restore" title="Click to restore preference" onclick="onIdRestoreClicked();">';
+			restorePreferenceStr += '<b>[Restore]</b></a>&nbsp;&nbsp;&nbsp;';
 			var getLogPreferenceStr = '<a id="idGetLogAndPreference" name="GetLogAndPreference" title="Click to get saved log & preference" onclick="onIdGetLogPreferenceClicked();">';
-			getLogPreferenceStr += '<b>[Get Log & Preference]</b></a>&nbsp;&nbsp;&nbsp;';
+			getLogPreferenceStr += '<b>[Get Log & Preference / Backup]</b></a>&nbsp;&nbsp;&nbsp;';
 			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="\
 				window.localStorage.removeItem(\'TrapListWeapon\');\
 				window.localStorage.removeItem(\'TrapListBase\');\
@@ -3712,7 +3715,7 @@ function embedTimer(targetPage) {
 				window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);\
 				">';
 			clearTrapListStr += '<b>[Clear Trap List]</b></a>&nbsp;&nbsp;&nbsp;';
-            showPreferenceSpan.innerHTML = getLogPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
+            showPreferenceSpan.innerHTML = restorePreferenceStr + getLogPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
             showPreferenceLinkDiv.appendChild(showPreferenceSpan);
             showPreferenceLinkStr = null;
             showPreferenceSpan = null;
@@ -6381,6 +6384,54 @@ function bodyJS(){
 		return (obj === null || obj === undefined);
 	}
 
+	function onIdRestoreClicked(){
+		var idRestore = document.getElementById('idRestore');
+		var inputFiles = document.getElementById('inputFiles');
+		if (window.FileReader) {
+			if(inputFiles &&  window.sessionStorage.getItem('bRestart') != 'true'){
+				inputFiles.click();
+			}
+		}
+		else {
+			alert('The File APIs are not fully supported in this browser.');
+		}
+	}
+	
+	function handleFiles(files) {
+		if(files.length < 1)
+			return;
+		var reader = new FileReader();
+		reader.onloadend = function(evt) {
+			if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+				var arr = evt.target.result.split('\r\n');
+				var arrSplit = [];
+				var bRestart = false;
+				for(var i=0;i<arr.length;i++){
+					if(arr[i].indexOf('|') > -1){
+						arrSplit = arr[i].split('|');
+						if(arrSplit.length == 2 && Number.isNaN(Date.parse(arrSplit[0]))){
+							console.log(arrSplit);
+							window.localStorage.setItem(arrSplit[0], arrSplit[1]);
+							window.sessionStorage.setItem(arrSplit[0], arrSplit[1]);
+							bRestart = true;
+						}
+					}
+				}
+				if(bRestart){
+					alert('Please restart browser to take effect!');
+					window.sessionStorage.setItem('bRestart', 'true');
+					document.getElementById('idRestore').firstChild.textContent = 'Restart browser is required!';
+					document.getElementById('idRestore').style = "color:red";
+				}
+				else{
+					alert('Invalid preference file!');
+				}
+			}
+		};
+		var blob = files[0].slice(0, files[0].size);
+		reader.readAsText(blob);
+	}
+	
 	function onIdGetLogPreferenceClicked(){
 		var i;
 		var str = "";
@@ -7802,7 +7853,6 @@ function bodyJS(){
 			document.getElementById('trFWStreak').style.display = 'table-row';
 			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('trFWLastType').style.display = 'table-row';
-			document.getElementById('selectFWWave').selectedIndex = 0;
 			initControlsFW(true);
 		}
 		else if(algo == 'Burroughs Rift Custom'){
