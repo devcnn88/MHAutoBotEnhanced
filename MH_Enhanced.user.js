@@ -7854,67 +7854,61 @@ function bodyJS(){
 			selectIcebergBait.value = storageValue.bait[nIndex];
 		}
 	}
-	
-	function setTableRowDisplay(arrAll, arrSelected){
-		for(var i=0;i<arrAll.length;i++){
-			if(Array.isArray(arrSelected) && arrSelected.indexOf(arrAll[i]) > -1)
-				document.getElementById(arrAll[i]).style.display = 'table-row';
-			else
-				document.getElementById(arrAll[i]).style.display = 'none';
-		}
-	}
-	
+
 	function showOrHideTr(algo){
-		var arrTableRowAll = ['trLGTGAutoFill','trLGTGAutoPour','trPourTrapSetup','trCurseLiftedTrapSetup','trSaltedTrapSetup',
-			'trSCCustom','trSCCustomUseSmartJet',
-			'trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase',
-			'trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig',
-			'trBRConfig','trBRToggle','trBRTrapSetup',
-			'trSGUseZum','trSGDisarmBait',
-			'trZokorTrapSetup',
-			'trFREnterBattery','trFRRetreatBattery','trFRTrapSetupAtBattery',
-			'trZTFocus','trZTTrapSetup1st','trZTTrapSetup2nd',
-			'trIceberg'];
-		if(algo == 'All LG Area'){
-			setTableRowDisplay(arrTableRowAll, ['trLGTGAutoFill','trLGTGAutoPour','trPourTrapSetup','trCurseLiftedTrapSetup','trSaltedTrapSetup']);
-			initControlsLG();
+		var objTableRow = {
+			'All LG Area' : {
+				arr : ['trLGTGAutoFill','trLGTGAutoPour','trPourTrapSetup','trCurseLiftedTrapSetup','trSaltedTrapSetup'],
+				init : function(data){initControlsLG();}
+			},
+			'Sunken City Custom' : {
+				arr : ['trSCCustom','trSCCustomUseSmartJet'],
+				init : function(data){initControlsSCCustom(data);}
+			},
+			'Labyrinth' : {
+				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase'],
+				init : function(data){initControlsLaby(data);}
+			},
+			'Fiery Warpath' : {
+				arr : ['trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig'],
+				init : function(data){initControlsFW(data);}
+			},
+			'Burroughs Rift Custom' : {
+				arr : ['trBRConfig','trBRToggle','trBRTrapSetup'],
+				init : function(data){initControlsBR(data);}
+			},
+			'SG' : {
+				arr : ['trSGUseZum','trSGDisarmBait'],
+				init : function(data){initControlsSG(data);}
+			},
+			'Zokor' : {
+				arr : ['trZokorTrapSetup'],
+				init : function(data){initControlsZokor(data);}
+			},
+			'Furoma Rift' : {
+				arr : ['trFREnterBattery','trFRRetreatBattery','trFRTrapSetupAtBattery'],
+				init : function(data){initControlsFR(data);}
+			},
+			'ZT' : {
+				arr : ['trZTFocus','trZTTrapSetup1st','trZTTrapSetup2nd'],
+				init : function(data){initControlsZT(data);}
+			},
+			'Iceberg' : {
+				arr : ['trIceberg'],
+				init : function(data){initControlsIceberg(data);}
+			},
+		};
+		var i, temp;
+		for(var prop in objTableRow){
+			if(objTableRow.hasOwnProperty(prop)){
+				temp = (prop == algo) ? 'table-row' : 'none';
+				for(i=0;i<objTableRow[prop].arr.length;i++)
+					document.getElementById(objTableRow[prop].arr[i]).style.display = temp;
+			}
 		}
-		else if(algo == 'Sunken City Custom'){
-			setTableRowDisplay(arrTableRowAll, ['trSCCustom','trSCCustomUseSmartJet']);
-			initControlsSCCustom();
-		}
-		else if(algo == 'Labyrinth'){
-			setTableRowDisplay(arrTableRowAll, ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase']);
-			initControlsLaby();
-		}
-		else if(algo == 'Fiery Warpath'){
-			setTableRowDisplay(arrTableRowAll, ['trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig']);
-			initControlsFW(true);
-		}
-		else if(algo == 'Burroughs Rift Custom'){
-			setTableRowDisplay(arrTableRowAll, ['trBRConfig','trBRToggle','trBRTrapSetup']);
-			initControlsBR();
-		}
-		else if(algo == 'SG'){
-			setTableRowDisplay(arrTableRowAll, ['trSGUseZum','trSGDisarmBait']);
-			initControlsSG();
-		}
-		else if(algo == 'ZT'){
-			setTableRowDisplay(arrTableRowAll, ['trZTFocus','trZTTrapSetup1st','trZTTrapSetup2nd']);
-			initControlsZT(true);
-		}
-		else if(algo == 'Furoma Rift'){
-			setTableRowDisplay(arrTableRowAll, ['trFREnterBattery','trFRRetreatBattery','trFRTrapSetupAtBattery']);
-			initControlsFR(true);
-		}
-		else if(algo == 'Zokor'){
-			setTableRowDisplay(arrTableRowAll, ['trZokorTrapSetup']);
-			initControlsZokor();
-		}
-		else if(algo == 'Iceberg'){
-			setTableRowDisplay(arrTableRowAll, ['trIceberg']);
-			initControlsIceberg();
-		}
+		if(!isNullOrUndefined(objTableRow[algo]))
+			objTableRow[algo].init(true);
+
 		initControlsMapHunting();
 	}
 }
