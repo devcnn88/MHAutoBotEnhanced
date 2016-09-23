@@ -168,6 +168,7 @@ var objPopulation = {
 	ARTILLERY : 5,
 	name : ['Warrior', 'Scout', 'Archer', 'Cavalry', 'Mage', 'Artillery']
 };
+var g_arrFWSupportRetreat = [0, 10, 18, 26];
 var g_fwStreakLength = 15;
 var objDefaultFW = {
 	weapon : 'Sandtail Sentinel',
@@ -177,7 +178,9 @@ var objDefaultFW = {
 	cheese : new Array(g_fwStreakLength),
 	charmType : new Array(g_fwStreakLength),
 	special : new Array(g_fwStreakLength),
-	lastSoldierConfig : 'CONFIG_GOUDA'
+	lastSoldierConfig : 'CONFIG_GOUDA',
+	includeArtillery : true,
+	disarmAfterSupportRetreat : false
 };
 
 // // Living Garden Preference
@@ -1933,18 +1936,15 @@ function fw(){
 
 	var wave = getPageVariable('user.viewing_atts.desert_warpath.wave');
 	wave = parseInt(wave);
-	var objFWAll = getStorage('FW');
-	if(isNullOrUndefined(objFWAll)){
 		var objDefaultFWAll = {
 			wave1 : JSON.parse(JSON.stringify(objDefaultFW)),
 			wave2 : JSON.parse(JSON.stringify(objDefaultFW)),
 			wave3 : JSON.parse(JSON.stringify(objDefaultFW)),
 			wave4 : JSON.parse(JSON.stringify(objDefaultFW)),
 		};
-		objFWAll = JSON.stringify(objDefaultFWAll);
-	}
-	objFWAll = JSON.parse(objFWAll);
+	var objFWAll = getStorageToObject('FW', objDefaultFWAll);
 	var objFW = objFWAll['wave'+wave];
+	assignMissingDefault(objFW, objDefaultFW);
 	checkThenArm(null, 'base', objFW.base);
     if (wave == 4){
 		checkThenArm(null, 'weapon', objFW.weapon);
@@ -1978,6 +1978,7 @@ function fw(){
 	};
 	objFW.soldierActive = false;
 	var temp;
+	var charmName;
 	for(var i=0;i<population.length;i++){
 		temp = parseInt(population[i].innerText);
 		if(Number.isNaN(temp))
@@ -2002,7 +2003,16 @@ function fw(){
 	console.pdebug(objFW);
 	var index = -1;
 	var charmArmed = getPageVariable('user.trinket_name');
-	var nSum = sumData(objFW.population.active);
+	var nSum;
+	if(wave == 3 && !objFW.includeArtillery){
+		var arrTemp = objFW.population.active.slice();
+		arrTemp[objPopulation.ARTILLERY] = 0;
+		nSum = sumData(arrTemp);
+		if(nSum < 1)
+			nSum = 1;
+	}
+	else
+		nSum = sumData(objFW.population.active);
 	if(nSum == 1){ // only one soldier type left
 		if(objFW.lastSoldierConfig == 'CONFIG_STREAK')
 			objFW.priorities = 'HIGHEST';
@@ -2027,14 +2037,16 @@ function fw(){
 	}
 	if(objFW.special[objFW.streak] == 'COMMANDER'){
 		if(objFW.charmType[objFW.streak].indexOf('Super') > -1)
-			checkThenArm('best', 'trinket', ["Super Warpath Commander's Charm", "Warpath Commander's Charm"]);
+			charmName = ["Super Warpath Commander's Charm", "Warpath Commander's Charm"];
 		else
-			checkThenArm(null, 'trinket', "Warpath Commander's Charm");
+			charmName = "Warpath Commander's Charm";
 	}
 	else if(objFW.special[objFW.streak] == 'GARGANTUA'){
 		checkThenArm('best', 'weapon', objBestTrap.weapon.draconic);
 		if(charmArmed.indexOf('Warpath') > -1)
-			disarmTrap('trinket');
+			charmName = 'None';
+		else
+			charmName = undefined;
 	}
 	else{
 		var bCurrentStreakZeroPopulation = false;
@@ -2069,14 +2081,14 @@ function fw(){
 				var count = countArrayElement(temp, objFW.population[objFW.focusType]);
 				if(count > 1){
 					if(objFW.population[objFW.focusType][objPopulation.SCOUT] == temp)
-						checkThenArm(null, 'trinket', objFW.charmType[0] + ' Scout');
+						charmName = objFW.charmType[0] + ' Scout';
 					else if(objFW.population[objFW.focusType][objPopulation.ARCHER] == temp)
-						checkThenArm(null, 'trinket', objFW.charmType[0] + ' Archer');
+						charmName = objFW.charmType[0] + ' Archer';
 					else if(objFW.population[objFW.focusType][objPopulation.WARRIOR] == temp)
-						checkThenArm(null, 'trinket', objFW.charmType[0] + ' Warrior');
+						charmName = objFW.charmType[0] + ' Warrior';
 				}
 				else{
-					checkThenArm(null, 'trinket', objFW.charmType[0] + ' ' + objPopulation.name[indexMinMax]);
+					charmName = objFW.charmType[0] + ' ' + objPopulation.name[indexMinMax];
 				}
 			}
 			else{
@@ -2091,30 +2103,29 @@ function fw(){
 				indexMinMax += 3;
 				if(indexMinMax == objPopulation.CAVALRY){
 					checkThenArm('best', 'weapon', objBestTrap.weapon.tactical);
-					checkThenArm(null, 'trinket', objFW.charmType[0] + ' Cavalry');
+					charmName = objFW.charmType[0] + ' Cavalry';
 				}
 				else if(indexMinMax == objPopulation.MAGE){
 					checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
-					checkThenArm(null, 'trinket', objFW.charmType[0] + ' Mage');
+					charmName = objFW.charmType[0] + ' Mage';
 				}
 				else if(indexMinMax == objPopulation.ARTILLERY){
 					checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 					if(charmArmed.indexOf('Warpath') > -1)
-						disarmTrap('trinket');
+						charmName = 'None';
+					else
+						charmName = undefined;
 				}
 			}
 		}
-		else{
+		else{ // streak 1 and above
 			if(index == objPopulation.ARTILLERY && charmArmed.indexOf('Warpath') > -1)
-				disarmTrap('trinket');
-			else{
-				if(objFW.charmType[objFW.streak].indexOf('Super') > -1){
-					temp = [objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index], 'Warpath ' + objPopulation.name[index]];
-					checkThenArm('best', 'trinket', temp);
-				}
+				charmName = 'None';
 				else{
-					checkThenArm(null, 'trinket', objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index]);
-				}
+				if(objFW.charmType[objFW.streak].indexOf('Super') > -1)
+					charmName = [objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index], 'Warpath ' + objPopulation.name[index]];
+				else
+					charmName = objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index];
 			}
 
 			if(index == objPopulation.CAVALRY)
@@ -2128,6 +2139,12 @@ function fw(){
 		}
 	}
 	checkThenArm(null, 'bait', objFW.cheese[objFW.streak]);
+	if(objFW.disarmAfterSupportRetreat && sumData(objFW.population.all) <= g_arrFWSupportRetreat[wave]){
+		if(charmArmed.indexOf('Warpath') > -1)
+			disarmTrap('trinket');
+	}
+	else
+		checkThenArm('best', 'trinket', charmName);
 }
 
 function fRift(){
@@ -2585,6 +2602,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
         category = "trinket";
 
 	if(Array.isArray(name)){
+		sort = 'best';
 		if(name.length == 1){
 			sort = null;
 			name = name[0];
@@ -2595,6 +2613,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 			disarmTrap(category);
 			return;
 		}
+		sort = null;
 	}
 
 	if(isNullOrUndefined(isForcedRetry))
@@ -4620,10 +4639,24 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="CONFIG_GOUDA">Gouda & No Warpath Charm</option>';
 			preferenceHTMLStr += '<option value="NO_WARPATH">No Warpath Charm Only</option>';
 			preferenceHTMLStr += '<option value="CONFIG_UNCHANGED">Trap Setup Unchanged</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title="Select whether to include Artillery in checking of Last Soldier"><b>Include Artillery:</b></a>&emsp;';
+			preferenceHTMLStr += '<select id="selectFWLastTypeConfigIncludeArtillery" onchange="onSelectFWLastTypeConfigIncludeArtillery();">';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '<option value="false">False</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trFWSupportConfig" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select whether to disarm any Warpath Charm when supports are gone"><b>Disarm Warpath Charm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFWSupportConfig" onchange="onSelectFWSupportConfig();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;When Support Retreated';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="trBRConfig" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select the mist tier to hunt"><b>Hunt At</b></a>';
@@ -5173,6 +5206,28 @@ function getStorageToVariableBool(storageName, defaultBool)
     else {
         return false;
     }
+}
+
+function getStorageToObject(keyName, objDefault){
+	var obj = getStorage(keyName);
+	var bCheckNewProp = true;
+	if(isNullOrUndefined(obj)){
+		obj = JSON.stringify(objDefault);
+		bCheckNewProp = false;
+	}
+	obj = JSON.parse(obj);
+	if(bCheckNewProp)
+		assignMissingDefault(obj, objDefault);
+
+	return obj;
+}
+
+function assignMissingDefault(obj, objDefault){
+	for(var prop in objDefault){
+		if(objDefault.hasOwnProperty(prop) && !obj.hasOwnProperty(prop)){
+			obj[prop] = objDefault[prop];
+		}
+	}
 }
 
 function displayTimer(title, nextHornTime, checkTime) {
@@ -7193,6 +7248,14 @@ function bodyJS(){
 		saveFW();
 	}
 
+	function onSelectFWLastTypeConfigIncludeArtillery(){
+		saveFW();
+	}
+	
+	function onSelectFWSupportConfig(){
+		saveFW();
+	}
+	
 	function initControlsFW(bAutoChangeWave){
 		if(isNullOrUndefined(bAutoChangeWave))
 			bAutoChangeWave = false;
@@ -7206,6 +7269,8 @@ function bodyJS(){
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
+		var selectFWLastTypeConfigIncludeArtillery = document.getElementById('selectFWLastTypeConfigIncludeArtillery');
+		var selectFWSupportConfig = document.getElementById('selectFWSupportConfig');
 		var storageValue = window.sessionStorage.getItem('FW');
 		if(isNullOrUndefined(storageValue)){
 			selectFWTrapSetupWeapon.selectedIndex = -1;
@@ -7216,6 +7281,8 @@ function bodyJS(){
 			selectFWCharmType.selectedIndex = -1;
 			selectFWSpecial.selectedIndex = -1;
 			selectFWLastTypeConfig.selectedIndex = -1;
+			selectFWLastTypeConfigIncludeArtillery.selectedIndex = 0;
+			selectFWSupportConfig.selectedIndex = 0;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -7240,6 +7307,8 @@ function bodyJS(){
 			selectFWCharmType.value = storageValue[strWave].charmType[selectFWStreak.selectedIndex];
 			selectFWSpecial.value = storageValue[strWave].special[selectFWStreak.selectedIndex];
 			selectFWLastTypeConfig.value = storageValue[strWave].lastSoldierConfig;
+			selectFWLastTypeConfigIncludeArtillery.value = (storageValue[strWave].includeArtillery) ? 'true' : 'false';
+			selectFWSupportConfig.selectedIndex = (storageValue[strWave].disarmAfterSupportRetreat) ? 'true' : 'false';
 		}
 		var nWave = parseInt(selectFWWave.value);
 		var option = selectFWFocusType.children;
@@ -7251,11 +7320,17 @@ function bodyJS(){
 			document.getElementById('trFWStreak').style.display = 'none';
 			document.getElementById('trFWFocusType').style.display = 'none';
 			document.getElementById('trFWLastType').style.display = 'none';
+			document.getElementById('trFWSupportConfig').style.display = 'none';
 		}
 		else{
 			document.getElementById('trFWStreak').style.display = 'table-row';
 			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('trFWLastType').style.display = 'table-row';
+			document.getElementById('trFWSupportConfig').style.display = 'table-row';
+			if(selectFWWave.value == 3)
+				selectFWLastTypeConfigIncludeArtillery.disabled = '';
+			else
+				selectFWLastTypeConfigIncludeArtillery.disabled = 'disabled';
 		}
 	}
 
@@ -7273,6 +7348,8 @@ function bodyJS(){
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
+		var selectFWLastTypeConfigIncludeArtillery = document.getElementById('selectFWLastTypeConfigIncludeArtillery');
+		var selectFWSupportConfig = document.getElementById('selectFWSupportConfig');
 		var storageValue = window.sessionStorage.getItem('FW');
 		if(isNullOrUndefined(storageValue)){
 			var obj = {
@@ -7283,7 +7360,9 @@ function bodyJS(){
 				cheese : new Array(nStreakLength),
 				charmType : new Array(nStreakLength),
 				special : new Array(nStreakLength),
-				lastSoldierConfig : 'CONFIG_GOUDA'
+				lastSoldierConfig : 'CONFIG_GOUDA',
+				includeArtillery : true,
+				disarmAfterSupportRetreat : false
 			};
 			var objAll = {
 				wave1 : JSON.parse(JSON.stringify(obj)),
@@ -7307,6 +7386,8 @@ function bodyJS(){
 		storageValue[strWave].charmType[nStreak] = selectFWCharmType.value;
 		storageValue[strWave].special[nStreak] = selectFWSpecial.value;
 		storageValue[strWave].lastSoldierConfig = selectFWLastTypeConfig.value;
+		storageValue[strWave].includeArtillery = (selectFWLastTypeConfigIncludeArtillery.value == 'true');
+		storageValue[strWave].disarmAfterSupportRetreat = (selectFWSupportConfig.value == 'true');
 		window.sessionStorage.setItem('FW', JSON.stringify(storageValue));
 	}
 

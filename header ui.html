@@ -745,13 +745,26 @@
 					</td>
 				</tr>
 				<tr id="trFWLastType" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select config when there is only one soldier type left"><b>Last Soldier Type</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px; text-align:right;"><a title="Select config when there is only one soldier type left and whether to include Artillery in checking last soldier"><b>Last Soldier Type</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
 						<select id="selectFWLastTypeConfig" onchange="onSelectFWLastTypeConfigChanged();">
 							<option value="CONFIG_STREAK">Follow Streak Config</option>
 							<option value="CONFIG_GOUDA">Gouda & No Warpath Charm</option>
 							<option value="CONFIG_UNCHANGED">Trap Setup Unchanged</option>
+						</select>&nbsp;&nbsp;<b>Include Artillery:</b>&nbsp;&nbsp;
+						<select id="selectFWLastTypeConfigIncludeArtillery" onchange="onSelectFWLastTypeConfigIncludeArtillery();">
+							<option value="true">True</option>
+							<option value="false">False</option>
 						</select>
+					</td>
+				</tr>
+				<tr id="trFWSupportConfig" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select whether to disarm any Warpath Charm when supports are gone"><b>Disarm Warpath Charm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFWSupportConfig" onchange="onSelectFWSupportConfig();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;When Support Retreated
 					</td>
 				</tr>
 				<tr id="trBRConfig" style="display:none;">
@@ -1594,6 +1607,14 @@
 		saveFW();
 	}
 	
+	function onSelectFWLastTypeConfigIncludeArtillery(){
+		saveFW();
+	}
+	
+	function onSelectFWSupportConfig(){
+		saveFW();
+	}
+	
 	function initControlsFW(bAutoChangeWave){
 		if(bAutoChangeWave === undefined || bAutoChangeWave === null)
 			bAutoChangeWave = false;
@@ -1607,6 +1628,8 @@
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
+		var selectFWLastTypeConfigIncludeArtillery = document.getElementById('selectFWLastTypeConfigIncludeArtillery');
+		var selectFWSupportConfig = document.getElementById('selectFWSupportConfig');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + selectFWWave.value);
 		if(storageValue === null){
 			selectFWTrapSetupWeapon.selectedIndex = -1;
@@ -1617,6 +1640,8 @@
 			selectFWCharmType.selectedIndex = -1;
 			selectFWSpecial.selectedIndex = -1;
 			selectFWLastTypeConfig.selectedIndex = -1;
+			selectFWLastTypeConfigIncludeArtillery.selectedIndex = 0;
+			selectFWSupportConfig.selectedIndex = 0;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -1632,6 +1657,8 @@
 			selectFWCharmType.value = storageValue.charmType[selectFWStreak.selectedIndex];
 			selectFWSpecial.value = storageValue.special[selectFWStreak.selectedIndex];
 			selectFWLastTypeConfig.value = storageValue.lastSoldierConfig;
+			selectFWLastTypeConfigIncludeArtillery.value = (storageValue.includeArtillery) ? 'true' : 'false';
+			selectFWSupportConfig.selectedIndex = (storageValue.disarmAfterSupportRetreat) ? 'true' : 'false';
 		}
 		var nWave = parseInt(selectFWWave.value);
 		var option = selectFWFocusType.children;
@@ -1643,11 +1670,17 @@
 			document.getElementById('trFWStreak').style.display = 'none';
 			document.getElementById('trFWFocusType').style.display = 'none';
 			document.getElementById('trFWLastType').style.display = 'none';
+			document.getElementById('trFWSupportConfig').style.display = 'none';
 		}
 		else{
 			document.getElementById('trFWStreak').style.display = 'table-row';
 			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('trFWLastType').style.display = 'table-row';
+			document.getElementById('trFWSupportConfig').style.display = 'table-row';
+			if(selectFWWave.value == 3)
+				selectFWLastTypeConfigIncludeArtillery.disabled = '';
+			else
+				selectFWLastTypeConfigIncludeArtillery.disabled = 'disabled';
 		}
 	}
 	
@@ -1665,6 +1698,8 @@
 		var selectFWCharmType = document.getElementById('selectFWCharmType');
 		var selectFWSpecial = document.getElementById('selectFWSpecial');
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
+		var selectFWLastTypeConfigIncludeArtillery = document.getElementById('selectFWLastTypeConfigIncludeArtillery');
+		var selectFWSupportConfig = document.getElementById('selectFWSupportConfig');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
 		if(storageValue === null){
 			var obj = {
@@ -1675,7 +1710,9 @@
 				cheese : new Array(nStreakLength),
 				charmType : new Array(nStreakLength),
 				special : new Array(nStreakLength),
-				lastSoldierConfig : 'CONFIG_GOUDA'
+				lastSoldierConfig : 'CONFIG_GOUDA',
+				includeArtillery : true,
+				disarmAfterSupportRetreat : false
 			};
 			storageValue = JSON.stringify(obj);
 		}
@@ -1692,6 +1729,8 @@
 		storageValue.charmType[nStreak] = selectFWCharmType.value;
 		storageValue.special[nStreak] = selectFWSpecial.value;
 		storageValue.lastSoldierConfig = selectFWLastTypeConfig.value;
+		storageValue.includeArtillery = (selectFWLastTypeConfigIncludeArtillery.value == 'true');
+		storageValue.disarmAfterSupportRetreat = (selectFWSupportConfig.value == 'true');
 		window.sessionStorage.setItem('FW_Wave' + nWave, JSON.stringify(storageValue));
 	}
 	
