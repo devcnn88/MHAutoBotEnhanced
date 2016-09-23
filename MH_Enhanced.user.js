@@ -4226,7 +4226,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
-			preferenceHTMLStr += '<tr id="trUseZum" style="display:none;">';
+			preferenceHTMLStr += '<tr id="trSGUseZum" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select to arm Zugzwang\'s Ultimate Move whenever possible"><b>Use ZUM in</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
@@ -4242,7 +4242,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
-			preferenceHTMLStr += '<tr id="trDisarmBait" style="display:none;">';
+			preferenceHTMLStr += '<tr id="trSGDisarmBait" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to disarm bait when amplifier is fully charged"><b>Disarm Bait</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectSGDisarmBait" onchange="onSelectSGDisarmBait();">';
@@ -4377,7 +4377,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
-			preferenceHTMLStr += '<tr id="labyrinth" style="display:none;">';
+			preferenceHTMLStr += '<tr id="trLabyrinth" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select a district to focus on"><b>District to Focus</b></a>';
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -4463,7 +4463,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 
-			preferenceHTMLStr += '<tr id="labyrinthOtherHallway" style="display:none;">';
+			preferenceHTMLStr += '<tr id="trLabyrinthOtherHallway" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Choose doors other than focused door when there is no available focused door to be choosen"><b>Open Non-Focus Door</b></a>';
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -7000,7 +7000,7 @@ function bodyJS(){
 		document.getElementById('trPriorities15').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
 		document.getElementById('trPriorities1560').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
 		document.getElementById('trPriorities60').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
-		document.getElementById('labyrinthOtherHallway').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
+		document.getElementById('trLabyrinthOtherHallway').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
 		if(selectLabyrinthDistrict.value == 'None')
 			return;
 
@@ -7865,38 +7865,15 @@ function bodyJS(){
 	}
 	
 	function showOrHideTr(algo){
-		var arrTableRowAll = ['trLGTGAutoFill',
-			'trLGTGAutoPour',
-			'trPourTrapSetup',
-			'trCurseLiftedTrapSetup',
-			'trSaltedTrapSetup',
-			'trSCCustom',
-			'trSCCustomUseSmartJet',
-			'labyrinth',
-			'trPriorities15',
-			'trPriorities1560',
-			'trPriorities60',
-			'labyrinthOtherHallway',
-			'trLabyrinthDisarm',
-			'trLabyrinthArmOtherBase',
-			'trFWWave',
-			'trFWTrapSetup',
-			'trFWStreak',
-			'trFWFocusType',
-			'trFWLastType',
-			'trFWSupportConfig',
-			'trBRConfig',
-			'trBRToggle',
-			'trBRTrapSetup',
-			'trUseZum',
-			'trDisarmBait',
+		var arrTableRowAll = ['trLGTGAutoFill','trLGTGAutoPour','trPourTrapSetup','trCurseLiftedTrapSetup','trSaltedTrapSetup',
+			'trSCCustom','trSCCustomUseSmartJet',
+			'trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase',
+			'trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig',
+			'trBRConfig','trBRToggle','trBRTrapSetup',
+			'trSGUseZum','trSGDisarmBait',
 			'trZokorTrapSetup',
-			'trFREnterBattery',
-			'trFRRetreatBattery',
-			'trFRTrapSetupAtBattery',
-			'trZTFocus',
-			'trZTTrapSetup1st',
-			'trZTTrapSetup2nd',
+			'trFREnterBattery','trFRRetreatBattery','trFRTrapSetupAtBattery',
+			'trZTFocus','trZTTrapSetup1st','trZTTrapSetup2nd',
 			'trIceberg'];
 		if(algo == 'All LG Area'){
 			setTableRowDisplay(arrTableRowAll, ['trLGTGAutoFill','trLGTGAutoPour','trPourTrapSetup','trCurseLiftedTrapSetup','trSaltedTrapSetup']);
@@ -7907,7 +7884,7 @@ function bodyJS(){
 			initControlsSCCustom();
 		}
 		else if(algo == 'Labyrinth'){
-			setTableRowDisplay(arrTableRowAll, ['labyrinth','trPriorities15','trPriorities1560','trPriorities60','labyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase']);
+			setTableRowDisplay(arrTableRowAll, ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase']);
 			initControlsLaby();
 		}
 		else if(algo == 'Fiery Warpath'){
@@ -7919,7 +7896,7 @@ function bodyJS(){
 			initControlsBR();
 		}
 		else if(algo == 'SG'){
-			setTableRowDisplay(arrTableRowAll, ['trUseZum','trDisarmBait']);
+			setTableRowDisplay(arrTableRowAll, ['trSGUseZum','trSGDisarmBait']);
 			initControlsSG();
 		}
 		else if(algo == 'ZT'){
