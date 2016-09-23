@@ -1620,7 +1620,7 @@
 			bAutoChangeWave = false;
 		var selectFWWave = document.getElementById('selectFWWave');
 		var selectFWTrapSetupWeapon = document.getElementById('selectFWTrapSetupWeapon');
-		var selectFWTrapSetupBase = document.getElementById('selectFWTrapSetupBase');		
+		var selectFWTrapSetupBase = document.getElementById('selectFWTrapSetupBase');
 		var selectFWStreak = document.getElementById('selectFWStreak');
 		var selectFWFocusType = document.getElementById('selectFWFocusType');
 		var selectFWPriorities = document.getElementById('selectFWPriorities');
@@ -2082,92 +2082,85 @@
 		}
 	}
 	
+	function setTableRowDisplay(arrAll, arrSelected){
+		for(var i=0;i<arrAll.length;i++){
+			if(Array.isArray(arrSelected) && arrSelected.indexOf(arrAll[i]) > -1)
+				document.getElementById(arrAll[i]).style.display = 'table-row';
+			else
+				document.getElementById(arrAll[i]).style.display = 'none';
+		}
+	}
+	
 	function showOrHideTr(algo){
-		document.getElementById('trLGTGAutoFill').style.display = 'none';
-		document.getElementById('trLGTGAutoPour').style.display = 'none';
-		document.getElementById('trPourTrapSetup').style.display = 'none';
-		document.getElementById('trCurseLiftedTrapSetup').style.display = 'none';
-		document.getElementById('trSaltedTrapSetup').style.display = 'none';
-		document.getElementById('trSCCustom').style.display = 'none';
-		document.getElementById('trSCCustomUseSmartJet').style.display = 'none';
-		document.getElementById('labyrinth').style.display = 'none';
-		document.getElementById('trPriorities15').style.display = 'none';
-		document.getElementById('trPriorities1560').style.display = 'none';
-		document.getElementById('trPriorities60').style.display = 'none';
-		document.getElementById('labyrinthOtherHallway').style.display = 'none';
-		document.getElementById('trLabyrinthDisarm').style.display = 'none';
-		document.getElementById('trLabyrinthArmOtherBase').style.display = 'none';
-		document.getElementById('trFWWave').style.display = 'none';
-		document.getElementById('trFWTrapSetup').style.display = 'none';
-		document.getElementById('trFWStreak').style.display = 'none';
-		document.getElementById('trFWFocusType').style.display = 'none';
-		document.getElementById('trFWLastType').style.display = 'none';
-		document.getElementById('trBRConfig').style.display = 'none';
-		document.getElementById('trBRToggle').style.display = 'none';
-		document.getElementById('trBRTrapSetup').style.display = 'none';
-		document.getElementById('trUseZum').style.display = 'none';
-		document.getElementById('trDisarmBait').style.display = 'none';
-		document.getElementById('trZokorTrapSetup').style.display = 'none';
-		document.getElementById('trZTFocus').style.display = 'none';
-		document.getElementById('trZTTrapSetup1st').style.display = 'none';
-		document.getElementById('trZTTrapSetup2nd').style.display = 'none';
-		document.getElementById('trIceberg').style.display = 'none';
+		var arrTableRowAll = ['trLGTGAutoFill',
+			'trLGTGAutoPour',
+			'trPourTrapSetup',
+			'trCurseLiftedTrapSetup',
+			'trSaltedTrapSetup',
+			'trSCCustom',
+			'trSCCustomUseSmartJet',
+			'labyrinth',
+			'trPriorities15',
+			'trPriorities1560',
+			'trPriorities60',
+			'labyrinthOtherHallway',
+			'trLabyrinthDisarm',
+			'trLabyrinthArmOtherBase',
+			'trFWWave',
+			'trFWTrapSetup',
+			'trFWStreak',
+			'trFWFocusType',
+			'trFWLastType',
+			'trFWSupportConfig',
+			'trBRConfig',
+			'trBRToggle',
+			'trBRTrapSetup',
+			'trUseZum',
+			'trDisarmBait',
+			'trZokorTrapSetup',
+			'trZTFocus',
+			'trZTTrapSetup1st',
+			'trZTTrapSetup2nd',
+			'trIceberg'];
 		if(algo == 'All LG Area'){
-			document.getElementById('trLGTGAutoFill').style.display = 'table-row';
-			document.getElementById('trLGTGAutoPour').style.display = 'table-row';
-			document.getElementById('trPourTrapSetup').style.display = 'table-row';
-			document.getElementById('trCurseLiftedTrapSetup').style.display = 'table-row';
-			document.getElementById('trSaltedTrapSetup').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trLGTGAutoFill','trLGTGAutoPour','trPourTrapSetup','trCurseLiftedTrapSetup','trSaltedTrapSetup']);
 			initControlsLG();
 		}
 		else if(algo == 'Sunken City Custom'){
-			document.getElementById('trSCCustom').style.display = 'table-row';
-			document.getElementById('trSCCustomUseSmartJet').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trSCCustom','trSCCustomUseSmartJet']);
 			initControlsSCCustom();
 		}
 		else if(algo == 'Labyrinth'){
-			document.getElementById('labyrinth').style.display = 'table-row';
-			document.getElementById('trPriorities15').style.display = 'table-row';
-			document.getElementById('trPriorities1560').style.display = 'table-row';
-			document.getElementById('trPriorities60').style.display = 'table-row';
-			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
-			document.getElementById('trLabyrinthDisarm').style.display = 'table-row';
-			document.getElementById('trLabyrinthArmOtherBase').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['labyrinth','trPriorities15','trPriorities1560','trPriorities60','labyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase']);
 			loadDistricFocus();
 			loadLabyrinthHallway();
 		}
 		else if(algo == 'Fiery Warpath'){
-			document.getElementById('trFWWave').style.display = 'table-row';
-			document.getElementById('trFWTrapSetup').style.display = 'table-row';
-			document.getElementById('trFWStreak').style.display = 'table-row';
-			document.getElementById('trFWFocusType').style.display = 'table-row';
-			document.getElementById('trFWLastType').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig']);
 			initControlsFW(true);
 		}
 		else if(algo == 'Burroughs Rift Custom'){
-			document.getElementById('trBRConfig').style.display = 'table-row';
-			document.getElementById('trBRToggle').style.display = 'table-row';
-			document.getElementById('trBRTrapSetup').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trBRConfig','trBRToggle','trBRTrapSetup']);
 			initControlsBR();
 		}
 		else if(algo == 'SG/ZT'){
-			document.getElementById('trUseZum').style.display = 'table-row';
-			document.getElementById('trDisarmBait').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trUseZum','trDisarmBait']);
 			initControlsSGZT();
 		}
 		else if(algo == 'ZT'){
-			document.getElementById('trZTFocus').style.display = 'table-row';
-			document.getElementById('trZTTrapSetup1st').style.display = 'table-row';
-			document.getElementById('trZTTrapSetup2nd').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trZTFocus','trZTTrapSetup1st','trZTTrapSetup2nd']);
 			initControlsZT();
 		}
 		else if(algo == 'Zokor'){
-			document.getElementById('trZokorTrapSetup').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trZokorTrapSetup']);
 			initControlsZokor();
 		}
 		else if(algo == 'Iceberg'){
-			document.getElementById('trIceberg').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trIceberg']);
 			initControlsIceberg();
+		}
+		else{
+			setTableRowDisplay(arrTableRowAll);
 		}
 		initControlsMapHunting();
 	}

@@ -786,36 +786,32 @@ function eventLocationCheck(caller) {
 		case 'Iceberg':
 			iceberg(); break;
 		case 'All LG Area':
-			temp = getStorage("LGArea");
-			if(isNullOrUndefined(temp)){
-				var objLGTemplate = {
-					isAutoFill : false,
-					isAutoPour : false,
-					maxSaltCharged : 25,
-					base : {
-						before : '',
-						after : ''
-					},
-					trinket : {
-						before : '',
-						after : ''
-					},
-					bait : {
-						before : '',
-						after : ''
-					}
-				};
-				var objLGDefault = {
-					LG : JSON.parse(JSON.stringify(objLGTemplate)),
-					TG : JSON.parse(JSON.stringify(objLGTemplate)),
-					LC : JSON.parse(JSON.stringify(objLGTemplate)),
-					CC : JSON.parse(JSON.stringify(objLGTemplate)),
-					SD : JSON.parse(JSON.stringify(objLGTemplate)),
-					SC : JSON.parse(JSON.stringify(objLGTemplate)),
-				};
-				temp = JSON.stringify(objLGDefault);
-			}
-			temp = JSON.parse(temp);
+			var objLGTemplate = {
+				isAutoFill : false,
+				isAutoPour : false,
+				maxSaltCharged : 25,
+				base : {
+					before : '',
+					after : ''
+				},
+				trinket : {
+					before : '',
+					after : ''
+				},
+				bait : {
+					before : '',
+					after : ''
+				}
+			};
+			var objDefaultLG = {
+				LG : JSON.parse(JSON.stringify(objLGTemplate)),
+				TG : JSON.parse(JSON.stringify(objLGTemplate)),
+				LC : JSON.parse(JSON.stringify(objLGTemplate)),
+				CC : JSON.parse(JSON.stringify(objLGTemplate)),
+				SD : JSON.parse(JSON.stringify(objLGTemplate)),
+				SC : JSON.parse(JSON.stringify(objLGTemplate)),
+			};
+			temp = getStorageToObject("LGArea", objDefaultLG);
 			LGGeneral(temp);
 			break;
 		case 'SG':
@@ -862,7 +858,7 @@ function mapHunting(){
 		bait : 'Remain',
 		leave : false
 	};
-	var objMapHunting = JSON.parse(getStorageToVariableStr('MapHunting', JSON.stringify(objDefaultMapHunting)));
+	var objMapHunting = getStorageToObject('MapHunting', objDefaultMapHunting);
 	var strViewState = getPageVariable('user.quests.QuestRelicHunter.view_state');
 	var bHasMap = (strViewState == 'hasMap' || strViewState == 'hasReward');
 	if(!objMapHunting.status || !bHasMap || objMapHunting.selectedMouse.length === 0)
@@ -1033,17 +1029,13 @@ function Halloween2015()
 function iceberg(){
 	var loc = GetCurrentLocation();
     if (loc.indexOf('Iceberg') > -1) {
-        var objIceberg = getStorage('Iceberg');
-		if(isNullOrUndefined(objIceberg)){
-			var objDefaultIceberg = {
-				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
-				base : new Array(8).fill(''),
-				trinket : new Array(8).fill('None'),
-				bait : new Array(8).fill('Gouda')
-			};
-			objIceberg = JSON.stringify(objDefaultIceberg);
-		}
-		objIceberg = JSON.parse(objIceberg);
+        var objDefaultIceberg = {
+			order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
+			base : new Array(8).fill(''),
+			trinket : new Array(8).fill('None'),
+			bait : new Array(8).fill('Gouda')
+		};
+		var objIceberg = getStorageToObject('Iceberg', objDefaultIceberg);
 		var phase;
 		var nProgress = -1;
 		var classCurrentPhase = document.getElementsByClassName('currentPhase');
@@ -1137,21 +1129,16 @@ function BRCustom(){
 	if (GetCurrentLocation().indexOf('Burroughs Rift') < 0)
 		return;
 
-	var objBR = getStorage('BRCustom');
-	if(isNullOrUndefined(objBR)){
-		var objDefaultBRCustom = {
-			hunt : '',
-			toggle : 1,
-			name : ['Red', 'Green', 'Yellow', 'None'],
-			weapon : new Array(4),
-			base : new Array(4),
-			trinket : new Array(4),
-			bait : new Array(4)
-		};
-		objBR = JSON.stringify(objDefaultBRCustom);
-	}
-
-	objBR = JSON.parse(objBR);
+	var objDefaultBRCustom = {
+		hunt : '',
+		toggle : 1,
+		name : ['Red', 'Green', 'Yellow', 'None'],
+		weapon : new Array(4),
+		base : new Array(4),
+		trinket : new Array(4),
+		bait : new Array(4)
+	};
+	var objBR = getStorageToObject('BRCustom', objDefaultBRCustom);
 	var mistQuantity = 0;
 	if(objBR.hunt == 'Red')
 		mistQuantity = BurroughRift(19, 20, objBR.toggle);
@@ -1215,15 +1202,11 @@ function seasonalGarden(){
 	if(cheeseArmed.indexOf('Checkmate') > -1)
 		checkThenArm(null, 'bait', 'Gouda');
 	
-	var objSG = getStorage('SGarden');
-	if(isNullOrUndefined(objSG)){
-		var objDefaultSG = {
-			useZUMIn: 'None',
-			disarmBaitAfterCharged : false
-		};
-		objSG = JSON.stringify(objDefaultSG);
-	}
-	objSG = JSON.parse(objSG);
+	var objDefaultSG = {
+		useZUMIn: 'None',
+		disarmBaitAfterCharged : false
+	};
+	var objSG = getStorageToObject('SGarden', objDefaultSG);
 	objSG.season = ['Spring', 'Summer', 'Fall', 'Winter'];
 	objSG.trap = [objBestTrap.weapon.physical.slice(), objBestTrap.weapon.tactical.slice(), objBestTrap.weapon.shadow.slice(), objBestTrap.weapon.hydro.slice()];
 	var nTimeStamp = Date.parse(new Date())/1000;
@@ -1262,19 +1245,15 @@ function zugzwangTower(){
 	else if (loc.indexOf("Zugzwang's Tower") < 0)
 		return;
 
-	var objZT = getStorage('ZTower');
-	if(isNullOrUndefined(objZT)){
-		var objDefaultZT = {
-			focus : 'MYSTIC',
-			order : ['PAWN', 'KNIGHT', 'BISHOP', 'ROOK', 'QUEEN', 'KING', 'CHESSMASTER'],
-			weapon : new Array(14).fill(''),
-			base : new Array(14).fill(''),
-			trinket : new Array(14).fill('None'),
-			bait : new Array(14).fill('Gouda'),
-		};
-		objZT = JSON.stringify(objDefaultZT);
-	}
-	objZT = JSON.parse(objZT);
+	var objDefaultZT = {
+		focus : 'MYSTIC',
+		order : ['PAWN', 'KNIGHT', 'BISHOP', 'ROOK', 'QUEEN', 'KING', 'CHESSMASTER'],
+		weapon : new Array(14).fill(''),
+		base : new Array(14).fill(''),
+		trinket : new Array(14).fill('None'),
+		bait : new Array(14).fill('Gouda'),
+	};
+	var objZT = getStorageToObject('ZTower', objDefaultZT);
 	objZT.focus = objZT.focus.toUpperCase();
 	var nProgressMystic = parseInt(getPageVariable('user.viewing_atts.zzt_mage_progress'));
 	var nProgressTechnic = parseInt(getPageVariable('user.viewing_atts.zzt_tech_progress'));
@@ -1500,19 +1479,15 @@ function SCCustom() {
 		return;
 	}
 
-	var objSCCustom = getStorage('SCCustom');
-	if(isNullOrUndefined(objSCCustom)){
-		var objDefaultSCCustom = {
-			zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
-			zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-			isHunt : new Array(9).fill(true),
-			bait : new Array(9).fill('Gouda'),
-			trinket : new Array(9).fill('None'),
-			useSmartJet : false
-		};
-		objSCCustom = JSON.stringify(objDefaultSCCustom);
-	}
-	objSCCustom = JSON.parse(objSCCustom);
+	var objDefaultSCCustom = {
+		zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
+		zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+		isHunt : new Array(9).fill(true),
+		bait : new Array(9).fill('Gouda'),
+		trinket : new Array(9).fill('None'),
+		useSmartJet : false
+	};
+	var objSCCustom = getStorageToObject('SCCustom', objDefaultSCCustom);
 	console.pdebug(objSCCustom);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.plog('Current Zone:', zone, 'ID', zoneID, 'at meter', distance);
@@ -1659,10 +1634,7 @@ function labyrinth() {
 	var lastHunt = document.getElementsByClassName('labyrinthHUD-hallway-tile locked').length + 1;
 	var totalClue = parseInt(document.getElementsByClassName('labyrinthHUD-clueBar-totalClues')[0].innerText);
 	console.pdebug("Entrance:", isAtEntrance, "Intersection:", isAtIntersection, "Exit:", isAtExit);
-	var objLaby = getStorage('Labyrinth');
-	if(isNullOrUndefined(objLaby))
-		objLaby = JSON.stringify(objDefaultLaby);
-	objLaby = JSON.parse(objLaby);
+	var objLaby = getStorageToObject('Labyrinth', objDefaultLaby);
 	console.pdebug('District to focus:', objLaby.districtFocus);
 	bestLabyBase = bestLabyBase.concat(objBestTrap.base.luck).concat(objBestTrap.base.power);
 	if(objLaby.armOtherBase != 'false'){
@@ -1902,16 +1874,12 @@ function zokor(){
 	else if (loc.indexOf("Zokor") < 0)
 		return;
 
-	var objZokor = getStorage('Zokor');
-	if(isNullOrUndefined(objZokor)){
-		var objDefaultZokor = {
-			bossStatus : ['INCOMING', 'ACTIVE', 'DEFEATED'],
-			bait : new Array(3).fill('Gouda'),
-			trinket : new Array(3).fill('None')
-		};
-		objZokor = JSON.stringify(objDefaultZokor);
-	}
-	objZokor = JSON.parse(objZokor);
+	var objDefaultZokor = {
+		bossStatus : ['INCOMING', 'ACTIVE', 'DEFEATED'],
+		bait : new Array(3).fill('Gouda'),
+		trinket : new Array(3).fill('None')
+	};
+	var objZokor = getStorageToObject('Zokor', objDefaultZokor);
 	var objAncientCity = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestAncientCity)'));
 	objAncientCity.boss = objAncientCity.boss.toUpperCase();
 	var nIndex = objZokor.bossStatus.indexOf(objAncientCity.boss);
@@ -1936,12 +1904,12 @@ function fw(){
 
 	var wave = getPageVariable('user.viewing_atts.desert_warpath.wave');
 	wave = parseInt(wave);
-		var objDefaultFWAll = {
-			wave1 : JSON.parse(JSON.stringify(objDefaultFW)),
-			wave2 : JSON.parse(JSON.stringify(objDefaultFW)),
-			wave3 : JSON.parse(JSON.stringify(objDefaultFW)),
-			wave4 : JSON.parse(JSON.stringify(objDefaultFW)),
-		};
+	var objDefaultFWAll = {
+		wave1 : JSON.parse(JSON.stringify(objDefaultFW)),
+		wave2 : JSON.parse(JSON.stringify(objDefaultFW)),
+		wave3 : JSON.parse(JSON.stringify(objDefaultFW)),
+		wave4 : JSON.parse(JSON.stringify(objDefaultFW)),
+	};
 	var objFWAll = getStorageToObject('FW', objDefaultFWAll);
 	var objFW = objFWAll['wave'+wave];
 	assignMissingDefault(objFW, objDefaultFW);
@@ -2121,7 +2089,7 @@ function fw(){
 		else{ // streak 1 and above
 			if(index == objPopulation.ARTILLERY && charmArmed.indexOf('Warpath') > -1)
 				charmName = 'None';
-				else{
+			else{
 				if(objFW.charmType[objFW.streak].indexOf('Super') > -1)
 					charmName = [objFW.charmType[objFW.streak] + ' ' + objPopulation.name[index], 'Warpath ' + objPopulation.name[index]];
 				else
@@ -2151,19 +2119,15 @@ function fRift(){
 	if(GetCurrentLocation().indexOf('Furoma Rift') < 0)
 		return;
 	
-	var objFR = getStorage('FRift');
-	if(isNullOrUndefined(objFR)){
-		var objDefaultFR = {
-			enter : 0,
-			retreat : 0,
-			weapon : new Array(11).fill(''),
-			base : new Array(11).fill(''),
-			trinket : new Array(11).fill(''),
-			bait : new Array(11).fill('')
-		};
-		objFR = JSON.stringify(objDefaultFR);
-	}
-	objFR = JSON.parse(objFR);
+	var objDefaultFR = {
+		enter : 0,
+		retreat : 0,
+		weapon : new Array(11).fill(''),
+		base : new Array(11).fill(''),
+		trinket : new Array(11).fill(''),
+		bait : new Array(11).fill('')
+	};
+	var objFR = getStorageToObject('FRift', objDefaultFR);
 	objFR.enter = parseInt(objFR.enter);
 	objFR.retreat = parseInt(objFR.retreat);
 	var bInPagoda = (getPageVariable('user.quests.QuestRiftFuroma.view_state') == 'pagoda');
@@ -4627,7 +4591,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFWLastType" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select config when there is only one soldier type left"><b>Last Soldier Type</b></a>';
@@ -4757,6 +4721,7 @@ function embedTimer(targetPage) {
 			
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('type', "text/javascript");
+			scriptElement.setAttribute('id', "scriptUIFunction");
 			scriptElement.innerHTML = functionToHTMLString(bodyJS);
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);
 			scriptElement = null;
@@ -6838,7 +6803,7 @@ function bodyJS(){
 		var selectBestTrapBaseType = document.getElementById('selectBestTrapBaseType');
 		var selectBestTrapBase = document.getElementById('selectBestTrapBase');
 		var storageValue = window.sessionStorage.getItem('BestTrap');
-		if (storageValue === null || storageValue === undefined){
+		if (isNullOrUndefined(storageValue)){
 			var objBestTrapDefault = {
 				weapon : {
 					arcane : '',
@@ -7777,7 +7742,9 @@ function bodyJS(){
 		window.sessionStorage.setItem('FRift', JSON.stringify(storageValue));
 	}
 	
-	function initControlsFR(nCurBatteryLevel){
+	function initControlsFR(bAutoChangeBatteryLevel){
+		if(isNullOrUndefined(bAutoChangeBatteryLevel))
+			bAutoChangeBatteryLevel = false;
 		var selectEnterAtBattery = document.getElementById('selectEnterAtBattery');
 		var selectRetreatAtBattery = document.getElementById('selectRetreatAtBattery');
 		var selectTrapSetupAtBattery = document.getElementById('selectTrapSetupAtBattery');
@@ -7786,8 +7753,6 @@ function bodyJS(){
 		var selectFRTrapTrinket = document.getElementById('selectFRTrapTrinket');
 		var selectFRTrapBait = document.getElementById('selectFRTrapBait');
 		var storageValue = window.sessionStorage.getItem('FRift');
-		if(Number.isInteger(nCurBatteryLevel))
-			selectTrapSetupAtBattery.value = nCurBatteryLevel;
 		if(isNullOrUndefined(storageValue)){
 			selectEnterAtBattery.selectedIndex = -1;
 			selectRetreatAtBattery.selectedIndex = -1;
@@ -7799,9 +7764,27 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
+			var nIndex = 0;
+			if(bAutoChangeBatteryLevel && user.location.indexOf('Furoma Rift') > -1 && user.quests.QuestRiftFuroma.view_state == 'pagoda'){
+				var classCharge = document.getElementsByClassName('riftFuromaHUD-droid-charge');
+				if(classCharge.length > 0){
+					var nRemainingEnergy = parseInt(classCharge[0].innerText);
+					if(Number.isInteger(nRemainingEnergy)){
+						var arrCumulative = [20,65,140,260,460,770,1220,1835,2625,3600];
+						for(var i=arrCumulative.length-1;i>=0;i--){
+							if(nRemainingEnergy <= arrCumulative[i])
+								nIndex = i+1;
+							else
+								break;
+						}
+					}
+				}
+			}
+			else{
+				nIndex = selectTrapSetupAtBattery.selectedIndex;
+			}
 			selectEnterAtBattery.value = storageValue.enter;
 			selectRetreatAtBattery.value = storageValue.retreat;
-			var nIndex = selectTrapSetupAtBattery.selectedIndex;
 			selectFRTrapWeapon.value = storageValue.weapon[nIndex];
 			selectFRTrapBase.value = storageValue.base[nIndex];
 			selectFRTrapTrinket.value = storageValue.trinket[nIndex];
@@ -7872,123 +7855,87 @@ function bodyJS(){
 		}
 	}
 	
+	function setTableRowDisplay(arrAll, arrSelected){
+		for(var i=0;i<arrAll.length;i++){
+			if(Array.isArray(arrSelected) && arrSelected.indexOf(arrAll[i]) > -1)
+				document.getElementById(arrAll[i]).style.display = 'table-row';
+			else
+				document.getElementById(arrAll[i]).style.display = 'none';
+		}
+	}
+	
 	function showOrHideTr(algo){
-		document.getElementById('trLGTGAutoFill').style.display = 'none';
-		document.getElementById('trLGTGAutoPour').style.display = 'none';
-		document.getElementById('trPourTrapSetup').style.display = 'none';
-		document.getElementById('trCurseLiftedTrapSetup').style.display = 'none';
-		document.getElementById('trSaltedTrapSetup').style.display = 'none';
-		document.getElementById('trSCCustom').style.display = 'none';
-		document.getElementById('trSCCustomUseSmartJet').style.display = 'none';
-		document.getElementById('labyrinth').style.display = 'none';
-		document.getElementById('trPriorities15').style.display = 'none';
-		document.getElementById('trPriorities1560').style.display = 'none';
-		document.getElementById('trPriorities60').style.display = 'none';
-		document.getElementById('labyrinthOtherHallway').style.display = 'none';
-		document.getElementById('trLabyrinthDisarm').style.display = 'none';
-		document.getElementById('trLabyrinthArmOtherBase').style.display = 'none';
-		document.getElementById('trFWWave').style.display = 'none';
-		document.getElementById('trFWTrapSetup').style.display = 'none';
-		document.getElementById('trFWStreak').style.display = 'none';
-		document.getElementById('trFWFocusType').style.display = 'none';
-		document.getElementById('trFWLastType').style.display = 'none';
-		document.getElementById('trBRConfig').style.display = 'none';
-		document.getElementById('trBRToggle').style.display = 'none';
-		document.getElementById('trBRTrapSetup').style.display = 'none';
-		document.getElementById('trUseZum').style.display = 'none';
-		document.getElementById('trDisarmBait').style.display = 'none';
-		document.getElementById('trZokorTrapSetup').style.display = 'none';
-		document.getElementById('trFREnterBattery').style.display = 'none';
-		document.getElementById('trFRRetreatBattery').style.display = 'none';
-		document.getElementById('trFRTrapSetupAtBattery').style.display = 'none';
-		document.getElementById('trZTFocus').style.display = 'none';
-		document.getElementById('trZTTrapSetup1st').style.display = 'none';
-		document.getElementById('trZTTrapSetup2nd').style.display = 'none';
-		document.getElementById('trIceberg').style.display = 'none';
+		var arrTableRowAll = ['trLGTGAutoFill',
+			'trLGTGAutoPour',
+			'trPourTrapSetup',
+			'trCurseLiftedTrapSetup',
+			'trSaltedTrapSetup',
+			'trSCCustom',
+			'trSCCustomUseSmartJet',
+			'labyrinth',
+			'trPriorities15',
+			'trPriorities1560',
+			'trPriorities60',
+			'labyrinthOtherHallway',
+			'trLabyrinthDisarm',
+			'trLabyrinthArmOtherBase',
+			'trFWWave',
+			'trFWTrapSetup',
+			'trFWStreak',
+			'trFWFocusType',
+			'trFWLastType',
+			'trFWSupportConfig',
+			'trBRConfig',
+			'trBRToggle',
+			'trBRTrapSetup',
+			'trUseZum',
+			'trDisarmBait',
+			'trZokorTrapSetup',
+			'trFREnterBattery',
+			'trFRRetreatBattery',
+			'trFRTrapSetupAtBattery',
+			'trZTFocus',
+			'trZTTrapSetup1st',
+			'trZTTrapSetup2nd',
+			'trIceberg'];
 		if(algo == 'All LG Area'){
-			document.getElementById('trLGTGAutoFill').style.display = 'table-row';
-			document.getElementById('trLGTGAutoPour').style.display = 'table-row';
-			document.getElementById('trPourTrapSetup').style.display = 'table-row';
-			document.getElementById('trCurseLiftedTrapSetup').style.display = 'table-row';
-			document.getElementById('trSaltedTrapSetup').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trLGTGAutoFill','trLGTGAutoPour','trPourTrapSetup','trCurseLiftedTrapSetup','trSaltedTrapSetup']);
 			initControlsLG();
 		}
 		else if(algo == 'Sunken City Custom'){
-			document.getElementById('trSCCustom').style.display = 'table-row';
-			document.getElementById('trSCCustomUseSmartJet').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trSCCustom','trSCCustomUseSmartJet']);
 			initControlsSCCustom();
 		}
 		else if(algo == 'Labyrinth'){
-			document.getElementById('labyrinth').style.display = 'table-row';
-			document.getElementById('trPriorities15').style.display = 'table-row';
-			document.getElementById('trPriorities1560').style.display = 'table-row';
-			document.getElementById('trPriorities60').style.display = 'table-row';
-			document.getElementById('labyrinthOtherHallway').style.display = 'table-row';
-			document.getElementById('trLabyrinthDisarm').style.display = 'table-row';
-			document.getElementById('trLabyrinthArmOtherBase').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['labyrinth','trPriorities15','trPriorities1560','trPriorities60','labyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase']);
 			initControlsLaby();
 		}
 		else if(algo == 'Fiery Warpath'){
-			document.getElementById('trFWWave').style.display = 'table-row';
-			document.getElementById('trFWTrapSetup').style.display = 'table-row';
-			document.getElementById('trFWStreak').style.display = 'table-row';
-			document.getElementById('trFWFocusType').style.display = 'table-row';
-			document.getElementById('trFWLastType').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig']);
 			initControlsFW(true);
 		}
 		else if(algo == 'Burroughs Rift Custom'){
-			document.getElementById('trBRConfig').style.display = 'table-row';
-			document.getElementById('trBRToggle').style.display = 'table-row';
-			document.getElementById('trBRTrapSetup').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trBRConfig','trBRToggle','trBRTrapSetup']);
 			initControlsBR();
 		}
 		else if(algo == 'SG'){
-			document.getElementById('trUseZum').style.display = 'table-row';
-			document.getElementById('trDisarmBait').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trUseZum','trDisarmBait']);
 			initControlsSG();
 		}
 		else if(algo == 'ZT'){
-			document.getElementById('trZTFocus').style.display = 'table-row';
-			document.getElementById('trZTTrapSetup1st').style.display = 'table-row';
-			document.getElementById('trZTTrapSetup2nd').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trZTFocus','trZTTrapSetup1st','trZTTrapSetup2nd']);
 			initControlsZT(true);
 		}
 		else if(algo == 'Furoma Rift'){
-			document.getElementById('trFREnterBattery').style.display = 'table-row';
-			document.getElementById('trFRRetreatBattery').style.display = 'table-row';
-			document.getElementById('trFRTrapSetupAtBattery').style.display = 'table-row';
-			var nCurBatteryLevel = 0;
-			try{
-				var bInPagoda = ((user.quests.QuestRiftFuroma.view_state) == 'pagoda');
-				if(bInPagoda){
-					var classCharge = document.getElementsByClassName('riftFuromaHUD-droid-charge');
-					if(classCharge.length > 0){
-						var nRemainingEnergy = parseInt(classCharge[0].innerText);
-						if(Number.isInteger(nRemainingEnergy)){
-							var arrCumulative = [20,65,140,260,460,770,1220,1835,2625,3600];
-							for(var i=arrCumulative.length-1;i>=0;i--){
-								if(nRemainingEnergy <= arrCumulative[i])
-									nCurBatteryLevel = i+1;
-								else
-									break;
-							}
-						}
-					}
-				}
-			}
-			catch(e){
-				console.log('Not in Furoma Rift');
-			}
-			finally{
-				initControlsFR(nCurBatteryLevel);
-			}
+			setTableRowDisplay(arrTableRowAll, ['trFREnterBattery','trFRRetreatBattery','trFRTrapSetupAtBattery']);
+			initControlsFR(true);
 		}
 		else if(algo == 'Zokor'){
-			document.getElementById('trZokorTrapSetup').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trZokorTrapSetup']);
 			initControlsZokor();
 		}
 		else if(algo == 'Iceberg'){
-			document.getElementById('trIceberg').style.display = 'table-row';
+			setTableRowDisplay(arrTableRowAll, ['trIceberg']);
 			initControlsIceberg();
 		}
 		initControlsMapHunting();
