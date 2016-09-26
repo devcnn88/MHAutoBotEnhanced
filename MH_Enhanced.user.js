@@ -785,6 +785,8 @@ function eventLocationCheck(caller) {
 			Halloween2015(); break;
 		case 'Iceberg':
 			iceberg(); break;
+		case 'WWRift':
+			wwrift(); break;
 		case 'All LG Area':
 			var objLGTemplate = {
 				isAutoFill : false,
@@ -1023,6 +1025,85 @@ function Halloween2015()
 				fireEvent(trickContainer.children[2], 'click');
 			}
 		}
+	}
+}
+
+function wwrift(){
+	if(GetCurrentLocation().indexOf('Whisker Woods Rift') < 0)
+		return;
+	
+	var objDefaultWWRift = {
+		factionFocus : "CC",
+		faction : {
+			weapon : new Array(3).fill(''),
+			base : new Array(3).fill(''),
+			trinket : new Array(3).fill('None'),
+			bait : new Array(3).fill('None')
+		},
+		MBW : {
+			minRageLLC : 40,
+			weapon : new Array(7).fill(''),
+			base : new Array(7).fill(''),
+			trinket : new Array(7).fill('None'),
+			bait : new Array(7).fill('None')
+		},
+	};
+	var objWWRift = getStorageToObject('WWRift', objDefaultWWRift);
+	objWWRift.order = ['Crazed Clearing', 'Gigantic Gnarled Tree', 'Deep Lagoon'];
+	objWWRift.funnel = ['Cherry Charm', 'Gnarled Charm', 'Stagnant Charm'];
+	objWWRift.rage = new Array(3);
+	var i;
+	var temp = "";
+	var nIndex = -1;
+	var classRage = document.getElementsByClassName('riftWhiskerWoodsHUD-zone-rageLevel');
+	for(i=0;i<classRage.length;i++){
+		objWWRift.rage[i] = parseInt(classRage[i].textContent);
+		if(Number.isNaN(objWWRift.rage[i]))
+			return;
+	}
+	console.plog(objWWRift);
+	if(objWWRift.factionFocus == 'MBW'){
+		var nBar25 = 0;
+		var nBarMinRage = 0;
+		for(i=0;i<objWWRift.rage;i++){
+			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
+				nBarMinRage++;
+			if(objWWRift.rage[i] >= 25)
+				nBar25++;
+		}
+		if(nBarMinRage == 3)
+			nIndex = 6;
+		else if(nBarMinRage > 0)
+			nIndex = 3 + nBarMinRage;
+		else if(nBarMinRage === 0)
+			nIndex = nBar25;
+
+		if(nIndex == -1)
+			return;
+		checkThenArm(null, 'weapon', objWWRift.MBW.weapon[nIndex]);
+		checkThenArm(null, 'base', objWWRift.MBW.base[nIndex]);
+		if(objWWRift.MBW.trinket[nIndex].indexOf('FSC') > -1){
+			temp = minIndex(objWWRift.rage);
+			if(temp > -1)
+				objWWRift.MBW.trinket[nIndex] = objWWRift.funnel[temp];
+		}
+		checkThenArm(null, 'trinket', objWWRift.MBW.trinket[nIndex]);
+		if(nIndex == 6)
+			objWWRift.MBW.bait[nIndex] = 'Lactrodectus Lancashire';
+		checkThenArm(null, 'bait', objWWRift.MBW.bait[nIndex]);
+	}
+	else{
+		temp = objWWRift.order.indexOf(objWWRift.factionFocus);
+		if(temp == -1)
+			return;
+		nIndex = Math.floor(objWWRift.rage[temp]/25);
+		checkThenArm(null, 'weapon', objWWRift.faction.weapon[nIndex]);
+		checkThenArm(null, 'base', objWWRift.faction.base[nIndex]);
+		if(objWWRift.faction.trinket[nIndex].indexOf('FSC') > -1){
+			objWWRift.faction.trinket[nIndex] = objWWRift.funnel[temp];
+		}
+		checkThenArm(null, 'trinket', objWWRift.faction.trinket[nIndex]);
+		checkThenArm(null, 'bait', objWWRift.MBW.bait[nIndex]);
 	}
 }
 
@@ -4050,6 +4131,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
 			preferenceHTMLStr += '<option value="Sunken City Custom">Sunken City Custom</option>';
 			preferenceHTMLStr += '<option value="Test">Test</option>';
+			preferenceHTMLStr += '<option value="WWRift">WWRift</option>';
 			preferenceHTMLStr += '<option value="Zokor">Zokor</option>';
 			preferenceHTMLStr += '<option value="ZT">Zugzwang\'s Tower</option>';
             preferenceHTMLStr += '</select>';
@@ -4057,6 +4139,105 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trWWRiftFactionFocus" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select a faction to focus on"><b>Faction to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectWWRiftFaction" onchange="onSelectWWRiftFaction();">';
+			preferenceHTMLStr += '<option value="CC">Crazed Clearing</option>';
+			preferenceHTMLStr += '<option value="GGT">Gigantic Gnarled Tree</option>';
+			preferenceHTMLStr += '<option value="DL">Deep Lagoon</option>';
+			preferenceHTMLStr += '<option value="MBW">MBW</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trWWRiftTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to trap setup based on certain range of rage"><b>Trap Setup for Rage</b></a>';
+			preferenceHTMLStr += '<select id="selectWWRiftRage" onchange="onSelectWWRiftRage();">';
+			preferenceHTMLStr += '<option value="0">0-24</option>';
+			preferenceHTMLStr += '<option value="25">25-49</option>';
+			preferenceHTMLStr += '<option value="50">50</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectWWRiftTrapWeapon" onchange="onSelectWWRiftTrapWeaponChanged();">';
+			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
+			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
+			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
+			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
+			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectWWRiftTrapBase" onchange="onSelectWWRiftTrapBaseChanged();">';
+			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
+			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
+			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
+			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
+			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
+			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectWWRiftTrapTrinket" style="width: 75px" onchange="onSelectWWRiftTrapTrinketChanged();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="FSC">Faction Specific Charm</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectWWRiftTrapBait" onchange="onSelectWWRiftTrapBaitChanged();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
+			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
+			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
+			preferenceHTMLStr += '<option value="Marble String">Marble</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trWWRiftMBWMinRage" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum rage to hunt MBW"><b>Min Rage to Arm LLC</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input type="number" id="inputMinRage" min="26" max="50" size="5" value="40" onchange="onInputMinRageChanged(this);">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trWWRiftMBWTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Trap Setup When </b></a>';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWBar" style="width: 75px" onchange="onSelectWWRiftMBWBar();">';
+			preferenceHTMLStr += '<option value="25_0">0 Bar Hit 25 Rage</option>';
+			preferenceHTMLStr += '<option value="25_1">1 Bar Hit 25 Rage</option>';
+			preferenceHTMLStr += '<option value="25_2">2 Bars Hit 25 Rage</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_0">3 Bars Hit 25 Rage / 0 Bar Hit Min Rage to Arm LLC</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_1">1 Bar Hit Min Rage to Arm LLC</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_2">2 Bars Hit Min Rage to Arm LLC</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_3">3 Bars Hit Min Rage to Arm LLC</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapWeapon" onchange="onSelectWWRiftMBWTrapWeaponChanged();">';
+			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
+			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
+			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
+			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
+			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapBase" onchange="onSelectWWRiftMBWTrapBaseChanged();">';
+			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
+			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
+			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
+			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
+			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
+			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapTrinket" style="width: 75px" onchange="onSelectWWRiftMBWTrapTrinketChanged();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="FSCLR">Faction Specific Charm (Lowest Rage)</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapBait" onchange="onSelectWWRiftMBWTrapBaitChanged();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
+			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
+			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
+			preferenceHTMLStr += '<option value="Marble String">Marble</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="trFREnterBattery" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select which battery level to enter Pagoda"><b>Enter at Battery</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -4746,7 +4927,7 @@ function embedTimer(targetPage) {
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon'],
 				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket', 'selectIcebergTrinket'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket', 'selectIcebergTrinket', 'selectWWRiftTrapTrinket', 'selectWWRiftMBWTrapTrinket'],
 				bait : ['selectBait']
 			};
 			var temp;
@@ -6705,7 +6886,7 @@ function bodyJS(){
 				key.indexOf("SGarden")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("FRift")>-1 || key.indexOf("MapHunting")>-1 ||
 				key.indexOf("ZTower")>-1 || key.indexOf("BestTrap")>-1 ||
-				key.indexOf("Iceberg")>-1 ){
+				key.indexOf("Iceberg")>-1 || key.indexOf("WWRift")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -6725,7 +6906,7 @@ function bodyJS(){
 				key.indexOf("SGarden")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("FRift")>-1 || key.indexOf("MapHunting")>-1 ||
 				key.indexOf("ZTower")>-1 || key.indexOf("BestTrap")>-1 ||
-				key.indexOf("Iceberg")>-1 ){
+				key.indexOf("Iceberg")>-1 || key.indexOf("WWRift")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -6755,6 +6936,8 @@ function bodyJS(){
 				keyName = 'FRift'; break;
 			case 'Iceberg':
 				keyName = 'Iceberg'; break;
+			case 'WWRift':
+				keyName = 'WWRift'; break;
 			default:
 				break;
 		}
@@ -7854,6 +8037,175 @@ function bodyJS(){
 			selectIcebergBait.value = storageValue.bait[nIndex];
 		}
 	}
+	
+	function onSelectWWRiftFaction(){
+		saveWWRift();
+		initControlsWWRift();
+	}
+	
+	function onSelectWWRiftRage(){
+		initControlsWWRift();
+	}
+	
+	function onSelectWWRiftTrapWeaponChanged(){
+		saveWWRift();
+	}
+	
+	function onSelectWWRiftTrapBaseChanged(){
+		saveWWRift();
+	}
+	
+	function onSelectWWRiftTrapTrinketChanged(){
+		saveWWRift();
+	}
+	
+	function onSelectWWRiftTrapBaitChanged(){
+		saveWWRift();
+	}
+	
+	function onInputMinRageChanged(input){
+		if(parseInt(input.value) < parseInt(input.min))
+			input.value = input.min;
+		if(parseInt(input.value) > parseInt(input.max))
+			input.value = input.max;
+		saveWWRift();
+	}
+	
+	function onSelectWWRiftMBWBar(){
+		initControlsWWRift();
+	}
+	
+	function onSelectWWRiftMBWTrapWeaponChanged(){
+		saveWWRift();
+	}
+	
+	function onSelectWWRiftMBWTrapBaseChanged(){
+		saveWWRift();
+	}
+	
+	function onSelectWWRiftMBWTrapTrinketChanged(){
+		saveWWRift();
+	}
+	
+	function onSelectWWRiftMBWTrapBaitChanged(){
+		saveWWRift();
+	}
+
+	function saveWWRift(){
+		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
+		var selectWWRiftRage = document.getElementById('selectWWRiftRage');
+		var selectWWRiftTrapWeapon = document.getElementById('selectWWRiftTrapWeapon');
+		var selectWWRiftTrapBase = document.getElementById('selectWWRiftTrapBase');
+		var selectWWRiftTrapTrinket = document.getElementById('selectWWRiftTrapTrinket');
+		var selectWWRiftTrapBait = document.getElementById('selectWWRiftTrapBait');
+		var selectWWRiftMBWBar = document.getElementById('selectWWRiftMBWBar');
+		var selectWWRiftMBWTrapWeapon = document.getElementById('selectWWRiftMBWTrapWeapon');
+		var selectWWRiftMBWTrapBase = document.getElementById('selectWWRiftMBWTrapBase');
+		var selectWWRiftMBWTrapTrinket = document.getElementById('selectWWRiftMBWTrapTrinket');
+		var selectWWRiftMBWTrapBait = document.getElementById('selectWWRiftMBWTrapBait');
+		var inputMinRage = document.getElementById('inputMinRage');
+		var storageValue = window.sessionStorage.getItem('WWRift');
+		if(isNullOrUndefined(storageValue)){
+			var objDefaultWWRift = {
+				factionFocus : "CC",
+				faction : {
+					weapon : new Array(3).fill(''),
+					base : new Array(3).fill(''),
+					trinket : new Array(3).fill('None'),
+					bait : new Array(3).fill('None')
+				},
+				MBW : {
+					minRageLLC : 40,
+					weapon : new Array(6).fill(''),
+					base : new Array(6).fill(''),
+					trinket : new Array(6).fill('None'),
+					bait : new Array(6).fill('None')
+				},
+			};
+			storageValue = JSON.stringify(objDefaultWWRift);
+		}
+		storageValue = JSON.parse(storageValue);
+		storageValue.factionFocus = selectWWRiftFaction.value;
+		var nIndex = selectWWRiftRage.selectedIndex;
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.faction.weapon[nIndex] = selectWWRiftTrapWeapon.value;
+		storageValue.faction.base[nIndex] = selectWWRiftTrapBase.value;
+		storageValue.faction.trinket[nIndex] = selectWWRiftTrapTrinket.value;
+		storageValue.faction.bait[nIndex] = selectWWRiftTrapBait.value;
+		
+		storageValue.MBW.minRageLLC = parseInt(inputMinRage.value);
+		nIndex = selectWWRiftMBWBar.selectedIndex;
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.MBW.weapon[nIndex] = selectWWRiftMBWTrapWeapon.value;
+		storageValue.MBW.base[nIndex] = selectWWRiftMBWTrapBase.value;
+		storageValue.MBW.trinket[nIndex] = selectWWRiftMBWTrapTrinket.value;
+		storageValue.MBW.bait[nIndex] = selectWWRiftMBWTrapBait.value;
+		window.sessionStorage.setItem('WWRift', JSON.stringify(storageValue));
+	}
+	
+	function initControlsWWRift(){
+		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
+		var selectWWRiftRage = document.getElementById('selectWWRiftRage');
+		var selectWWRiftTrapWeapon = document.getElementById('selectWWRiftTrapWeapon');
+		var selectWWRiftTrapBase = document.getElementById('selectWWRiftTrapBase');
+		var selectWWRiftTrapTrinket = document.getElementById('selectWWRiftTrapTrinket');
+		var selectWWRiftTrapBait = document.getElementById('selectWWRiftTrapBait');
+		var selectWWRiftMBWBar = document.getElementById('selectWWRiftMBWBar');
+		var selectWWRiftMBWTrapWeapon = document.getElementById('selectWWRiftMBWTrapWeapon');
+		var selectWWRiftMBWTrapBase = document.getElementById('selectWWRiftMBWTrapBase');
+		var selectWWRiftMBWTrapTrinket = document.getElementById('selectWWRiftMBWTrapTrinket');
+		var selectWWRiftMBWTrapBait = document.getElementById('selectWWRiftMBWTrapBait');
+		var inputMinRage = document.getElementById('inputMinRage');
+		var storageValue = window.sessionStorage.getItem('WWRift');
+		if(isNullOrUndefined(storageValue)){
+			selectWWRiftFaction.selectedIndex = -1;
+			selectWWRiftRage.selectedIndex = 0;
+			selectWWRiftTrapWeapon.selectedIndex = -1;
+			selectWWRiftTrapBase.selectedIndex = -1;
+			selectWWRiftTrapTrinket.selectedIndex = -1;
+			selectWWRiftTrapBait.selectedIndex = -1;
+			inputMinRage.value = 40;
+			selectWWRiftMBWBar.selectedIndex = 0;
+			selectWWRiftMBWTrapWeapon.selectedIndex = -1;
+			selectWWRiftMBWTrapBase.selectedIndex = -1;
+			selectWWRiftMBWTrapTrinket.selectedIndex = -1;
+			selectWWRiftMBWTrapBait.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectWWRiftFaction.value = storageValue.factionFocus;
+			var nIndex = selectWWRiftRage.selectedIndex;
+			if(nIndex < 0)
+				nIndex = 0;
+			selectWWRiftTrapWeapon.value = storageValue.faction.weapon[nIndex];
+			selectWWRiftTrapBase.value = storageValue.faction.base[nIndex];
+			selectWWRiftTrapTrinket.value = storageValue.faction.trinket[nIndex];
+			selectWWRiftTrapBait.value = storageValue.faction.bait[nIndex];
+			
+			inputMinRage.value = storageValue.MBW.minRageLLC;
+			nIndex = selectWWRiftMBWBar.selectedIndex;
+			if(nIndex < 0)
+				nIndex = 0;
+			selectWWRiftMBWTrapWeapon.value = storageValue.MBW.weapon[nIndex];
+			selectWWRiftMBWTrapBase.value = storageValue.MBW.base[nIndex];
+			selectWWRiftMBWTrapTrinket.value = storageValue.MBW.trinket[nIndex];
+			selectWWRiftMBWTrapBait.value = storageValue.MBW.bait[nIndex];
+		}
+		
+		selectWWRiftMBWTrapBait.style = (selectWWRiftMBWBar.selectedIndex == 6) ? 'display:none' : '';
+		if(selectWWRiftFaction.value == 'MBW'){
+			document.getElementById('trWWRiftMBWMinRage').style.display = 'table-row';
+			document.getElementById('trWWRiftMBWTrapSetup').style.display = 'table-row';
+			document.getElementById('trWWRiftTrapSetup').style.display = 'none';
+		}
+		else{
+			document.getElementById('trWWRiftMBWMinRage').style.display = 'none';
+			document.getElementById('trWWRiftMBWTrapSetup').style.display = 'none';
+			document.getElementById('trWWRiftTrapSetup').style.display = 'table-row';
+		}
+	}
 
 	function showOrHideTr(algo){
 		var objTableRow = {
@@ -7896,6 +8248,10 @@ function bodyJS(){
 			'Iceberg' : {
 				arr : ['trIceberg'],
 				init : function(data){initControlsIceberg(data);}
+			},
+			'WWRift' : {
+				arr : ['trWWRiftFactionFocus', 'trWWRiftTrapSetup', 'trWWRiftMBWTrapSetup', 'trWWRiftMBWMinRage'],
+				init : function(data){initControlsWWRift(data);}
 			},
 		};
 		var i, temp;
