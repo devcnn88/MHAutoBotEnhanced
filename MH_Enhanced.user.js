@@ -7470,7 +7470,7 @@ function bodyJS(){
 			selectFWSpecial.value = storageValue[strWave].special[selectFWStreak.selectedIndex];
 			selectFWLastTypeConfig.value = storageValue[strWave].lastSoldierConfig;
 			selectFWLastTypeConfigIncludeArtillery.value = (storageValue[strWave].includeArtillery) ? 'true' : 'false';
-			selectFWSupportConfig.selectedIndex = (storageValue[strWave].disarmAfterSupportRetreat) ? 'true' : 'false';
+			selectFWSupportConfig.value = (storageValue[strWave].disarmAfterSupportRetreat) ? 'true' : 'false';
 		}
 		var nWave = parseInt(selectFWWave.value);
 		var option = selectFWFocusType.children;
