@@ -1053,7 +1053,7 @@ function wwrift(){
 	objWWRift.funnel = ['Cherry Charm', 'Gnarled Charm', 'Stagnant Charm'];
 	objWWRift.rage = new Array(3);
 	var i;
-	var temp = "";
+	var temp = -1;
 	var nIndex = -1;
 	var classRage = document.getElementsByClassName('riftWhiskerWoodsHUD-zone-rageLevel');
 	for(i=0;i<classRage.length;i++){
@@ -1062,10 +1062,11 @@ function wwrift(){
 			return;
 	}
 	console.plog(objWWRift);
+	var charmArmed = getPageVariable("user.trinket_name");
 	if(objWWRift.factionFocus == 'MBW'){
 		var nBar25 = 0;
 		var nBarMinRage = 0;
-		for(i=0;i<objWWRift.rage;i++){
+		for(i=0;i<objWWRift.rage.length;i++){
 			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
 				nBarMinRage++;
 			if(objWWRift.rage[i] >= 25)
@@ -1083,9 +1084,22 @@ function wwrift(){
 		checkThenArm(null, 'weapon', objWWRift.MBW.weapon[nIndex]);
 		checkThenArm(null, 'base', objWWRift.MBW.base[nIndex]);
 		if(objWWRift.MBW.trinket[nIndex].indexOf('FSC') > -1){
-			temp = minIndex(objWWRift.rage);
-			if(temp > -1)
-				objWWRift.MBW.trinket[nIndex] = objWWRift.funnel[temp];
+			var nIndex1 = objWWRift.funnel.indexOf(charmArmed);
+			var nLimit = (nIndex >= 3) ? objWWRift.MBW.minRageLLC : 25;
+			if(nIndex1 > -1){
+				if(objWWRift.rage[nIndex1] >= nLimit){
+					temp = minIndex(objWWRift.rage);
+					if(temp > -1)
+						objWWRift.MBW.trinket[nIndex] = objWWRift.funnel[temp];
+				}
+				else
+					objWWRift.MBW.trinket[nIndex] = charmArmed;
+			}
+			else{
+				temp = minIndex(objWWRift.rage);
+				if(temp > -1)
+					objWWRift.MBW.trinket[nIndex] = objWWRift.funnel[temp];
+			}
 		}
 		checkThenArm(null, 'trinket', objWWRift.MBW.trinket[nIndex]);
 		if(nIndex == 6)
