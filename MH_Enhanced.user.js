@@ -1042,10 +1042,18 @@ function wwrift(){
 		},
 		MBW : {
 			minRageLLC : 40,
-			weapon : new Array(7).fill(''),
-			base : new Array(7).fill(''),
-			trinket : new Array(7).fill('None'),
-			bait : new Array(7).fill('None')
+			rage4044: {
+				weapon : new Array(7).fill(''),
+				base : new Array(7).fill(''),
+				trinket : new Array(7).fill('None'),
+				bait : new Array(7).fill('None')
+			},
+			rage4548: {
+				weapon : new Array(8).fill(''),
+				base : new Array(8).fill(''),
+				trinket : new Array(8).fill('None'),
+				bait : new Array(8).fill('None')
+			},
 		},
 	};
 	var objWWRift = getStorageToObject('WWRift', objDefaultWWRift);
@@ -1063,48 +1071,74 @@ function wwrift(){
 	}
 	console.plog(objWWRift);
 	var charmArmed = getPageVariable("user.trinket_name");
-	if(objWWRift.factionFocus == 'MBW'){
-		var nBar25 = 0;
-		var nBarMinRage = 0;
+	var nBar25 = 0;
+	var nBar44 = 0;
+	var nBarMinRage = 0;
+	var nIndexCharm = -1;
+	var nLimit = 0;
+	if(objWWRift.factionFocus == 'MBW_40_44'){
 		for(i=0;i<objWWRift.rage.length;i++){
-			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
+			if(objWWRift.rage[i] >= objWWRift.MBW.rage4044.minRageLLC)
 				nBarMinRage++;
 			if(objWWRift.rage[i] >= 25)
 				nBar25++;
 		}
-		if(nBarMinRage == 3)
-			nIndex = 6;
-		else if(nBarMinRage > 0)
-			nIndex = 3 + nBarMinRage;
-		else if(nBarMinRage === 0)
-			nIndex = nBar25;
-
-		if(nIndex == -1)
-			return;
-		checkThenArm(null, 'weapon', objWWRift.MBW.weapon[nIndex]);
-		checkThenArm(null, 'base', objWWRift.MBW.base[nIndex]);
-		if(objWWRift.MBW.trinket[nIndex].indexOf('FSC') > -1){
-			var nIndex1 = objWWRift.funnel.indexOf(charmArmed);
-			var nLimit = (nIndex >= 3) ? objWWRift.MBW.minRageLLC : 25;
-			if(nIndex1 > -1){
-				if(objWWRift.rage[nIndex1] >= nLimit){
+		nIndex = nBarMinRage + nBar25;
+		checkThenArm(null, 'weapon', objWWRift.MBW.rage4044.weapon[nIndex]);
+		checkThenArm(null, 'base', objWWRift.MBW.rage4044.base[nIndex]);
+		if(objWWRift.MBW.rage4044.trinket[nIndex].indexOf('FSC') > -1){
+			nIndexCharm = objWWRift.funnel.indexOf(charmArmed);
+			nLimit = (nIndex >= 3) ? objWWRift.MBW.rage4044.minRageLLC : 25;
+			if(nIndexCharm > -1){
+				if(objWWRift.rage[nIndexCharm] >= nLimit){
 					temp = minIndex(objWWRift.rage);
 					if(temp > -1)
-						objWWRift.MBW.trinket[nIndex] = objWWRift.funnel[temp];
+						objWWRift.MBW.rage4044.trinket[nIndex] = objWWRift.funnel[temp];
 				}
 				else
-					objWWRift.MBW.trinket[nIndex] = charmArmed;
+					objWWRift.MBW.rage4044.trinket[nIndex] = charmArmed;
 			}
 			else{
 				temp = minIndex(objWWRift.rage);
 				if(temp > -1)
-					objWWRift.MBW.trinket[nIndex] = objWWRift.funnel[temp];
+					objWWRift.MBW.rage4044.trinket[nIndex] = objWWRift.funnel[temp];
 			}
 		}
-		checkThenArm(null, 'trinket', objWWRift.MBW.trinket[nIndex]);
-		if(nIndex == 6)
-			objWWRift.MBW.bait[nIndex] = 'Lactrodectus Lancashire';
-		checkThenArm(null, 'bait', objWWRift.MBW.bait[nIndex]);
+		checkThenArm(null, 'trinket', objWWRift.MBW.rage4044.trinket[nIndex]);
+		checkThenArm(null, 'bait', objWWRift.MBW.rage4044.bait[nIndex]);
+	}
+	else if(objWWRift.factionFocus == 'MBW_45_48'){
+		for(i=0;i<objWWRift.rage.length;i++){
+			if(objWWRift.rage[i] >= objWWRift.MBW.rage4548.minRageLLC)
+				nBarMinRage++;
+			if(objWWRift.rage[i] >= 44)
+				nBar44++;
+			if(objWWRift.rage[i] >= 25)
+				nBar25++;
+		}
+		nIndex = nBar25 + nBar44 + nBarMinRage;
+		checkThenArm(null, 'weapon', objWWRift.MBW.rage4548.weapon[nIndex]);
+		checkThenArm(null, 'base', objWWRift.MBW.rage4548.base[nIndex]);
+		if(objWWRift.MBW.rage4548.trinket[nIndex].indexOf('FSC') > -1){
+			nIndexCharm = objWWRift.funnel.indexOf(charmArmed);
+			nLimit = (nIndex >= 3) ? 44 : 25;
+			if(nIndexCharm > -1){
+				if(objWWRift.rage[nIndexCharm] >= nLimit){
+					temp = minIndex(objWWRift.rage);
+					if(temp > -1)
+						objWWRift.MBW.rage4548.trinket[nIndex] = objWWRift.funnel[temp];
+				}
+				else
+					objWWRift.MBW.rage4548.trinket[nIndex] = charmArmed;
+			}
+			else{
+				temp = minIndex(objWWRift.rage);
+				if(temp > -1)
+					objWWRift.MBW.rage4548.trinket[nIndex] = objWWRift.funnel[temp];
+			}
+		}
+		checkThenArm(null, 'trinket', objWWRift.MBW.rage4548.trinket[nIndex]);
+		checkThenArm(null, 'bait', objWWRift.MBW.rage4548.bait[nIndex]);
 	}
 	else{
 		temp = objWWRift.order.indexOf(objWWRift.factionFocus);
@@ -4160,7 +4194,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="CC">Crazed Clearing</option>';
 			preferenceHTMLStr += '<option value="GGT">Gigantic Gnarled Tree</option>';
 			preferenceHTMLStr += '<option value="DL">Deep Lagoon</option>';
-			preferenceHTMLStr += '<option value="MBW">MBW</option>';
+			preferenceHTMLStr += '<option value="MBW_40_44">MBW 40 &le; Rage &le; 44</option>';
+			preferenceHTMLStr += '<option value="MBW_45_48">MBW 45 &le; Rage &le; 48</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
@@ -4204,33 +4239,43 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</tr>';
 
 			preferenceHTMLStr += '<tr id="trWWRiftMBWMinRage" style="display:none;">';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum rage to hunt MBW"><b>Min Rage to Arm LLC</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum rage to hunt MBW"><b>Min Rage to Hunt MBW</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<input type="number" id="inputMinRage" min="26" max="50" size="5" value="40" onchange="onInputMinRageChanged(this);">';
+			preferenceHTMLStr += '<input type="number" id="inputMinRage" min="40" max="48" size="5" value="40" onchange="onInputMinRageChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr id="trWWRiftMBWTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Trap Setup When </b></a>';
-			preferenceHTMLStr += '<select id="selectWWRiftMBWBar" style="width: 75px" onchange="onSelectWWRiftMBWBar();">';
-			preferenceHTMLStr += '<option value="25_0">0 Bar Hit 25 Rage</option>';
-			preferenceHTMLStr += '<option value="25_1">1 Bar Hit 25 Rage</option>';
-			preferenceHTMLStr += '<option value="25_2">2 Bars Hit 25 Rage</option>';
-			preferenceHTMLStr += '<option value="MIN_RAGE_0">3 Bars Hit 25 Rage / 0 Bar Hit Min Rage to Arm LLC</option>';
-			preferenceHTMLStr += '<option value="MIN_RAGE_1">1 Bar Hit Min Rage to Arm LLC</option>';
-			preferenceHTMLStr += '<option value="MIN_RAGE_2">2 Bars Hit Min Rage to Arm LLC</option>';
-			preferenceHTMLStr += '<option value="MIN_RAGE_3">3 Bars Hit Min Rage to Arm LLC</option>';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWBar4044" style="width: 75px; display:none" onchange="onSelectWWRiftMBWBar4044();">';
+			preferenceHTMLStr += '<option value="25_0">0 Bar &ge; 25 Rage</option>';
+			preferenceHTMLStr += '<option value="25_1">1 Bar &ge; 25 Rage</option>';
+			preferenceHTMLStr += '<option value="25_2">2 Bars &ge; 25 Rage</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_0">3 Bars &ge; 25 Rage / 0 Bar &ge; Min Rage to Hunt MBW</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_1">1 Bar &ge; Min Rage to Hunt MBW</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_2">2 Bars &ge; Min Rage to Hunt MBW</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_3">3 Bars &ge; Min Rage to Hunt MBW</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWBar4548" style="width: 75px; display:none" onchange="onSelectWWRiftMBWBar4548();">';
+			preferenceHTMLStr += '<option value="25_0">0 Bar &ge; 25 Rage</option>';
+			preferenceHTMLStr += '<option value="25_1">1 Bar &ge; 25 Rage</option>';
+			preferenceHTMLStr += '<option value="25_2">2 Bars &ge; 25 Rage</option>';
+			preferenceHTMLStr += '<option value="44_0">3 Bars &ge; 25 Rage / 0 Bar &ge; 44 Rage</option>';
+			preferenceHTMLStr += '<option value="44_1">1 Bar &ge; 44 Rage</option>';
+			preferenceHTMLStr += '<option value="44_2">2 Bars &ge; 44 Rage</option>';
+			preferenceHTMLStr += '<option value="44_3">3 Bars &ge; 44 Rage / 0 Bar &ge; Min Rage to Hunt MBW</option>';
+			preferenceHTMLStr += '<option value="MIN_RAGE_1">1 Bar &ge; Min Rage to Hunt MBW</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapWeapon" onchange="onSelectWWRiftMBWTrapWeaponChanged();">';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapWeapon" onchange="onSelectWWRiftMBWTrapWeapon();">';
 			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
 			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
 			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
 			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
 			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapBase" onchange="onSelectWWRiftMBWTrapBaseChanged();">';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapBase" onchange="onSelectWWRiftMBWTrapBase();">';
 			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
 			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
 			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
@@ -4238,12 +4283,13 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
 			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapTrinket" style="width: 75px" onchange="onSelectWWRiftMBWTrapTrinketChanged();">';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapTrinket" style="width: 75px" onchange="onSelectWWRiftMBWTrapTrinket();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="FSCLR">Faction Specific Charm (Lowest Rage)</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapBait" onchange="onSelectWWRiftMBWTrapBaitChanged();">';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapBait" onchange="onSelectWWRiftMBWTrapBait();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Lactrodectus Lancashire">LLC</option>';
 			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
 			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
 			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
@@ -8053,8 +8099,7 @@ function bodyJS(){
 	}
 	
 	function onSelectWWRiftFaction(){
-		saveWWRift();
-		initControlsWWRift();
+		onInputMinRageChanged(document.getElementById('inputMinRage'));
 	}
 	
 	function onSelectWWRiftRage(){
@@ -8078,30 +8123,44 @@ function bodyJS(){
 	}
 	
 	function onInputMinRageChanged(input){
-		if(parseInt(input.value) < parseInt(input.min))
-			input.value = input.min;
-		if(parseInt(input.value) > parseInt(input.max))
-			input.value = input.max;
+		var value = parseInt(input.value);
+		var nMin = parseInt(input.min);
+		var nMax = parseInt(input.max);
+		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
+		if(selectWWRiftFaction.value == 'MBW_45_48')
+			nMin = 45;
+		if(value < nMin)
+			input.value = nMin;
+		
+		if(selectWWRiftFaction.value == 'MBW_40_44')
+			nMax = 44;
+		if(value > nMax)
+			input.value = nMax;
 		saveWWRift();
-	}
-	
-	function onSelectWWRiftMBWBar(){
 		initControlsWWRift();
 	}
 	
-	function onSelectWWRiftMBWTrapWeaponChanged(){
+	function onSelectWWRiftMBWBar4044(){
+		initControlsWWRift();
+	}
+	
+	function onSelectWWRiftMBWBar4548(){
+		initControlsWWRift();
+	}
+	
+	function onSelectWWRiftMBWTrapWeapon(){
 		saveWWRift();
 	}
 	
-	function onSelectWWRiftMBWTrapBaseChanged(){
+	function onSelectWWRiftMBWTrapBase(){
 		saveWWRift();
 	}
 	
-	function onSelectWWRiftMBWTrapTrinketChanged(){
+	function onSelectWWRiftMBWTrapTrinket(){
 		saveWWRift();
 	}
 	
-	function onSelectWWRiftMBWTrapBaitChanged(){
+	function onSelectWWRiftMBWTrapBait(){
 		saveWWRift();
 	}
 
@@ -8112,7 +8171,8 @@ function bodyJS(){
 		var selectWWRiftTrapBase = document.getElementById('selectWWRiftTrapBase');
 		var selectWWRiftTrapTrinket = document.getElementById('selectWWRiftTrapTrinket');
 		var selectWWRiftTrapBait = document.getElementById('selectWWRiftTrapBait');
-		var selectWWRiftMBWBar = document.getElementById('selectWWRiftMBWBar');
+		var selectWWRiftMBWBar4044 = document.getElementById('selectWWRiftMBWBar4044');
+		var selectWWRiftMBWBar4548 = document.getElementById('selectWWRiftMBWBar4548');
 		var selectWWRiftMBWTrapWeapon = document.getElementById('selectWWRiftMBWTrapWeapon');
 		var selectWWRiftMBWTrapBase = document.getElementById('selectWWRiftMBWTrapBase');
 		var selectWWRiftMBWTrapTrinket = document.getElementById('selectWWRiftMBWTrapTrinket');
@@ -8130,10 +8190,18 @@ function bodyJS(){
 				},
 				MBW : {
 					minRageLLC : 40,
-					weapon : new Array(6).fill(''),
-					base : new Array(6).fill(''),
-					trinket : new Array(6).fill('None'),
-					bait : new Array(6).fill('None')
+					rage4044: {
+						weapon : new Array(7).fill(''),
+						base : new Array(7).fill(''),
+						trinket : new Array(7).fill('None'),
+						bait : new Array(7).fill('None')
+					},
+					rage4548: {
+						weapon : new Array(8).fill(''),
+						base : new Array(8).fill(''),
+						trinket : new Array(8).fill('None'),
+						bait : new Array(8).fill('None')
+					},
 				},
 			};
 			storageValue = JSON.stringify(objDefaultWWRift);
@@ -8149,13 +8217,24 @@ function bodyJS(){
 		storageValue.faction.bait[nIndex] = selectWWRiftTrapBait.value;
 		
 		storageValue.MBW.minRageLLC = parseInt(inputMinRage.value);
-		nIndex = selectWWRiftMBWBar.selectedIndex;
-		if(nIndex < 0)
-			nIndex = 0;
-		storageValue.MBW.weapon[nIndex] = selectWWRiftMBWTrapWeapon.value;
-		storageValue.MBW.base[nIndex] = selectWWRiftMBWTrapBase.value;
-		storageValue.MBW.trinket[nIndex] = selectWWRiftMBWTrapTrinket.value;
-		storageValue.MBW.bait[nIndex] = selectWWRiftMBWTrapBait.value;
+		if(selectWWRiftFaction.value == 'MBW_40_44'){
+			nIndex = selectWWRiftMBWBar4044.selectedIndex;
+			if(nIndex < 0)
+				nIndex = 0;
+			storageValue.MBW.rage4044.weapon[nIndex] = selectWWRiftMBWTrapWeapon.value;
+			storageValue.MBW.rage4044.base[nIndex] = selectWWRiftMBWTrapBase.value;
+			storageValue.MBW.rage4044.trinket[nIndex] = selectWWRiftMBWTrapTrinket.value;
+			storageValue.MBW.rage4044.bait[nIndex] = selectWWRiftMBWTrapBait.value;
+		}
+		else if(selectWWRiftFaction.value == 'MBW_45_48'){
+			nIndex = selectWWRiftMBWBar4548.selectedIndex;
+			if(nIndex < 0)
+				nIndex = 0;
+			storageValue.MBW.rage4548.weapon[nIndex] = selectWWRiftMBWTrapWeapon.value;
+			storageValue.MBW.rage4548.base[nIndex] = selectWWRiftMBWTrapBase.value;
+			storageValue.MBW.rage4548.trinket[nIndex] = selectWWRiftMBWTrapTrinket.value;
+			storageValue.MBW.rage4548.bait[nIndex] = selectWWRiftMBWTrapBait.value;
+		}
 		window.sessionStorage.setItem('WWRift', JSON.stringify(storageValue));
 	}
 	
@@ -8166,7 +8245,8 @@ function bodyJS(){
 		var selectWWRiftTrapBase = document.getElementById('selectWWRiftTrapBase');
 		var selectWWRiftTrapTrinket = document.getElementById('selectWWRiftTrapTrinket');
 		var selectWWRiftTrapBait = document.getElementById('selectWWRiftTrapBait');
-		var selectWWRiftMBWBar = document.getElementById('selectWWRiftMBWBar');
+		var selectWWRiftMBWBar4044 = document.getElementById('selectWWRiftMBWBar4044');
+		var selectWWRiftMBWBar4548 = document.getElementById('selectWWRiftMBWBar4548');
 		var selectWWRiftMBWTrapWeapon = document.getElementById('selectWWRiftMBWTrapWeapon');
 		var selectWWRiftMBWTrapBase = document.getElementById('selectWWRiftMBWTrapBase');
 		var selectWWRiftMBWTrapTrinket = document.getElementById('selectWWRiftMBWTrapTrinket');
@@ -8181,7 +8261,8 @@ function bodyJS(){
 			selectWWRiftTrapTrinket.selectedIndex = -1;
 			selectWWRiftTrapBait.selectedIndex = -1;
 			inputMinRage.value = 40;
-			selectWWRiftMBWBar.selectedIndex = 0;
+			selectWWRiftMBWBar4044.selectedIndex = 0;
+			selectWWRiftMBWBar4548.selectedIndex = 0;
 			selectWWRiftMBWTrapWeapon.selectedIndex = -1;
 			selectWWRiftMBWTrapBase.selectedIndex = -1;
 			selectWWRiftMBWTrapTrinket.selectedIndex = -1;
@@ -8199,17 +8280,34 @@ function bodyJS(){
 			selectWWRiftTrapBait.value = storageValue.faction.bait[nIndex];
 			
 			inputMinRage.value = storageValue.MBW.minRageLLC;
-			nIndex = selectWWRiftMBWBar.selectedIndex;
-			if(nIndex < 0)
-				nIndex = 0;
-			selectWWRiftMBWTrapWeapon.value = storageValue.MBW.weapon[nIndex];
-			selectWWRiftMBWTrapBase.value = storageValue.MBW.base[nIndex];
-			selectWWRiftMBWTrapTrinket.value = storageValue.MBW.trinket[nIndex];
-			selectWWRiftMBWTrapBait.value = storageValue.MBW.bait[nIndex];
+			if(selectWWRiftFaction.value == 'MBW_40_44'){
+				nIndex = selectWWRiftMBWBar4044.selectedIndex;
+				if(nIndex < 0)
+					nIndex = 0;
+				selectWWRiftMBWTrapWeapon.value = storageValue.MBW.rage4044.weapon[nIndex];
+				selectWWRiftMBWTrapBase.value = storageValue.MBW.rage4044.base[nIndex];
+				selectWWRiftMBWTrapTrinket.value = storageValue.MBW.rage4044.trinket[nIndex];
+				selectWWRiftMBWTrapBait.value = storageValue.MBW.rage4044.bait[nIndex];
+			}
+			else if(selectWWRiftFaction.value == 'MBW_45_48'){
+				nIndex = selectWWRiftMBWBar4548.selectedIndex;
+				if(nIndex < 0)
+					nIndex = 0;
+				selectWWRiftMBWTrapWeapon.value = storageValue.MBW.rage4548.weapon[nIndex];
+				selectWWRiftMBWTrapBase.value = storageValue.MBW.rage4548.base[nIndex];
+				selectWWRiftMBWTrapTrinket.value = storageValue.MBW.rage4548.trinket[nIndex];
+				selectWWRiftMBWTrapBait.value = storageValue.MBW.rage4548.bait[nIndex];
+			}
 		}
-		
-		selectWWRiftMBWTrapBait.style = (selectWWRiftMBWBar.selectedIndex == 6) ? 'display:none' : '';
-		if(selectWWRiftFaction.value == 'MBW'){
+		if(selectWWRiftFaction.value.indexOf('MBW') > -1){
+			if(selectWWRiftFaction.value == 'MBW_40_44'){
+				selectWWRiftMBWBar4044.style.display = '';
+				selectWWRiftMBWBar4548.style.display = 'none';
+			}
+			else{
+				selectWWRiftMBWBar4044.style.display = 'none';
+				selectWWRiftMBWBar4548.style.display = '';
+			}
 			document.getElementById('trWWRiftMBWMinRage').style.display = 'table-row';
 			document.getElementById('trWWRiftMBWTrapSetup').style.display = 'table-row';
 			document.getElementById('trWWRiftTrapSetup').style.display = 'none';
