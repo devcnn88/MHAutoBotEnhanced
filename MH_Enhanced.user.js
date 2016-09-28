@@ -1078,7 +1078,7 @@ function wwrift(){
 	var nLimit = 0;
 	if(objWWRift.factionFocus == 'MBW_40_44'){
 		for(i=0;i<objWWRift.rage.length;i++){
-			if(objWWRift.rage[i] >= objWWRift.MBW.rage4044.minRageLLC)
+			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
 				nBarMinRage++;
 			if(objWWRift.rage[i] >= 25)
 				nBar25++;
@@ -1088,7 +1088,7 @@ function wwrift(){
 		checkThenArm(null, 'base', objWWRift.MBW.rage4044.base[nIndex]);
 		if(objWWRift.MBW.rage4044.trinket[nIndex].indexOf('FSC') > -1){
 			nIndexCharm = objWWRift.funnel.indexOf(charmArmed);
-			nLimit = (nIndex >= 3) ? objWWRift.MBW.rage4044.minRageLLC : 25;
+			nLimit = (nIndex >= 3) ? objWWRift.MBW.minRageLLC : 25;
 			if(nIndexCharm > -1){
 				if(objWWRift.rage[nIndexCharm] >= nLimit){
 					temp = minIndex(objWWRift.rage);
@@ -1109,7 +1109,7 @@ function wwrift(){
 	}
 	else if(objWWRift.factionFocus == 'MBW_45_48'){
 		for(i=0;i<objWWRift.rage.length;i++){
-			if(objWWRift.rage[i] >= objWWRift.MBW.rage4548.minRageLLC)
+			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
 				nBarMinRage++;
 			if(objWWRift.rage[i] >= 44)
 				nBar44++;
