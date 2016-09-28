@@ -1659,11 +1659,9 @@ function SCCustom() {
 			}
 			else{
 				canJet = bNormalJet;
-				if (!isWJCArmed) {
-					if (canJet)
+				if (charmArmed.indexOf('Water Jet') !== 0 && canJet)
 						fireEvent(charmElement[1], 'click');
 				}
-			}
 			checkThenArm(null, 'bait', 'Gouda');
 		}
 	}
