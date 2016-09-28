@@ -787,6 +787,8 @@ function eventLocationCheck(caller) {
 			iceberg(); break;
 		case 'WWRift':
 			wwrift(); break;
+		case 'GES':
+			ges(); break;
 		case 'All LG Area':
 			var objLGTemplate = {
 				isAutoFill : false,
@@ -1026,6 +1028,115 @@ function Halloween2015()
 			}
 		}
 	}
+}
+
+function ges(){
+	if(GetCurrentLocation().indexOf('Gnawnian Express Station') < 0)
+		return;
+	
+	var objDefaultGES = {
+		SD : {
+			weapon : '',
+			base : '',
+			trinket : {
+				before : '',
+				after : ''
+			},
+			bait : '',
+			bLoadCrate : false,
+			nMinCrate : 11
+		},
+		RR : {
+			weapon : '',
+			base : '',
+			trinket : '',
+			bait : '',
+			bUseRepellent : false,
+			nMinRepellent : 11
+		},
+		DC : {
+			weapon : '',
+			base : '',
+			trinket : '',
+			bait : '',
+			bStokeEngine : false,
+			nFuelNuggetBatchSize : 20
+		},
+	};
+	var objGES = getStorageToObject('GES', objDefaultGES);
+	var strCurrentPhase = '';
+	var classPhase = document.getElementsByClassName('box phaseName');
+	if(classPhase.length > 0 && classPhase[0].children.length > 1)
+		strCurrentPhase = classPhase[0].children[1].textContent;
+	console.plog('Current Phase:', strCurrentPhase);
+	if(strCurrentPhase === '')
+		return;
+	
+	var strStage = '';
+	if(strCurrentPhase.indexOf('Supply Depot') > -1 ){
+		strStage = 'SD';
+		var nTurn = getPageVariable('user.quests.QuestTrainStation.minigame.supply_hoarder_turns');
+		if(nTurn <= 0){
+			if(objGES.SD.trinket.before.indexOf('Supply Schedule') > -1){
+				var classCharm = document.getElementsByClassName('charms');
+				var linkCharm = classCharm[0].children[0];
+				var nCharmQuantity = parseInt(classCharm[0].getElementsByClassName('quantity')[0].textContent);
+				if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0)
+					fireEvent(linkCharm, 'click');
+			}
+			else
+				checkThenArm(null, 'trinket', objGES.SD.trinket.before);
+		}
+		else{
+			if(objGES.SD.trinket.after.indexOf('Supply Schedule') > -1)
+				disarmTrap('trinket');
+			else
+				checkThenArm(null, 'trinket', objGES.SD.trinket.after);
+		}
+		
+		if(objGES.SD.bLoadCrate){
+			var classCrate = document.getElementsByClassName('supplyCrates');
+			var linkCrate = classCrate[0].children[1];
+			var nCrateQuantity = parseInt(classCrate[0].getElementsByClassName('quantity')[0].textContent);
+			if(Number.isInteger(nCrateQuantity) && nCrateQuantity >= objGES.SD.nMinCrate)
+				fireEvent(linkCrate, 'click');
+		}
+	}
+	else if(strCurrentPhase.indexOf('Raider River') > -1 ){
+		strStage = 'RR';
+		if(objGES.RR.trinket == 'AUTO'){
+			// get raider status and arm respective charm
+		}
+		else
+			checkThenArm(null, 'trinket', objGES.RR.trinket);
+		
+		if(objGES.RR.bUseRepellent){
+			var nRepellentQuantity = 0;
+			if(Number.isInteger(nRepellentQuantity) && nRepellentQuantity >= objGES.RR.nMinRepellent){
+				// fireEvent(linkRepellent, 'click');
+			}
+		}
+	}
+	if(strCurrentPhase.indexOf('Daredevil Canyon') > -1 ){
+		strStage = 'DC';
+		if(objGES.DC.trinket == 'AUTO'){
+			checkThenArm('best', 'trinket', ['Black Powder Charm', 'Dusty Coal Charm']);
+		}
+		else
+			checkThenArm(null, 'trinket', objGES.DC.trinket);
+		
+		if(objGES.DC.bStokeEngine){
+			// get fuel nugget quantity
+			var nFuelQuantity = 0;
+			if(Number.isInteger(nFuelQuantity) && nFuelQuantity == objGES.DC.nFuelNuggetBatchSize){
+				// fireEvent(linkStoke, 'click');
+			}
+		}
+	}
+	console.plog(objGES[strStage]);
+	checkThenArm(null, 'weapon', objGES[strStage].weapon);
+	checkThenArm(null, 'base', objGES[strStage].base);
+	checkThenArm(null, 'bait', objGES[strStage].bait);
 }
 
 function wwrift(){
@@ -1660,8 +1771,8 @@ function SCCustom() {
 			else{
 				canJet = bNormalJet;
 				if (charmArmed.indexOf('Water Jet') !== 0 && canJet)
-						fireEvent(charmElement[1], 'click');
-				}
+					fireEvent(charmElement[1], 'click');
+			}
 			checkThenArm(null, 'bait', 'Gouda');
 		}
 	}
@@ -4170,6 +4281,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="FG/AR">FG => AR</option>';
 			preferenceHTMLStr += '<option value="Fiery Warpath">Fiery Warpath</option>';
 			preferenceHTMLStr += '<option value="Furoma Rift">Furoma Rift</option>';
+			preferenceHTMLStr += '<option value="GES">Gnawnian Express Station</option>';
 			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
 			//preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>'; // not tested yet
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
@@ -4185,6 +4297,84 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trGESTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select"><b>Trap Setup at </b></a>';
+			preferenceHTMLStr += '<select id="selectGESStage" onchange="onSelectGESStage();">';
+			preferenceHTMLStr += '<option value="SD">Supply Depot</option>';
+			preferenceHTMLStr += '<option value="RR">Raider River</option>';
+			preferenceHTMLStr += '<option value="DC">Daredevil Canyon</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectGESTrapWeapon" onchange="onSelectGESTrapWeapon();">';
+			preferenceHTMLStr += '<option value="S.L.A.C.">S.L.A.C.</option>';
+			preferenceHTMLStr += '<option value="S.L.A.C. II">S.L.A.C. II</option>';
+			preferenceHTMLStr += '<option value="Supply Grabber">Supply Grabber</option>';
+			preferenceHTMLStr += '<option value="Bandit Deflector">Bandit Deflector</option>';
+			preferenceHTMLStr += '<option value="Engine Doubler">Engine Doubler</option>';
+			preferenceHTMLStr += '<option value="The Law Draw">The Law Draw</option>';
+			preferenceHTMLStr += '<option value="Law Laser Trap">Law Laser Trap</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectGESTrapBase" style="width: 75px" onchange="onSelectGESTrapBase();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectGESSDTrapTrinketBefore" style="width: 75px;" onchange="onSelectGESSDTrapTrinketBefore();">';
+			preferenceHTMLStr += '<option value="NSR" disabled="disabled">===No Supply Rush===</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectGESSDTrapTrinketAfter" style="width: 75px;" onchange="onSelectGESSDTrapTrinketAfter();">';
+			preferenceHTMLStr += '<option value="DSR" disabled="disabled">===During Supply Rush===</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectGESRRTrapTrinket" style="width: 75px;display:none" onchange="onSelectGESRRTrapTrinket();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="AUTO">Roof Rack/Door Guard/Greasy Glob</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectGESDCTrapTrinket" style="width: 75px;display:none" onchange="onSelectGESDCTrapTrinket();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="AUTO">Black Powder/Dusty Coal</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectGESTrapBait" onchange="onSelectGESTrapBait();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
+			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trGESSDLoadCrate" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select"><b>Load Crate</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectGESSDLoadCrate" onchange="onSelectGESSDLoadCrate();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title=""><b>When Crate &ge; :</b></a>&nbsp;';
+			preferenceHTMLStr += '<input type="number" id="inputMinCrate" min="1" max="50" size="5" value="11" onchange="onInputMinCrateChanged(this);">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trGESRRRepellent" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select"><b>Use Repellent</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectGESRRRepellent" onchange="onSelectGESRRRepellent();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title=""><b>When Repellent &ge; :</b></a>&nbsp;';
+			preferenceHTMLStr += '<input type="number" id="inputMinRepellent" min="1" max="50" size="5" value="11" onchange="onInputMinRepellentChanged(this);">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trGESDCStokeEngine" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select"><b>Stoke Engine</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectGESDCStokeEngine" onchange="onSelectGESDCStokeEngine();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;<a title=""><b>At Fuel Nuggests Batch Size:</b></a>&nbsp;';
+			preferenceHTMLStr += '<input type="number" id="inputMinFuelNugget" min="1" max="20" size="5" value="20" onchange="oninputMinFuelNuggetChanged(this);">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="trWWRiftFactionFocus" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select a faction to focus on"><b>Faction to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -4984,8 +5174,8 @@ function embedTimer(targetPage) {
 			// insert trap list
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon'],
-				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket', 'selectIcebergTrinket', 'selectWWRiftTrapTrinket', 'selectWWRiftMBWTrapTrinket'],
+				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket', 'selectIcebergTrinket', 'selectWWRiftTrapTrinket', 'selectWWRiftMBWTrapTrinket', 'selectGESSDTrapTrinketAfter', 'selectGESSDTrapTrinketBefore', 'selectGESRRTrapTrinket', 'selectGESDCTrapTrinket'],
 				bait : ['selectBait']
 			};
 			var temp;
@@ -6944,7 +7134,8 @@ function bodyJS(){
 				key.indexOf("SGarden")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("FRift")>-1 || key.indexOf("MapHunting")>-1 ||
 				key.indexOf("ZTower")>-1 || key.indexOf("BestTrap")>-1 ||
-				key.indexOf("Iceberg")>-1 || key.indexOf("WWRift")>-1){
+				key.indexOf("Iceberg")>-1 || key.indexOf("WWRift")>-1 ||
+				key.indexOf("GES")>-1 ){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -6964,7 +7155,8 @@ function bodyJS(){
 				key.indexOf("SGarden")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("FRift")>-1 || key.indexOf("MapHunting")>-1 ||
 				key.indexOf("ZTower")>-1 || key.indexOf("BestTrap")>-1 ||
-				key.indexOf("Iceberg")>-1 || key.indexOf("WWRift")>-1){
+				key.indexOf("Iceberg")>-1 || key.indexOf("WWRift")>-1 ||
+				key.indexOf("GES")>-1 ){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -6996,6 +7188,8 @@ function bodyJS(){
 				keyName = 'Iceberg'; break;
 			case 'WWRift':
 				keyName = 'WWRift'; break;
+			case 'GES':
+				keyName = 'GES'; break;
 			default:
 				break;
 		}
@@ -8317,6 +8511,213 @@ function bodyJS(){
 		}
 	}
 
+	function onSelectGESStage(){
+		initControlsGES();
+	}
+	
+	function onSelectGESTrapWeapon(){
+		saveGES();
+	}
+	
+	function onSelectGESTrapBase(){
+		saveGES();
+	}
+	
+	function onSelectGESSDTrapTrinketBefore(){
+		saveGES();
+	}
+	
+	function onSelectGESSDTrapTrinketAfter(){
+		saveGES();
+	}
+	
+	function onSelectGESRRTrapTrinket(){
+		saveGES();
+	}
+	
+	function onSelectGESDCTrapTrinket(){
+		saveGES();
+	}
+	
+	function onSelectGESTrapBait(){
+		saveGES();
+	}
+	
+	function onSelectGESSDLoadCrate(){
+		saveGES();
+		initControlsGES();
+	}
+	
+	function onInputMinCrateChanged(){
+		saveGES();
+	}
+	
+	function onSelectGESRRRepellent(){
+		saveGES();
+		initControlsGES();
+	}
+	
+	function onInputMinRepellentChanged(){
+		saveGES();
+	}
+	
+	function onSelectGESDCStokeEngine(){
+		saveGES();
+		initControlsGES();
+	}
+	
+	function oninputMinFuelNuggetChanged(){
+		saveGES();
+	}
+	
+	function saveGES(){
+		var selectGESStage = document.getElementById('selectGESStage');
+		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
+		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
+		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
+		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
+		var selectGESDCTrapTrinket = document.getElementById('selectGESDCTrapTrinket');
+		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
+		var selectGESSDLoadCrate = document.getElementById('selectGESSDLoadCrate');
+		var inputMinCrate = document.getElementById('inputMinCrate');
+		var selectGESRRRepellent = document.getElementById('selectGESRRRepellent');
+		var inputMinRepellent = document.getElementById('inputMinRepellent');
+		var selectGESDCStokeEngine = document.getElementById('selectGESDCStokeEngine');
+		var inputMinFuelNugget = document.getElementById('inputMinFuelNugget');
+		var storageValue = window.sessionStorage.getItem('GES');
+		if(isNullOrUndefined(storageValue)){
+			var objDefaultGES = {
+				SD : {
+					weapon : '',
+					base : '',
+					trinket : {
+						before : '',
+						after : ''
+					},
+					bait : '',
+					bLoadCrate : false,
+					nMinCrate : 11
+				},
+				RR : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : '',
+					bUseRepellent : false,
+					nMinRepellent : 11
+				},
+				DC : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : '',
+					bStokeEngine : false,
+					nFuelNuggetBatchSize : 20
+				},
+			};
+			storageValue = JSON.stringify(objDefaultGES);
+		}
+		storageValue = JSON.parse(storageValue);
+		var strStage = selectGESStage.value;
+		storageValue[strStage].weapon = selectGESTrapWeapon.value;
+		storageValue[strStage].base = selectGESTrapBase.value;
+		storageValue[strStage].bait = selectGESTrapBait.value;
+		if(strStage == 'SD'){
+			storageValue.SD.trinket.before = selectGESSDTrapTrinketBefore.value;
+			storageValue.SD.trinket.after = selectGESSDTrapTrinketAfter.value;
+		}
+		else if (strStage == 'RR'){
+			storageValue.RR.trinket = selectGESRRTrapTrinket.value;
+		}
+		else if (strStage == 'DC'){
+			storageValue.DC.trinket = selectGESDCTrapTrinket.value;
+		}
+		storageValue.SD.bLoadCrate = (selectGESSDLoadCrate.value == 'true');
+		storageValue.SD.nMinCrate = parseInt(inputMinCrate.value);
+		storageValue.RR.bUseRepellent = (selectGESRRRepellent.value == 'true');
+		storageValue.RR.nMinRepellent = parseInt(inputMinRepellent.value);
+		storageValue.DC.bStokeEngine = (selectGESDCStokeEngine.value == 'true');
+		storageValue.DC.nFuelNuggetBatchSize = parseInt(inputMinFuelNugget.value);
+		window.sessionStorage.setItem('GES', JSON.stringify(storageValue));
+	}
+	
+	function initControlsGES(){
+		var selectGESStage = document.getElementById('selectGESStage');
+		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
+		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
+		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
+		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
+		var selectGESDCTrapTrinket = document.getElementById('selectGESDCTrapTrinket');
+		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
+		var selectGESSDLoadCrate = document.getElementById('selectGESSDLoadCrate');
+		var inputMinCrate = document.getElementById('inputMinCrate');
+		var selectGESRRRepellent = document.getElementById('selectGESRRRepellent');
+		var inputMinRepellent = document.getElementById('inputMinRepellent');
+		var selectGESDCStokeEngine = document.getElementById('selectGESDCStokeEngine');
+		var inputMinFuelNugget = document.getElementById('inputMinFuelNugget');
+		var storageValue = window.sessionStorage.getItem('GES');
+		var strStage = selectGESStage.value;
+		if(isNullOrUndefined(storageValue)){
+			selectGESTrapWeapon.selectedIndex = -1;
+			selectGESTrapBase.selectedIndex = -1;
+			selectGESSDTrapTrinketBefore.selectedIndex = -1;
+			selectGESSDTrapTrinketAfter.selectedIndex = -1;
+			selectGESRRTrapTrinket.selectedIndex = -1;
+			selectGESDCTrapTrinket.selectedIndex = -1;
+			selectGESTrapBait.selectedIndex = -1;
+			selectGESSDLoadCrate.selectedIndex = 0;
+			inputMinCrate.value = 11;
+			selectGESRRRepellent.selectedIndex = 0;
+			inputMinRepellent.value = 11;
+			selectGESDCStokeEngine.selectedIndex = 0;
+			inputMinFuelNugget.value = 20;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectGESTrapWeapon.value = storageValue[strStage].weapon;
+			selectGESTrapBase.value = storageValue[strStage].base;
+			selectGESTrapBait.value = storageValue[strStage].bait;
+			if(strStage == 'SD'){
+				selectGESSDTrapTrinketBefore.value = storageValue.SD.trinket.before;
+				selectGESSDTrapTrinketAfter.value = storageValue.SD.trinket.after;
+			}
+			else if(strStage == 'RR')
+				selectGESRRTrapTrinket.value = storageValue.RR.trinket;
+			else if(strStage == 'DC')
+				selectGESDCTrapTrinket.value = storageValue.DC.trinket;
+			
+			selectGESSDLoadCrate.value = (storageValue.SD.bLoadCrate === true) ? 'true' : 'false';
+			inputMinCrate.value = storageValue.SD.nMinCrate;
+			selectGESRRRepellent.value = (storageValue.RR.bUseRepellent === true) ? 'true' : 'false';
+			inputMinRepellent.value = storageValue.RR.nMinRepellent;
+			selectGESDCStokeEngine.value = (storageValue.DC.bStokeEngine === true) ? 'true' : 'false';
+			inputMinFuelNugget.value = storageValue.DC.nFuelNuggetBatchSize;
+		}
+		if(strStage == 'SD'){
+			selectGESSDTrapTrinketBefore.style.display = '';
+			selectGESSDTrapTrinketAfter.style.display = '';
+			selectGESRRTrapTrinket.style.display = 'none';
+			selectGESDCTrapTrinket.style.display = 'none';
+		}
+		else if(strStage == 'RR'){
+			selectGESSDTrapTrinketBefore.style.display = 'none';
+			selectGESSDTrapTrinketAfter.style.display = 'none';
+			selectGESRRTrapTrinket.style.display = '';
+			selectGESDCTrapTrinket.style.display = 'none';
+		}
+		else if(strStage == 'DC'){
+			selectGESSDTrapTrinketBefore.style.display = 'none';
+			selectGESSDTrapTrinketAfter.style.display = 'none';
+			selectGESRRTrapTrinket.style.display = 'none';
+			selectGESDCTrapTrinket.style.display = '';
+		}
+		inputMinCrate.disabled = (selectGESSDLoadCrate.value == 'true') ? '' : 'disabled';
+		inputMinRepellent.disabled = (selectGESRRRepellent.value == 'true') ? '' : 'disabled';
+		inputMinFuelNugget.disabled = (selectGESDCStokeEngine.value == 'true') ? '' : 'disabled';
+	}
+	
 	function showOrHideTr(algo){
 		var objTableRow = {
 			'All LG Area' : {
@@ -8362,6 +8763,10 @@ function bodyJS(){
 			'WWRift' : {
 				arr : ['trWWRiftFactionFocus', 'trWWRiftTrapSetup', 'trWWRiftMBWTrapSetup', 'trWWRiftMBWMinRage'],
 				init : function(data){initControlsWWRift(data);}
+			},
+			'GES' : {
+				arr : ['trGESTrapSetup', 'trGESSDLoadCrate', 'trGESRRRepellent', 'trGESDCStokeEngine'],
+				init : function(data){initControlsGES(data);}
 			},
 		};
 		var i, temp;

@@ -277,6 +277,7 @@
 							<option value="Burroughs Rift Custom">Burroughs Rift Custom</option>
 							<option value="FG/AR">FG => AR</option>
 							<option value="Fiery Warpath">Fiery Warpath</option>
+							<option value="GES">Gnawnian Express Station</option>
 							<option value="Halloween 2015">Halloween 2015</option>
 							<option value="Iceberg">Iceberg</option>
 							<option value="Sunken City">Sunken City</option>
@@ -289,6 +290,86 @@
 							<option value="ZT">Zugzwang's Tower</option>
 						</select>
 						<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();">
+					</td>
+				</tr>
+				<tr id="trGESTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select"><b>Trap Setup at </b></a>
+						<select id="selectGESStage" onchange="onSelectGESStage();">
+							<option value="SD">Supply Depot</option>
+							<option value="RR">Raider River</option>
+							<option value="DC">Daredevil Canyon</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectGESTrapWeapon" onchange="onSelectGESTrapWeapon();">
+							<option value="S.L.A.C.">S.L.A.C.</option>
+							<option value="S.L.A.C. II">S.L.A.C. II</option>
+							<option value="Supply Grabber">Supply Grabber</option>
+							<option value="Bandit Deflector">Bandit Deflector</option>
+							<option value="Engine Doubler">Engine Doubler</option>
+							<option value="The Law Draw">The Law Draw</option>
+							<option value="Law Laser Trap">Law Laser Trap</option>
+						</select>
+						<select id="selectGESTrapBase" onchange="onSelectGESTrapBase();">
+							<option value="Fissure Base">Fissure</option>
+							<option value="Rift Base">Rift</option>
+							<option value="Fracture Base">Fracture</option>
+							<option value="Enerchi Induction Base">Enerchi</option>
+							<option value="Attuned Enerchi Induction Base">A. Enerchi</option>
+							<option value="Minotaur Base">Minotaur</option>
+						</select>
+						<select id="selectGESSDTrapTrinketBefore" style="width: 75px;" onchange="onSelectGESSDTrapTrinketBefore();">
+							<option value="NSR" disabled="disabled">===No Supply Rush===</option>
+							<option value="None">None</option>
+						</select>
+						<select id="selectGESSDTrapTrinketAfter" style="width: 75px;" onchange="onSelectGESSDTrapTrinketAfter();">
+							<option value="DSR" disabled="disabled">===During Supply Rush===</option>
+							<option value="None">None</option>
+						</select>
+						<select id="selectGESRRTrapTrinket" style="width: 75px;display:none" onchange="onSelectGESRRTrapTrinket();">
+							<option value="None">None</option>
+							<option value="AUTO">Roof Rack/Door Guard/Greasy Glob</option>
+						</select>
+						<select id="selectGESDDTrapTrinket" style="width: 75px;display:none" onchange="onSelectGESDDTrapTrinket();">
+							<option value="None">None</option>
+							<option value="AUTO">Black Powder/Dusty Coal</option>
+						</select>
+						<select id="selectGESTrapBait" onchange="onSelectGESTrapBait();">
+							<option value="None">None</option>
+							<option value="SUPER">SB+</option>
+							<option value="Gouda">Gouda</option>
+							<option value="Brie Cheese">Brie</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trGESSDLoadCrate" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select"><b>Load Crate</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectGESSDLoadCrate" onchange="onSelectGESSDLoadCrate();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title=""><b>When Crate &ge; :</b></a>&nbsp;
+						<input type="number" id="inputMinCrate" min="1" max="50" size="5" value="11" onchange="onInputMinCrateChanged(this);">
+					</td>
+				</tr>
+				<tr id="trGESRRRepellent" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select"><b>Use Repellent</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectGESRRRepellent" onchange="onSelectGESRRRepellent();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title=""><b>When Repellent &ge; :</b></a>&nbsp;
+						<input type="number" id="inputMinRepellent" min="1" max="50" size="5" value="11" onchange="onInputMinRepellentChanged(this);">
+					</td>
+				</tr>
+				<tr id="trGESDDStokeEngine" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select"><b>Stoke Engine</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectGESDDStokeEngine" onchange="onSelectGESDDStokeEngine();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;<a title=""><b>At Fuel Nuggests Batch Size:</b></a>&nbsp;
+						<input type="number" id="inputMinFuelNugget" min="1" max="20" size="5" value="20" onchange="oninputMinFuelNuggetChanged(this);">
 					</td>
 				</tr>
 				<tr id="trWWRiftFactionFocus" style="display:none;">
@@ -1202,7 +1283,7 @@
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1 ||
 				key.indexOf("BestTrap")>-1 || key.indexOf("Iceberg")>-1 ||
-				key.indexOf("WWRift")>-1){
+				key.indexOf("WWRift")>-1 || key.indexOf("GES")>-1){
 				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
 			}
 		}
@@ -1222,7 +1303,7 @@
 				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
 				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1 ||
 				key.indexOf("BestTrap")>-1 || key.indexOf("Iceberg")>-1 ||
-				key.indexOf("WWRift")>-1){
+				key.indexOf("WWRift")>-1 || key.indexOf("GES")>-1){
 				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
 			}
 		}
@@ -1252,6 +1333,8 @@
 				keyName = 'FRift'; break;
 			case 'WWRift':
 				keyName = 'WWRift'; break;
+			case 'GES':
+				keyName = 'GES'; break;
 			default:
 				break;
 		}
@@ -2415,6 +2498,213 @@
 		}
 	}
 	
+	function onSelectGESStage(){
+		initControlsGES();
+	}
+	
+	function onSelectGESTrapWeapon(){
+		saveGES();
+	}
+	
+	function onSelectGESTrapBase(){
+		saveGES();
+	}
+	
+	function onSelectGESSDTrapTrinketBefore(){
+		saveGES();
+	}
+	
+	function onSelectGESSDTrapTrinketAfter(){
+		saveGES();
+	}
+	
+	function onSelectGESRRTrapTrinket(){
+		saveGES();
+	}
+	
+	function onSelectGESDDTrapTrinket(){
+		saveGES();
+	}
+	
+	function onSelectGESTrapBait(){
+		saveGES();
+	}
+	
+	function onSelectGESSDLoadCrate(){
+		saveGES();
+		initControlsGES();
+	}
+	
+	function onInputMinCrateChanged(){
+		saveGES();
+	}
+	
+	function onSelectGESRRRepellent(){
+		saveGES();
+		initControlsGES();
+	}
+	
+	function onInputMinRepellentChanged(){
+		saveGES();
+	}
+	
+	function onSelectGESDDStokeEngine(){
+		saveGES();
+		initControlsGES();
+	}
+	
+	function oninputMinFuelNuggetChanged(){
+		saveGES();
+	}
+	
+	function saveGES(){
+		var selectGESStage = document.getElementById('selectGESStage');
+		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
+		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
+		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
+		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
+		var selectGESDDTrapTrinket = document.getElementById('selectGESDDTrapTrinket');
+		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
+		var selectGESSDLoadCrate = document.getElementById('selectGESSDLoadCrate');
+		var inputMinCrate = document.getElementById('inputMinCrate');
+		var selectGESRRRepellent = document.getElementById('selectGESRRRepellent');
+		var inputMinRepellent = document.getElementById('inputMinRepellent');
+		var selectGESDDStokeEngine = document.getElementById('selectGESDDStokeEngine');
+		var inputMinFuelNugget = document.getElementById('inputMinFuelNugget');
+		var storageValue = window.sessionStorage.getItem('GES');
+		if(isNullOrUndefined(storageValue)){
+			var objDefaultGES = {
+				SD : {
+					weapon : '',
+					base : '',
+					trinket : {
+						before : '',
+						after : ''
+					},
+					bait : '',
+					bLoadCrate : false,
+					nMinCrate : 11
+				},
+				RR : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : '',
+					bUseRepellent : false,
+					nMinRepellent : 11
+				},
+				DC : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : '',
+					bStokeEngine : false,
+					nFuelNuggetBatchSize : 20
+				},
+			};
+			storageValue = JSON.stringify(objDefaultGES);
+		}
+		storageValue = JSON.parse(storageValue);
+		var strStage = selectGESStage.value;
+		storageValue[strStage].weapon = selectGESTrapWeapon.value;
+		storageValue[strStage].base = selectGESTrapBase.value;
+		storageValue[strStage].bait = selectGESTrapBait.value;
+		if(strStage == 'SD'){
+			storageValue.SD.trinket.before = selectGESSDTrapTrinketBefore.value;
+			storageValue.SD.trinket.after = selectGESSDTrapTrinketAfter.value;
+		}
+		else if (strStage == 'RR'){
+			storageValue.RR.trinket = selectGESRRTrapTrinket.value;
+		}
+		else if (strStage == 'DC'){
+			storageValue.DC.trinket = selectGESDDTrapTrinket.value;
+		}
+		storageValue.SD.bLoadCrate = (selectGESSDLoadCrate.value == 'true');
+		storageValue.SD.nMinCrate = parseInt(inputMinCrate.value);
+		storageValue.RR.bUseRepellent = (selectGESRRRepellent.value == 'true');
+		storageValue.RR.nMinRepellent = parseInt(inputMinRepellent.value);
+		storageValue.DC.bStokeEngine = (selectGESDDStokeEngine.value == 'true');
+		storageValue.DC.nFuelNuggetBatchSize = parseInt(inputMinFuelNugget.value);
+		window.sessionStorage.setItem('GES', JSON.stringify(storageValue));
+	}
+	
+	function initControlsGES(){
+		var selectGESStage = document.getElementById('selectGESStage');
+		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
+		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
+		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
+		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
+		var selectGESDDTrapTrinket = document.getElementById('selectGESDDTrapTrinket');
+		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
+		var selectGESSDLoadCrate = document.getElementById('selectGESSDLoadCrate');
+		var inputMinCrate = document.getElementById('inputMinCrate');
+		var selectGESRRRepellent = document.getElementById('selectGESRRRepellent');
+		var inputMinRepellent = document.getElementById('inputMinRepellent');
+		var selectGESDDStokeEngine = document.getElementById('selectGESDDStokeEngine');
+		var inputMinFuelNugget = document.getElementById('inputMinFuelNugget');
+		var storageValue = window.sessionStorage.getItem('GES');
+		var strStage = selectGESStage.value;
+		if(isNullOrUndefined(storageValue)){
+			selectGESTrapWeapon.selectedIndex = -1;
+			selectGESTrapBase.selectedIndex = -1;
+			selectGESSDTrapTrinketBefore.selectedIndex = -1;
+			selectGESSDTrapTrinketAfter.selectedIndex = -1;
+			selectGESRRTrapTrinket.selectedIndex = -1;
+			selectGESDDTrapTrinket.selectedIndex = -1;
+			selectGESTrapBait.selectedIndex = -1;
+			selectGESSDLoadCrate.selectedIndex = 0;
+			inputMinCrate.value = 11;
+			selectGESRRRepellent.selectedIndex = 0;
+			inputMinRepellent.value = 11;
+			selectGESDDStokeEngine.selectedIndex = 0;
+			inputMinFuelNugget.value = 20;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			selectGESTrapWeapon.value = storageValue[strStage].weapon;
+			selectGESTrapBase.value = storageValue[strStage].base;
+			selectGESTrapBait.value = storageValue[strStage].bait;
+			if(strStage == 'SD'){
+				selectGESSDTrapTrinketBefore.value = storageValue.SD.trinket.before;
+				selectGESSDTrapTrinketAfter.value = storageValue.SD.trinket.after;
+			}
+			else if(strStage == 'RR')
+				selectGESRRTrapTrinket.value = storageValue.RR.trinket;
+			else if(strStage == 'DC')
+				selectGESDDTrapTrinket.value = storageValue.DC.trinket;
+			
+			selectGESSDLoadCrate.value = (storageValue.SD.bLoadCrate === true) ? 'true' : 'false';
+			inputMinCrate.value = storageValue.SD.nMinCrate;
+			selectGESRRRepellent.value = (storageValue.RR.bUseRepellent === true) ? 'true' : 'false';
+			inputMinRepellent.value = storageValue.RR.nMinRepellent;
+			selectGESDDStokeEngine.value = (storageValue.DC.bStokeEngine === true) ? 'true' : 'false';
+			inputMinFuelNugget.value = storageValue.DC.nFuelNuggetBatchSize;
+		}
+		if(strStage == 'SD'){
+			selectGESSDTrapTrinketBefore.style.display = '';
+			selectGESSDTrapTrinketAfter.style.display = '';
+			selectGESRRTrapTrinket.style.display = 'none';
+			selectGESDDTrapTrinket.style.display = 'none';
+		}
+		else if(strStage == 'RR'){
+			selectGESSDTrapTrinketBefore.style.display = 'none';
+			selectGESSDTrapTrinketAfter.style.display = 'none';
+			selectGESRRTrapTrinket.style.display = '';
+			selectGESDDTrapTrinket.style.display = 'none';
+		}
+		else if(strStage == 'DC'){
+			selectGESSDTrapTrinketBefore.style.display = 'none';
+			selectGESSDTrapTrinketAfter.style.display = 'none';
+			selectGESRRTrapTrinket.style.display = 'none';
+			selectGESDDTrapTrinket.style.display = '';
+		}
+		inputMinCrate.disabled = (selectGESSDLoadCrate.value == 'true') ? '' : 'disabled';
+		inputMinRepellent.disabled = (selectGESRRRepellent.value == 'true') ? '' : 'disabled';
+		inputMinFuelNugget.disabled = (selectGESDDStokeEngine.value == 'true') ? '' : 'disabled';
+	}
+	
 	function showOrHideTr(algo){
 		var objTableRow = {
 			'All LG Area' : {
@@ -2456,6 +2746,10 @@
 			'WWRift' : {
 				arr : ['trWWRiftFactionFocus', 'trWWRiftTrapSetup', 'trWWRiftMBWTrapSetup', 'trWWRiftMBWMinRage'],
 				init : function(data){initControlsWWRift(data);}
+			},
+			'GES' : {
+				arr : ['trGESTrapSetup', 'trGESSDLoadCrate', 'trGESRRRepellent', 'trGESDDStokeEngine'],
+				init : function(data){initControlsGES(data);}
 			},
 		};
 		var i, temp;
