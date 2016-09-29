@@ -7291,7 +7291,9 @@ function bodyJS(){
 		saveSCCustomAlgo();
 	}
 	
-	function initControlsSCCustom(){
+	function initControlsSCCustom(bAutoChangeZone){
+		if(isNullOrUndefined(bAutoChangeZone))
+			bAutoChangeZone = false;
 		var selectSCHuntZone = document.getElementById('selectSCHuntZone');
 		var selectSCHuntZoneEnable = document.getElementById('selectSCHuntZoneEnable');
 		var selectSCHuntBait = document.getElementById('selectSCHuntBait');
@@ -7311,6 +7313,28 @@ function bodyJS(){
 		}
 		
 		storageValue = JSON.parse(storageValue);
+		if(bAutoChangeZone && user.location.indexOf('Sunken City') > -1){
+			var zone = document.getElementsByClassName('zoneName')[0].innerText;
+			var objZone = {
+				'ZONE_TREASURE' : ['Sand Dollar Sea Bar', 'Pearl Patch', 'Sunken Treasure'],
+				'ZONE_DANGER' : ['Feeding Grounds', 'Carnivore Cove'],
+				'ZONE_DANGER_PP' : ['Monster Trench', 'Lair of the Ancients'],
+				'ZONE_OXYGEN' : ['Deep Oxygen Stream', 'Oxygen Stream'],
+				'ZONE_BONUS' : ['Magma Flow'],
+				'ZONE_CORAL' : ['Coral Reef', 'Coral Garden', 'Coral Castle'],
+				'ZONE_SCALE' : ['School of Mice', 'Mermouse Den', 'Lost Ruins'],
+				'ZONE_BARNACLE' : ['Rocky Outcrop', 'Shipwreck', 'Haunted Shipwreck'],
+				'ZONE_DEFAULT' : ['Shallow Shoals', 'Sea Floor', 'Murky Depths'],
+			};
+			for(var prop in objZone){
+				if(objZone.hasOwnProperty(prop)){
+					if(objZone[prop].indexOf(zone) > -1){
+						selectSCHuntZone.value = prop;
+						break;
+					}
+				}
+			}
+		}
 		var nIndex = storageValue.zone.indexOf(selectSCHuntZone.value);
 		if(nIndex < 0)
 			nIndex = 0;
