@@ -2557,7 +2557,7 @@ function twistedGarden(obj) {
     }
     else {
         if(obj.TG.isAutoPour){
-			if (!(Number.isNan(red) || Number.isNaN(yellow))) {
+			if (!(Number.isNaN(red) || Number.isNaN(yellow))) {
 				var pourButton = document.getElementsByClassName('pour')[0];
 				if (!isNullOrUndefined(pourButton)){
 					fireEvent(pourButton, 'click');
