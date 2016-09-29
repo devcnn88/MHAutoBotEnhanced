@@ -1739,14 +1739,17 @@ function SCCustom() {
 		var nextZoneID = [];
 		var distanceToNextZone = [];
 		var isNextZoneInHuntZone = [];
+		var arrZone = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestSunkenCity.zones)'));
 		var i;
-		for (i = 0; i < 2; i++){
-			nextZoneName[i] = getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].name');
-			nextZoneLeft[i] = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[' + (i+2) + '].left'));
+		for(i=1;i<arrZone.length;i++){
+			nextZoneName[i] = arrZone[i].name;
+			nextZoneLeft[i] = arrZone[i].left;
 			nextZoneID[i] = GetSunkenCityZone(nextZoneName[i]);
 			distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
 			isNextZoneInHuntZone[i] = (objSCCustom.isHunt[nextZoneID[i]]);
 			console.plog('Next Zone:', nextZoneName[i], 'in meter', distanceToNextZone[i], 'Is In Hunt Zone:', isNextZoneInHuntZone[i]);
+			if(i == 3)
+				break;
 		}
 		
 		// jet through
