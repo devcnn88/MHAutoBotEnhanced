@@ -1273,18 +1273,16 @@
 		saveMapHunting();
 	}
 	
+	var arrKey = ["SCCustom" , "Labyrinth_" ,"LGArea" , "eventLocation" ,"FW_" , "BRCustom" ,"SGZT" , "Zokor" ,"MapHunting" , "ZTower" ,"BestTrap" , "Iceberg" ,"WWRift" , "GES"];
 	function setLocalToSession(){
-		var key;
-		for(var i=0;i<window.localStorage.length;i++){
+		var i, j, key;
+		for(i=0;i<window.localStorage.length;i++){
 			key = window.localStorage.key(i);
-			if(key.indexOf("SCCustom")>-1 || key.indexOf("Labyrinth_")>-1 ||
-				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
-				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
-				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1 ||
-				key.indexOf("BestTrap")>-1 || key.indexOf("Iceberg")>-1 ||
-				key.indexOf("WWRift")>-1 || key.indexOf("GES")>-1){
-				window.sessionStorage.setItem(key, window.localStorage.getItem(key));
+			for(j=0;j<arrKey.length;j++){
+				if(key.indexOf(arrKey[j]) > -1){
+					window.sessionStorage.setItem(key, window.localStorage.getItem(key));
+					break;
+				}
 			}
 		}
 	}
@@ -1292,19 +1290,15 @@
 	function setSessionToLocal(){
 		if(window.sessionStorage.length==0)
 			return;
-		
-		window.localStorage.setItem('eventLocation', window.sessionStorage.getItem('eventLocation'));
-		var key;
-		for(var i=0;i<window.sessionStorage.length;i++){
+
+		var i, j, key;
+		for(i=0;i<window.sessionStorage.length;i++){
 			key = window.sessionStorage.key(i);
-			if(key.indexOf("SCCustom")>-1 || key.indexOf("Labyrinth_")>-1 ||
-				key.indexOf("LGArea")>-1 || key.indexOf("eventLocation")>-1 ||
-				key.indexOf("FW_")>-1 || key.indexOf("BRCustom")>-1 ||
-				key.indexOf("SGZT")>-1 || key.indexOf("Zokor")>-1 ||
-				key.indexOf("MapHunting")>-1 || key.indexOf("ZTower")>-1 ||
-				key.indexOf("BestTrap")>-1 || key.indexOf("Iceberg")>-1 ||
-				key.indexOf("WWRift")>-1 || key.indexOf("GES")>-1){
-				window.localStorage.setItem(key, window.sessionStorage.getItem(key));
+			for(j=0;j<arrKey.length;j++){
+				if(key.indexOf(arrKey[j]) > -1){
+					window.localStorage.setItem(key, window.sessionStorage.getItem(key));
+					break;
+				}
 			}
 		}
 	}
