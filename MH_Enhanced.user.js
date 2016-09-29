@@ -1740,18 +1740,25 @@ function SCCustom() {
 		var distanceToNextZone = [];
 		var isNextZoneInHuntZone = [];
 		var arrZone = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestSunkenCity.zones)'));
+		var nActiveZone = parseInt(getPageVariable('user.quests.QuestSunkenCity.active_zone'));
 		var i;
-		for(i=1;i<arrZone.length;i++){
+		for(i=0;i<arrZone.length;i++){
+			if(arrZone[i].num == nActiveZone){
+				i++;
+				break;
+			}
+		}
+		for(i=i;i<arrZone.length;i++){
 			nextZoneName[i] = arrZone[i].name;
 			nextZoneLeft[i] = arrZone[i].left;
 			nextZoneID[i] = GetSunkenCityZone(nextZoneName[i]);
 			distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
 			isNextZoneInHuntZone[i] = (objSCCustom.isHunt[nextZoneID[i]]);
 			console.plog('Next Zone:', nextZoneName[i], 'in meter', distanceToNextZone[i], 'Is In Hunt Zone:', isNextZoneInHuntZone[i]);
-			if(i == 3)
-				break;
 		}
-		
+		if(distanceToNextZone.length === 0)
+			distanceToNextZone[0] = 500;
+
 		// jet through
 		var charmElement = document.getElementsByClassName('charm');
 		var charmArmed = getPageVariable("user.trinket_name");
