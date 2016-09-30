@@ -8013,6 +8013,7 @@ function bodyJS(){
 							else
 								break;
 						}
+						selectTrapSetupAtBattery.selectedIndex = nIndex;
 					}
 				}
 			}
