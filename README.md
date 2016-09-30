@@ -3,6 +3,8 @@ MHAutoBotEnhanced
 
 Mousehunt AutoBot Enhanced Edition
 
+The description below is written in 2014 and since then this script has been updated with many features. For more info about it, please visit https://devcnn.wordpress.com/
+
 This is an enhanced version of the script written by Ooiks.
 The core of this script (e.g. auto sound horn, auto refresh trap check) is written by him.
 I have enhanced it in such a way that the script works based on selected algorithm of event or location.
