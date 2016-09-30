@@ -2301,6 +2301,7 @@ function fw(){
 		}
 	}
 	if(objFW.special[objFW.streak] == 'COMMANDER'){
+		checkThenArm(null, 'weapon', objFW.weapon);
 		if(objFW.charmType[objFW.streak].indexOf('Super') > -1)
 			charmName = ["Super Warpath Commander's Charm", "Warpath Commander's Charm"];
 		else
