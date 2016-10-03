@@ -2469,7 +2469,7 @@ function fRift(){
 				break;
 		}
 		console.log('In Training Ground, Fully Charged Battery Level:', nFullBatteryLevel, 'Stored Enerchi:', nStoredEnerchi);
-		if(nFullBatteryLevel >= objFR.enter){
+		if(Number.isInteger(objFR.enter) && nFullBatteryLevel >= objFR.enter){
 			fRiftArmTrap(objFR, nFullBatteryLevel);
 			// enter
 			fireEvent(classBattery[nFullBatteryLevel-1], 'click');
@@ -4550,6 +4550,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select which battery level to enter Pagoda"><b>Enter at Battery</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectEnterAtBattery" onchange="saveFR();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
 			for(var i=1;i<=10;i++)
 				preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
 			preferenceHTMLStr += '</select>';
