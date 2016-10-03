@@ -7587,6 +7587,11 @@ function bodyJS(){
 					selectFWWave.value = 4;
 				else
 					selectFWWave.value = user.viewing_atts.desert_warpath.wave;
+				
+				if(Number.isInteger(user.viewing_atts.desert_warpath.streak.quantity)){
+					if(user.viewing_atts.desert_warpath.streak.quantity !== 0)
+						selectFWStreak.value = user.viewing_atts.desert_warpath.streak.quantity+1;
+				}
 			}
 			var strWave = 'wave'+selectFWWave.value;
 			if(isNullOrUndefined(storageValue[strWave].weapon))
