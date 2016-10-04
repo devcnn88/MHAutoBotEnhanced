@@ -1922,7 +1922,6 @@ function labyrinth() {
 	if (GetCurrentLocation().indexOf("Labyrinth") < 0)
 		return;
 
-	checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 	var labyStatus = getPageVariable("user.quests.QuestLabyrinth.status");
 	var isAtEntrance = (labyStatus=="intersection entrance");
 	var isAtHallway = (labyStatus=="hallway");
@@ -1933,6 +1932,10 @@ function labyrinth() {
 	console.pdebug("Entrance:", isAtEntrance, "Intersection:", isAtIntersection, "Exit:", isAtExit);
 	var objLaby = getStorageToObject('Labyrinth', objDefaultLaby);
 	console.pdebug('District to focus:', objLaby.districtFocus);
+	if(objLaby.districtFocus.toUpperCase() == 'FARMING')
+		checkThenArm('best', 'weapon', ['Event Horizon'].concat(objBestTrap.weapon.forgotten));
+	else
+		checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 	bestLabyBase = bestLabyBase.concat(objBestTrap.base.luck).concat(objBestTrap.base.power);
 	if(objLaby.armOtherBase != 'false'){
 		var charmArmed = getPageVariable('user.trinket_name');
