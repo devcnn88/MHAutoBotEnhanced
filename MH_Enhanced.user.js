@@ -8010,7 +8010,7 @@ function bodyJS(){
 			if(bAutoChangeBatteryLevel && user.location.indexOf('Furoma Rift') > -1 && user.quests.QuestRiftFuroma.view_state == 'pagoda'){
 				var classCharge = document.getElementsByClassName('riftFuromaHUD-droid-charge');
 				if(classCharge.length > 0){
-					var nRemainingEnergy = parseInt(classCharge[0].innerText);
+					var nRemainingEnergy = parseInt(classCharge[0].innerText.replace(/,/g, ''));
 					if(Number.isInteger(nRemainingEnergy)){
 						var arrCumulative = [20,65,140,260,460,770,1220,1835,2625,3600];
 						for(var i=arrCumulative.length-1;i>=0;i--){
