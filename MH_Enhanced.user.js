@@ -183,7 +183,21 @@ var objDefaultFW = {
 	special : new Array(g_fwStreakLength),
 	lastSoldierConfig : 'CONFIG_GOUDA',
 	includeArtillery : true,
-	disarmAfterSupportRetreat : false
+	disarmAfterSupportRetreat : false,
+	warden : {
+		before : {
+			weapon : '',
+			base : '',
+			trinket : '',
+			bait : ''
+		},
+		after : {
+			weapon : '',
+			base : '',
+			trinket : '',
+			bait : ''
+		}
+	}
 };
 
 // // Living Garden Preference
@@ -2214,15 +2228,30 @@ function fw(){
 		wave4 : JSON.parse(JSON.stringify(objDefaultFW)),
 	};
 	var objFWAll = getStorageToObject('FW', objDefaultFWAll);
+	var temp = false;
+	for(var prop in objFWAll){
+		if(objFWAll.hasOwnProperty(prop)){
+			if(assignMissingDefault(objFWAll[prop], objDefaultFW))
+				temp = true;
+		}
+	}
+	if(temp)
+		setStorage('FW', JSON.stringify(objFWAll));
 	var objFW = objFWAll['wave'+wave];
-	assignMissingDefault(objFW, objDefaultFW);
-	checkThenArm(null, 'base', objFW.base);
     if (wave == 4){
-		checkThenArm(null, 'weapon', objFW.weapon);
-		checkThenArm(null, 'bait', 'Gouda');
+		var nWardenLeft = parseInt(document.getElementsByClassName('population')[0].textContent);
+		console.pdebug('Wave:', wave, 'Warden Left:', nWardenLeft);
+		if(Number.isNaN(nWardenLeft))
+			nWardenLeft = 12;
+		temp = (nWardenLeft <= 0) ? "after" : "before";
+		checkThenArm(null, 'weapon', objFW.warden[temp].weapon);
+		checkThenArm(null, 'base', objFW.warden[temp].base);
+		checkThenArm(null, 'trinket', objFW.warden[temp].trinket);
+		checkThenArm(null, 'bait', objFW.warden[temp].bait);
         return;
     }
 
+	checkThenArm(null, 'base', objFW.base);
 	objFW.streak = parseInt(document.getElementsByClassName('streak_quantity')[0].innerText);
     console.pdebug('Wave:', wave, 'Streak:', objFW.streak);
 	if(Number.isNaN(objFW.streak) || objFW.streak < 0 || objFW.streak >= g_fwStreakLength)
@@ -2248,7 +2277,6 @@ function fw(){
 		active : []
 	};
 	objFW.soldierActive = false;
-	var temp;
 	var charmName;
 	for(var i=0;i<population.length;i++){
 		temp = parseInt(population[i].innerText);
@@ -5029,6 +5057,32 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trFW4TrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on warden status"><b>Trap Setup </b></a>';
+			preferenceHTMLStr += '<select id="selectFW4WardenStatus" onchange="initControlsFW();">';
+			preferenceHTMLStr += '<option value="before">Before</option>';
+			preferenceHTMLStr += '<option value="after">After</option>';
+			preferenceHTMLStr += '</select><a><b> Clear Warden</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFW4TrapSetupWeapon" style="width: 75px" onchange="saveFW();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFW4TrapSetupBase" style="width: 75px" onchange="saveFW();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFW4TrapSetupTrinket" style="width: 75px" onchange="saveFW();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFW4TrapSetupBait" onchange="saveFW();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
+			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
+			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
+			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr id="trFWFocusType" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select either Normal (Warrior, Scout, Archer) or Special (Cavalry, Mage)"><b>Soldier Type to Focus</b></a>';
@@ -5240,9 +5294,9 @@ function embedTimer(targetPage) {
 			
 			// insert trap list
 			var objSelectStr = {
-				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon'],
-				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket', 'selectIcebergTrinket', 'selectWWRiftTrapTrinket', 'selectWWRiftMBWTrapTrinket', 'selectGESSDTrapTrinketAfter', 'selectGESSDTrapTrinketBefore', 'selectGESRRTrapTrinket', 'selectGESDCTrapTrinket'],
+				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon'],
+				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket'],
 				bait : ['selectBait']
 			};
 			var temp;
@@ -5678,18 +5732,25 @@ function getStorageToObject(keyName, objDefault){
 		bCheckNewProp = false;
 	}
 	obj = JSON.parse(obj);
-	if(bCheckNewProp)
-		assignMissingDefault(obj, objDefault);
+	if(bCheckNewProp){
+		if(assignMissingDefault(obj, objDefault)){
+			setStorage(keyName, JSON.stringify(obj));
+		}
+	}
 
 	return obj;
 }
 
 function assignMissingDefault(obj, objDefault){
+	var bResave = false;
 	for(var prop in objDefault){
 		if(objDefault.hasOwnProperty(prop) && !obj.hasOwnProperty(prop)){
 			obj[prop] = objDefault[prop];
+			bResave = true;
 		}
 	}
+	
+	return bResave;
 }
 
 function displayTimer(title, nextHornTime, checkTime) {
@@ -5811,22 +5872,36 @@ function soundHorn() {
             }
             else {
                 // some one steal the horn!
-				
-				if(isNewUI) console.plog("Horn missing:",headerStatus);
+
                 // update timer
                 displayTimer("Synchronizing Data...", "Hunter horn is missing. Synchronizing data...", "Hunter horn is missing. Synchronizing data...");
 
-                // try to click on the horn
-                var hornElement = document.getElementsByClassName(strHornButton)[0].firstChild;
-                fireEvent(hornElement, 'click');
-                hornElement = null;
+                if(isNewUI){
+					// sync the time again, maybe user already click the horn
+					retrieveData();
 
-                // clean up
-                headerElement = null;
-                headerStatus = null;
+					checkJournalDate();
 
-                // double check if the horn was already sounded
-                window.setTimeout(function () { afterSoundingHorn(true); }, 5000);
+					// clean up
+					headerElement = null;
+					headerStatus = null;
+
+					// loop again
+					window.setTimeout(function () { countdownTimer(); }, timerRefreshInterval * 1000);
+				}
+				else{
+					// try to click on the horn
+					var hornElement = document.getElementsByClassName(strHornButton)[0].firstChild;
+					fireEvent(hornElement, 'click');
+					hornElement = null;
+
+					// clean up
+					headerElement = null;
+					headerStatus = null;
+
+					// double check if the horn was already sounded
+					window.setTimeout(function () { afterSoundingHorn(true); }, 5000);
+				}
             }
         }
         else {
@@ -7572,10 +7647,19 @@ function bodyJS(){
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var selectFWLastTypeConfigIncludeArtillery = document.getElementById('selectFWLastTypeConfigIncludeArtillery');
 		var selectFWSupportConfig = document.getElementById('selectFWSupportConfig');
+		var selectFW4WardenStatus = document.getElementById('selectFW4WardenStatus');
+		var selectFW4TrapSetupWeapon = document.getElementById('selectFW4TrapSetupWeapon');
+		var selectFW4TrapSetupBase = document.getElementById('selectFW4TrapSetupBase');
+		var selectFW4TrapSetupTrinket = document.getElementById('selectFW4TrapSetupTrinket');
+		var selectFW4TrapSetupBait = document.getElementById('selectFW4TrapSetupBait');
 		var storageValue = window.sessionStorage.getItem('FW');
 		if(isNullOrUndefined(storageValue)){
 			selectFWTrapSetupWeapon.selectedIndex = -1;
 			selectFWTrapSetupBase.selectedIndex = -1;
+			selectFW4TrapSetupWeapon.selectedIndex = -1;
+			selectFW4TrapSetupBase.selectedIndex = -1;
+			selectFW4TrapSetupTrinket.selectedIndex = -1;
+			selectFW4TrapSetupBait.selectedIndex = -1;
 			selectFWFocusType.selectedIndex = -1;
 			selectFWPriorities.selectedIndex = -1;
 			selectFWCheese.selectedIndex = -1;
@@ -7595,9 +7679,10 @@ function bodyJS(){
 				else
 					selectFWWave.value = user.viewing_atts.desert_warpath.wave;
 				
-				if(Number.isInteger(user.viewing_atts.desert_warpath.streak.quantity)){
-					if(user.viewing_atts.desert_warpath.streak.quantity !== 0)
-						selectFWStreak.value = user.viewing_atts.desert_warpath.streak.quantity+1;
+				var nStreak = parseInt(user.viewing_atts.desert_warpath.streak.quantity);
+				if(Number.isInteger(nStreak)){
+					if(nStreak !== 0)
+						selectFWStreak.value = nStreak+1;
 				}
 			}
 			var strWave = 'wave'+selectFWWave.value;
@@ -7605,8 +7690,16 @@ function bodyJS(){
 				storageValue[strWave].weapon = 'Sandtail Sentinel';
 			if(isNullOrUndefined(storageValue[strWave].base))
 				storageValue[strWave].base = 'Physical Brace Base';
-			selectFWTrapSetupWeapon.value = storageValue[strWave].weapon;
-			selectFWTrapSetupBase.value = storageValue[strWave].base;
+			if(selectFWWave.value == 4){
+				selectFW4TrapSetupWeapon.value = storageValue[strWave].warden[selectFW4WardenStatus.value].weapon;
+				selectFW4TrapSetupBase.value = storageValue[strWave].warden[selectFW4WardenStatus.value].base;
+				selectFW4TrapSetupTrinket.value = storageValue[strWave].warden[selectFW4WardenStatus.value].trinket;
+				selectFW4TrapSetupBait.value = storageValue[strWave].warden[selectFW4WardenStatus.value].bait;
+			}
+			else{
+				selectFWTrapSetupWeapon.value = storageValue[strWave].weapon;
+				selectFWTrapSetupBase.value = storageValue[strWave].base;
+			}
 			selectFWFocusType.value = storageValue[strWave].focusType;
 			selectFWPriorities.value = storageValue[strWave].priorities;
 			selectFWCheese.value = storageValue[strWave].cheese[selectFWStreak.selectedIndex];
@@ -7627,12 +7720,16 @@ function bodyJS(){
 			document.getElementById('trFWFocusType').style.display = 'none';
 			document.getElementById('trFWLastType').style.display = 'none';
 			document.getElementById('trFWSupportConfig').style.display = 'none';
+			document.getElementById('trFWTrapSetup').style.display = 'none';
+			document.getElementById('trFW4TrapSetup').style.display = 'table-row';
 		}
 		else{
 			document.getElementById('trFWStreak').style.display = 'table-row';
 			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('trFWLastType').style.display = 'table-row';
 			document.getElementById('trFWSupportConfig').style.display = 'table-row';
+			document.getElementById('trFWTrapSetup').style.display = 'table-row';
+			document.getElementById('trFW4TrapSetup').style.display = 'none';
 			if(selectFWWave.value == 3)
 				selectFWLastTypeConfigIncludeArtillery.disabled = '';
 			else
@@ -7656,6 +7753,11 @@ function bodyJS(){
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var selectFWLastTypeConfigIncludeArtillery = document.getElementById('selectFWLastTypeConfigIncludeArtillery');
 		var selectFWSupportConfig = document.getElementById('selectFWSupportConfig');
+		var selectFW4WardenStatus = document.getElementById('selectFW4WardenStatus');
+		var selectFW4TrapSetupWeapon = document.getElementById('selectFW4TrapSetupWeapon');
+		var selectFW4TrapSetupBase = document.getElementById('selectFW4TrapSetupBase');
+		var selectFW4TrapSetupTrinket = document.getElementById('selectFW4TrapSetupTrinket');
+		var selectFW4TrapSetupBait = document.getElementById('selectFW4TrapSetupBait');
 		var storageValue = window.sessionStorage.getItem('FW');
 		if(isNullOrUndefined(storageValue)){
 			var obj = {
@@ -7668,7 +7770,21 @@ function bodyJS(){
 				special : new Array(nStreakLength),
 				lastSoldierConfig : 'CONFIG_GOUDA',
 				includeArtillery : true,
-				disarmAfterSupportRetreat : false
+				disarmAfterSupportRetreat : false,
+				warden : {
+					before : {
+						weapon : '',
+						base : '',
+						trinket : '',
+						bait : ''
+					},
+					after : {
+						weapon : '',
+						base : '',
+						trinket : '',
+						bait : ''
+					}
+				}
 			};
 			var objAll = {
 				wave1 : JSON.parse(JSON.stringify(obj)),
@@ -7684,8 +7800,16 @@ function bodyJS(){
 			storageValue[strWave].weapon = 'Sandtail Sentinel';
 		if(isNullOrUndefined(storageValue[strWave].base))
 			storageValue[strWave].base = 'Physical Brace Base';
-		storageValue[strWave].weapon = selectFWTrapSetupWeapon.value;
-		storageValue[strWave].base = selectFWTrapSetupBase.value;
+		if(nWave == 4){
+			storageValue[strWave].warden[selectFW4WardenStatus.value].weapon = selectFW4TrapSetupWeapon.value;
+			storageValue[strWave].warden[selectFW4WardenStatus.value].base = selectFW4TrapSetupBase.value;
+			storageValue[strWave].warden[selectFW4WardenStatus.value].trinket = selectFW4TrapSetupTrinket.value;
+			storageValue[strWave].warden[selectFW4WardenStatus.value].bait = selectFW4TrapSetupBait.value;
+		}
+		else{
+			storageValue[strWave].weapon = selectFWTrapSetupWeapon.value;
+			storageValue[strWave].base = selectFWTrapSetupBase.value;
+		}
 		storageValue[strWave].focusType = selectFWFocusType.value;
 		storageValue[strWave].priorities = selectFWPriorities.value;
 		storageValue[strWave].cheese[nStreak] = selectFWCheese.value;
@@ -8460,7 +8584,7 @@ function bodyJS(){
 				init : function(data){initControlsLaby(data);}
 			},
 			'Fiery Warpath' : {
-				arr : ['trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig'],
+				arr : ['trFWWave','trFWTrapSetup','trFW4TrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig'],
 				init : function(data){initControlsFW(data);}
 			},
 			'Burroughs Rift Custom' : {

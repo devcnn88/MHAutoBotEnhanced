@@ -883,6 +883,36 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="trFW4TrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on warden status"><b>Trap Setup</b></a>
+						<select id="selectFW4WardenStatus" onchange="onSelectFW4WardenStatus();">
+							<option value="before">Before</option>
+							<option value="after">After</option>
+						</select><a><b> Clear Warden</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectFW4TrapSetupWeapon" style="width: 75px" onchange="onSelectFW4TrapSetupWeapon();">
+							<option value="Weapon A">Weapon A</option>
+							<option value="Weapon B">Weapon B</option>
+						</select>
+						<select id="selectFW4TrapSetupBase" style="width: 75px" onchange="onSelectFW4TrapSetupBase();">
+							<option value="Base A">Base A</option>
+							<option value="Base B">Base B</option>
+						</select>
+						<select id="selectFW4TrapSetupTrinket" style="width: 75px" onchange="onSelectFW4TrapSetupTrinket();">
+							<option value="Trinket A">Trinket A</option>
+							<option value="Trinket B">Trinket B</option>
+						</select>
+						<select id="selectFW4TrapSetupBait" onchange="onSelectFW4TrapSetupBait();">
+							<option value="None">None</option>
+							<option value="Brie">Brie</option>
+							<option value="Toxic Brie">Toxic Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SB+</option>
+							<option value="Toxic SUPER">Toxic SB+</option>
+						</select>
+					</td>
+				</tr>
 				<tr id="trFWFocusType" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select either Normal (Warrior, Scout, Archer) or Special (Cavalry, Mage)"><b>Soldier Type to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -1768,6 +1798,26 @@
 		saveFW();
 	}
 	
+	function onSelectFW4WardenStatus(){
+		initControlsFW();
+	}
+	
+	function onSelectFW4TrapSetupWeapon(){
+		saveFW();
+	}
+	
+	function onSelectFW4TrapSetupBase(){
+		saveFW();
+	}
+	
+	function onSelectFW4TrapSetupTrinket(){
+		saveFW();
+	}
+	
+	function onSelectFW4TrapSetupBait(){
+		saveFW();
+	}
+
 	function onSelectFWStreakChanged(){
 		initControlsFW();
 	}
@@ -1819,10 +1869,19 @@
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var selectFWLastTypeConfigIncludeArtillery = document.getElementById('selectFWLastTypeConfigIncludeArtillery');
 		var selectFWSupportConfig = document.getElementById('selectFWSupportConfig');
+		var selectFW4WardenStatus = document.getElementById('selectFW4WardenStatus');
+		var selectFW4TrapSetupWeapon = document.getElementById('selectFW4TrapSetupWeapon');
+		var selectFW4TrapSetupBase = document.getElementById('selectFW4TrapSetupBase');
+		var selectFW4TrapSetupTrinket = document.getElementById('selectFW4TrapSetupTrinket');
+		var selectFW4TrapSetupBait = document.getElementById('selectFW4TrapSetupBait');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + selectFWWave.value);
 		if(storageValue === null){
 			selectFWTrapSetupWeapon.selectedIndex = -1;
 			selectFWTrapSetupBase.selectedIndex = -1;
+			selectFW4TrapSetupWeapon.selectedIndex = -1;
+			selectFW4TrapSetupBase.selectedIndex = -1;
+			selectFW4TrapSetupTrinket.selectedIndex = -1;
+			selectFW4TrapSetupBait.selectedIndex = -1;
 			selectFWFocusType.selectedIndex = -1;
 			selectFWPriorities.selectedIndex = -1;
 			selectFWCheese.selectedIndex = -1;
@@ -1838,8 +1897,16 @@
 				storageValue.weapon = 'Sandtail Sentinel';
 			if(isNullOrUndefined(storageValue.base))
 				storageValue.base = 'Physical Brace Base';
-			selectFWTrapSetupWeapon.value = storageValue.weapon;
-			selectFWTrapSetupBase.value = storageValue.base;
+			if(selectFWWave.value == 4){
+				selectFW4TrapSetupWeapon.value = storageValue.warden[selectFW4WardenStatus.value].weapon;
+				selectFW4TrapSetupBase.value = storageValue.warden[selectFW4WardenStatus.value].base;
+				selectFW4TrapSetupTrinket.value = storageValue.warden[selectFW4WardenStatus.value].trinket;
+				selectFW4TrapSetupBait.value = storageValue.warden[selectFW4WardenStatus.value].bait;
+			}
+			else{
+				selectFWTrapSetupWeapon.value = storageValue.weapon;
+				selectFWTrapSetupBase.value = storageValue.base;
+			}
 			selectFWFocusType.value = storageValue.focusType;
 			selectFWPriorities.value = storageValue.priorities;
 			selectFWCheese.value = storageValue.cheese[selectFWStreak.selectedIndex];
@@ -1860,12 +1927,16 @@
 			document.getElementById('trFWFocusType').style.display = 'none';
 			document.getElementById('trFWLastType').style.display = 'none';
 			document.getElementById('trFWSupportConfig').style.display = 'none';
+			document.getElementById('trFWTrapSetup').style.display = 'none';
+			document.getElementById('trFW4TrapSetup').style.display = 'table-row';
 		}
 		else{
 			document.getElementById('trFWStreak').style.display = 'table-row';
 			document.getElementById('trFWFocusType').style.display = 'table-row';
 			document.getElementById('trFWLastType').style.display = 'table-row';
 			document.getElementById('trFWSupportConfig').style.display = 'table-row';
+			document.getElementById('trFWTrapSetup').style.display = 'table-row';
+			document.getElementById('trFW4TrapSetup').style.display = 'none';
 			if(selectFWWave.value == 3)
 				selectFWLastTypeConfigIncludeArtillery.disabled = '';
 			else
@@ -1889,6 +1960,11 @@
 		var selectFWLastTypeConfig = document.getElementById('selectFWLastTypeConfig');
 		var selectFWLastTypeConfigIncludeArtillery = document.getElementById('selectFWLastTypeConfigIncludeArtillery');
 		var selectFWSupportConfig = document.getElementById('selectFWSupportConfig');
+		var selectFW4WardenStatus = document.getElementById('selectFW4WardenStatus');
+		var selectFW4TrapSetupWeapon = document.getElementById('selectFW4TrapSetupWeapon');
+		var selectFW4TrapSetupBase = document.getElementById('selectFW4TrapSetupBase');
+		var selectFW4TrapSetupTrinket = document.getElementById('selectFW4TrapSetupTrinket');
+		var selectFW4TrapSetupBait = document.getElementById('selectFW4TrapSetupBait');
 		var storageValue = window.sessionStorage.getItem('FW_Wave' + nWave);
 		if(storageValue === null){
 			var obj = {
@@ -1901,7 +1977,21 @@
 				special : new Array(nStreakLength),
 				lastSoldierConfig : 'CONFIG_GOUDA',
 				includeArtillery : true,
-				disarmAfterSupportRetreat : false
+				disarmAfterSupportRetreat : false,
+				warden : {
+					before : {
+						weapon : '',
+						base : '',
+						trinket : '',
+						bait : ''
+					},
+					after : {
+						weapon : '',
+						base : '',
+						trinket : '',
+						bait : ''
+					}
+				}
 			};
 			storageValue = JSON.stringify(obj);
 		}
@@ -1910,8 +2000,16 @@
 			storageValue.weapon = 'Sandtail Sentinel';
 		if(isNullOrUndefined(storageValue.base))
 			storageValue.base = 'Physical Brace Base';
-		storageValue.weapon = selectFWTrapSetupWeapon.value;
-		storageValue.base = selectFWTrapSetupBase.value;
+		if(nWave == 4){
+			storageValue.warden[selectFW4WardenStatus.value].weapon = selectFW4TrapSetupWeapon.value;
+			storageValue.warden[selectFW4WardenStatus.value].base = selectFW4TrapSetupBase.value;
+			storageValue.warden[selectFW4WardenStatus.value].trinket = selectFW4TrapSetupTrinket.value;
+			storageValue.warden[selectFW4WardenStatus.value].bait = selectFW4TrapSetupBait.value;
+		}
+		else{
+			storageValue.weapon = selectFWTrapSetupWeapon.value;
+			storageValue.base = selectFWTrapSetupBase.value;
+		}
 		storageValue.focusType = selectFWFocusType.value;
 		storageValue.priorities = selectFWPriorities.value;
 		storageValue.cheese[nStreak] = selectFWCheese.value;
@@ -2714,7 +2812,7 @@
 				init : function(data){initControlsLaby(data);}
 			},
 			'Fiery Warpath' : {
-				arr : ['trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig'],
+				arr : ['trFWWave','trFWTrapSetup','trFWStreak','trFWFocusType','trFWLastType','trFWSupportConfig', 'trFW4TrapSetup'],
 				init : function(data){initControlsFW(data);}
 			},
 			'Burroughs Rift Custom' : {
