@@ -4930,7 +4930,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="false">False</option>';
 			preferenceHTMLStr += '<option value="true">True</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;At Last&nbsp;';
-			preferenceHTMLStr += '<input type="number" id="inputLabyrinthLastHunt" min="2" max="10" style="width:40px" value="2" onchange="saveLaby();">&nbsp;Hunt(s) in Hallway Near 100 Total Clues';
+			preferenceHTMLStr += '<input type="number" id="inputLabyrinthLastHunt" min="2" max="10" style="width:40px" value="2" onchange="onInputLabyrinthLastHuntChanged(this);">&nbsp;Hunt(s) in Hallway Near 100 Total Clues';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
@@ -7439,6 +7439,17 @@ function bodyJS(){
 		var inputLabyrinthLastHunt = document.getElementById('inputLabyrinthLastHunt');
 		var selectLabyrinthDisarm = document.getElementById('selectLabyrinthDisarm');
 		inputLabyrinthLastHunt.disabled = (selectLabyrinthDisarm.value == 'true') ? '' : 'disabled';
+		saveLaby();
+	}
+	
+	function onInputLabyrinthLastHuntChanged(input){
+		var value = parseInt(input.value);
+		var nMin = parseInt(input.min);
+		var nMax = parseInt(input.max);
+		if(value < nMin)
+			input.value = nMin;
+		else if(value > nMax)
+			input.value = nMax;
 		saveLaby();
 	}
 
