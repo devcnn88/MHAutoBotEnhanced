@@ -67,6 +67,9 @@ var krStartHour = 6;
 var krStartHourDelayMin = 10;
 var krStartHourDelayMax = 30;
 
+// // Time offset (in seconds) between client time and internet time
+var g_nTimeOffset = 0;
+
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
 var kingsRewardRetryMax = 3;
@@ -5283,6 +5286,7 @@ function loadPreferenceSettingFromStorage() {
 	kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);
 	pauseAtInvalidLocation = getStorageToVariableBool("PauseLocation", pauseAtInvalidLocation);
 	saveKRImage = getStorageToVariableBool("SaveKRImage", saveKRImage);
+	g_nTimeOffset = getStorageToVariableInt("TimeOffset", g_nTimeOffset);
     discharge = getStorageToVariableBool("discharge", discharge);
 	try{
 		keyKR = [];
@@ -6308,7 +6312,7 @@ function trapCheck() {
 
 function CalculateNextTrapCheckInMinute() {
     if (enableTrapCheck) {
-        var now = new Date();
+		var now = (g_nTimeOffset === 0) ? new Date() : new Date(Date.parse(new Date()) + g_nTimeOffset*1000);
         var temp = (trapCheckTimeDiff * 60) - (now.getMinutes() * 60 + now.getSeconds());
         checkTimeDelay = checkTimeDelayMin + Math.round(Math.random() * (checkTimeDelayMax - checkTimeDelayMin));
         checkTime = (now.getMinutes() >= trapCheckTimeDiff) ? 3600 + temp : temp;
