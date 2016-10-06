@@ -1954,8 +1954,8 @@ function labyrinth() {
 	else
 		checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 	bestLabyBase = bestLabyBase.concat(objBestTrap.base.luck).concat(objBestTrap.base.power);
+	var charmArmed = getPageVariable('user.trinket_name');
 	if(objLaby.armOtherBase != 'false'){
-		var charmArmed = getPageVariable('user.trinket_name');
 		if(charmArmed.indexOf('Compass Magnet') === 0)
 			checkThenArm(null, 'base', objLaby.armOtherBase);
 		else
@@ -1981,6 +1981,8 @@ function labyrinth() {
 			else
 				bLanternActive = (classLantern[0].getAttribute('class').indexOf('inactive') < 0);
 			if(bLanternActive)
+				maxCluePerHunt++;
+			if(charmArmed.indexOf('Lantern Oil') > -1)
 				maxCluePerHunt++;
 			console.plog('Hallway Last Hunt :', lastHunt, 'Total Clues:', totalClue, 'Max Clue Per Hunt:', maxCluePerHunt);
 			if(lastHunt <= objLaby.lastHunt && totalClue >= (100-maxCluePerHunt*lastHunt))
