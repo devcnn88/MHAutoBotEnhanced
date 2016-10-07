@@ -2521,7 +2521,7 @@ function fRiftArmTrap(obj, nIndex){
 	checkThenArm(null, 'weapon', obj.weapon[nIndex]);
 	checkThenArm(null, 'base', obj.base[nIndex]);
 	if(obj.bait[nIndex] == 'ANY_MASTER')
-		checkThenArm('best', 'bait', ['Rift Glutter', 'Rift Susheese', 'Rift Combat']);
+		checkThenArm('any', 'bait', ['Rift Glutter', 'Rift Susheese', 'Rift Combat']);
 	else
 		checkThenArm(null, 'bait', obj.bait[nIndex]);
 	if(obj.trinket[nIndex] == 'None')
