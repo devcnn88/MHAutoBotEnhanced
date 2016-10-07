@@ -8170,7 +8170,7 @@ function bodyJS(){
 			else{
 				nIndex = selectTrapSetupAtBattery.selectedIndex;
 			}
-			selectEnterAtBattery.value = storageValue.enter;
+			selectEnterAtBattery.value = (Number.isInteger(storageValue.enter)) ? storageValue.enter : 'None';
 			selectRetreatAtBattery.value = storageValue.retreat;
 			selectFRTrapWeapon.value = storageValue.weapon[nIndex];
 			selectFRTrapBase.value = storageValue.base[nIndex];
