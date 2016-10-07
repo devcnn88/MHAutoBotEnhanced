@@ -5289,7 +5289,7 @@ function embedTimer(targetPage) {
 						selectViewKR.children[i].style = 'color:red';
 				}
 				strCurrent = selectViewKR.children[i].value.split('~')[2];
-				if(strCurrent == strCurrent.toUpperCase()){
+				if(strCurrent == strCurrent.toUpperCase() && selectViewKR.children[i].style.color != 'red'){
 					selectViewKR.children[i].style = 'color:magenta';
 				}
 			}
