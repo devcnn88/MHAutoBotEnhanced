@@ -2900,7 +2900,8 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
         category = "trinket";
 
 	if(Array.isArray(name)){
-		sort = 'best';
+		if(!(sort == 'best' || sort == 'any'))
+			sort = 'best';
 		if(name.length == 1){
 			sort = null;
 			name = name[0];
@@ -2959,7 +2960,15 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 			}
 		}
     }
-    else{
+    else if(sort == 'any'){
+		for (var i = 0; i < name.length; i++){
+            if (userVariable.indexOf(name[i]) === 0){
+                trapArmed = true;
+                break;
+            }
+        }
+	}
+	else{
         trapArmed = (userVariable.indexOf(name) === 0);
     }
 
