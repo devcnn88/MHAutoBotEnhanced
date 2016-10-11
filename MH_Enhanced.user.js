@@ -1047,10 +1047,12 @@ function ges(){
 	var i, j;
 	var bOnTrain = (getPageVariable('user.quests.QuestTrainStation.on_train') == 'true');
 	var charmArmed = getPageVariable("user.trinket_name");
+	var arrCharm;
+	var nCharmQuantity;
 	if (!bOnTrain){
 		checkThenArm('best', 'weapon', objBestTrap.weapon.law);
 		checkThenArm('best', 'base', objBestTrap.base.luck);
-		var arrCharm = ['Supply Schedule', 'Roof Rack', 'Door Guard', 'Greasy Blob', 'Magmatic Crystal', 'Black Powder', 'Dusty Coal'];
+		arrCharm = ['Supply Schedule', 'Roof Rack', 'Door Guard', 'Greasy Blob', 'Magmatic Crystal', 'Black Powder', 'Dusty Coal'];
 		for(i=0;i<arrCharm.length;i++){
 			if(charmArmed.indexOf(arrCharm) > -1){
 				disarmTrap('trinket');
@@ -1101,14 +1103,14 @@ function ges(){
 	var strStage = '';
 	if(strCurrentPhase.indexOf('Supply Depot') > -1 ){
 		strStage = 'SD';
-		var classSupplyHoarder = document.getElementsByClassName('supplyHoarderTab');
-		var nTurn = parseInt(classSupplyHoarder[0].firstChild.textContent);
+		var nTurn = parseInt(document.getElementsByClassName('supplyHoarderTab')[0].textContent.substr(0, 1));
 		console.plog("Supply Hoarder Turn:", nTurn);
 		if(nTurn <= 0){
-			if(objGES.SD.trinket.before.indexOf('Supply Schedule') > -1){
+			if(objGES.SD.trinket.before.indexOf('Supply Schedule') > -1 && charmArmed.indexOf('Supply Schedule') < 0){
 				var classCharm = document.getElementsByClassName('charms');
 				var linkCharm = classCharm[0].children[0];
-				var nCharmQuantity = parseInt(document.getElementsByClassName('charms')[0].getElementsByClassName('quantity')[0].textContent);
+				nCharmQuantity = parseInt(document.getElementsByClassName('charms')[0].getElementsByClassName('quantity')[0].textContent);
+				console.plog('Supply Schedule Charm Quantity:', nCharmQuantity);
 				if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0)
 					fireEvent(linkCharm, 'click');
 			}
@@ -1133,16 +1135,16 @@ function ges(){
 		strStage = 'RR';
 		if(objGES.RR.trinket == 'AUTO'){
 			// get raider status and arm respective charm
-			var arrCharm = ['Roof Rack', 'Door Guard', 'Greasy Glob'];
+			arrCharm = ['Roof Rack', 'Door Guard', 'Greasy Glob'];
 			var classTrainCarArea = document.getElementsByClassName('trainCarArea');
-			var nCharmQuantity = 0;
+			nCharmQuantity = 0;
 			var strAttack = '';
 			for (i=0;i<classTrainCarArea.length;i++) {
 				if(classTrainCarArea[i].className.indexOf('attacked') > -1){
 					strAttack = classTrainCarArea[i].className.substr(0, classTrainCarArea[i].className.indexOf(' '));
 					nCharmQuantity = parseInt(classTrainCarArea[i].getElementsByClassName('quantity')[0].textContent);
 					console.plog('Raiders Attack:', capitalizeFirstLetter(strAttack), ',', arrCharm[i], 'Charm Quantity:', nCharmQuantity);
-					if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0)
+					if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(arrCharm[i]) < 0)
 						fireEvent(classTrainCarArea[i].firstChild, 'click');
 					else{
 						for(j=0;j<arrCharm.length;j++){
@@ -1168,7 +1170,7 @@ function ges(){
 	}
 	if(strCurrentPhase.indexOf('Daredevil Canyon') > -1 ){
 		strStage = 'DC';
-		var arrCharm = ['Magmatic Crystal Charm', 'Black Powder Charm', 'Dusty Coal Charm'];
+		arrCharm = ['Magmatic Crystal Charm', 'Black Powder Charm', 'Dusty Coal Charm'];
 		if(objGES.DC.trinket == 'AUTO')
 			checkThenArm('best', 'trinket', arrCharm);
 		else{
@@ -1176,9 +1178,9 @@ function ges(){
 			var nIndex = arrCharm.indexOf(objGES.DC.trinket);
 			if(arrCharm.indexOf(objGES.DC.trinket) > -1){
 				var classCharms = document.getElementsByClassName('charms');
-				var nCharmQuantity = parseInt(classCharms[0].children[nIndex].getElementsByClassName('quantity')[0].textContent);
+				nCharmQuantity = parseInt(classCharms[0].children[nIndex].getElementsByClassName('quantity')[0].textContent);
 				console.plog(objGES.DC.trinket, 'Quantity:', nCharmQuantity);
-				if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0)
+				if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(objGES.DC.trinket) < 0)
 					fireEvent(classCharms[0].children[nIndex], 'click');
 			}
 			else
@@ -7295,16 +7297,16 @@ function bodyJS(){
 		var keyName;
 		if(eventAlgo.value == 'Burroughs Rift Custom') keyName = 'BRCustom';
 		else if(eventAlgo.value == 'All LG Area') keyName = 'LGArea';
-		else if(eventAlgo.value == 'SG') keyName = 'SGarden'; 
-		else if(eventAlgo.value == 'ZT') keyName = 'ZTower'; 
-		else if(eventAlgo.value == 'Sunken City Custom') keyName = 'SCCustom'; 
-		else if(eventAlgo.value == 'Labyrinth') keyName = 'Labyrinth'; 
-		else if(eventAlgo.value == 'Zokor') keyName = 'Zokor'; 
-		else if(eventAlgo.value == 'Fiery Warpath') keyName = 'FW'; 
-		else if(eventAlgo.value == 'Furoma Rift') keyName = 'FRift'; 
-		else if(eventAlgo.value == 'Iceberg') keyName = 'Iceberg'; 
-		else if(eventAlgo.value == 'WWRift') keyName = 'WWRift'; 
-		else if(eventAlgo.value == 'GES') keyName = 'GES'; 
+		else if(eventAlgo.value == 'SG') keyName = 'SGarden';
+		else if(eventAlgo.value == 'ZT') keyName = 'ZTower';
+		else if(eventAlgo.value == 'Sunken City Custom') keyName = 'SCCustom';
+		else if(eventAlgo.value == 'Labyrinth') keyName = 'Labyrinth';
+		else if(eventAlgo.value == 'Zokor') keyName = 'Zokor';
+		else if(eventAlgo.value == 'Fiery Warpath') keyName = 'FW';
+		else if(eventAlgo.value == 'Furoma Rift') keyName = 'FRift';
+		else if(eventAlgo.value == 'Iceberg') keyName = 'Iceberg';
+		else if(eventAlgo.value == 'WWRift') keyName = 'WWRift';
+		else if(eventAlgo.value == 'GES') keyName = 'GES';
 		
 		if(!isNullOrUndefined(keyName)){
 			window.sessionStorage.removeItem(keyName);
@@ -7549,19 +7551,19 @@ function bodyJS(){
 			inputLabyrinthDEC.value = 0;
 		}
 		else{
-		storageValue = JSON.parse(storageValue);
-		selectLabyrinthDistrict.value = storageValue.districtFocus;
-		inputLabyrinthLastHunt.value = storageValue.lastHunt;
-		selectLabyrinthDisarm.value = (storageValue.securityDisarm) ? 'true' : 'false';
-		selectHallway15Plain.value = storageValue.between0and14[0];
-		selectHallway1560Plain.value = storageValue.between15and59[0];
-		selectHallway1560Superior.value = storageValue.between15and59[1];
-		selectHallway60Plain.value = storageValue.between60and100[0];
-		selectHallway60Superior.value = storageValue.between60and100[1];
-		selectHallway60Epic.value = storageValue.between60and100[2];
-		selectChooseOtherDoors.value = (storageValue.chooseOtherDoors) ? 'true' : 'false';
-		typeOtherDoors.value = storageValue.typeOtherDoors;
-		selectLabyrinthOtherBase.value = storageValue.armOtherBase;
+			storageValue = JSON.parse(storageValue);
+			selectLabyrinthDistrict.value = storageValue.districtFocus;
+			inputLabyrinthLastHunt.value = storageValue.lastHunt;
+			selectLabyrinthDisarm.value = (storageValue.securityDisarm) ? 'true' : 'false';
+			selectHallway15Plain.value = storageValue.between0and14[0];
+			selectHallway1560Plain.value = storageValue.between15and59[0];
+			selectHallway1560Superior.value = storageValue.between15and59[1];
+			selectHallway60Plain.value = storageValue.between60and100[0];
+			selectHallway60Superior.value = storageValue.between60and100[1];
+			selectHallway60Epic.value = storageValue.between60and100[2];
+			selectChooseOtherDoors.value = (storageValue.chooseOtherDoors) ? 'true' : 'false';
+			typeOtherDoors.value = storageValue.typeOtherDoors;
+			selectLabyrinthOtherBase.value = storageValue.armOtherBase;
 			selectLabyrinthDisarmCompass.value = (storageValue.disarmCompass) ? 'true' : 'false';
 			inputLabyrinthDEC.value = storageValue.nDeadEndClue;
 		}
@@ -8258,7 +8260,7 @@ function bodyJS(){
 	function onSelectWWRiftFaction(){
 		onInputMinRageChanged(document.getElementById('inputMinRage'));
 	}
-
+	
 	function onInputMinRageChanged(input){
 		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
 		var nMin = (selectWWRiftFaction.value == 'MBW_45_48') ? 45 : input.min;
@@ -8392,14 +8394,14 @@ function bodyJS(){
 			else if(selectWWRiftFaction.value == 'MBW_45_48'){
 				nIndex = (selectWWRiftMBWBar4548.selectedIndex < 0) ? 0 : selectWWRiftMBWBar4548.selectedIndex;
 				temp = 'rage4548';
-		}
+			}
 			if(temp !== ''){
 				selectWWRiftMBWTrapWeapon.value = storageValue.MBW[temp].weapon[nIndex];
 				selectWWRiftMBWTrapBase.value = storageValue.MBW[temp].base[nIndex];
 				selectWWRiftMBWTrapTrinket.value = storageValue.MBW[temp].trinket[nIndex];
 				selectWWRiftMBWTrapBait.value = storageValue.MBW[temp].bait[nIndex];
 			}
-			}
+		}
 		if(selectWWRiftFaction.value.indexOf('MBW') > -1){
 			selectWWRiftMBWBar4044.style.display = (selectWWRiftFaction.value == 'MBW_40_44') ? '' : 'none';
 			selectWWRiftMBWBar4548.style.display = (selectWWRiftFaction.value == 'MBW_40_44') ? 'none' : '';
@@ -8562,7 +8564,7 @@ function bodyJS(){
 				selectGESRRTrapTrinket.value = storageValue.RR.trinket;
 			else if(strStage == 'DC')
 				selectGESDCTrapTrinket.value = storageValue.DC.trinket;
-			
+
 			selectGESSDLoadCrate.value = (storageValue.SD.bLoadCrate === true) ? 'true' : 'false';
 			inputMinCrate.value = storageValue.SD.nMinCrate;
 			selectGESRRRepellent.value = (storageValue.RR.bUseRepellent === true) ? 'true' : 'false';
