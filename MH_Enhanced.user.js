@@ -1959,6 +1959,18 @@ function labyrinth() {
 	else
 		checkThenArm('best', 'base', bestLabyBase);
 	
+	var userVariable = undefined;
+	if(objLaby.disarmCompass && charmArmed.indexOf('Compass Magnet') > -1){
+		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
+		for (var i=0;i<userVariable.all_clues.length;i++){
+			if (userVariable.all_clues[i].name.toUpperCase().indexOf("DEAD") > -1){
+				if(userVariable.all_clues[i].quantity <= objLaby.nDeadEndClue)
+					disarmTrap('trinket');
+				break;
+			}
+		}
+	}
+
 	if(isAtHallway){
 		if(objLaby.securityDisarm){
 			var strCurHallwayTier = document.getElementsByClassName('labyrinthHUD-hallwayName')[0].textContent.split(' ')[1].toUpperCase();
@@ -2034,19 +2046,16 @@ function labyrinth() {
 	}
 
 	console.plog(objDoors.debug.join(","));
-	var userVariable = undefined;
 	temp = "";
 	var range = "";
 	var index = [];
 	try	{
-		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
+		if(isNullOrUndefined(userVariable))
+			userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
 		for (var i=0;i<userVariable.all_clues.length;i++){
 			temp = userVariable.all_clues[i].name.toUpperCase();
-			if (temp.indexOf("DEAD") > -1){
-				if(objLaby.disarmCompass && charmArmed.indexOf('Compass Magnet') > -1 && userVariable.all_clues[i].quantity <= objLaby.nDeadEndClue)
-					disarmTrap('trinket');
+			if (temp.indexOf("DEAD") > -1)
 				continue;
-			}
 			index = getAllIndices(objDoors.name, temp);
 			for(var j=0;j<index.length;j++){
 				objDoors.clue[index[j]] = userVariable.all_clues[i].quantity;
