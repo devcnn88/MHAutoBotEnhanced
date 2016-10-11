@@ -770,6 +770,16 @@
 						</select>&nbsp;&nbsp;If Compass Magnet Charm is armed
 					</td>
 				</tr>
+				<tr id="trLabyrinthDisarmCompass" style="display:none;">
+					<td style="height:24px; text-align:right;"><a><b>Disarm Compass Magnet</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectLabyrinthDisarmCompass" onchange="onSelectLabyrinthDisarmCompass();">
+							<option value="true">True</option>
+							<option value="false">False</option>
+						</select>&nbsp;&nbsp;If Dead End Clue &le; :&nbsp;
+						<input type="number" id="inputLabyrinthDEC" min=0 max=100 style="width:40px" value="0" onchange="onInputLabyrinthDECChanged(this);">
+					</td>
+				</tr>
 				<tr id="trPriorities15" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select hallway priorities when focus-district clues less than 15"><b>Priorities (Focus-District Clues < 15)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -1526,6 +1536,21 @@
 	}
 	
 	function onInputLabyrinthLastHuntChanged(){
+		saveLabyrinthHallway();
+	}
+	
+	function onSelectLabyrinthDisarmCompass(){
+		saveLabyrinthHallway();
+	}
+	
+	function onInputLabyrinthDECChanged(input){
+		var value = parseInt(input.value);
+		var nMin = parseInt(input.min);
+		var nMax = parseInt(input.max);
+		if(value < nMin)
+			input.value = nMin;
+		else if(value > nMax)
+			input.value = nMax;
 		saveLabyrinthHallway();
 	}
 	
@@ -2808,7 +2833,7 @@
 				init : function(data){initControlsSCCustom(data);}
 			},
 			'Labyrinth' : {
-				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase'],
+				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass'],
 				init : function(data){initControlsLaby(data);}
 			},
 			'Fiery Warpath' : {

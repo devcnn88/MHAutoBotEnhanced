@@ -265,7 +265,9 @@ var objDefaultLaby = {
 	typeOtherDoors : "SHORTEST_FEWEST",
 	securityDisarm : false,
 	lastHunt : 0,
-	armOtherBase : 'false'
+	armOtherBase : 'false',
+	disarmCompass : true,
+	nDeadEndClue : 0
 };
 var objLength = {
 	SHORT : 0,
@@ -2047,8 +2049,11 @@ function labyrinth() {
 		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
 		for (var i=0;i<userVariable.all_clues.length;i++){
 			temp = userVariable.all_clues[i].name.toUpperCase();
-			if (temp.indexOf("DEAD") > -1)
+			if (temp.indexOf("DEAD") > -1){
+				if(objLaby.disarmCompass && charmArmed.indexOf('Compass Magnet') > -1 && userVariable.all_clues[i].quantity <= objLaby.nDeadEndClue)
+					disarmTrap('trinket');
 				continue;
+			}
 			index = getAllIndices(objDoors.name, temp);
 			for(var j=0;j<index.length;j++){
 				objDoors.clue[index[j]] = userVariable.all_clues[i].quantity;
@@ -4233,7 +4238,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectBestTrapBaseType" onchange="initControlsBestTrap();">';
 			preferenceHTMLStr += '<option value="luck">Luck</option>';
 			preferenceHTMLStr += '<option value="power">Power</option>';
-			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;'
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectBestTrapBase" onchange="saveBestTrap();">';
@@ -4949,6 +4954,17 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectLabyrinthOtherBase" style="width: 75px" onchange="saveLaby();">';
 			preferenceHTMLStr += '<option value="false">False</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;If Compass Magnet Charm is armed';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trLabyrinthDisarmCompass" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Disarm Compass Magnet</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectLabyrinthDisarmCompass" onchange="onSelectLabyrinthDisarmCompass();">';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;If Dead End Clue &le; :&nbsp;';
+			preferenceHTMLStr += '<input type="number" id="inputLabyrinthDEC" min="0" max="20" style="width:40px" value="0" onchange="onInputLabyrinthDECChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
@@ -6983,6 +6999,17 @@ function refreshTrapList() {
 }
 
 function bodyJS(){
+	function limitMinMax(value, min, max){
+		value = parseInt(value);
+		min = parseInt(min);
+		max = parseInt(max);
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
 	function isNullOrUndefined(obj){
 		return (obj === null || obj === undefined || obj === 'null' || obj === 'undefined');
 	}
@@ -7452,13 +7479,17 @@ function bodyJS(){
 	}
 	
 	function onInputLabyrinthLastHuntChanged(input){
-		var value = parseInt(input.value);
-		var nMin = parseInt(input.min);
-		var nMax = parseInt(input.max);
-		if(value < nMin)
-			input.value = nMin;
-		else if(value > nMax)
-			input.value = nMax;
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveLaby();
+	}
+	
+	function onSelectLabyrinthDisarmCompass(){
+		saveLaby();
+		initControlsLaby();
+	}
+	
+	function onInputLabyrinthDECChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
 		saveLaby();
 	}
 
@@ -7471,6 +7502,8 @@ function bodyJS(){
 		var selectHallway60Superior = document.getElementById('selectHallway60Superior');
 		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
+		var inputLabyrinthDEC = document.getElementById('inputLabyrinthDEC');
+		var selectLabyrinthDisarmCompass = document.getElementById('selectLabyrinthDisarmCompass');
 		var storageValue = window.sessionStorage.getItem('Labyrinth');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultLaby = {
@@ -7482,7 +7515,9 @@ function bodyJS(){
 				typeOtherDoors : "SHORTEST_ONLY",
 				securityDisarm : false,
 				lastHunt : 0,
-				armOtherBase : 'false'
+				armOtherBase : 'false',
+				disarmCompass : true,
+				nDeadEndClue : 0
 			};
 			storageValue = JSON.stringify(objDefaultLaby);
 		}
@@ -7497,6 +7532,8 @@ function bodyJS(){
 		storageValue.securityDisarm = (document.getElementById('selectLabyrinthDisarm').value == 'true');
 		storageValue.lastHunt = parseInt(document.getElementById('inputLabyrinthLastHunt').value);
 		storageValue.armOtherBase = selectLabyrinthOtherBase.value;
+		storageValue.disarmCompass = (selectLabyrinthDisarmCompass.value == 'true');
+		storageValue.nDeadEndClue = parseInt(inputLabyrinthDEC.value);
 		window.sessionStorage.setItem('Labyrinth', JSON.stringify(storageValue));
 	}
 
@@ -7513,46 +7550,50 @@ function bodyJS(){
 		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
+		var selectLabyrinthDisarmCompass = document.getElementById('selectLabyrinthDisarmCompass');
+		var inputLabyrinthDEC = document.getElementById('inputLabyrinthDEC');
 		var storageValue = window.sessionStorage.getItem('Labyrinth');
 		if(isNullOrUndefined(storageValue)){
-			var objDefaultLaby = {
-				districtFocus : 'None',
-				between0and14 : ['LP'],
-				between15and59  : ['SP','LS'],
-				between60and100  : ['SP','SS','LE'],
-				chooseOtherDoors : false,
-				typeOtherDoors : "SHORTEST_ONLY",
-				securityDisarm : false,
-				lastHunt : 0,
-				armOtherBase : 'false'
-			};
-			storageValue = JSON.stringify(objDefaultLaby);
+			selectLabyrinthDistrict.selectedIndex = -1;
+			inputLabyrinthLastHunt.value = 2;
+			selectLabyrinthDisarm.selectedIndex = -1;
+			selectHallway15Plain.selectedIndex = -1;
+			selectHallway1560Plain.selectedIndex = -1;
+			selectHallway1560Superior.selectedIndex = -1;
+			selectHallway60Plain.selectedIndex = -1;
+			selectHallway60Superior.selectedIndex = -1;
+			selectHallway60Epic.selectedIndex = -1;
+			selectChooseOtherDoors.selectedIndex = -1;
+			typeOtherDoors.selectedIndex = -1;
+			selectLabyrinthOtherBase.selectedIndex = -1;
+			selectLabyrinthDisarmCompass.selectedIndex = -1;
+			inputLabyrinthDEC.value = 0;
 		}
-			
+		else{
 		storageValue = JSON.parse(storageValue);
 		selectLabyrinthDistrict.value = storageValue.districtFocus;
 		inputLabyrinthLastHunt.value = storageValue.lastHunt;
-		inputLabyrinthLastHunt.disabled = (storageValue.securityDisarm) ? '' : 'disabled';
 		selectLabyrinthDisarm.value = (storageValue.securityDisarm) ? 'true' : 'false';
-		document.getElementById('trPriorities15').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
-		document.getElementById('trPriorities1560').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
-		document.getElementById('trPriorities60').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
-		document.getElementById('trLabyrinthOtherHallway').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
-		if(selectLabyrinthDistrict.value == 'None')
-			return;
-
 		selectHallway15Plain.value = storageValue.between0and14[0];
 		selectHallway1560Plain.value = storageValue.between15and59[0];
 		selectHallway1560Superior.value = storageValue.between15and59[1];
 		selectHallway60Plain.value = storageValue.between60and100[0];
 		selectHallway60Superior.value = storageValue.between60and100[1];
 		selectHallway60Epic.value = storageValue.between60and100[2];
-
-		selectHallway60Epic.style = (selectLabyrinthDistrict.value == 'TREASURY' || selectLabyrinthDistrict.value == 'FARMING') ? 'display:none' : 'display:inline';
 		selectChooseOtherDoors.value = (storageValue.chooseOtherDoors) ? 'true' : 'false';
 		typeOtherDoors.value = storageValue.typeOtherDoors;
-		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 		selectLabyrinthOtherBase.value = storageValue.armOtherBase;
+			selectLabyrinthDisarmCompass.value = (storageValue.disarmCompass) ? 'true' : 'false';
+			inputLabyrinthDEC.value = storageValue.nDeadEndClue;
+		}
+		inputLabyrinthLastHunt.disabled = (storageValue.securityDisarm) ? '' : 'disabled';
+		document.getElementById('trPriorities15').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
+		document.getElementById('trPriorities1560').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
+		document.getElementById('trPriorities60').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
+		document.getElementById('trLabyrinthOtherHallway').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
+		inputLabyrinthDEC.disabled = (storageValue.disarmCompass) ? '' : 'disabled';
+		selectHallway60Epic.style = (selectLabyrinthDistrict.value == 'TREASURY' || selectLabyrinthDistrict.value == 'FARMING') ? 'display:none' : 'display:inline';
+		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 	}
 	
 	function saveLG(){
@@ -8602,7 +8643,7 @@ function bodyJS(){
 				init : function(data){initControlsSCCustom(data);}
 			},
 			'Labyrinth' : {
-				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase'],
+				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass'],
 				init : function(data){initControlsLaby(data);}
 			},
 			'Fiery Warpath' : {
