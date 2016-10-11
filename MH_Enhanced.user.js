@@ -39,7 +39,7 @@ var enableTrapCheck = true;
 // // Trap check time different value (00 minutes - 45 minutes)
 // // Note: Every player had different trap check time, set your trap check time here. It only take effect if enableTrapCheck = true;
 // // Example: If you have XX:00 trap check time then set 00. If you have XX:45 trap check time, then set 45.
-var trapCheckTimeDiff = 00;
+var trapCheckTimeDiff = 0;
 
 // // Extra delay time to trap check. (in seconds)
 // // Note: It only take effect if enableTrapCheck = true;
@@ -388,11 +388,9 @@ console.pdebug = function(){
 
 function FinalizePuzzleImageAnswer(answer)
 {
-	if (answer.length != 5)
-    {
+	if (answer.length != 5) {
 	    //Get a new puzzle
-	    if (kingsRewardRetry >= kingsRewardRetryMax)
-	    {
+	    if (kingsRewardRetry >= kingsRewardRetryMax) {
 	        kingsRewardRetry = 0;
 			setStorage("KingsRewardRetry", kingsRewardRetry);
 			var strTemp = 'Max ' + kingsRewardRetryMax + 'retries. Pls solve it manually ASAP.';
@@ -401,15 +399,12 @@ function FinalizePuzzleImageAnswer(answer)
 			console.perror(strTemp);
 			return;
 	    }
-	    else
-	    {
+	    else {
 	        ++kingsRewardRetry;
 			setStorage("KingsRewardRetry", kingsRewardRetry);
 			var tagName = document.getElementsByTagName("a");
-			for (var i = 0; i < tagName.length; i++)
-			{
-				if (tagName[i].innerText == "Click here to get a new one!")
-				{
+			for (var i = 0; i < tagName.length; i++){
+				if (tagName[i].innerText == "Click here to get a new one!"){
 					fireEvent(tagName[i], 'click');
 					if(isNewUI){
 						var myFrame = document.getElementById('myFrame');
@@ -422,13 +417,11 @@ function FinalizePuzzleImageAnswer(answer)
 			}
 	    }
     }
-    else
-    {
+    else {
 		//Submit answer
         var puzzleAns = document.getElementById("puzzle_answer");
 		if (isNewUI) puzzleAns = document.getElementsByClassName("mousehuntPage-puzzle-form-code")[0];
-		if (!puzzleAns)
-		{
+		if (!puzzleAns){
 			console.pdebug("puzzleAns:", puzzleAns);
 			return;
 		}
@@ -436,8 +429,7 @@ function FinalizePuzzleImageAnswer(answer)
         puzzleAns.value = answer.toLowerCase();
         var puzzleSubmit = document.getElementById("puzzle_submit");
 		if (isNewUI) puzzleSubmit = document.getElementsByClassName("mousehuntPage-puzzle-form-code-button")[0];
-		if (!puzzleSubmit)
-		{
+		if (!puzzleSubmit){
 			console.pdebug("puzzleSubmit:", puzzleSubmit);
 			return;
 		}
@@ -517,9 +509,8 @@ function exeScript() {
     // check the trap check setting first
 	trapCheckTimeDiff = GetTrapCheckTime();
 
-    if (trapCheckTimeDiff == 60 || trapCheckTimeDiff === 0) {
-        trapCheckTimeDiff = 00;
-    }
+    if (trapCheckTimeDiff == 60)
+        trapCheckTimeDiff = 0;
     else if (trapCheckTimeDiff < 0 || trapCheckTimeDiff > 60) {
         // invalid value, just disable the trap check
         enableTrapCheck = false;
@@ -720,7 +711,7 @@ function GetTrapCheckTime(){
 		console.perror('GetTrapCheckTime',e.message);
 		var tempStorage = getStorage('TrapCheckTimeOffset');
 		if (isNullOrUndefined(tempStorage)) {
-		    tempStorage = 00;
+		    tempStorage = 0;
 			setStorage("TrapCheckTimeOffset", tempStorage);
 		}
 		return parseInt(tempStorage);
@@ -5245,15 +5236,6 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBRTrapTrinket" style="width: 75px" onchange="saveBR();">';
-			// preferenceHTMLStr += '<option value="Rift Ultimate Luck">Rift Ultimate Luck</option>';
-			// preferenceHTMLStr += '<option value="Rift Ultimate Power">Rift Ultimate Power</option>';
-			// preferenceHTMLStr += '<option value="Ultimate Luck">Ultimate Luck</option>';
-			// preferenceHTMLStr += '<option value="Ultimate Power">Ultimate Power</option>';
-			// preferenceHTMLStr += '<option value="Rift Power">Rift Power</option>';
-			// preferenceHTMLStr += '<option value="Super Rift Vacuum">Super Rift Vacuum</option>';
-			// preferenceHTMLStr += '<option value="Rift Vacuum">Rift Vacuum</option>';
-			// preferenceHTMLStr += '<option value="Enerchi">Enerchi</option>';
-			// preferenceHTMLStr += '<option value="NoAbove">None of the above</option>';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBRTrapBait" onchange="saveBR();">';
@@ -6049,16 +6031,13 @@ function embedScript() {
     scriptNode.setAttribute('type', 'text/javascript');
     scriptNode.setAttribute('soundedHornAtt', 'false');
     scriptNode.innerHTML = '														\
-		function soundedHorn()														\
-		{																			\
+		function soundedHorn(){														\
 			var scriptNode = document.getElementById("scriptNode");					\
-			if (scriptNode)															\
-			{																		\
+			if (scriptNode){														\
 				scriptNode.setAttribute("soundedHornAtt", "true");					\
 			}																		\
 			scriptNode = null;														\
-		}																			\
-		';
+		}';
 
     // find the head node and insert the script into it
     var headerElement;
@@ -8281,19 +8260,10 @@ function bodyJS(){
 	}
 
 	function onInputMinRageChanged(input){
-		var value = parseInt(input.value);
-		var nMin = parseInt(input.min);
-		var nMax = parseInt(input.max);
 		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
-		if(selectWWRiftFaction.value == 'MBW_45_48')
-			nMin = 45;
-		if(value < nMin)
-			input.value = nMin;
-		
-		if(selectWWRiftFaction.value == 'MBW_40_44')
-			nMax = 44;
-		if(value > nMax)
-			input.value = nMax;
+		var nMin = (selectWWRiftFaction.value == 'MBW_45_48') ? 45 : input.min;
+		var nMax = (selectWWRiftFaction.value == 'MBW_40_44') ? 44 : input.max;
+		input.value = limitMinMax(input.value, nMin, nMax);
 		saveWWRift();
 		initControlsWWRift();
 	}
@@ -8414,34 +8384,25 @@ function bodyJS(){
 			selectWWRiftTrapBait.value = storageValue.faction.bait[nIndex];
 			
 			inputMinRage.value = storageValue.MBW.minRageLLC;
+			var temp = '';
 			if(selectWWRiftFaction.value == 'MBW_40_44'){
-				nIndex = selectWWRiftMBWBar4044.selectedIndex;
-				if(nIndex < 0)
-					nIndex = 0;
-				selectWWRiftMBWTrapWeapon.value = storageValue.MBW.rage4044.weapon[nIndex];
-				selectWWRiftMBWTrapBase.value = storageValue.MBW.rage4044.base[nIndex];
-				selectWWRiftMBWTrapTrinket.value = storageValue.MBW.rage4044.trinket[nIndex];
-				selectWWRiftMBWTrapBait.value = storageValue.MBW.rage4044.bait[nIndex];
+				nIndex = (selectWWRiftMBWBar4044.selectedIndex < 0) ? 0 : selectWWRiftMBWBar4044.selectedIndex;
+				temp = 'rage4044';
 			}
 			else if(selectWWRiftFaction.value == 'MBW_45_48'){
-				nIndex = selectWWRiftMBWBar4548.selectedIndex;
-				if(nIndex < 0)
-					nIndex = 0;
-				selectWWRiftMBWTrapWeapon.value = storageValue.MBW.rage4548.weapon[nIndex];
-				selectWWRiftMBWTrapBase.value = storageValue.MBW.rage4548.base[nIndex];
-				selectWWRiftMBWTrapTrinket.value = storageValue.MBW.rage4548.trinket[nIndex];
-				selectWWRiftMBWTrapBait.value = storageValue.MBW.rage4548.bait[nIndex];
-			}
+				nIndex = (selectWWRiftMBWBar4548.selectedIndex < 0) ? 0 : selectWWRiftMBWBar4548.selectedIndex;
+				temp = 'rage4548';
 		}
+			if(temp !== ''){
+				selectWWRiftMBWTrapWeapon.value = storageValue.MBW[temp].weapon[nIndex];
+				selectWWRiftMBWTrapBase.value = storageValue.MBW[temp].base[nIndex];
+				selectWWRiftMBWTrapTrinket.value = storageValue.MBW[temp].trinket[nIndex];
+				selectWWRiftMBWTrapBait.value = storageValue.MBW[temp].bait[nIndex];
+			}
+			}
 		if(selectWWRiftFaction.value.indexOf('MBW') > -1){
-			if(selectWWRiftFaction.value == 'MBW_40_44'){
-				selectWWRiftMBWBar4044.style.display = '';
-				selectWWRiftMBWBar4548.style.display = 'none';
-			}
-			else{
-				selectWWRiftMBWBar4044.style.display = 'none';
-				selectWWRiftMBWBar4548.style.display = '';
-			}
+			selectWWRiftMBWBar4044.style.display = (selectWWRiftFaction.value == 'MBW_40_44') ? '' : 'none';
+			selectWWRiftMBWBar4548.style.display = (selectWWRiftFaction.value == 'MBW_40_44') ? 'none' : '';
 			document.getElementById('trWWRiftMBWMinRage').style.display = 'table-row';
 			document.getElementById('trWWRiftMBWTrapSetup').style.display = 'table-row';
 			document.getElementById('trWWRiftTrapSetup').style.display = 'none';
