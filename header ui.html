@@ -286,7 +286,7 @@
 							<option value="Labyrinth">Labyrinth</option>
 							<option value="WWRift">WWRift</option>
 							<option value="Zokor">Zokor</option>
-							<option value="SG/ZT">Seasonal Garden</option>
+							<option value="SG">Seasonal Garden</option>
 							<option value="ZT">Zugzwang's Tower</option>
 						</select>
 						<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();">
@@ -585,16 +585,36 @@
 						</select>
 					</td>
 				</tr>
-				<tr id="trSGUseZum" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select to arm Zugzwang's Ultimate Move whenever possible in certain season/location"><b>Use ZUM in</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
-					<td style="height:24px">
-						<select id="selectUseZUM" onchange="onSelectUseZUMChanged();">
-							<option value="None">None</option>
-							<option value="ALL">All Season</option>
+				<tr id="trSGTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select to trap setup based on certain season"><b>Trap Setup For</b></a>
+						<select id="selectSGSeason" onchange="onSelectSGSeason();">
 							<option value="SPRING">Spring</option>
 							<option value="SUMMER">Summer</option>
 							<option value="FALL">Fall</option>
 							<option value="WINTER">Winter</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectSGTrapWeapon" style="width: 75px" onchange="onSelectSGTrapWeapon();">
+							<option value="Weapon A">Weapon A</option>
+							<option value="Weapon B">Weapon B</option>
+						</select>
+						<select id="selectSGTrapBase" style="width: 75px" onchange="onSelectSGTrapBase();">
+							<option value="Base A">Base A</option>
+							<option value="Base B">Base B</option>
+						</select>
+						<select id="selectSGTrapTrinket" style="width: 75px" onchange="onSelectSGTrapTrinket();">
+							<option value="None">None</option>
+							<option value="Trinket A">Trinket A</option>
+							<option value="Trinket B">Trinket B</option>
+						</select>
+						<select id="selectSGTrapBait" style="width: 75px" onchange="onSelectSGTrapBait();">
+							<option value="None">None</option>
+							<option value="Brie Cheese">Brie</option>
+							<option value="Toxic Brie">Toxic Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SB+</option>
+							<option value="Toxic SUPER">Toxic SB+</option>
 						</select>
 					</td>
 				</tr>
@@ -2149,7 +2169,23 @@
 		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 	}
 	
-	function onSelectUseZUMChanged(){
+	function onSelectSGSeason(){
+		initControlsSG();
+	}
+	
+	function onSelectSGTrapWeapon(){
+		saveSGZT();
+	}
+	
+	function onSelectSGTrapBase(){
+		saveSGZT();
+	}
+	
+	function onSelectSGTrapTrinket(){
+		saveSGZT();
+	}
+	
+	function onSelectSGTrapBait(){
 		saveSGZT();
 	}
 	
@@ -2158,33 +2194,65 @@
 	}
 	
 	function saveSGZT(){
-		var selectUseZUM = document.getElementById('selectUseZUM');
+		var selectSGSeason = document.getElementById('selectSGSeason');
+		var selectSGTrapWeapon = document.getElementById('selectSGTrapWeapon');
+		var selectSGTrapBase = document.getElementById('selectSGTrapBase');
+		var selectSGTrapTrinket = document.getElementById('selectSGTrapTrinket');
+		var selectSGTrapBait = document.getElementById('selectSGTrapBait');
 		var selectSGDisarmBait = document.getElementById('selectSGDisarmBait');
 		var storageValue = window.sessionStorage.getItem('SGZT');
-		if(storageValue === null){
+		if(isNullOrUndefined(storageValue)){
 			var objSGZT = {
-				useZUMIn : 'None',
+				weapon : new Array(4).fill(''),
+				base : new Array(4).fill(''),
+				trinket : new Array(4).fill(''),
+				bait : new Array(4).fill(''),
 				disarmBaitAfterCharged : false
 			};
 			storageValue = JSON.stringify(objSGZT);
 		}
 		storageValue = JSON.parse(storageValue);
-		storageValue.useZUMIn = selectUseZUM.value;
+		var nIndex = (selectSGSeason.selectedIndex < 0) ? 0 : selectSGSeason.selectedIndex;
+		storageValue.weapon[nIndex] = selectSGTrapWeapon.value;
+		storageValue.base[nIndex] = selectSGTrapBase.value;
+		storageValue.trinket[nIndex] = selectSGTrapTrinket.value;
+		storageValue.bait[nIndex] = selectSGTrapBait.value;
 		storageValue.disarmBaitAfterCharged = (selectSGDisarmBait.value == 'true');
 		window.sessionStorage.setItem('SGZT', JSON.stringify(storageValue));
 	}
 	
-	function initControlsSGZT(){
-		var selectUseZUM = document.getElementById('selectUseZUM');
+	function initControlsSG(bAutoChangeSeason){
+		if(isNullOrUndefined(bAutoChangeSeason))
+			bAutoChangeSeason = false;
+		var selectSGSeason = document.getElementById('selectSGSeason');
+		var selectSGTrapWeapon = document.getElementById('selectSGTrapWeapon');
+		var selectSGTrapBase = document.getElementById('selectSGTrapBase');
+		var selectSGTrapTrinket = document.getElementById('selectSGTrapTrinket');
+		var selectSGTrapBait = document.getElementById('selectSGTrapBait');
 		var selectSGDisarmBait = document.getElementById('selectSGDisarmBait');
 		var storageValue = window.sessionStorage.getItem('SGZT');
 		if(storageValue === null){
-			selectUseZUM.selectedIndex = -1;
+			selectSGTrapWeapon.selectedIndex = -1;
+			selectSGTrapBase.selectedIndex = -1;
+			selectSGTrapTrinket.selectedIndex = -1;
+			selectSGTrapBait.selectedIndex = -1;
 			selectSGDisarmBait.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			selectUseZUM.value = storageValue.useZUMIn;
+			if(bAutoChangeSeason /*&& user.location.indexOf('Seasonal Garden') > -1*/){
+				var arrSeason = ['Spring', 'Summer', 'Fall', 'Winter'];
+				var nTimeStamp = Date.parse(new Date())/1000;
+				var nFirstSeasonTimeStamp = 1283328000;
+				var nSeasonLength = 288000; // 80hr
+				var nSeason = Math.floor((nTimeStamp - nFirstSeasonTimeStamp)/nSeasonLength) % arrSeason.length;
+				selectSGSeason.value = arrSeason[nSeason].toUpperCase();
+			}
+			var nIndex = (selectSGSeason.selectedIndex < 0) ? 0 : selectSGSeason.selectedIndex;
+			selectSGTrapWeapon.value = storageValue.weapon[nIndex];
+			selectSGTrapBase.value = storageValue.base[nIndex];
+			selectSGTrapTrinket.value = storageValue.trinket[nIndex];
+			selectSGTrapBait.value = storageValue.bait[nIndex];
 			selectSGDisarmBait.value = (storageValue.disarmBaitAfterCharged) ? 'true' : 'false';
 		}
 	}
@@ -2845,7 +2913,7 @@
 				init : function(data){initControlsBR(data);}
 			},
 			'SG' : {
-				arr : ['trSGUseZum','trSGDisarmBait'],
+				arr : ['trSGTrapSetup','trSGDisarmBait'],
 				init : function(data){initControlsSG(data);}
 			},
 			'Zokor' : {
