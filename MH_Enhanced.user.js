@@ -68,6 +68,8 @@ var krStartHourDelayMin = 10;
 var krStartHourDelayMax = 30;
 
 // // Time offset (in seconds) between client time and internet time
+// // +ve - Client time ahead of internet time 
+// // -ve - Internet time ahead of client time 
 var g_nTimeOffset = 0;
 
 // // Maximum retry of solving KR.
@@ -1680,7 +1682,7 @@ function balackCoveJOD(){
 			arrLength : [24, 3, 1, 1, 3, 24],
 			arrAll : []
 		};
-		var nTimeStamp = Math.floor(Date.now()/1000);
+		var nTimeStamp = Math.floor(Date.now()/1000) + g_nTimeOffset*1000;
 		var nFirstTideTimeStamp = 1294708860;
 		var nTideLength = 1200; // 20min
 		for(i=0;i<objBC.arrTide.length;i++){
@@ -6453,7 +6455,7 @@ function trapCheck() {
 
 function CalculateNextTrapCheckInMinute() {
     if (enableTrapCheck) {
-		var now = (g_nTimeOffset === 0) ? new Date() : new Date(Date.parse(new Date()) + g_nTimeOffset*1000);
+		var now = (g_nTimeOffset === 0) ? new Date() : new Date(Date.now() + g_nTimeOffset*1000);
         var temp = (trapCheckTimeDiff * 60) - (now.getMinutes() * 60 + now.getSeconds());
         checkTimeDelay = checkTimeDelayMin + Math.round(Math.random() * (checkTimeDelayMax - checkTimeDelayMin));
         checkTime = (now.getMinutes() >= trapCheckTimeDiff) ? 3600 + temp : temp;
