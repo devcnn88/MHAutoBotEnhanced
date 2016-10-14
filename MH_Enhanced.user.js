@@ -1535,13 +1535,16 @@ function seasonalGarden(){
 		checkThenArm(null, 'bait', 'Gouda');
 	
 	var objDefaultSG = {
-		useZUMIn: 'None',
+		weapon : new Array(4).fill(''),
+		base : new Array(4).fill(''),
+		trinket : new Array(4).fill(''),
+		bait : new Array(4).fill(''),
 		disarmBaitAfterCharged : false
 	};
 	var objSG = getStorageToObject('SGarden', objDefaultSG);
 	objSG.season = ['Spring', 'Summer', 'Fall', 'Winter'];
-	objSG.trap = [objBestTrap.weapon.physical.slice(), objBestTrap.weapon.tactical.slice(), objBestTrap.weapon.shadow.slice(), objBestTrap.weapon.hydro.slice()];
-	var nTimeStamp = Date.parse(new Date())/1000;
+	var now = (g_nTimeOffset === 0) ? new Date() : new Date(Date.now() + g_nTimeOffset*1000);
+	var nTimeStamp = Date.parse(now)/1000;
 	var nFirstSeasonTimeStamp = 1283328000;
 	var nSeasonLength = 288000; // 80hr
 	var nSeason = Math.floor((nTimeStamp - nFirstSeasonTimeStamp)/nSeasonLength) % objSG.season.length;
@@ -1555,16 +1558,19 @@ function seasonalGarden(){
 			nSeason = 0;
 	}
 
-	if(objSG.useZUMIn == 'ALL' || objSG.useZUMIn == objSG.season[nSeason].toUpperCase())
-		objSG.trap[nSeason].unshift('Zugzwang\'s Ultimate Move');
-	checkThenArm('best', 'weapon', objSG.trap[nSeason]);
-	
+	checkThenArm(null, 'weapon', objSG.weapon[nSeason]);
+	checkThenArm(null, 'base', objSG.base[nSeason]);
+	checkThenArm(null, 'trinket', objSG.trinket[nSeason]);
 	if(nCurrentAmp+1 >= nMaxAmp){
 		if(getPageVariable('user.trinket_name').indexOf('Amplifier') > -1)
 			disarmTrap('trinket');
 		if(nCurrentAmp >= nMaxAmp && objSG.disarmBaitAfterCharged)
 			disarmTrap('bait');
+		else
+			checkThenArm(null, 'bait', objSG.bait[nSeason]);
 	}
+	else
+		checkThenArm(null, 'bait', objSG.bait[nSeason]);
 }
 
 function zugzwangTower(){
@@ -4798,23 +4804,35 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
-			preferenceHTMLStr += '<tr id="trSGUseZum" style="display:none;">';
-            preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-            preferenceHTMLStr += '<a title="Select to arm Zugzwang\'s Ultimate Move whenever possible"><b>Use ZUM in</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<select id="selectUseZUM" onChange="saveSG();">';
-			preferenceHTMLStr += '<option value="None">None</option>';
-			preferenceHTMLStr += '<option value="ALL">All Season</option>';
+
+			preferenceHTMLStr += '<tr id="trSGTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to trap setup based on certain season"><b>Trap Setup For </b></a>';
+			preferenceHTMLStr += '<select id="selectSGSeason" onchange="initControlsSG();">';
 			preferenceHTMLStr += '<option value="SPRING">Spring</option>';
 			preferenceHTMLStr += '<option value="SUMMER">Summer</option>';
 			preferenceHTMLStr += '<option value="FALL">Fall</option>';
 			preferenceHTMLStr += '<option value="WINTER">Winter</option>';
-            preferenceHTMLStr += '</select>';
-            preferenceHTMLStr += '</td>';
-            preferenceHTMLStr += '</tr>';
-			
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectSGTrapWeapon" style="width: 75px" onchange="saveSG();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectSGTrapBase" style="width: 75px" onchange="saveSG();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectSGTrapTrinket" style="width: 75px" onchange="saveSG();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectSGTrapBait" style="width: 75px" onchange="saveSG();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
+			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
+			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
+			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
+			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="trSGDisarmBait" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to disarm bait when amplifier is fully charged"><b>Disarm Bait</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5345,9 +5363,9 @@ function embedTimer(targetPage) {
 			
 			// insert trap list
 			var objSelectStr = {
-				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon'],
-				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket'],
+				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon'],
+				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket'],
 				bait : ['selectBait']
 			};
 			var temp;
@@ -7989,33 +8007,65 @@ function bodyJS(){
 	}
 	
 	function saveSG(){
-		var selectUseZUM = document.getElementById('selectUseZUM');
+		var selectSGSeason = document.getElementById('selectSGSeason');
+		var selectSGTrapWeapon = document.getElementById('selectSGTrapWeapon');
+		var selectSGTrapBase = document.getElementById('selectSGTrapBase');
+		var selectSGTrapTrinket = document.getElementById('selectSGTrapTrinket');
+		var selectSGTrapBait = document.getElementById('selectSGTrapBait');
 		var selectSGDisarmBait = document.getElementById('selectSGDisarmBait');
 		var storageValue = window.sessionStorage.getItem('SGarden');
 		if(isNullOrUndefined(storageValue)){
 			var objSG = {
-				useZUMIn : 'None',
+				weapon : new Array(4).fill(''),
+				base : new Array(4).fill(''),
+				trinket : new Array(4).fill(''),
+				bait : new Array(4).fill(''),
 				disarmBaitAfterCharged : false
 			};
 			storageValue = JSON.stringify(objSG);
 		}
 		storageValue = JSON.parse(storageValue);
-		storageValue.useZUMIn = selectUseZUM.value;
+		var nIndex = (selectSGSeason.selectedIndex < 0) ? 0 : selectSGSeason.selectedIndex;
+		storageValue.weapon[nIndex] = selectSGTrapWeapon.value;
+		storageValue.base[nIndex] = selectSGTrapBase.value;
+		storageValue.trinket[nIndex] = selectSGTrapTrinket.value;
+		storageValue.bait[nIndex] = selectSGTrapBait.value;
 		storageValue.disarmBaitAfterCharged = (selectSGDisarmBait.value == 'true');
 		window.sessionStorage.setItem('SGarden', JSON.stringify(storageValue));
 	}
 	
-	function initControlsSG(){
-		var selectUseZUM = document.getElementById('selectUseZUM');
+	function initControlsSG(bAutoChangeSeason){
+		if(isNullOrUndefined(bAutoChangeSeason))
+			bAutoChangeSeason = false;
+		var selectSGSeason = document.getElementById('selectSGSeason');
+		var selectSGTrapWeapon = document.getElementById('selectSGTrapWeapon');
+		var selectSGTrapBase = document.getElementById('selectSGTrapBase');
+		var selectSGTrapTrinket = document.getElementById('selectSGTrapTrinket');
+		var selectSGTrapBait = document.getElementById('selectSGTrapBait');
 		var selectSGDisarmBait = document.getElementById('selectSGDisarmBait');
 		var storageValue = window.sessionStorage.getItem('SGarden');
 		if(isNullOrUndefined(storageValue)){
-			selectUseZUM.selectedIndex = -1;
+			selectSGTrapWeapon.selectedIndex = -1;
+			selectSGTrapBase.selectedIndex = -1;
+			selectSGTrapTrinket.selectedIndex = -1;
+			selectSGTrapBait.selectedIndex = -1;
 			selectSGDisarmBait.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			selectUseZUM.value = storageValue.useZUMIn;
+			if(bAutoChangeSeason && user.location.indexOf('Seasonal Garden') > -1){
+				var arrSeason = ['Spring', 'Summer', 'Fall', 'Winter'];
+				var nTimeStamp = Date.parse(new Date())/1000;
+				var nFirstSeasonTimeStamp = 1283328000;
+				var nSeasonLength = 288000; // 80hr
+				var nSeason = Math.floor((nTimeStamp - nFirstSeasonTimeStamp)/nSeasonLength) % arrSeason.length;
+				selectSGSeason.value = arrSeason[nSeason].toUpperCase();
+			}
+			var nIndex = (selectSGSeason.selectedIndex < 0) ? 0 : selectSGSeason.selectedIndex;
+			selectSGTrapWeapon.value = storageValue.weapon[nIndex];
+			selectSGTrapBase.value = storageValue.base[nIndex];
+			selectSGTrapTrinket.value = storageValue.trinket[nIndex];
+			selectSGTrapBait.value = storageValue.bait[nIndex];
 			selectSGDisarmBait.value = (storageValue.disarmBaitAfterCharged) ? 'true' : 'false';
 		}
 	}
@@ -8658,7 +8708,7 @@ function bodyJS(){
 				init : function(data){initControlsBR(data);}
 			},
 			'SG' : {
-				arr : ['trSGUseZum','trSGDisarmBait'],
+				arr : ['trSGTrapSetup','trSGDisarmBait'],
 				init : function(data){initControlsSG(data);}
 			},
 			'Zokor' : {
