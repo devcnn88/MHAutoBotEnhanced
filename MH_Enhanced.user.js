@@ -791,8 +791,8 @@ function eventLocationCheck(caller) {
 			BurroughRift(1, 5); break;
 		case 'Burroughs Rift Custom':
 			BRCustom(); break;
-		case 'Halloween 2015':
-			Halloween2015(); break;
+		case 'Halloween 2016':
+			Halloween2016(); break;
 		case 'Iceberg':
 			iceberg(); break;
 		case 'WWRift':
@@ -1014,29 +1014,60 @@ function GetCurrentLocation(){
 	return loc;
 }
 
-function Halloween2015()
-{
-	if (GetCurrentLocation().indexOf("Haunted Terrortories") > -1)
-	{
-		var areaName = document.getElementsByClassName('halloweenHud-areaDetails-name')[0].innerHTML;
-		var warning = document.getElementsByClassName('halloweenHud-areaDetails-warning active').length;
-		var isWarning = (warning > 0);
-		console.pdebug('Current Area Name:', areaName, 'Warning:', isWarning);
-		if (isWarning)
-		{
-			var trickContainer = document.getElementsByClassName('halloweenHud-bait trick_cheese clear-block')[0];
-			var treatContainer = document.getElementsByClassName('halloweenHud-bait treat_cheese clear-block')[0];
-			if (trickContainer.children[2].getAttribute('class') == 'armNow active')
-			{
-				console.pdebug('Currently armed: Trick cheese, Going to arm Treat cheese');
+function Halloween2016(){
+	if (GetCurrentLocation().indexOf("Spooky Sandcastle") < 0)
+		return;
+
+	var areaName = document.getElementsByClassName('halloweenHud-areaDetails-name')[0].innerHTML;
+	var warning = document.getElementsByClassName('halloweenHud-areaDetails-warning active').length;
+	var isWarning = (warning > 0);
+	var trickContainer = document.getElementsByClassName('halloweenHud-bait trick_cheese clear-block')[0];
+	var treatContainer = document.getElementsByClassName('halloweenHud-bait treat_cheese clear-block')[0];
+	var bTricking = (trickContainer.children[2].getAttribute('class') == 'armNow active');
+	var bTreating = (treatContainer.children[2].getAttribute('class') == 'armNow active');
+	console.pdebug('Current Area Name:', areaName, 'Warning:', isWarning, 'Tricking:', bTricking, 'Treating:', bTreating);
+	if(!(bTricking || bTreating))
+		return;
+	if (isWarning){
+		if (bTricking){
+			if(parseInt(treatContainer.children[1].textContent) > 0)
 				fireEvent(treatContainer.children[2], 'click');
-			}
-			else
-			{
-				console.pdebug('Currently armed: Treat cheese, Going to arm Trick cheese');
-				fireEvent(trickContainer.children[2], 'click');
+			else{
+				disarmTrap('trinket');
+				checkThenArm(null, 'bait', 'Brie Cheese');
 			}
 		}
+		else{
+			if(parseInt(trickContainer.children[1].textContent) > 0)
+				fireEvent(trickContainer.children[2], 'click');
+			else{
+				disarmTrap('trinket');
+				checkThenArm(null, 'bait', 'Brie Cheese');
+			}
+		}
+	}
+	else{
+		var i;
+		var nSquareMin = 0;
+		var classContent = document.getElementsByClassName('halloweenHud-trinket-content clear-block');
+		for(i=0;i<classContent.length;i+=3){
+			if(classContent[i].children[3].getAttribute('class').indexOf('armNow active') > -1)
+				nSquareMin++;
+		}
+		if(nSquareMin === 0)
+			return;
+		i = (areaName.indexOf('Haunted Dream') > -1) ? 0 : 1 ;
+		var stageContainer = document.getElementsByClassName('halloweenHud-progress-stage-row-container')[i];
+		i = (bTricking) ? 0 : 1 ;
+		var nSquareLeft = stageContainer.children[i].getElementsByTagName('i').length;
+		console.pdebug('Min Square:', nSquareMin, 'Square Left:', nSquareLeft);
+		if(nSquareLeft <= nSquareMin){
+			for(i=0;i<classContent.length;i+=3){
+				if(classContent[i].children[3].getAttribute('class').indexOf('armNow active') > -1)
+					fireEvent(classContent[i].children[3], 'click');
+			}
+		}
+		
 	}
 }
 
@@ -4394,7 +4425,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Fiery Warpath">Fiery Warpath</option>';
 			preferenceHTMLStr += '<option value="Furoma Rift">Furoma Rift</option>';
 			preferenceHTMLStr += '<option value="GES">Gnawnian Express Station</option>';
-			preferenceHTMLStr += '<option value="Halloween 2015">Halloween 2015</option>';
+			preferenceHTMLStr += '<option value="Halloween 2016">Halloween 2016</option>';
 			//preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>'; // not tested yet
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="SG">Seasonal Garden</option>';
