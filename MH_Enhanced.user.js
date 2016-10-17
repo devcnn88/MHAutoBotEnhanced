@@ -1262,7 +1262,7 @@ function wwrift(){
 		},
 	};
 	var objWWRift = getStorageToObject('WWRift', objDefaultWWRift);
-	objWWRift.order = ['Crazed Clearing', 'Gigantic Gnarled Tree', 'Deep Lagoon'];
+	objWWRift.order = ['CC', 'GGT', 'DL'];
 	objWWRift.funnel = ['Cherry Charm', 'Gnarled Charm', 'Stagnant Charm'];
 	objWWRift.rage = new Array(3);
 	var i;
