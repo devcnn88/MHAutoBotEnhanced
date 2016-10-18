@@ -1356,7 +1356,7 @@ function wwrift(){
 			objWWRift.faction.trinket[nIndex] = objWWRift.funnel[temp];
 		}
 		checkThenArm(null, 'trinket', objWWRift.faction.trinket[nIndex]);
-		checkThenArm(null, 'bait', objWWRift.MBW.bait[nIndex]);
+		checkThenArm(null, 'bait', objWWRift.faction.bait[nIndex]);
 	}
 }
 
