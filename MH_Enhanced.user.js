@@ -8436,7 +8436,9 @@ function bodyJS(){
 		window.sessionStorage.setItem('WWRift', JSON.stringify(storageValue));
 	}
 	
-	function initControlsWWRift(){
+	function initControlsWWRift(bAutoChangeRageLevel){
+		if(isNullOrUndefined(bAutoChangeRageLevel))
+			bAutoChangeRageLevel = false;
 		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
 		var selectWWRiftRage = document.getElementById('selectWWRiftRage');
 		var selectWWRiftTrapWeapon = document.getElementById('selectWWRiftTrapWeapon');
@@ -8469,9 +8471,17 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			selectWWRiftFaction.value = storageValue.factionFocus;
-			var nIndex = selectWWRiftRage.selectedIndex;
-			if(nIndex < 0)
-				nIndex = 0;
+			if(bAutoChangeRageLevel && user.location.indexOf('Whisker Woods Rift') > -1){
+				var arrOrder = ['CC', 'GGT', 'DL'];
+				var arrRage = new Array(3);
+				var classRage = document.getElementsByClassName('riftWhiskerWoodsHUD-zone-rageLevel');
+				for(var i=0;i<classRage.length;i++)
+					arrRage[i] = parseInt(classRage[i].textContent);
+				var temp = arrOrder.indexOf(storageValue.factionFocus);
+				if(temp != -1 && Number.isInteger(arrRage[temp]))
+					selectWWRiftRage.selectedIndex = Math.floor(arrRage[temp]/25);
+			}
+			var nIndex = (selectWWRiftRage.selectedIndex < 0) ? 0 : selectWWRiftRage.selectedIndex;
 			selectWWRiftTrapWeapon.value = storageValue.faction.weapon[nIndex];
 			selectWWRiftTrapBase.value = storageValue.faction.base[nIndex];
 			selectWWRiftTrapTrinket.value = storageValue.faction.trinket[nIndex];
