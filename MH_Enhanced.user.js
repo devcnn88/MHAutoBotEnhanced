@@ -1834,30 +1834,29 @@ function SCCustom() {
 	checkThenArm('best', 'base', bestSCBase);
 	var canJet = false;
 	if (!objSCCustom.isHunt[zoneID]){
-		var nextZoneName = [];
-		var nextZoneLeft = [];
-		var nextZoneID = [];
 		var distanceToNextZone = [];
 		var isNextZoneInHuntZone = [];
 		var arrZone = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestSunkenCity.zones)'));
 		var nActiveZone = parseInt(getPageVariable('user.quests.QuestSunkenCity.active_zone'));
-		var i;
+		var nStartZoneIndex = 0;
+		var i, nIndex;
 		for(i=0;i<arrZone.length;i++){
 			if(arrZone[i].num == nActiveZone){
-				i++;
+				nStartZoneIndex = i+1;
 				break;
 			}
 		}
-		for(i=i;i<arrZone.length;i++){
-			nextZoneName[i] = arrZone[i].name;
-			nextZoneLeft[i] = arrZone[i].left;
-			nextZoneID[i] = GetSunkenCityZone(nextZoneName[i]);
-			distanceToNextZone[i] = parseInt((nextZoneLeft[i] - 80) / 0.6);
-			isNextZoneInHuntZone[i] = (objSCCustom.isHunt[nextZoneID[i]]);
-			console.plog('Next Zone:', nextZoneName[i], 'in meter', distanceToNextZone[i], 'Is In Hunt Zone:', isNextZoneInHuntZone[i]);
+		console.plog('Start Zone Index:', nStartZoneIndex);
+		for(i=nStartZoneIndex;i<arrZone.length;i++){
+			nIndex = i-nStartZoneIndex;
+			distanceToNextZone[nIndex] = parseInt((arrZone[i].left - 80) / 0.6);
+			isNextZoneInHuntZone[nIndex] = (objSCCustom.isHunt[GetSunkenCityZone(arrZone[i].name)]);
+			console.plog('Next Zone:', arrZone[i].name, 'in meter', distanceToNextZone[nIndex], 'Is In Hunt Zone:', isNextZoneInHuntZone[nIndex]);
 		}
-		if(distanceToNextZone.length === 0)
-			distanceToNextZone[0] = 500;
+		if(distanceToNextZone.length === 0){
+			distanceToNextZone[0] = 0;
+			isNextZoneInHuntZone[0] = true;
+		}
 
 		// jet through
 		var charmElement = document.getElementsByClassName('charm');
