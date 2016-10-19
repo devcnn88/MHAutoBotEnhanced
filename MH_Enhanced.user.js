@@ -1883,21 +1883,19 @@ function SCCustom() {
 				if (charmArmed.indexOf('Water Jet') !== 0 && canJet)
 					fireEvent(charmElement[1], 'click');
 			}
-			checkThenArm(null, 'bait', 'Gouda');
 		}
 	}
 	
+	checkThenArm(null, 'bait', objSCCustom.bait[zoneID]);
 	if (objSCCustom.isHunt[zoneID] || !canJet){
 		// hunt here
-		var bestOrNull = Array.isArray(objSCCustom.bait[zoneID]) ? 'best' : null;
-		checkThenArm(bestOrNull, 'bait', objSCCustom.bait[zoneID]);
 		if (objSCCustom.trinket[zoneID] == "NoSC")
 			DisarmSCSpecialCharm();
 		else if (objSCCustom.trinket[zoneID] == "None")
 			disarmTrap('trinket');
 		else {
 			if(objSCTrap.hasOwnProperty(objSCCustom.trinket[zoneID])){
-				bestOrNull = Array.isArray(objSCTrap[objSCCustom.trinket[zoneID]]) ? 'best' : null;
+				var bestOrNull = Array.isArray(objSCTrap[objSCCustom.trinket[zoneID]]) ? 'best' : null;
 				checkThenArm(bestOrNull, 'trinket', objSCTrap[objSCCustom.trinket[zoneID]]);
 			}
 		}
