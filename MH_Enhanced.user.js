@@ -1888,16 +1888,16 @@ function SCCustom() {
 	checkThenArm(null, 'bait', objSCCustom.bait[zoneID]);
 	if (objSCCustom.isHunt[zoneID] || !canJet){
 		// hunt here
-		if (objSCCustom.trinket[zoneID] == "NoSC")
-			DisarmSCSpecialCharm();
-		else if (objSCCustom.trinket[zoneID] == "None")
+		if (objSCCustom.trinket[zoneID] == "None")
 			disarmTrap('trinket');
-		else {
-			if(objSCTrap.hasOwnProperty(objSCCustom.trinket[zoneID])){
-				var bestOrNull = Array.isArray(objSCTrap[objSCCustom.trinket[zoneID]]) ? 'best' : null;
-				checkThenArm(bestOrNull, 'trinket', objSCTrap[objSCCustom.trinket[zoneID]]);
-			}
-		}
+		else if (objSCCustom.trinket[zoneID] == "GAC_EAC")
+			checkThenArm('best', 'trinket', objSCTrap.scAnchorTreasure);
+		else if (objSCCustom.trinket[zoneID] == "SAC_EAC")
+			checkThenArm('best', 'trinket', objSCTrap.scAnchorDanger);
+		else if (objSCCustom.trinket[zoneID] == "UAC_EAC")
+			checkThenArm('best', 'trinket', objSCTrap.scAnchorUlti);
+		else
+			checkThenArm(null, 'trinket', objSCCustom.trinket[zoneID]);
 	}
 }
 
@@ -4969,14 +4969,12 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
             preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectSCHuntTrinket" onchange="saveSCCustomAlgo();">';
-			preferenceHTMLStr += '<option value="None">No Charm</option>';
-			preferenceHTMLStr += '<option value="NoSC">No SC Charm</option>';
-			preferenceHTMLStr += '<option value="TT">Treasure Trawling</option>';
-			preferenceHTMLStr += '<option value="EAC">EAC</option>';
-			preferenceHTMLStr += '<option value="scAnchorTreasure">GAC, EAC</option>';
-			preferenceHTMLStr += '<option value="scAnchorDanger">SAC, EAC</option>';
-			preferenceHTMLStr += '<option value="scAnchorUlti">UAC, EAC</option>';
+			preferenceHTMLStr += '<select id="selectSCHuntTrinket" style="width: 75px" onchange="saveSCCustomAlgo();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Empowered Anchor">EAC</option>';
+			preferenceHTMLStr += '<option value="GAC_EAC">GAC, EAC</option>';
+			preferenceHTMLStr += '<option value="SAC_EAC">SAC, EAC</option>';
+			preferenceHTMLStr += '<option value="UAC_EAC">UAC, EAC</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -5398,7 +5396,7 @@ function embedTimer(targetPage) {
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon'],
 				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket'],
 				bait : ['selectBait']
 			};
 			var temp;
@@ -5503,6 +5501,30 @@ function loadPreferenceSettingFromStorage() {
 			setSessionStorage('SCCustom', JSON.stringify(objSCCustomBackward));
 		}
 		
+		keyValue = getStorage("SCCustom");
+		if(!isNullOrUndefined(keyValue)){
+			obj = JSON.parse(keyValue);
+			bResave = false;
+			var arrTempOri = ['NoSC', 'TT', 'EAC', 'scAnchorTreasure', 'scAnchorDanger', 'scAnchorUlti'];
+			var arrTempNew = ['None', 'Treasure Trawling Charm', 'Empowered Anchor', 'GAC_EAC', 'SAC_EAC', 'UAC_EAC'];
+			var nIndex = -1;
+			for(var prop in obj){
+				if(obj.hasOwnProperty(prop) && prop == 'trinket'){
+					for(i=0;i<obj[prop].length;i++){
+						nIndex = arrTempOri.indexOf(obj[prop][i]);
+						if(nIndex > -1){
+							obj[prop][i] = arrTempNew[nIndex];
+							bResave = true;
+						}
+					}
+				}
+			}
+			if(bResave){
+				setStorage("SCCustom", JSON.stringify(obj));
+				setSessionStorage("SCCustom", JSON.stringify(obj));
+			}
+		}
+
 		// Backward compatibility of SGZT
 		keyValue = getStorage("SGZT");
 		if(!isNullOrUndefined(keyValue)){
