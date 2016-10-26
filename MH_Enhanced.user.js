@@ -1239,6 +1239,7 @@ function wwrift(){
 	
 	var objDefaultWWRift = {
 		factionFocus : "CC",
+		factionFocusNext : "Remain",
 		faction : {
 			weapon : new Array(3).fill(''),
 			base : new Array(3).fill(''),
@@ -1262,11 +1263,14 @@ function wwrift(){
 		},
 	};
 	var objWWRift = getStorageToObject('WWRift', objDefaultWWRift);
+	if(isNullOrUndefined(objWWRift.factionFocusNext) || objWWRift.factionFocus === "")
+		objWWRift.factionFocusNext = "Remain";
 	objWWRift.order = ['CC', 'GGT', 'DL'];
-	objWWRift.funnel = ['Cherry Charm', 'Gnarled Charm', 'Stagnant Charm'];
+	objWWRift.funnelCharm = ['Cherry Charm', 'Gnarled Charm', 'Stagnant Charm'];
 	objWWRift.rage = new Array(3);
 	var i;
 	var temp = -1;
+	var tempNext = -1;
 	var nIndex = -1;
 	var classRage = document.getElementsByClassName('riftWhiskerWoodsHUD-zone-rageLevel');
 	for(i=0;i<classRage.length;i++){
@@ -1281,6 +1285,7 @@ function wwrift(){
 	var nBarMinRage = 0;
 	var nIndexCharm = -1;
 	var nLimit = 0;
+	var bResave = false;
 	if(objWWRift.factionFocus == 'MBW_40_44'){
 		for(i=0;i<objWWRift.rage.length;i++){
 			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
@@ -1292,13 +1297,13 @@ function wwrift(){
 		checkThenArm(null, 'weapon', objWWRift.MBW.rage4044.weapon[nIndex]);
 		checkThenArm(null, 'base', objWWRift.MBW.rage4044.base[nIndex]);
 		if(objWWRift.MBW.rage4044.trinket[nIndex].indexOf('FSC') > -1){
-			nIndexCharm = objWWRift.funnel.indexOf(charmArmed);
+			nIndexCharm = objWWRift.funnelCharm.indexOf(charmArmed);
 			nLimit = (nIndex >= 3) ? objWWRift.MBW.minRageLLC : 25;
 			if(nIndexCharm > -1){
 				if(objWWRift.rage[nIndexCharm] >= nLimit){
 					temp = minIndex(objWWRift.rage);
 					if(temp > -1)
-						objWWRift.MBW.rage4044.trinket[nIndex] = objWWRift.funnel[temp];
+						objWWRift.MBW.rage4044.trinket[nIndex] = objWWRift.funnelCharm[temp];
 				}
 				else
 					objWWRift.MBW.rage4044.trinket[nIndex] = charmArmed;
@@ -1306,7 +1311,7 @@ function wwrift(){
 			else{
 				temp = minIndex(objWWRift.rage);
 				if(temp > -1)
-					objWWRift.MBW.rage4044.trinket[nIndex] = objWWRift.funnel[temp];
+					objWWRift.MBW.rage4044.trinket[nIndex] = objWWRift.funnelCharm[temp];
 			}
 		}
 		checkThenArm(null, 'trinket', objWWRift.MBW.rage4044.trinket[nIndex]);
@@ -1325,13 +1330,13 @@ function wwrift(){
 		checkThenArm(null, 'weapon', objWWRift.MBW.rage4548.weapon[nIndex]);
 		checkThenArm(null, 'base', objWWRift.MBW.rage4548.base[nIndex]);
 		if(objWWRift.MBW.rage4548.trinket[nIndex].indexOf('FSC') > -1){
-			nIndexCharm = objWWRift.funnel.indexOf(charmArmed);
+			nIndexCharm = objWWRift.funnelCharm.indexOf(charmArmed);
 			nLimit = (nIndex >= 3) ? 44 : 25;
 			if(nIndexCharm > -1){
 				if(objWWRift.rage[nIndexCharm] >= nLimit){
 					temp = minIndex(objWWRift.rage);
 					if(temp > -1)
-						objWWRift.MBW.rage4548.trinket[nIndex] = objWWRift.funnel[temp];
+						objWWRift.MBW.rage4548.trinket[nIndex] = objWWRift.funnelCharm[temp];
 				}
 				else
 					objWWRift.MBW.rage4548.trinket[nIndex] = charmArmed;
@@ -1339,7 +1344,7 @@ function wwrift(){
 			else{
 				temp = minIndex(objWWRift.rage);
 				if(temp > -1)
-					objWWRift.MBW.rage4548.trinket[nIndex] = objWWRift.funnel[temp];
+					objWWRift.MBW.rage4548.trinket[nIndex] = objWWRift.funnelCharm[temp];
 			}
 		}
 		checkThenArm(null, 'trinket', objWWRift.MBW.rage4548.trinket[nIndex]);
@@ -1353,10 +1358,29 @@ function wwrift(){
 		checkThenArm(null, 'weapon', objWWRift.faction.weapon[nIndex]);
 		checkThenArm(null, 'base', objWWRift.faction.base[nIndex]);
 		if(objWWRift.faction.trinket[nIndex].indexOf('FSC') > -1){
-			objWWRift.faction.trinket[nIndex] = objWWRift.funnel[temp];
+			if(objWWRift.factionFocusNext == "Remain" || objWWRift.factionFocus == objWWRift.factionFocusNext)
+				objWWRift.faction.trinket[nIndex] = objWWRift.funnelCharm[temp];
+			else{
+				var nLastRage = getStorageToVariableInt("LastRage", 0);
+				if(objWWRift.rage[temp] < nLastRage){
+					tempNext = objWWRift.order.indexOf(objWWRift.factionFocusNext);
+					objWWRift.faction.trinket[nIndex] = objWWRift.funnelCharm[tempNext];
+					objWWRift.factionFocus = objWWRift.factionFocusNext;
+					bResave = true;
+				}
+				else
+					objWWRift.faction.trinket[nIndex] = objWWRift.funnelCharm[temp];
+			}
 		}
 		checkThenArm(null, 'trinket', objWWRift.faction.trinket[nIndex]);
 		checkThenArm(null, 'bait', objWWRift.faction.bait[nIndex]);
+		if(bResave){
+			// resave into localStorage
+			var obj = getStorageToObject('WWRift', objDefaultWWRift);
+			obj.factionFocus = objWWRift.factionFocus;
+			setStorage('WWRift', JSON.stringify(obj));
+		}
+		setStorage("LastRage", objWWRift.rage[temp]);
 	}
 }
 
@@ -4536,6 +4560,18 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="DL">Deep Lagoon</option>';
 			preferenceHTMLStr += '<option value="MBW_40_44">MBW 40 &le; Rage &le; 44</option>';
 			preferenceHTMLStr += '<option value="MBW_45_48">MBW 45 &le; Rage &le; 48</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trWWRiftFactionFocusNext" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select next faction to focus on"><b>Next Faction to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectWWRiftFactionNext" onchange="saveWWRift();">';
+			preferenceHTMLStr += '<option value="Remain">Remain</option>';
+			preferenceHTMLStr += '<option value="CC">Crazed Clearing</option>';
+			preferenceHTMLStr += '<option value="GGT">Gigantic Gnarled Tree</option>';
+			preferenceHTMLStr += '<option value="DL">Deep Lagoon</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
@@ -8417,6 +8453,7 @@ function bodyJS(){
 
 	function saveWWRift(){
 		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
+		var selectWWRiftFactionNext = document.getElementById('selectWWRiftFactionNext');
 		var selectWWRiftRage = document.getElementById('selectWWRiftRage');
 		var selectWWRiftTrapWeapon = document.getElementById('selectWWRiftTrapWeapon');
 		var selectWWRiftTrapBase = document.getElementById('selectWWRiftTrapBase');
@@ -8433,6 +8470,7 @@ function bodyJS(){
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultWWRift = {
 				factionFocus : "CC",
+				factionFocusNext : "Remain",
 				faction : {
 					weapon : new Array(3).fill(''),
 					base : new Array(3).fill(''),
@@ -8459,6 +8497,7 @@ function bodyJS(){
 		}
 		storageValue = JSON.parse(storageValue);
 		storageValue.factionFocus = selectWWRiftFaction.value;
+		storageValue.factionFocusNext = selectWWRiftFactionNext.value;
 		var nIndex = selectWWRiftRage.selectedIndex;
 		if(nIndex < 0)
 			nIndex = 0;
@@ -8466,7 +8505,6 @@ function bodyJS(){
 		storageValue.faction.base[nIndex] = selectWWRiftTrapBase.value;
 		storageValue.faction.trinket[nIndex] = selectWWRiftTrapTrinket.value;
 		storageValue.faction.bait[nIndex] = selectWWRiftTrapBait.value;
-		
 		storageValue.MBW.minRageLLC = parseInt(inputMinRage.value);
 		if(selectWWRiftFaction.value == 'MBW_40_44'){
 			nIndex = selectWWRiftMBWBar4044.selectedIndex;
@@ -8493,6 +8531,7 @@ function bodyJS(){
 		if(isNullOrUndefined(bAutoChangeRageLevel))
 			bAutoChangeRageLevel = false;
 		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
+		var selectWWRiftFactionNext = document.getElementById('selectWWRiftFactionNext');
 		var selectWWRiftRage = document.getElementById('selectWWRiftRage');
 		var selectWWRiftTrapWeapon = document.getElementById('selectWWRiftTrapWeapon');
 		var selectWWRiftTrapBase = document.getElementById('selectWWRiftTrapBase');
@@ -8508,6 +8547,7 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('WWRift');
 		if(isNullOrUndefined(storageValue)){
 			selectWWRiftFaction.selectedIndex = -1;
+			selectWWRiftFactionNext.selectedIndex = 0;
 			selectWWRiftRage.selectedIndex = 0;
 			selectWWRiftTrapWeapon.selectedIndex = -1;
 			selectWWRiftTrapBase.selectedIndex = -1;
@@ -8524,6 +8564,7 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			selectWWRiftFaction.value = storageValue.factionFocus;
+			selectWWRiftFactionNext.value = storageValue.factionFocusNext;
 			if(bAutoChangeRageLevel && user.location.indexOf('Whisker Woods Rift') > -1){
 				var arrOrder = ['CC', 'GGT', 'DL'];
 				var arrRage = new Array(3);
@@ -8539,7 +8580,6 @@ function bodyJS(){
 			selectWWRiftTrapBase.value = storageValue.faction.base[nIndex];
 			selectWWRiftTrapTrinket.value = storageValue.faction.trinket[nIndex];
 			selectWWRiftTrapBait.value = storageValue.faction.bait[nIndex];
-			
 			inputMinRage.value = storageValue.MBW.minRageLLC;
 			var temp = '';
 			if(selectWWRiftFaction.value == 'MBW_40_44'){
@@ -8560,11 +8600,13 @@ function bodyJS(){
 		if(selectWWRiftFaction.value.indexOf('MBW') > -1){
 			selectWWRiftMBWBar4044.style.display = (selectWWRiftFaction.value == 'MBW_40_44') ? '' : 'none';
 			selectWWRiftMBWBar4548.style.display = (selectWWRiftFaction.value == 'MBW_40_44') ? 'none' : '';
+			document.getElementById('trWWRiftFactionFocusNext').style.display = 'none';
 			document.getElementById('trWWRiftMBWMinRage').style.display = 'table-row';
 			document.getElementById('trWWRiftMBWTrapSetup').style.display = 'table-row';
 			document.getElementById('trWWRiftTrapSetup').style.display = 'none';
 		}
 		else{
+			document.getElementById('trWWRiftFactionFocusNext').style.display = 'table-row';
 			document.getElementById('trWWRiftMBWMinRage').style.display = 'none';
 			document.getElementById('trWWRiftMBWTrapSetup').style.display = 'none';
 			document.getElementById('trWWRiftTrapSetup').style.display = 'table-row';
@@ -8793,7 +8835,7 @@ function bodyJS(){
 				init : function(data){initControlsIceberg(data);}
 			},
 			'WWRift' : {
-				arr : ['trWWRiftFactionFocus', 'trWWRiftTrapSetup', 'trWWRiftMBWTrapSetup', 'trWWRiftMBWMinRage'],
+				arr : ['trWWRiftFactionFocus', 'trWWRiftFactionFocusNext', 'trWWRiftTrapSetup', 'trWWRiftMBWTrapSetup', 'trWWRiftMBWMinRage'],
 				init : function(data){initControlsWWRift(data);}
 			},
 			'GES' : {

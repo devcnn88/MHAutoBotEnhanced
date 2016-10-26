@@ -384,6 +384,17 @@
 						</select>
 					</td>
 				</tr>
+				<tr id="trWWRiftFactionFocusNext" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select next faction to focus on"><b>Next Faction to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectWWRiftFactionNext" onchange="onSelectWWRiftFactionNext();">
+							<option value="Remain">Remain</option>
+							<option value="CC">Crazed Clearing</option>
+							<option value="GGT">Gigantic Gnarled Tree</option>
+							<option value="DL">Deep Lagoon</option>
+						</select>
+					</td>
+				</tr>
 				<tr id="trWWRiftTrapSetup" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select to trap setup based on certain range of rage"><b>Trap Setup for Rage</b></a>
 						<select id="selectWWRiftRage" onchange="onSelectWWRiftRage();">
@@ -2466,6 +2477,10 @@
 		onInputMinRageChanged(document.getElementById('inputMinRage'));
 	}
 	
+	function onSelectWWRiftFactionNext(){
+		saveWWRift();
+	}
+	
 	function onSelectWWRiftRage(){
 		initControlsWWRift();
 	}
@@ -2530,6 +2545,7 @@
 
 	function saveWWRift(){
 		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
+		var selectWWRiftFactionNext = document.getElementById('selectWWRiftFactionNext');
 		var selectWWRiftRage = document.getElementById('selectWWRiftRage');
 		var selectWWRiftTrapWeapon = document.getElementById('selectWWRiftTrapWeapon');
 		var selectWWRiftTrapBase = document.getElementById('selectWWRiftTrapBase');
@@ -2546,6 +2562,7 @@
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultWWRift = {
 				factionFocus : "CC",
+				factionFocusNext : "Remain",
 				faction : {
 					weapon : new Array(3).fill(''),
 					base : new Array(3).fill(''),
@@ -2572,6 +2589,7 @@
 		}
 		storageValue = JSON.parse(storageValue);
 		storageValue.factionFocus = selectWWRiftFaction.value;
+		storageValue.factionFocusNext = selectWWRiftFactionNext.value;
 		var nIndex = selectWWRiftRage.selectedIndex;
 		if(nIndex < 0)
 			nIndex = 0;
@@ -2604,6 +2622,7 @@
 	
 	function initControlsWWRift(){
 		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
+		var selectWWRiftFactionNext = document.getElementById('selectWWRiftFactionNext');
 		var selectWWRiftRage = document.getElementById('selectWWRiftRage');
 		var selectWWRiftTrapWeapon = document.getElementById('selectWWRiftTrapWeapon');
 		var selectWWRiftTrapBase = document.getElementById('selectWWRiftTrapBase');
@@ -2619,6 +2638,7 @@
 		var storageValue = window.sessionStorage.getItem('WWRift');
 		if(isNullOrUndefined(storageValue)){
 			selectWWRiftFaction.selectedIndex = -1;
+			selectWWRiftFactionNext.selectedIndex = -1;
 			selectWWRiftRage.selectedIndex = 0;
 			selectWWRiftTrapWeapon.selectedIndex = -1;
 			selectWWRiftTrapBase.selectedIndex = -1;
@@ -2635,6 +2655,7 @@
 		else{
 			storageValue = JSON.parse(storageValue);
 			selectWWRiftFaction.value = storageValue.factionFocus;
+			selectWWRiftFactionNext.value = storageValue.factionFocusNext;
 			var nIndex = selectWWRiftRage.selectedIndex;
 			if(nIndex < 0)
 				nIndex = 0;
@@ -2672,11 +2693,13 @@
 				selectWWRiftMBWBar4044.style.display = 'none';
 				selectWWRiftMBWBar4548.style.display = '';
 			}
+			document.getElementById('trWWRiftFactionFocusNext').style.display = 'none';
 			document.getElementById('trWWRiftMBWMinRage').style.display = 'table-row';
 			document.getElementById('trWWRiftMBWTrapSetup').style.display = 'table-row';
 			document.getElementById('trWWRiftTrapSetup').style.display = 'none';
 		}
 		else{
+			document.getElementById('trWWRiftFactionFocusNext').style.display = 'table-row';
 			document.getElementById('trWWRiftMBWMinRage').style.display = 'none';
 			document.getElementById('trWWRiftMBWTrapSetup').style.display = 'none';
 			document.getElementById('trWWRiftTrapSetup').style.display = 'table-row';
@@ -2929,7 +2952,7 @@
 				init : function(data){initControlsIceberg(data);}
 			},
 			'WWRift' : {
-				arr : ['trWWRiftFactionFocus', 'trWWRiftTrapSetup', 'trWWRiftMBWTrapSetup', 'trWWRiftMBWMinRage'],
+				arr : ['trWWRiftFactionFocus', 'trWWRiftFactionFocusNext', 'trWWRiftTrapSetup', 'trWWRiftMBWTrapSetup', 'trWWRiftMBWMinRage'],
 				init : function(data){initControlsWWRift(data);}
 			},
 			'GES' : {
