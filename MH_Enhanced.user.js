@@ -5336,7 +5336,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px;">';
-            preferenceHTMLStr += '<input type="number" id="ToggleCanisterInput" min="1" max="10" value="1" onchange="saveBR();">&nbsp;&nbsp;Hunt(s)';
+            preferenceHTMLStr += '<input type="number" id="inputToggleCanister" min="1" max="999" value="1" onchange="onInputToggleCanisterChanged(this);">&nbsp;&nbsp;Hunt(s)';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
@@ -8034,10 +8034,15 @@ function bodyJS(){
 		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 		initControlsBR();
 	}
+	
+	function onInputToggleCanisterChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveBR();
+	}
 
 	function initControlsBR(){
 		var hunt = document.getElementById('selectBRHuntMistTier');
-		var toggle = document.getElementById('ToggleCanisterInput');
+		var toggle = document.getElementById('inputToggleCanister');
 		var weapon = document.getElementById('selectBRTrapWeapon');
 		var base = document.getElementById('selectBRTrapBase');
 		var trinket = document.getElementById('selectBRTrapTrinket');
@@ -8066,7 +8071,7 @@ function bodyJS(){
 	
 	function saveBR(){
 		var hunt = document.getElementById('selectBRHuntMistTier').value;
-		var nToggle = parseInt(document.getElementById('ToggleCanisterInput').value);
+		var nToggle = parseInt(document.getElementById('inputToggleCanister').value);
 		var weapon = document.getElementById('selectBRTrapWeapon').value;
 		var base = document.getElementById('selectBRTrapBase').value;
 		var trinket = document.getElementById('selectBRTrapTrinket').value;
