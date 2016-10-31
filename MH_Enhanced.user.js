@@ -5161,6 +5161,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
+			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
+			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
 			preferenceHTMLStr += '<option value="Glowing Gruyere">GG</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;';
 			preferenceHTMLStr += '<select id="selectZokorTrinket" onChange="saveZokor();">';
