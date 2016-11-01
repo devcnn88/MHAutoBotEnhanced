@@ -2004,10 +2004,6 @@ function labyrinth() {
 	console.pdebug("Entrance:", isAtEntrance, "Intersection:", isAtIntersection, "Exit:", isAtExit);
 	var objLaby = getStorageToObject('Labyrinth', objDefaultLaby);
 	console.pdebug('District to focus:', objLaby.districtFocus);
-	if(objLaby.districtFocus.toUpperCase() == 'FARMING')
-		checkThenArm('best', 'weapon', ['Event Horizon'].concat(objBestTrap.weapon.forgotten));
-	else
-		checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 	bestLabyBase = bestLabyBase.concat(objBestTrap.base.luck).concat(objBestTrap.base.power);
 	var charmArmed = getPageVariable('user.trinket_name');
 	if(objLaby.armOtherBase != 'false'){
@@ -2032,8 +2028,13 @@ function labyrinth() {
 	}
 
 	if(isAtHallway){
+		var strCurHallwayFullname = document.getElementsByClassName('labyrinthHUD-hallwayName')[0].textContent.toUpperCase();
+		if(strCurHallwayFullname.indexOf('FARMING') > -1)
+			checkThenArm('best', 'weapon', ['Event Horizon'].concat(objBestTrap.weapon.forgotten));
+		else
+			checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 		if(objLaby.securityDisarm){
-			var strCurHallwayTier = document.getElementsByClassName('labyrinthHUD-hallwayName')[0].textContent.split(' ')[1].toUpperCase();
+			var strCurHallwayTier = strCurHallwayFullname.split(' ')[1];
 			var maxCluePerHunt = 0;
 			if(strCurHallwayTier == 'PLAIN')
 				maxCluePerHunt = 1;
@@ -2059,6 +2060,7 @@ function labyrinth() {
 	}
 
 	if(isAtEntrance || isAtExit || objLaby.districtFocus.indexOf('None') > -1){
+		checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 		checkThenArm(null, 'bait', 'Gouda');
 		disarmTrap('trinket');
 		return;
@@ -2188,6 +2190,10 @@ function labyrinth() {
 				}
 				for(var i=0;i<arrTemp.length;i++){
 					if(objDoors.name[arrTemp[i]].indexOf("BROKEN") < 0){
+						if(objDoors.name[arrTemp[i]].indexOf('FARMING') > -1)
+							checkThenArm('best', 'weapon', ['Event Horizon'].concat(objBestTrap.weapon.forgotten));
+						else
+							checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 						checkThenArm(null, 'bait', 'Gouda');
 						disarmTrap('trinket');
 						fireEvent(doorsIntersect[arrTemp[i]], 'click');
@@ -2197,6 +2203,7 @@ function labyrinth() {
 				}
 			}
 			else{
+				checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 				checkThenArm(null, 'bait', 'Gouda');
 				disarmTrap('trinket');
 			}
@@ -2244,6 +2251,7 @@ function labyrinth() {
 	}
 	catch (e){
 		console.perror('labyrinth',e.message);
+		checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 		checkThenArm(null, 'bait', 'Gouda');
 		disarmTrap('trinket');
 		return;
