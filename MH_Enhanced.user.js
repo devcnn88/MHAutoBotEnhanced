@@ -317,6 +317,7 @@ var checkMouseResult = null;
 var mouseList = [];
 var discharge = false;
 var arming = false;
+var g_arrArmingList = [];
 var kingsRewardRetry = 0;
 var keyKR = [];
 var separator = "~";
@@ -3053,7 +3054,8 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 		checkThenArm(sort, category, name, false);
 	}
     else if (trapArmed === false){
-        var intervalCTA = setInterval(
+        addArmingIntoList(category);
+		var intervalCTA = setInterval(
             function (){
                 if (arming === false){
                     clickThenArmTrapInterval(sort, category, name);
@@ -3065,20 +3067,32 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
     }
 }
 
-function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attraction
-{
+function addArmingIntoList(category){
+	g_arrArmingList.push(category);
+}
+
+function deleteArmingFromList(category){
+	var nIndex = g_arrArmingList.indexOf(category);
+	if(nIndex > -1)
+		g_arrArmingList.splice(nIndex, 1);
+}
+
+function isArmingInList(){
+	return (g_arrArmingList.length > 0);
+}
+
+function clickThenArmTrapInterval(sort, trap, name){ //sort = power/luck/attraction
     clickTrapSelector(trap);
     var sec = secWait;
 	var armStatus = LOADING;
 	var retry = armTrapRetry;
     var intervalCTATI = setInterval(
-        function ()
-        {
+        function (){
             armStatus = armTrap(sort, trap, name);
-			if (armStatus != LOADING)
-            {
+			if (armStatus != LOADING){
                 if(isNewUI)
 					closeTrapSelector(trap);
+				deleteArmingFromList(trap);
 				clearInterval(intervalCTATI);
                 arming = false;
                 intervalCTATI = null;
@@ -3091,16 +3105,14 @@ function clickThenArmTrapInterval(sort, trap, name) //sort = power/luck/attracti
 				}
                 return;
             }
-            else
-            {
+            else{
                 --sec;
-                if (sec <= 0)
-                {
+                if (sec <= 0){
                     clickTrapSelector(trap);
                     sec = secWait;
 					--retry;
-					if (retry <= 0)
-					{
+					if (retry <= 0){
+						deleteArmingFromList(trap);
 						clearInterval(intervalCTATI);
 						arming = false;
 						intervalCTATI = null;
@@ -3750,7 +3762,7 @@ function countdownTimer() {
 
 			// pause script
 		}
-		else if (baitQuantity === 0) {
+		else if (baitQuantity === 0 && !isArmingInList()) {
 			// update timer
 			displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
 			displayLocation(huntLocation);
