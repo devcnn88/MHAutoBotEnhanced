@@ -2584,7 +2584,7 @@ function fRift(){
 		if(Number.isInteger(objFR.enter) && nFullBatteryLevel >= objFR.enter){
 			fRiftArmTrap(objFR, nFullBatteryLevel);
 			// enter
-			fireEvent(classBattery[nFullBatteryLevel-1], 'click');
+			fireEvent(classBattery[objFR.enter-1], 'click');
 			window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
 		}
 		else{
@@ -2596,8 +2596,29 @@ function fRift(){
 function fRiftArmTrap(obj, nIndex){
 	checkThenArm(null, 'weapon', obj.weapon[nIndex]);
 	checkThenArm(null, 'base', obj.base[nIndex]);
-	if(obj.bait[nIndex] == 'ANY_MASTER')
-		checkThenArm('any', 'bait', ['Rift Glutter', 'Rift Susheese', 'Rift Combat']);
+	if(obj.bait[nIndex] == 'ANY_MASTER'){
+		var objMasterCheese = {
+			name : ['Rift Glutter', 'Rift Combat', 'Rift Susheese'],
+			quantity : new Array(3).fill(0),
+			arm : []
+		};
+		var classFuromaHUD = document.getElementsByClassName('riftFuromaHUD-item');
+		var i;
+		for(i=7;i<=9;i++){
+			if(i >= classFuromaHUD.length)
+				break;
+			objMasterCheese.quantity[i-7] = parseInt(classFuromaHUD[i].textContent);
+		}
+		for(i=0;i<objMasterCheese.name.length;i++){
+			if(objMasterCheese.quantity[i] > 1)
+				objMasterCheese.arm.push(objMasterCheese.name[i]);
+		}
+		console.plog(objMasterCheese);
+		if(objMasterCheese.arm.length > 0)
+			checkThenArm('any', 'bait', objMasterCheese.arm);
+		else
+			checkThenArm('any', 'bait', objMasterCheese.name);
+	}
 	else
 		checkThenArm(null, 'bait', obj.bait[nIndex]);
 	if(obj.trinket[nIndex] == 'None')
@@ -4750,7 +4771,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Rift Glutter">Rift Glutter</option>';
 			preferenceHTMLStr += '<option value="Rift Susheese">Rift Susheese</option>';
 			preferenceHTMLStr += '<option value="Rift Combat">Rift Combat</option>';
-			preferenceHTMLStr += '<option value="ANY_MASTER">Glutter/Susheese/Combat</option>';
+			preferenceHTMLStr += '<option value="ANY_MASTER">Glutter/Combat/Susheese</option>';
 			preferenceHTMLStr += '<option value="Master Fusion">Master Fusion</option>';
 			preferenceHTMLStr += '<option value="Maki String">Maki</option>';
 			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
