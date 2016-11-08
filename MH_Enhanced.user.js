@@ -2743,10 +2743,11 @@ function twistedGarden(obj) {
 function cursedCity(obj) {
     checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 	checkThenArm(null, 'bait', 'Graveblossom');
-	var cursed = getPageVariable('user.quests.QuestLostCity.minigame.is_cursed');
+	var objCC = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLostCity.minigame)'));
     var curses = "";
     var charmArmed = getPageVariable('user.trinket_name');
-    if (cursed == 'false'){
+	console.plog(objCC);
+    if (objCC.is_cursed === false){
 		checkThenArm(null, 'base', obj.CC.base.after);
         if (obj.CC.trinket.after.indexOf('Bravery') > -1 || obj.CC.trinket.after.indexOf('Shine') > -1 || obj.CC.trinket.after.indexOf('Clarity') > -1)
             obj.CC.trinket.after = 'None';
@@ -2754,11 +2755,10 @@ function cursedCity(obj) {
     }
     else{
         var cursedCityCharm = [];
-		for (var i = 0; i < 3; ++i){
-            curses = getPageVariable('user.quests.QuestLostCity.minigame.curses[' + i + '].active');
-            if (curses == 'true'){
-				switch (i)
-                {
+		for (var i = 0; i < objCC.curses.length; ++i){
+            console.plog("i:", i, "Active:", objCC.curses[i].active);
+			if(objCC.curses[i].active){
+				switch (i){
                     case 0:
                         console.pdebug("Fear Active");
 						cursedCityCharm.push('Bravery');
@@ -2772,9 +2772,9 @@ function cursedCity(obj) {
 						cursedCityCharm.push('Clarity');
 						break;
                 }
-            }
+			}
         }
-		checkThenArm('best', 'trinket', cursedCityCharm);
+		checkThenArm('any', 'trinket', cursedCityCharm);
 		checkThenArm('best', 'base', bestLGBase);
     }
 }
