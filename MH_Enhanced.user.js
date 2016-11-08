@@ -3037,6 +3037,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 		}
     }
     else if(sort == 'any'){
+		trapArmed = false;
 		for (var i = 0; i < name.length; i++){
             if (userVariable.indexOf(name[i]) === 0){
                 trapArmed = true;
@@ -3136,7 +3137,7 @@ function armTrapClassicUI(sort, trap, name){
 	var nIndex = -1;
 	var nameArray = name;
 	
-    if (sort == 'best')
+    if (sort == 'best' || sort == 'any')
         name = name[0];
     
     if (tagGroupElement.length > 0)
@@ -3196,7 +3197,7 @@ function armTrapNewUI(sort, trap, name){
     var nameElement;
 	var nameArray = name;
 	
-    if (sort == 'best')
+    if (sort == 'best' || sort == 'any')
         name = name[0];
 	
 	if (passedFiltersEle.length > 0) {
