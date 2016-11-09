@@ -276,6 +276,7 @@
 							<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>
 							<option value="Burroughs Rift Custom">Burroughs Rift Custom</option>
 							<option value="FG/AR">FG => AR</option>
+							<option value="Fort Rox">Fort Rox</option>
 							<option value="Fiery Warpath">Fiery Warpath</option>
 							<option value="GES">Gnawnian Express Station</option>
 							<option value="Halloween 2015">Halloween 2015</option>
@@ -290,6 +291,44 @@
 							<option value="ZT">Zugzwang's Tower</option>
 						</select>
 						<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();">
+					</td>
+				</tr>
+				<tr id="trFRoxTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current stage"><b>Trap Setup for </b></a>
+						<select id="selectFRoxStage" onchange="initControlsFRox();">
+							<option value="DAY">Day</option>
+							<option value="TWILIGHT">Twilight</option>
+							<option value="MIDNIGHT">Midnight</option>
+							<option value="PITCH">Pitch</option>
+							<option value="UTTER">Utter Darkness</option>
+							<option value="FIRST">First Light</option>
+							<option value="DAWN">Dawn</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectFRoxWeapon" style="width: 75px;" onchange="saveFRox();">
+							<option value="Weapon 1">Weapon 1</option>
+							<option value="Weapon 2">Weapon 2</option>
+						</select>
+						<select id="selectFRoxBase" style="width: 75px;" onchange="saveFRox();">
+							<option value="Base 1">Base 1</option>
+							<option value="Base 2">Base 2</option>
+						</select>
+						<select id="selectFRoxTrinket" style="width: 75px;" onchange="saveFRox();">
+							<option value="None">None</option>
+							<option value="Trinket 1">Trinket 1</option>
+							<option value="Trinket 2">Trinket 2</option>
+						</select>
+						<select id="selectFRoxBait" style="width: 75px;" onchange="saveFRox();">
+							<option value="None">None</option>
+							<option value="Brie">Brie</option>
+							<option value="Toxic Brie">Toxic Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SB+</option>
+							<option value="Toxic SUPER">Toxic SB+</option>
+							<option value="Crescent">Crescent</option>
+							<option value="Moon">Moon</option>
+						</select>
 					</td>
 				</tr>
 				<tr id="trGESTrapSetup" style="display:none;">
@@ -1344,7 +1383,7 @@
 		saveMapHunting();
 	}
 	
-	var arrKey = ["SCCustom" , "Labyrinth_" ,"LGArea" , "eventLocation" ,"FW_" , "BRCustom" ,"SGZT" , "Zokor" ,"MapHunting" , "ZTower" ,"BestTrap" , "Iceberg" ,"WWRift" , "GES"];
+	var arrKey = ["SCCustom" , "Labyrinth_" ,"LGArea" , "eventLocation" ,"FW_" , "BRCustom" ,"SGZT" , "Zokor" ,"MapHunting" , "ZTower" ,"BestTrap" , "Iceberg" ,"WWRift" , "GES", "FRox"];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -2472,6 +2511,60 @@
 			selectIcebergBait.value = storageValue.bait[nIndex];
 		}
 	}
+
+	function saveFRox(){
+		var selectFRoxStage = document.getElementById('selectFRoxStage');
+		var selectFRoxWeapon = document.getElementById('selectFRoxWeapon');
+		var selectFRoxBase = document.getElementById('selectFRoxBase');
+		var selectFRoxBait = document.getElementById('selectFRoxBait');
+		var selectFRoxTrinket = document.getElementById('selectFRoxTrinket');
+		var storageValue = window.sessionStorage.getItem('FRox');
+		if(isNullOrUndefined(storageValue)){
+			var objDefaultFRox = {
+				stage : ['DAY','stage_one','stage_two','stage_three','stage_four','stage_five','DAWN'],
+				order : ['DAY','TWILIGHT','MIDNIGHT','PITCH','UTTER','FIRST','DAWN'],
+				weapon : new Array(7).fill(''),
+				base : new Array(7).fill(''),
+				trinket : new Array(7).fill('None'),
+				bait : new Array(7).fill('Gouda')
+			};
+			storageValue = JSON.stringify(objDefaultFRox);
+		}
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectFRoxStage.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.weapon[nIndex] = selectFRoxWeapon.value;
+		storageValue.base[nIndex] = selectFRoxBase.value;
+		storageValue.bait[nIndex] = selectFRoxBait.value;
+		storageValue.trinket[nIndex] = selectFRoxTrinket.value;
+		window.sessionStorage.setItem('FRox', JSON.stringify(storageValue));
+	}
+	
+	function initControlsFRox(){
+		var selectFRoxStage = document.getElementById('selectFRoxStage');
+		var selectFRoxWeapon = document.getElementById('selectFRoxWeapon');
+		var selectFRoxBase = document.getElementById('selectFRoxBase');
+		var selectFRoxBait = document.getElementById('selectFRoxBait');
+		var selectFRoxTrinket = document.getElementById('selectFRoxTrinket');
+		var storageValue = window.sessionStorage.getItem('FRox');
+		if(isNullOrUndefined(storageValue)){
+			selectFRoxWeapon.selectedIndex = -1;
+			selectFRoxBase.selectedIndex = -1;
+			selectFRoxBait.selectedIndex = -1;
+			selectFRoxTrinket.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			var nIndex = storageValue.order.indexOf(selectFRoxStage.value);
+			if(nIndex < 0)
+				nIndex = 0;
+			selectFRoxWeapon.value = storageValue.weapon[nIndex];
+			selectFRoxBase.value = storageValue.base[nIndex];
+			selectFRoxTrinket.value = storageValue.trinket[nIndex];
+			selectFRoxBait.value = storageValue.bait[nIndex];
+		}
+	}
 	
 	function onSelectWWRiftFaction(){
 		onInputMinRageChanged(document.getElementById('inputMinRage'));
@@ -2958,6 +3051,10 @@
 			'GES' : {
 				arr : ['trGESTrapSetup', 'trGESSDLoadCrate', 'trGESRRRepellent', 'trGESDDStokeEngine'],
 				init : function(data){initControlsGES(data);}
+			},
+			'Fort Rox' : {
+				arr : ['trFRoxTrapSetup'],
+				init : function(data){initControlsFRox(data);}
 			},
 		};
 		var i, temp;
