@@ -1050,6 +1050,30 @@ function fortRox(){
 	checkThenArm(null, 'weapon', objFRox.weapon[nIndex]);
 	checkThenArm(null, 'base', objFRox.base[nIndex]);
 	checkThenArm(null, 'trinket', objFRox.trinket[nIndex]);
+	if(objFRox.bait[nIndex] == 'ANY_LUNAR'){
+		var objLunarCheese = {
+			name : ['Moon Cheese', 'Crescent Cheese'],
+			quantity : new Array(2).fill(0),
+			arm : []
+		};
+		var childrenFortRoxBait = document.getElementsByClassName('fortRoxHUD-baitContainer')[0].children;
+		var i;
+		for(i=3;i>=2;i--){
+			if(i >= childrenFortRoxBait.length)
+				break;
+			objLunarCheese.quantity[3-i] = parseInt(childrenFortRoxBait[i].textContent.replace(/,/g, ''));
+		}
+		for(i=0;i<objLunarCheese.name.length;i++){
+			if(objLunarCheese.quantity[i] > 1)
+				objLunarCheese.arm.push(objLunarCheese.name[i]);
+		}
+		console.plog(objLunarCheese);
+		if(objLunarCheese.arm.length > 0)
+			checkThenArm('any', 'bait', objLunarCheese.arm);
+		else
+			checkThenArm('any', 'bait', objLunarCheese.name);
+	}
+	else
 	checkThenArm(null, 'bait', objFRox.bait[nIndex]);
 }
 
@@ -4575,6 +4599,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Crescent">Crescent</option>';
 			preferenceHTMLStr += '<option value="Moon">Moon</option>';
+			preferenceHTMLStr += '<option value="ANY_LUNAR">Moon/Crescent</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
