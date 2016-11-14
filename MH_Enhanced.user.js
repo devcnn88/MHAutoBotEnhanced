@@ -6556,14 +6556,22 @@ function checkResumeButton() {
 
 					// simulate mouse click on the horn
 					resumeElement = linkElementList[i].parentNode;
+					console.plog('Click Resume button at:', new Date());
 					fireEvent(resumeElement, 'click');
 					resumeElement = null;
 
 					// reload url if click fail
-					window.setTimeout(function () { reloadWithMessage("Fail to click on resume button. Reloading...", false); }, 6000);
+					window.setTimeout(function () { 
+						console.perror('Fail to click on resume button:', new Date());
+						reloadWithMessage("Fail to click on resume button. Reloading...", false); 
+					}, 6000);
 
 					// recheck if the resume button is click because some time even the url reload also fail
-					window.setTimeout(function () { checkResumeButton(); }, 10000);
+					
+					window.setTimeout(function () {
+						console.perror('Recheck resume button:', new Date());
+						checkResumeButton();
+					}, 10000);
 
 					found = true;
 					break;
