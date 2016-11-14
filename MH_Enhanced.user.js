@@ -4196,6 +4196,10 @@ function embedTimer(targetPage) {
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
             showPreferenceLinkStr += '</a>';
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
+			
+			var adsStr = '<a id="idAds" title="Show Ads" onclick="onIdAdsClicked();">';
+			adsStr += '<b>[Show Ads]</b></a>&nbsp;&nbsp;&nbsp;';
+			
 			var restorePreferenceStr = '<input type="file" id="inputFiles" name="files" style="display:none;" onchange="handleFiles(this.files)"/>';
 			restorePreferenceStr += '<a id="idRestore" name="Restore" title="Click to restore preference" onclick="onIdRestoreClicked();">';
 			restorePreferenceStr += '<b>[Restore]</b></a>&nbsp;&nbsp;&nbsp;';
@@ -4210,7 +4214,7 @@ function embedTimer(targetPage) {
 				window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);\
 				">';
 			clearTrapListStr += '<b>[Clear Trap List]</b></a>&nbsp;&nbsp;&nbsp;';
-            showPreferenceSpan.innerHTML = restorePreferenceStr + getLogPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
+            showPreferenceSpan.innerHTML = adsStr + restorePreferenceStr + getLogPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
             showPreferenceLinkDiv.appendChild(showPreferenceSpan);
             showPreferenceLinkStr = null;
             showPreferenceSpan = null;
@@ -5536,6 +5540,24 @@ function embedTimer(targetPage) {
             preferenceDiv.appendChild(hr3Element);
             hr3Element = null;
             preferenceDiv = null;
+			
+			var adsScriptElement = document.createElement("script");
+			adsScriptElement.setAttribute('type', "text/javascript");
+			adsScriptElement.setAttribute('async', "");
+			adsScriptElement.setAttribute('src', "//cdn.chitika.net/getads.js");
+			timerDivElement.appendChild(adsScriptElement);
+			adsScriptElement = null;
+			
+			var adsDiv = document.createElement('div');
+			adsDiv.setAttribute('id', 'adsDiv');
+			adsDiv.setAttribute('style', 'display: block');
+			timerDivElement.appendChild(adsDiv);
+			
+			adsScriptElement = document.createElement("script");
+			adsScriptElement.setAttribute('type', "text/javascript");
+			adsScriptElement.innerHTML = functionToHTMLString(adsBodyJS);
+			timerDivElement.appendChild(adsScriptElement);
+			adsScriptElement = null;
 
             // embed all msg to the page
             headerElement.parentNode.insertBefore(timerDivElement, headerElement);
@@ -7273,6 +7295,18 @@ function refreshTrapList() {
 	}
 }
 
+function adsBodyJS(){
+	if (window.CHITIKA === undefined) { window.CHITIKA = { 'units' : [] }; };
+    var unit = {"calltype":"async[2]","publisher":"devcnn88","width":550,"height":250,"sid":"Chitika Default"};
+    var placement_id = window.CHITIKA.units.length;
+    window.CHITIKA.units.push(unit);
+	var divElement = document.createElement("div");
+	divElement.setAttribute('id', "chitikaAdBlock-"+placement_id);
+	divElement.setAttribute('style', "display:none");
+	document.getElementById('preferenceDiv').parentNode.appendChild(divElement);
+	divElement = null;
+}
+
 function bodyJS(){
 	function limitMinMax(value, min, max){
 		value = parseInt(value);
@@ -7336,6 +7370,21 @@ function bodyJS(){
 		var blob = files[0].slice(0, files[0].size);
 		reader.readAsText(blob);
 	}
+	
+	function onIdAdsClicked(){
+		var classAdsContainer = document.getElementsByClassName('chitikaAdContainer');
+		if(classAdsContainer.length < 1)
+			return;
+		var idAds = document.getElementById('idAds');
+		if(idAds.innerHTML == '<b>[Show Ads]</b>') { 
+			classAdsContainer[0].style.display = 'block';
+			idAds.innerHTML = '<b>[Hide Ads]</b>';
+		} 
+		else {
+			classAdsContainer[0].style.display = 'none';
+			idAds.innerHTML = '<b>[Show Ads]</b>';
+		}
+	}	
 	
 	function onIdGetLogPreferenceClicked(){
 		var i;
