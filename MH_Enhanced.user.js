@@ -1074,7 +1074,7 @@ function fortRox(){
 			checkThenArm('any', 'bait', objLunarCheese.name);
 	}
 	else
-	checkThenArm(null, 'bait', objFRox.bait[nIndex]);
+		checkThenArm(null, 'bait', objFRox.bait[nIndex]);
 }
 
 function Halloween2016(){
@@ -8610,7 +8610,9 @@ function bodyJS(){
 		window.sessionStorage.setItem('FRox', JSON.stringify(storageValue));
 	}
 	
-	function initControlsFRox(){
+	function initControlsFRox(bAutoChangeStage){
+		if(isNullOrUndefined(bAutoChangeStage))
+			bAutoChangeStage = false;
 		var selectFRoxStage = document.getElementById('selectFRoxStage');
 		var selectFRoxWeapon = document.getElementById('selectFRoxWeapon');
 		var selectFRoxBase = document.getElementById('selectFRoxBase');
@@ -8625,7 +8627,20 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			var nIndex = storageValue.order.indexOf(selectFRoxStage.value);
+			var nIndex = -1;
+			if(bAutoChangeStage && user.location.indexOf('Fort Rox') > -1){
+				if(user.quests.QuestFortRox.is_dawn === true)
+					selectFRoxStage.value = 'DAWN';
+				else if(user.quests.QuestFortRox.current_phase == 'night'){
+					nIndex = storageValue.stage.indexOf(user.quests.QuestFortRox.current_stage);
+					if(nIndex > -1)
+						selectFRoxStage.value = storageValue.order[nIndex];
+				}
+				else if(user.quests.QuestFortRox.current_phase == 'day'){
+					selectFRoxStage.value = 'DAY';
+				}
+			}
+			nIndex = storageValue.order.indexOf(selectFRoxStage.value);
 			if(nIndex < 0)
 				nIndex = 0;
 			selectFRoxWeapon.value = storageValue.weapon[nIndex];
