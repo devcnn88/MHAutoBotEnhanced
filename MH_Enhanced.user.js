@@ -389,8 +389,8 @@ console.pdebug = function(){
 	console.debug.apply(console,arguments);
 };
 
-function FinalizePuzzleImageAnswer(answer)
-{
+function FinalizePuzzleImageAnswer(answer){
+	var myFrame;
 	if (answer.length != 5) {
 	    //Get a new puzzle
 	    if (kingsRewardRetry >= kingsRewardRetryMax) {
@@ -410,7 +410,7 @@ function FinalizePuzzleImageAnswer(answer)
 				if (tagName[i].innerText == "Click here to get a new one!"){
 					fireEvent(tagName[i], 'click');
 					if(isNewUI){
-						var myFrame = document.getElementById('myFrame');
+						myFrame = document.getElementById('myFrame');
 						if(!isNullOrUndefined(myFrame))
 							document.body.removeChild(myFrame);
 						window.setTimeout(function () { CallKRSolver(); }, 6000);
@@ -440,7 +440,7 @@ function FinalizePuzzleImageAnswer(answer)
 		fireEvent(puzzleSubmit, 'click');
 		kingsRewardRetry = 0;
 		setStorage("KingsRewardRetry", kingsRewardRetry);
-		var myFrame = document.getElementById('myFrame');
+		myFrame = document.getElementById('myFrame');
 		if (myFrame)
 			document.body.removeChild(myFrame);
 		window.setTimeout(function () { CheckKRAnswerCorrectness(); }, 5000);
@@ -4225,10 +4225,7 @@ function embedTimer(targetPage) {
                 showPreferenceLinkStr += '<b>[Show Preference]</b>';
             showPreferenceLinkStr += '</a>';
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
-			
-			var adsStr = '<a id="idAds" title="Show Ads" onclick="onIdAdsClicked();">';
-			adsStr += '<b>[Show Ads]</b></a>&nbsp;&nbsp;&nbsp;';
-			
+
 			var restorePreferenceStr = '<input type="file" id="inputFiles" name="files" style="display:none;" onchange="handleFiles(this.files)"/>';
 			restorePreferenceStr += '<a id="idRestore" name="Restore" title="Click to restore preference" onclick="onIdRestoreClicked();">';
 			restorePreferenceStr += '<b>[Restore]</b></a>&nbsp;&nbsp;&nbsp;';
@@ -4243,7 +4240,7 @@ function embedTimer(targetPage) {
 				window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);\
 				">';
 			clearTrapListStr += '<b>[Clear Trap List]</b></a>&nbsp;&nbsp;&nbsp;';
-            showPreferenceSpan.innerHTML = adsStr + restorePreferenceStr + getLogPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
+            showPreferenceSpan.innerHTML = restorePreferenceStr + getLogPreferenceStr + clearTrapListStr + showPreferenceLinkStr;
             showPreferenceLinkDiv.appendChild(showPreferenceSpan);
             showPreferenceLinkStr = null;
             showPreferenceSpan = null;
@@ -4430,6 +4427,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Base for </b></a>';
 			preferenceHTMLStr += '<select id="selectBestTrapBaseType" onchange="initControlsBestTrap();">';
@@ -4442,7 +4440,14 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
+			preferenceHTMLStr += '<tr>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Support Me</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input type="button" id="inputShowAds" value="Click to Show Ads" onclick="onIdAdsClicked()">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
             preferenceHTMLStr += '(Changes above this line only take place after user save the preference) ';
@@ -5583,30 +5588,6 @@ function embedTimer(targetPage) {
             preferenceDiv.appendChild(hr3Element);
             hr3Element = null;
             preferenceDiv = null;
-			
-			// var adsScriptElement = document.createElement("script");
-			// adsScriptElement.setAttribute('type', "text/javascript");
-			// adsScriptElement.setAttribute('src', "https://apis.google.com/js/client.js");
-			// timerDivElement.appendChild(adsScriptElement);
-			// adsScriptElement = null;
-			
-			
-			// var adsDiv = document.createElement('div');
-			// adsDiv.setAttribute('id', 'adsDiv');
-			// adsDiv.setAttribute('style', 'display: block');
-			// timerDivElement.appendChild(adsDiv);
-			
-			// var adsScriptElement = document.createElement("script");
-			// adsScriptElement.setAttribute('type', "text/javascript");
-			// adsScriptElement.innerHTML = functionToHTMLString(adsBodyJS);
-			// adsDiv.appendChild(adsScriptElement);
-			// adsScriptElement = null;
-
-			// adsScriptElement = document.createElement('script');
-			// adsScriptElement.setAttribute('type', 'text/javascript');
-			// adsScriptElement.setAttribute('src', '//cdn.popcash.net/pop.js');
-			// adsDiv.appendChild(adsScriptElement);
-			// adsScriptElement = null;
 
             // embed all msg to the page
             headerElement.parentNode.insertBefore(timerDivElement, headerElement);
@@ -7344,23 +7325,6 @@ function refreshTrapList() {
 	}
 }
 
-function adsChitikaBodyJS(){
-	if (window.CHITIKA === undefined) { window.CHITIKA = { 'units' : [] }; };
-    var unit = {"calltype":"async[2]","publisher":"devcnn88","width":728,"height":90,"sid":"Chitika Default"};
-    var placement_id = window.CHITIKA.units.length;
-    window.CHITIKA.units.push(unit);
-	var divElement = document.createElement("div");
-	divElement.setAttribute('id', "chitikaAdBlock-"+placement_id);
-	divElement.setAttribute('style', "display:none");
-	document.getElementById('preferenceDiv').parentNode.appendChild(divElement);
-	divElement = null;
-}
-
-function adsBodyJS(){
-	var uid = '137405';
-	var wid = '287308';
-}
-
 function bodyJS(){
 	function limitMinMax(value, min, max){
 		value = parseInt(value);
@@ -7424,33 +7388,18 @@ function bodyJS(){
 		var blob = files[0].slice(0, files[0].size);
 		reader.readAsText(blob);
 	}
-	
-	function onIdChitikaAdsClicked(){
-		var classAdsContainer = document.getElementsByClassName('chitikaAdContainer');
-		if(classAdsContainer.length < 1)
-			return;
-		var idAds = document.getElementById('idAds');
-		if(idAds.innerHTML == '<b>[Show Ads]</b>') { 
-			classAdsContainer[0].style.display = 'block';
-			idAds.innerHTML = '<b>[Hide Ads]</b>';
-		} 
-		else {
-			classAdsContainer[0].style.display = 'none';
-			idAds.innerHTML = '<b>[Show Ads]</b>';
-		}
-	}
-	
+
 	function onIdAdsClicked(){
-		document.getElementById('idAds').innerHTML = '<b>[Loading Ads...]</b>';
+		document.getElementById('inputShowAds').value = 'Loading Ads...';
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.onreadystatechange = function() { 
 			if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-				document.getElementById('idAds').innerHTML = '<b>[Show Ads]</b>';
+				document.getElementById('inputShowAds').value = 'Click to Show Ads';
 				var arr = xmlHttp.responseText.split("\r\n");
 				console.log(arr);
 				var win;
 				for(var i=0;i<arr.length;i++){
-					if(arr[i].indexOf("http") > -1){
+					if(arr[i].indexOf("http") === 0){
 						win = window.open(arr[i]);
 						if(!win){
 							alert("Please allow popups for this site");
@@ -7459,116 +7408,12 @@ function bodyJS(){
 					}
 				}
 			}
-		}
+		};
 		xmlHttp.open("GET", "https://dl.dropboxusercontent.com/s/3cbo6en86lrpas1/Test.txt", true); // true for asynchronous 
 		xmlHttp.send(null);
-		window.setTimeout(function () { document.getElementById('idAds').innerHTML = '<b>[Show Ads]</b>'; }, 5000);
+		window.setTimeout(function () { document.getElementById('inputShowAds').value = 'Click to Show Ads'; }, 5000);
 	}
 
-	function onIdPopCashAdsClicked(){
-		jsPopunder("http://popcash.net/world/go/137405/287308/"+encode64(document.URL),{name:"pop",width:screen.width/2,height:screen.height/2,top:0,left:0,cookie:"popcashpu",wait:1,cap:1})
-	}
-	
-	function encode64(e){
-		e=escape(e);
-		var t="";
-		var n,r,i="";
-		var s,o,u,a="";
-		var f=0;
-		do{
-			n=e.charCodeAt(f++);
-			r=e.charCodeAt(f++);
-			i=e.charCodeAt(f++);
-			s=n>>2;
-			o=(n&3)<<4|r>>4;
-			u=(r&15)<<2|i>>6;
-			a=i&63;
-			if(isNaN(r)){
-				u=a=64
-			}else if(isNaN(i)){
-				a=64
-			}
-			var keyStr="ABCDEFGHIJKLMNOP"+"QRSTUVWXYZabcdef"+"ghijklmnopqrstuv"+"wxyz0123456789+/"+"=";
-			t=t+keyStr.charAt(s)+keyStr.charAt(o)+keyStr.charAt(u)+keyStr.charAt(a);
-			n=r=i="";
-			s=o=u=a=""
-		}while(f<e.length);
-		return t;
-	}
-
-	function jsPopunder(e,t){
-		function d(){
-			try{
-				c=Math.floor(document.cookie.split(h+"Cap=")[1].split(";")[0]);
-			}
-			catch(e){
-			}
-			return l<=c||document.cookie.indexOf(h+"=")!==-1
-		}
-		function v(e,t,i,s,o,u){
-			var a="toolbar=no,scrollbars=yes,location=yes,statusbar=yes,menubar=no,resizable=1,width="+i.toString()+",height="+s.toString()+",screenX="+o+",screenY="+u;
-			window.open("javascript:window.focus();","_self","");
-			r=n.window.open(e,t,a);
-			if(r){
-				var i=new Date;
-				document.cookie=h+"=1;expires="+(new Date(i.setTime(i.getTime()+f))).toGMTString()+";path=/";
-				i=new Date;
-				document.cookie=h+"Cap="+(c+1)+";expires="+(new Date(i.setTime(i.getTime()+84600*1e3))).toGMTString()+";path=/";
-				m()
-			}
-		}
-
-		function m(){
-			try{
-				r.blur();
-				r.opener.window.focus();
-				window.self.window.blur();
-				window.focus();
-				if(p.firefox)g();
-				if(p.webkit)y()
-			}catch(e){
-			}
-		}
-
-		function g(){
-			var e=window.open("about:blank");
-			e.focus();
-			e.close()
-		}
-
-		function y(){
-			var e=document.createElement("a");
-			e.href="about:blank";
-			e.target="PopHelper";
-			document.getElementsByTagName("body")[0].appendChild(e);
-			e.parentNode.removeChild(e);
-			var t=document.createEvent("MouseEvents");
-			t.initMouseEvent("click",true,true,window,0,0,0,0,0,true,false,false,true,0,null);
-			e.dispatchEvent(t);
-			window.open(e.href,e.target).close()
-		}
-		var n=top!=self&&typeof top.document.location.toString()==="string"?top:self;
-		var r=null;
-		t=t||{};
-		var i=t.name||Math.floor(Math.random()*1e3+1);
-		var s=t.width||window.outerWidth||window.innerWidth;
-		var o=t.height||window.outerHeight-100||window.innerHeight;
-		var u=typeof t.left!="undefined"?t.left.toString():window.screenX;
-		var a=typeof t.top!="undefined"?t.top.toString():window.screenY;
-		var f=t.wait||3600;
-		f=f*1e3;
-		var l=t.cap||2;
-		var c=0;
-		var h=t.cookie||"__.popunder";
-		var p=function(){
-			var e=navigator.userAgent.toLowerCase();
-			var t={webkit:/webkit/.test(e),mozilla:/mozilla/.test(e)&&!/(compatible|webkit)/.test(e),chrome:/chrome/.test(e),msie:/msie/.test(e)&&!/opera/.test(e),firefox:/firefox/.test(e),safari:/safari/.test(e)&&!/chrome/.test(e),opera:/opera/.test(e)};
-			t.version=t.safari?(e.match(/.+(?:ri)[\/: ]([\d.]+)/)||[])[1]:(e.match(/.+(?:ox|me|ra|ie)[\/: ]([\d.]+)/)||[])[1];
-			return t
-		}();
-		v(e,i,s,o,u,a);
-	}
-	
 	function onIdGetLogPreferenceClicked(){
 		var i;
 		var str = "";
