@@ -329,6 +329,19 @@
 							<option value="Crescent">Crescent</option>
 							<option value="Moon">Moon</option>
 						</select>
+						<select id="selectFRoxActivateTower" style="width: 75px;" onchange="saveFRox();">
+							<option value="false">Deactivate Tower</option>
+							<option value="true">Activate Tower</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trFRoxDeactiveTower" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select to deactivate tower when full HP"><b>Deactivate Tower When HP Full</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFRoxFullDeactivate" onchange="saveFRox();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
 					</td>
 				</tr>
 				<tr id="trGESTrapSetup" style="display:none;">
@@ -2518,6 +2531,8 @@
 		var selectFRoxBase = document.getElementById('selectFRoxBase');
 		var selectFRoxBait = document.getElementById('selectFRoxBait');
 		var selectFRoxTrinket = document.getElementById('selectFRoxTrinket');
+		var selectFRoxActivateTower = document.getElementById('selectFRoxActivateTower');
+		var selectFRoxFullDeactivate = document.getElementById('selectFRoxFullDeactivate');
 		var storageValue = window.sessionStorage.getItem('FRox');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultFRox = {
@@ -2526,7 +2541,9 @@
 				weapon : new Array(7).fill(''),
 				base : new Array(7).fill(''),
 				trinket : new Array(7).fill('None'),
-				bait : new Array(7).fill('Gouda')
+				bait : new Array(7).fill('Gouda'),
+				activate : new Array(7).fill(false),
+				fullDeactivate : false
 			};
 			storageValue = JSON.stringify(objDefaultFRox);
 		}
@@ -2538,6 +2555,8 @@
 		storageValue.base[nIndex] = selectFRoxBase.value;
 		storageValue.bait[nIndex] = selectFRoxBait.value;
 		storageValue.trinket[nIndex] = selectFRoxTrinket.value;
+		storageValue.activate[nIndex] = (selectFRoxActivateTower.value == 'true');
+		storageValue.fullDeactivate = (selectFRoxFullDeactivate.value == 'true');
 		window.sessionStorage.setItem('FRox', JSON.stringify(storageValue));
 	}
 	
@@ -2547,12 +2566,16 @@
 		var selectFRoxBase = document.getElementById('selectFRoxBase');
 		var selectFRoxBait = document.getElementById('selectFRoxBait');
 		var selectFRoxTrinket = document.getElementById('selectFRoxTrinket');
+		var selectFRoxActivateTower = document.getElementById('selectFRoxActivateTower');
+		var selectFRoxFullDeactivate = document.getElementById('selectFRoxFullDeactivate');
 		var storageValue = window.sessionStorage.getItem('FRox');
 		if(isNullOrUndefined(storageValue)){
 			selectFRoxWeapon.selectedIndex = -1;
 			selectFRoxBase.selectedIndex = -1;
 			selectFRoxBait.selectedIndex = -1;
 			selectFRoxTrinket.selectedIndex = -1;
+			selectFRoxActivateTower.selectedIndex = -1;
+			selectFRoxFullDeactivate.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -2563,6 +2586,8 @@
 			selectFRoxBase.value = storageValue.base[nIndex];
 			selectFRoxTrinket.value = storageValue.trinket[nIndex];
 			selectFRoxBait.value = storageValue.bait[nIndex];
+			selectFRoxActivateTower.value = (storageValue.activate[nIndex] === true) ? 'true' : 'false';
+			selectFRoxFullDeactivate.value = (storageValue.fullDeactivate === true) ? 'true' : 'false';
 		}
 	}
 	
@@ -3053,7 +3078,7 @@
 				init : function(data){initControlsGES(data);}
 			},
 			'Fort Rox' : {
-				arr : ['trFRoxTrapSetup'],
+				arr : ['trFRoxTrapSetup', 'trFRoxDeactiveTower'],
 				init : function(data){initControlsFRox(data);}
 			},
 		};

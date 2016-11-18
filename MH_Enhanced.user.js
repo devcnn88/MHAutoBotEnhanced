@@ -1029,13 +1029,18 @@ function fortRox(){
 		weapon : new Array(7).fill(''),
 		base : new Array(7).fill(''),
 		trinket : new Array(7).fill('None'),
-		bait : new Array(7).fill('Gouda')
+		bait : new Array(7).fill('Gouda'),
+		activate : new Array(7).fill(false),
+		fullHPDeactivate : true
 	};
+
 	var objFRox = getStorageToObject('FRox', objDefaultFRox);
 	var objUser = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestFortRox)'));
 	var nIndex = -1;
-	if(objUser.is_dawn === true)
+	if(objUser.is_dawn === true){
 		nIndex = 6;
+		console.plog('In Dawn');
+	}
 	else if(objUser.current_phase == 'night'){
 		nIndex = objFRox.stage.indexOf(objUser.current_stage);
 		console.plog('In Night, Current Stage:', objUser.current_stage);
@@ -1067,7 +1072,6 @@ function fortRox(){
 			if(objLunarCheese.quantity[i] > 1)
 				objLunarCheese.arm.push(objLunarCheese.name[i]);
 		}
-		console.plog(objLunarCheese);
 		if(objLunarCheese.arm.length > 0)
 			checkThenArm('any', 'bait', objLunarCheese.arm);
 		else
@@ -1075,6 +1079,31 @@ function fortRox(){
 	}
 	else
 		checkThenArm(null, 'bait', objFRox.bait[nIndex]);
+	
+	var bTowerActive = !(objUser.tower_status.indexOf('inactive') > -1);
+	var nMana = parseInt(document.getElementsByClassName('fortRoxHUD-mana quantity')[0].textContent);
+	console.plog('Tower Active:', bTowerActive, 'Mana;', nMana, 'Current HP:', objUser.hp, 'Max HP:', objUser.max_hp);
+	if(nMana > 0 && nIndex > 0){
+		var classButton = document.getElementsByClassName('fortRoxHUD-spellTowerButton')[0];
+		if(bTowerActive){
+			if(objFRox.activate[nIndex]){
+				if(objFRox.fullHPDeactivate && objUser.hp >= objUser.max_hp){
+					// deactivate tower
+					fireEvent(classButton, 'click');
+				}
+			}
+			else{
+				//deactivate tower
+				fireEvent(classButton, 'click');
+			}
+		}
+		else{
+			if(objFRox.activate[nIndex]){
+				//activate tower
+				fireEvent(classButton, 'click');
+			}
+		}
+	}
 }
 
 function Halloween2016(){
@@ -4605,9 +4634,23 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Moon">Moon</option>';
 			preferenceHTMLStr += '<option value="ANY_LUNAR">Moon/Crescent</option>';
 			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFRoxActivateTower" style="width: 75px;" onchange="saveFRox();">';
+			preferenceHTMLStr += '<option value="false">Deactivate Tower</option>';
+			preferenceHTMLStr += '<option value="true">Activate Tower</option>';
+			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
+			preferenceHTMLStr += '<tr id="trFRoxDeactiveTower" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to deactivate tower when full HP"><b>Deactivate Tower When HP Full</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFRoxFullHPDeactivate" onchange="saveFRox();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="trGESTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Trap Setup at </b></a>';
 			preferenceHTMLStr += '<select id="selectGESStage" onchange="initControlsGES();">';
@@ -8784,6 +8827,8 @@ function bodyJS(){
 		var selectFRoxBase = document.getElementById('selectFRoxBase');
 		var selectFRoxBait = document.getElementById('selectFRoxBait');
 		var selectFRoxTrinket = document.getElementById('selectFRoxTrinket');
+		var selectFRoxActivateTower = document.getElementById('selectFRoxActivateTower');
+		var selectFRoxFullHPDeactivate = document.getElementById('selectFRoxFullHPDeactivate');
 		var storageValue = window.sessionStorage.getItem('FRox');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultFRox = {
@@ -8792,7 +8837,9 @@ function bodyJS(){
 				weapon : new Array(7).fill(''),
 				base : new Array(7).fill(''),
 				trinket : new Array(7).fill('None'),
-				bait : new Array(7).fill('Gouda')
+				bait : new Array(7).fill('Gouda'),
+				activate : new Array(7).fill(false),
+				fullHPDeactivate : true
 			};
 			storageValue = JSON.stringify(objDefaultFRox);
 		}
@@ -8804,6 +8851,8 @@ function bodyJS(){
 		storageValue.base[nIndex] = selectFRoxBase.value;
 		storageValue.bait[nIndex] = selectFRoxBait.value;
 		storageValue.trinket[nIndex] = selectFRoxTrinket.value;
+		storageValue.activate[nIndex] = (selectFRoxActivateTower.value == 'true');
+		storageValue.fullHPDeactivate = (selectFRoxFullHPDeactivate.value == 'true');
 		window.sessionStorage.setItem('FRox', JSON.stringify(storageValue));
 	}
 	
@@ -8815,12 +8864,16 @@ function bodyJS(){
 		var selectFRoxBase = document.getElementById('selectFRoxBase');
 		var selectFRoxBait = document.getElementById('selectFRoxBait');
 		var selectFRoxTrinket = document.getElementById('selectFRoxTrinket');
+		var selectFRoxActivateTower = document.getElementById('selectFRoxActivateTower');
+		var selectFRoxFullHPDeactivate = document.getElementById('selectFRoxFullHPDeactivate');
 		var storageValue = window.sessionStorage.getItem('FRox');
 		if(isNullOrUndefined(storageValue)){
 			selectFRoxWeapon.selectedIndex = -1;
 			selectFRoxBase.selectedIndex = -1;
 			selectFRoxBait.selectedIndex = -1;
 			selectFRoxTrinket.selectedIndex = -1;
+			selectFRoxActivateTower.selectedIndex = -1;
+			selectFRoxFullHPDeactivate.selectedIndex = -1;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -8844,6 +8897,8 @@ function bodyJS(){
 			selectFRoxBase.value = storageValue.base[nIndex];
 			selectFRoxTrinket.value = storageValue.trinket[nIndex];
 			selectFRoxBait.value = storageValue.bait[nIndex];
+			selectFRoxActivateTower.value = (storageValue.activate[nIndex] === true) ? 'true' : 'false';
+			selectFRoxFullHPDeactivate.value = (storageValue.fullHPDeactivate === true) ? 'true' : 'false';
 		}
 	}
 
@@ -9252,7 +9307,7 @@ function bodyJS(){
 				init : function(data){initControlsGES(data);}
 			},
 			'Fort Rox' : {
-				arr : ['trFRoxTrapSetup'],
+				arr : ['trFRoxTrapSetup', 'trFRoxDeactiveTower'],
 				init : function(data){initControlsFRox(data);}
 			},
 		};
