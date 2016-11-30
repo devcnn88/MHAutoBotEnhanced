@@ -453,13 +453,10 @@ function receiveMessage(event)
 		return;
 
 	console.pdebug("Event origin:", event.origin);
-	if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1)
-	{
-		if (event.data.indexOf("~") > -1)
-		{
-			var result = "";
+	if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1){
+		if (event.data.indexOf("~") > -1){
+			var result = event.data.substring(0, event.data.indexOf("~"));
 			if (saveKRImage){
-				result = event.data.substring(0, event.data.indexOf("~"));
 				var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);
 				var strKR = "KR" + separator;
 				strKR += Date.now() + separator;
