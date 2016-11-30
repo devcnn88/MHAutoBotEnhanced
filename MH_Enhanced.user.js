@@ -549,6 +549,7 @@ function exeScript() {
     if (window.location.href.indexOf("mousehuntgame.com/canvas/") != -1) {
         // from facebook
         fbPlatform = true;
+		setStorage('Platform', 'FB');
     }
     else if (window.location.href.indexOf("mousehuntgame.com") != -1) {
         // need to check if it is running in mobile version
@@ -556,25 +557,24 @@ function exeScript() {
         if (version !== null && version == "mobile") {
             // from mousehunt game mobile version
             mhMobilePlatform = true;
+			setStorage('Platform', 'MHMobile');
         }
         else {
             // from mousehunt game standard version
             mhPlatform = true;
+			setStorage('Platform', 'MH');
         }
         version = undefined;
     }
     else if (window.location.href.indexOf("mousehunt.hi5.hitgrab.com") != -1) {
         // from hi5
         hiFivePlatform = true;
+		setStorage('Platform', 'Hi5');
     }
 
     // check if user running in https secure connection
-    if (window.location.href.indexOf("https://") != -1) {
-        secureConnection = true;
-    }
-    else {
-        secureConnection = false;
-    }
+    secureConnection = (window.location.href.indexOf("https://") != -1);
+	setStorage('HTTPS', secureConnection);
 
     if (fbPlatform) {
 		// alert("This script doesnt work under Facebook MH at this moment");
