@@ -2335,6 +2335,10 @@ function labyrinth() {
 		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
 		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
 		window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
+		if(objLaby.districtFocus.indexOf('FARMING') > -1)
+			checkThenArm('best', 'weapon', ['Event Horizon'].concat(objBestTrap.weapon.forgotten));
+		else
+			checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 	}
 	catch (e){
 		console.perror('labyrinth',e.message);
