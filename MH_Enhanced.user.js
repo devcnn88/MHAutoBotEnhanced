@@ -7223,10 +7223,12 @@ function bodyJS(){
 
 	function onIdAdsClicked(){
 		document.getElementById('inputShowAds').value = 'Loading Ads...';
+		document.getElementById('inputShowAds').disabled = 'disabled';
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.onreadystatechange = function() { 
 			if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
 				document.getElementById('inputShowAds').value = 'Click to Show Ads';
+				document.getElementById('inputShowAds').disabled = '';
 				var arr = xmlHttp.responseText.split("\r\n");
 				console.log(arr);
 				var win;
@@ -7243,7 +7245,10 @@ function bodyJS(){
 		};
 		xmlHttp.open("GET", "https://dl.dropboxusercontent.com/s/3cbo6en86lrpas1/Test.txt", true); // true for asynchronous 
 		xmlHttp.send(null);
-		window.setTimeout(function () { document.getElementById('inputShowAds').value = 'Click to Show Ads'; }, 5000);
+		window.setTimeout(function () {
+			document.getElementById('inputShowAds').value = 'Click to Show Ads';
+			document.getElementById('inputShowAds').disabled = '';
+		}, 5000);
 	}
 
 	function onIdGetLogPreferenceClicked(){
