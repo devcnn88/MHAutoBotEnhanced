@@ -297,14 +297,14 @@ var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
 var mhMobilePlatform = false;
-var secureConnection = false;
+var g_strHTTP = 'http';
 var lastDateRecorded = new Date();
 var hornTime = 900;
 var hornTimeDelay = 0;
 var checkTimeDelay = 0;
 var isKingReward = false;
 var lastKingRewardSumTime;
-var baitQuantity = -1;
+var g_nBaitQuantity = -1;
 var huntLocation;
 var currentLocation;
 var today = new Date();
@@ -570,8 +570,9 @@ function exeScript() {
     }
 
     // check if user running in https secure connection
-    secureConnection = (window.location.href.indexOf("https://") != -1);
-	setStorage('HTTPS', secureConnection);
+    var bSecureConnection = (window.location.href.indexOf("https://") > -1);
+	g_strHTTP = (bSecureConnection) ? 'https' : 'http';
+	setStorage('HTTPS', bSecureConnection);
 
     if (fbPlatform) {
 		// alert("This script doesnt work under Facebook MH at this moment");
@@ -853,10 +854,7 @@ function eventLocationCheck(caller) {
 		case 'Fort Rox':
 			fortRox(); break;
 		case 'Test':
-			checkThenArm('best', 'base', objBestTrap.base.luck);
-			checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
-			checkThenArm(null, 'trinket', 'Dragonbane');
-			checkThenArm(null, 'bait', 'Radioactive');
+			checkThenArm('any', 'bait', ['Gouda', 'Brie']);
 			break;
         default:
             break;
@@ -1052,28 +1050,8 @@ function fortRox(){
 	checkThenArm(null, 'weapon', objFRox.weapon[nIndex]);
 	checkThenArm(null, 'base', objFRox.base[nIndex]);
 	checkThenArm(null, 'trinket', objFRox.trinket[nIndex]);
-	if(objFRox.bait[nIndex] == 'ANY_LUNAR'){
-		var objLunarCheese = {
-			name : ['Moon Cheese', 'Crescent Cheese'],
-			quantity : new Array(2).fill(0),
-			arm : []
-		};
-		var childrenFortRoxBait = document.getElementsByClassName('fortRoxHUD-baitContainer')[0].children;
-		var i;
-		for(i=3;i>=2;i--){
-			if(i >= childrenFortRoxBait.length)
-				break;
-			objLunarCheese.quantity[3-i] = parseInt(childrenFortRoxBait[i].textContent.replace(/,/g, ''));
-		}
-		for(i=0;i<objLunarCheese.name.length;i++){
-			if(objLunarCheese.quantity[i] > 1)
-				objLunarCheese.arm.push(objLunarCheese.name[i]);
-		}
-		if(objLunarCheese.arm.length > 0)
-			checkThenArm('any', 'bait', objLunarCheese.arm);
-		else
-			checkThenArm('any', 'bait', objLunarCheese.name);
-	}
+	if(objFRox.bait[nIndex] == 'ANY_LUNAR')
+		checkThenArm('any', 'bait', ['Moon Cheese', 'Crescent Cheese']);
 	else
 		checkThenArm(null, 'bait', objFRox.bait[nIndex]);
 	
@@ -2686,29 +2664,8 @@ function fRift(){
 function fRiftArmTrap(obj, nIndex){
 	checkThenArm(null, 'weapon', obj.weapon[nIndex]);
 	checkThenArm(null, 'base', obj.base[nIndex]);
-	if(obj.bait[nIndex] == 'ANY_MASTER'){
-		var objMasterCheese = {
-			name : ['Rift Glutter', 'Rift Combat', 'Rift Susheese'],
-			quantity : new Array(3).fill(0),
-			arm : []
-		};
-		var classFuromaHUD = document.getElementsByClassName('riftFuromaHUD-item');
-		var i;
-		for(i=7;i<=9;i++){
-			if(i >= classFuromaHUD.length)
-				break;
-			objMasterCheese.quantity[i-7] = parseInt(classFuromaHUD[i].textContent);
-		}
-		for(i=0;i<objMasterCheese.name.length;i++){
-			if(objMasterCheese.quantity[i] > 1)
-				objMasterCheese.arm.push(objMasterCheese.name[i]);
-		}
-		console.plog(objMasterCheese);
-		if(objMasterCheese.arm.length > 0)
-			checkThenArm('any', 'bait', objMasterCheese.arm);
-		else
-			checkThenArm('any', 'bait', objMasterCheese.name);
-	}
+	if(obj.bait[nIndex] == 'ANY_MASTER')
+		checkThenArm('any', 'bait', ['Rift Glutter', 'Rift Combat', 'Rift Susheese']);
 	else
 		checkThenArm(null, 'bait', obj.bait[nIndex]);
 	if(obj.trinket[nIndex] == 'None')
@@ -3288,8 +3245,7 @@ function armTrapClassicUI(sort, trap, name){
 				break;
 			}
 		}
-        if (sort == 'best')
-        {
+        if (sort == 'best' || sort == 'any'){
 			nameArray.shift();
             if (nameArray.length > 0)
                 return armTrapClassicUI(sort, trap, nameArray);
@@ -3335,7 +3291,7 @@ function armTrapNewUI(sort, trap, name){
 				break;
 			}
 		}
-        if (sort == 'best'){
+        if (sort == 'best' || sort == 'any'){
 			nameArray.shift();
             if (nameArray.length > 0)
                 return armTrapNewUI(sort, trap, nameArray);
@@ -3486,7 +3442,7 @@ function retrieveDataFirst() {
 					baitQuantityStartIndex += 15;
 					var baitQuantityEndIndex = scriptString.indexOf(",", baitQuantityStartIndex);
 					var baitQuantityString = scriptString.substring(baitQuantityStartIndex, baitQuantityEndIndex);
-					baitQuantity = parseInt(baitQuantityString);
+					g_nBaitQuantity = parseInt(baitQuantityString);
 
 					gotBaitQuantity = true;
 
@@ -3569,9 +3525,11 @@ function GetHornTime() {
 			totalSec = 0;
 		else if (isNewUI) {
 			var arrTime = huntTimerElement.split(":");
-			for(var i=0;i<arrTime.length;i++)
-				arrTime[i] = parseInt(arrTime[i]);
-			totalSec = arrTime[0] * 60 + arrTime[1];
+			if(arrTime.length == 2){
+				for(var i=0;i<arrTime.length;i++)
+					arrTime[i] = parseInt(arrTime[i]);
+				totalSec = arrTime[0] * 60 + arrTime[1];
+			}
 		}
 		else {
 			var temp = parseInt(huntTimerElement);
@@ -3579,7 +3537,6 @@ function GetHornTime() {
 				totalSec = temp * 60;
 		}
 	}
-
 	return totalSec;
 }
 
@@ -3642,7 +3599,7 @@ function retrieveData() {
 		
 		currentLocation = getCurrentLocation();
 		isKingReward = getKingRewardStatus();
-		baitQuantity = getBaitQuantity();
+		g_nBaitQuantity = getBaitQuantity();
 		nextActiveTime = GetHornTime();
 
 		if (nextActiveTime === "" || isNaN(nextActiveTime)) {
@@ -3753,37 +3710,16 @@ function action() {
     else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
         // update timer
         displayTimer("Out of pre-defined hunting location...", "Out of pre-defined hunting location...", "Out of pre-defined hunting location...");
-
-        if (fbPlatform) {
-            if (secureConnection) {
-                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-            }
-            else {
-                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-            }
-        }
-        else if (hiFivePlatform) {
-            if (secureConnection) {
-                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-            }
-            else {
-                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-            }
-        }
-        else if (mhPlatform) {
-            if (secureConnection) {
-                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-            }
-            else {
-                displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-            }
-        }
-
+        if (fbPlatform)
+			displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='" + g_strHTTP + "://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+        else if (hiFivePlatform)
+			displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='" + g_strHTTP + "://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+        else if (mhPlatform)
+			displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='" + g_strHTTP + "://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
         displayKingRewardSumTime(null);
-
         // pause script
     }
-    else if (baitQuantity === 0) {
+    else if (g_nBaitQuantity === 0) {
         // update timer
         displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
         displayLocation(huntLocation);
@@ -3846,41 +3782,15 @@ function countdownTimer() {
 		else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
 			// update timer
 			displayTimer("Out of pre-defined hunting location...", "Out of pre-defined hunting location...", "Out of pre-defined hunting location...");
-			if (fbPlatform) {
-				if (secureConnection) {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-				else {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-			}
-			else if (hiFivePlatform) {
-				if (secureConnection) {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-				else {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-			}
-			else if (mhPlatform) {
-				if (secureConnection) {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-				else {
-					displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-				}
-			}
+			if (fbPlatform)
+				displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='" + g_strHTTP + "://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+			else if (hiFivePlatform)
+				displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='" + g_strHTTP + "://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+			else if (mhPlatform)
+				displayLocation("<font color='red'>" + currentLocation + "</font> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='" + g_strHTTP + "://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
 			displayKingRewardSumTime(null);
 
 			// pause script
-		}
-		else if (baitQuantity === 0 && !isArmingInList()) {
-			// update timer
-			displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
-			displayLocation(huntLocation);
-			displayKingRewardSumTime(null);
-
-			// pause the script
 		}
 		else {
 			var dateNow = new Date();
@@ -3904,12 +3814,21 @@ function countdownTimer() {
 				hornTime = 0;
 				if(getBaitQuantity() > 0)
 					soundHorn();
-				else
+				else{
 					displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
+					displayLocation(huntLocation);
+					displayKingRewardSumTime(null);
+				}
 			}
 			else if (enableTrapCheck && checkTime <= 0) {
 				// trap check!
-				trapCheck();
+				if(getBaitQuantity() > 0)
+					trapCheck();
+				else{
+					displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
+					displayLocation(huntLocation);
+					displayKingRewardSumTime(null);
+				}
 			}
 			else {
 				if (enableTrapCheck) {
@@ -3986,68 +3905,19 @@ function countdownTimer() {
 
 function reloadPage(soundHorn) {
     // reload the page
-    if (fbPlatform) {
+    var strTurn = (soundHorn) ? "turn.php" : "";
+	if (fbPlatform) {
         // for Facebook only
-
-        if (secureConnection) {
-            if (soundHorn) {
-                window.location.href = "https://www.mousehuntgame.com/canvas/turn.php";
-            }
-            else {
-                window.location.href = "https://www.mousehuntgame.com/canvas/";
-            }
-        }
-        else {
-            if (soundHorn) {
-                window.location.href = "http://www.mousehuntgame.com/canvas/turn.php";
-            }
-            else {
-                window.location.href = "http://www.mousehuntgame.com/canvas/";
-            }
-        }
+		window.location.href = g_strHTTP + "://www.mousehuntgame.com/canvas/" + strTurn;
     }
     else if (hiFivePlatform) {
         // for Hi5 only
-
-        if (secureConnection) {
-            if (soundHorn) {
-                window.location.href = "https://mousehunt.hi5.hitgrab.com/turn.php";
-            }
-            else {
-                window.location.href = "https://mousehunt.hi5.hitgrab.com/";
-            }
-        }
-        else {
-            if (soundHorn) {
-                window.location.href = "http://mousehunt.hi5.hitgrab.com/turn.php";
-            }
-            else {
-                window.location.href = "http://mousehunt.hi5.hitgrab.com/";
-            }
-        }
+		window.location.href = g_strHTTP + "://mousehunt.hi5.hitgrab.com/" + strTurn;
     }
     else if (mhPlatform) {
         // for mousehunt game only
-
-        if (secureConnection) {
-            if (soundHorn) {
-                window.location.href = "https://www.mousehuntgame.com/turn.php";
-            }
-            else {
-                window.location.href = "https://www.mousehuntgame.com/";
-            }
-        }
-        else {
-            if (soundHorn) {
-                window.location.href = "http://www.mousehuntgame.com/turn.php";
-            }
-            else {
-                window.location.href = "http://www.mousehuntgame.com/";
-            }
-        }
+		window.location.href = g_strHTTP + "://www.mousehuntgame.com/" + strTurn;
     }
-
-    soundHorn = undefined;
 }
 
 function reloadWithMessage(msg, soundHorn) {
@@ -4068,12 +3938,10 @@ function reloadWithMessage(msg, soundHorn) {
 function embedTimer(targetPage) {
     if (showTimerInPage) {
         var headerElement;
-        if (fbPlatform || hiFivePlatform || mhPlatform) {
+        if (fbPlatform || hiFivePlatform || mhPlatform)
             headerElement = document.getElementById('noscript');
-        }
-        else if (mhMobilePlatform) {
+        else if (mhMobilePlatform)
             headerElement = document.getElementById('mobileHorn');
-        }
 
         if (headerElement) {
             var timerDivElement = document.createElement('div');
@@ -4085,14 +3953,12 @@ function embedTimer(targetPage) {
             // show bot title and version
             var titleElement = document.createElement('div');
             titleElement.setAttribute('id', 'titleElement');
-            if (targetPage && aggressiveMode) {
+            if (targetPage && aggressiveMode)
 				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a> - <font color='red'>Aggressive Mode</font>";
-            }
 			else if (targetPage && browser != 'chrome')
 				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a> - <font color='red'><b>Pls use Chrome browser for fully working features</b></font>";
-            else {
+            else
                 titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a>";
-            }
             timerDivElement.appendChild(titleElement);
             titleElement = null;
 
@@ -4156,38 +4022,14 @@ function embedTimer(targetPage) {
                 // player currently navigating other page instead of hunter camp
                 var helpTextElement = document.createElement('div');
                 helpTextElement.setAttribute('id', 'helpTextElement');
-                if (fbPlatform) {
-                    if (secureConnection) {
-                        helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='https://www.mousehuntgame.com/canvas/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
-                    }
-                    else {
-                        helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='http://www.mousehuntgame.com/canvas/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
-                    }
-                }
-                else if (hiFivePlatform) {
-                    if (secureConnection) {
-                        helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='https://mousehunt.hi5.hitgrab.com/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
-                    }
-                    else {
-                        helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='http://mousehunt.hi5.hitgrab.com/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
-                    }
-                }
-                else if (mhPlatform) {
-                    if (secureConnection) {
-                        helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='https://www.mousehuntgame.com/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
-                    }
-                    else {
-                        helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='http://www.mousehuntgame.com/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
-                    }
-                }
-                else if (mhMobilePlatform) {
-                    if (secureConnection) {
-                        helpTextElement.innerHTML = "<b>Note:</b> Mobile version of Mousehunt is not supported currently. Please use the <a href='https://www.mousehuntgame.com/?switch_to=standard'>standard version of MouseHunt</a>.";
-                    }
-                    else {
-                        helpTextElement.innerHTML = "<b>Note:</b> Mobile version of Mousehunt is not supported currently. Please use the <a href='http://www.mousehuntgame.com/?switch_to=standard'>standard version of MouseHunt</a>.";
-                    }
-                }
+                if (fbPlatform)
+                    helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='" + g_strHTTP + "://www.mousehuntgame.com/canvas/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
+                else if (hiFivePlatform)
+					helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='" + g_strHTTP + "://mousehunt.hi5.hitgrab.com/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
+                else if (mhPlatform)
+					helpTextElement.innerHTML = "<b>Note:</b> MouseHunt AutoBot will only run at <a href='" + g_strHTTP + "://www.mousehuntgame.com/'>Hunter Camp</a>. This is to prevent the bot from interfering user's activity.";
+                else if (mhMobilePlatform)
+					helpTextElement.innerHTML = "<b>Note:</b> Mobile version of Mousehunt is not supported currently. Please use the <a href='" + g_strHTTP + "://www.mousehuntgame.com/?switch_to=standard'>standard version of MouseHunt</a>.";
                 timerDivElement.appendChild(helpTextElement);
 
                 helpTextElement = null;
@@ -4470,24 +4312,13 @@ function embedTimer(targetPage) {
 					window.sessionStorage.removeItem(window.sessionStorage.key(i));\
 				}\
 				';
-            if (fbPlatform) {
-                if (secureConnection)
-                    temp = 'window.location.href=\'https://www.mousehuntgame.com/canvas/\';';
-                else
-                    temp = 'window.location.href=\'http://www.mousehuntgame.com/canvas/\';';
-            }
-            else if (hiFivePlatform) {
-                if (secureConnection)
-                    temp = 'window.location.href=\'https://www.mousehunt.hi5.hitgrab.com/\';';
-                else
-                    temp = 'window.location.href=\'http://www.mousehunt.hi5.hitgrab.com/\';';
-            }
-            else if (mhPlatform) {
-                if (secureConnection)
-                    temp = 'window.location.href=\'https://www.mousehuntgame.com/\';';
-                else
-                    temp = 'window.location.href=\'http://www.mousehuntgame.com/\';';
-            }
+            if (fbPlatform)
+				temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/canvas/\';';
+            else if (hiFivePlatform)
+				temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehunt.hi5.hitgrab.com/\';';
+            else if (mhPlatform)
+				temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/\';';
+
             preferenceHTMLStr += temp + '"/>&nbsp;&nbsp;&nbsp;</td>';
             preferenceHTMLStr += '</tr>';
 
