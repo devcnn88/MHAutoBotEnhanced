@@ -2760,13 +2760,15 @@ function sandDunes() {
 
 function twistedGarden(obj) {
     checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
-	checkThenArm('best', 'base', bestLGBase);
+	var strArmType = 'best';
+	var baseName = bestLGBase;
 	var red = parseInt(document.getElementsByClassName('itemImage red')[0].innerText);
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
     var charmArmed = getPageVariable('user.trinket_name');
     console.pdebug('Red:', red, 'Yellow:', yellow);
 	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
 	if(!obj.TG.isAutoFill){
+		checkThenArm('best', 'base', bestLGBase);
 		if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
             disarmTrap('trinket');
 		return;
@@ -2795,17 +2797,18 @@ function twistedGarden(obj) {
 						window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
 				}
 			}
-			checkThenArm(null, 'base', obj.TG.base.after);
+			strArmType = null;
+			baseName = obj.TG.base.after;
 			if (obj.TG.trinket.after.indexOf('Red') > -1 || obj.TG.trinket.after.indexOf('Yellow') > -1)
 				obj.TG.trinket.after = 'None';
 			checkThenArm(null, 'trinket', obj.TG.trinket.after);
 		}
 		else{
-			checkThenArm('best', 'base', bestLGBase);
 			if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
 				disarmTrap('trinket');
 		}
     }
+	checkThenArm(strArmType, 'base', baseName);
 }
 
 function cursedCity(obj) {
