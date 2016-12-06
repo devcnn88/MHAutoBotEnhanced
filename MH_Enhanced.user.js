@@ -2672,7 +2672,7 @@ function fRift(){
 		}
 		console.log('In Training Ground, Fully Charged Battery Level:', nFullBatteryLevel, 'Stored Enerchi:', nStoredEnerchi);
 		if(Number.isInteger(objFR.enter) && nFullBatteryLevel >= objFR.enter){
-			fRiftArmTrap(objFR, nFullBatteryLevel);
+			fRiftArmTrap(objFR, objFR.enter);
 			// enter
 			fireEvent(classBattery[objFR.enter-1], 'click');
 			window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
