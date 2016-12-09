@@ -362,7 +362,7 @@ function saveToSessionStorage(){
 			removeSessionStorage(arrLog[i]);
 	}
 	try{
-		setSessionStorage("Log_" + Date.now(), str);
+		setSessionStorage("Log_" + (performance.timing.navigationStart + performance.now()), str);
 	}
 	catch (e){
 		if(e.name == "QuotaExceededError"){
@@ -1917,7 +1917,6 @@ function SCCustom() {
 		useSmartJet : false
 	};
 	var objSCCustom = getStorageToObject('SCCustom', objDefaultSCCustom);
-	console.pdebug(objSCCustom);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.plog('Current Zone:', zone, 'ID', zoneID, 'at meter', distance);
 	checkThenArm('best', 'base', bestSCBase);
@@ -3345,11 +3344,14 @@ function closeTrapSelector(category){
 		var armedItem = document.getElementsByClassName('campPage-trap-armedItem ' + category)[0];
 		if(!isNullOrUndefined(armedItem) && armedItem.getAttribute('class').indexOf('active') > -1){ // trap selector opened
 			fireEvent(armedItem, 'click');
+			console.pdebug("Trap selector", strSelect, "closed");
 		}
 	}
 	else{
-		if(document.getElementsByClassName("showComponents " + category).length > 0)
+		if(document.getElementsByClassName("showComponents " + category).length > 0){
 			fireEvent(document.getElementById('trapSelectorBrowserClose'), 'click');
+			console.pdebug("Trap selector", strSelect, "closed");
+		}
 	}
 }
 
@@ -7257,25 +7259,34 @@ function bodyJS(){
 	function onIdGetLogPreferenceClicked(){
 		var i;
 		var str = "";
-		var temp;
-		var arrLog = [];
+		var strKeyName = "";
+		var arrTimestamp = [];
+		var arrValue = [];
 		for(i=0;i<window.localStorage.length;i++){
-			temp = window.localStorage.key(i);
-			if(temp.indexOf('KR') === 0)
+			strKeyName = window.localStorage.key(i);
+			if(strKeyName.indexOf('KR') === 0)
 				continue;
-			str += temp + '|' + window.localStorage.getItem(temp);
+			str += strKeyName + '|' + window.localStorage.getItem(strKeyName);
 			str += "\r\n";
 		}
 		for(i=0;i<window.sessionStorage.length;i++){
-			temp = window.sessionStorage.key(i);
-			if(temp.indexOf('Log_') > -1)
-				arrLog.push(temp);
+			strKeyName = window.sessionStorage.key(i);
+			if(strKeyName.indexOf('Log_') > -1){
+				arrTimestamp.push(parseFloat(strKeyName.split('_')[1]));
+				arrValue.push(window.sessionStorage.getItem(strKeyName));
+			}
 		}
-		arrLog = arrLog.sort();
-		for(i=0;i<arrLog.length;i++){
-			temp = parseInt(arrLog[i].split('_')[1]);
-			temp = (Number.isInteger(temp)) ? (new Date(temp)).toISOString() : arrLog[i];
-			str += temp + "|" + window.sessionStorage.getItem(arrLog[i]);
+		arrTimestamp = arrTimestamp.sort();
+		var nTimezoneOffset = -(new Date().getTimezoneOffset()) * 60000;
+		for(i=0;i<arrTimestamp.length;i++){
+			if(Number.isNaN(arrTimestamp[i]))
+				strKeyName = arrTimestamp[i];
+			else{
+				arrTimestamp[i] += nTimezoneOffset;
+				strKeyName = (new Date(arrTimestamp[i])).toISOString();
+				strKeyName += '.' + arrTimestamp[i].toFixed(3).split('.')[1];
+			}
+			str += strKeyName + "|" + arrValue[i];
 			str += "\r\n";
 		}
 		saveFile(str,'log_preference.txt');
