@@ -7173,7 +7173,7 @@ function bodyJS(){
 	}
 	
 	function isNullOrUndefined(obj){
-		return (obj === null || obj === undefined || obj === 'null' || obj === 'undefined');
+		return (obj === null || obj === undefined || obj === 'null' || obj === 'undefined' || (Array.isArray(obj) && obj.length === 0));
 	}
 
 	function onIdRestoreClicked(){
@@ -7598,7 +7598,7 @@ function bodyJS(){
 		}
 		
 		storageValue = JSON.parse(storageValue);
-		if(bAutoChangeZone && user.location.indexOf('Sunken City') > -1){
+		if(bAutoChangeZone && !isNullOrUndefined(user) && user.location.indexOf('Sunken City') > -1){
 			var zone = document.getElementsByClassName('zoneName')[0].innerText;
 			var objZone = {
 				'ZONE_TREASURE' : ['Sand Dollar Sea Bar', 'Pearl Patch', 'Sunken Treasure'],
@@ -7927,7 +7927,7 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			if(bAutoChangeWave && user.location.indexOf('Fiery Warpath') > -1){
+			if(bAutoChangeWave && !isNullOrUndefined(user) && user.location.indexOf('Fiery Warpath') > -1){
 				if(user.viewing_atts.desert_warpath.wave < 1)
 					selectFWWave.value = 1;
 				else if(user.viewing_atts.desert_warpath.wave > 4)
@@ -8212,7 +8212,7 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			if(bAutoChangeSeason && user.location.indexOf('Seasonal Garden') > -1){
+			if(bAutoChangeSeason && !isNullOrUndefined(user) && user.location.indexOf('Seasonal Garden') > -1){
 				var arrSeason = ['Spring', 'Summer', 'Fall', 'Winter'];
 				var nTimeStamp = Date.parse(new Date())/1000;
 				var nFirstSeasonTimeStamp = 1283328000;
@@ -8252,7 +8252,7 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			selectZTFocus.value = storageValue.focus.toUpperCase();
-			if(bAutoChangeMouseOrder && user.location.indexOf('Zugzwang\'s Tower') > -1){
+			if(bAutoChangeMouseOrder && !isNullOrUndefined(user) && user.location.indexOf('Zugzwang\'s Tower') > -1){
 				var nProgressMystic = parseInt(user.viewing_atts.zzt_mage_progress);
 				var nProgressTechnic = parseInt(user.viewing_atts.zzt_tech_progress);
 				if(Number.isNaN(nProgressMystic) || Number.isNaN(nProgressTechnic)){
@@ -8431,7 +8431,7 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = 0;
-			if(bAutoChangeBatteryLevel && user.location.indexOf('Furoma Rift') > -1 && user.quests.QuestRiftFuroma.view_state == 'pagoda'){
+			if(bAutoChangeBatteryLevel && !isNullOrUndefined(user) && user.location.indexOf('Furoma Rift') > -1 && user.quests.QuestRiftFuroma.view_state == 'pagoda'){
 				var classCharge = document.getElementsByClassName('riftFuromaHUD-droid-charge');
 				if(classCharge.length > 0){
 					var nRemainingEnergy = parseInt(classCharge[0].innerText.replace(/,/g, ''));
@@ -8563,7 +8563,7 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = -1;
-			if(bAutoChangeStage && user.location.indexOf('Fort Rox') > -1){
+			if(bAutoChangeStage && !isNullOrUndefined(user) && user.location.indexOf('Fort Rox') > -1){
 				if(user.quests.QuestFortRox.is_dawn === true)
 					selectFRoxStage.value = 'DAWN';
 				else if(user.quests.QuestFortRox.current_phase == 'night'){
@@ -8714,7 +8714,7 @@ function bodyJS(){
 			storageValue = JSON.parse(storageValue);
 			selectWWRiftFaction.value = storageValue.factionFocus;
 			selectWWRiftFactionNext.value = storageValue.factionFocusNext;
-			if(bAutoChangeRageLevel && user.location.indexOf('Whisker Woods Rift') > -1){
+			if(bAutoChangeRageLevel && !isNullOrUndefined(user) && user.location.indexOf('Whisker Woods Rift') > -1){
 				var arrOrder = ['CC', 'GGT', 'DL'];
 				var arrRage = new Array(3);
 				var classRage = document.getElementsByClassName('riftWhiskerWoodsHUD-zone-rageLevel');
@@ -8867,7 +8867,7 @@ function bodyJS(){
 		var selectGESDCStokeEngine = document.getElementById('selectGESDCStokeEngine');
 		var inputMinFuelNugget = document.getElementById('inputMinFuelNugget');
 		var storageValue = window.sessionStorage.getItem('GES');
-		if(bAutoChangePhase && user.location.indexOf('Gnawnian Express Station') > -1){
+		if(bAutoChangePhase && !isNullOrUndefined(user) && user.location.indexOf('Gnawnian Express Station') > -1){
 			if(user.quests.QuestTrainStation.on_train){
 				var strCurrentPhase = '';
 				var classPhase = document.getElementsByClassName('box phaseName');
