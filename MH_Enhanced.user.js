@@ -1057,7 +1057,7 @@ function fortRox(){
 	
 	var bTowerActive = !(objUser.tower_status.indexOf('inactive') > -1);
 	var nMana = parseInt(document.getElementsByClassName('fortRoxHUD-mana quantity')[0].textContent);
-	console.plog('Tower Active:', bTowerActive, 'Mana;', nMana, 'Current HP:', objUser.hp, 'Max HP:', objUser.max_hp);
+	console.plog('Tower Active:', bTowerActive, 'Mana:', nMana, 'Current HP:', objUser.hp, 'Max HP:', objUser.max_hp);
 	if(nMana > 0 && nIndex > 0){
 		var classButton = document.getElementsByClassName('fortRoxHUD-spellTowerButton')[0];
 		if(bTowerActive){
@@ -3344,13 +3344,13 @@ function closeTrapSelector(category){
 		var armedItem = document.getElementsByClassName('campPage-trap-armedItem ' + category)[0];
 		if(!isNullOrUndefined(armedItem) && armedItem.getAttribute('class').indexOf('active') > -1){ // trap selector opened
 			fireEvent(armedItem, 'click');
-			console.pdebug("Trap selector", strSelect, "closed");
+			console.pdebug("Trap selector", category, "closed");
 		}
 	}
 	else{
 		if(document.getElementsByClassName("showComponents " + category).length > 0){
 			fireEvent(document.getElementById('trapSelectorBrowserClose'), 'click');
-			console.pdebug("Trap selector", strSelect, "closed");
+			console.pdebug("Trap selector", category, "closed");
 		}
 	}
 }
@@ -5494,7 +5494,7 @@ function loadPreferenceSettingFromStorage() {
 	hornTimeDelayMax = getStorageToVariableInt("HornTimeDelayMax", hornTimeDelayMax);
 	enableTrapCheck = getStorageToVariableBool("TrapCheck", enableTrapCheck);
 	checkTimeDelayMin = getStorageToVariableInt("TrapCheckTimeDelayMin", checkTimeDelayMin);
-	checkTimeDelayMiax = getStorageToVariableInt("TrapCheckTimeDelayMax", checkTimeDelayMax);
+	checkTimeDelayMax = getStorageToVariableInt("TrapCheckTimeDelayMax", checkTimeDelayMax);
 	isKingWarningSound = getStorageToVariableBool("PlayKingRewardSound", isKingWarningSound);
 	isAutoSolve = getStorageToVariableBool("AutoSolveKR", isAutoSolve);
 	krDelayMin = getStorageToVariableInt("AutoSolveKRDelayMin", krDelayMin);
