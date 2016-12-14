@@ -1964,6 +1964,8 @@ function gwh(nYear){
 	for(i=0;i<userVariable.sprites.length;i++){
 		if(userVariable.sprites[i].css_class.indexOf('active') > -1){ // current zone
 			nIndexActive = i;
+			if(userVariable.meters_remaining===0)
+				nIndexActive++;
 			break;
 		}
 	}
