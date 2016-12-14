@@ -2040,7 +2040,10 @@ function gwh(nYear){
 			else
 				break;
 		}
-		var nLevel = Math.floor(nTotalMetersRemaining/230);
+		var fTemp = nTotalMetersRemaining/250;
+		var nLevel = Math.floor(fTemp);
+		if((nLevel - fTemp) >= 0.92) // because 230/250 = 0.92
+			nLevel++;
 		if(nLevel == 1){ // normal boost
 			fireEvent(document.getElementsByClassName('winterHunt2016HUD-nitroButton-boundingBox')[2], 'click');
 		}
@@ -2049,6 +2052,10 @@ function gwh(nYear){
 				fireEvent(document.getElementsByClassName('winterHunt2016HUD-nitroButton-boundingBox')[3], 'click');
 			else
 				fireEvent(document.getElementsByClassName('winterHunt2016HUD-nitroButton-boundingBox')[2], 'click');
+		}
+		else if(nLevel < 1 && userVariable.speed > 30){
+			console.plog('Disable nitro, Current Speed:', userVariable.speed);
+			fireEvent(document.getElementsByClassName('winterHunt2016HUD-nitroButton-boundingBox')[1], 'click');
 		}
 	}
 	else{
