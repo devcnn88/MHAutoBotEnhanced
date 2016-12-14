@@ -3372,14 +3372,13 @@ function retrieveDataFirst() {
 				// get next horn time
 				var hornTimeStartIndex = scriptString.indexOf("next_activeturn_seconds");
 				if (hornTimeStartIndex >= 0) {
-					var nextActiveTime = 900;
 					hornTimeStartIndex += 25;
 					var hornTimeEndIndex = scriptString.indexOf(",", hornTimeStartIndex);
 					var hornTimerString = scriptString.substring(hornTimeStartIndex, hornTimeEndIndex);
 					nextActiveTime = parseInt(hornTimerString);
 
 					hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
-
+					console.plog('Horn Time:', nextActiveTime, 'Delay:', hornTimeDelay);
 					if (!aggressiveMode) {
 						// calculation base on the js in Mousehunt
 						var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
@@ -3423,7 +3422,6 @@ function retrieveDataFirst() {
 					hornTimeStartIndex = undefined;
 					hornTimeEndIndex = undefined;
 					hornTimerString = undefined;
-					nextActiveTime = undefined;
 				}
 
 				// get is king's reward or not
@@ -3623,6 +3621,7 @@ function retrieveData() {
 				hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
 			}
 
+			console.plog('Horn Time:', nextActiveTime, 'Delay:', hornTimeDelay);
 			if (!aggressiveMode) {
 				// calculation base on the js in Mousehunt
 				var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
