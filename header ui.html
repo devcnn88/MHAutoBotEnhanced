@@ -785,24 +785,34 @@
 						<input type="number" id="inputKGSalt" min="1" max="50" size="5" value="25" onchange="onInputKGSaltChanged();">
 					</td>
 				</tr>
-				<tr id="trGWHTrapSetup" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current stage"><b>Trap Setup for </b></a>
+				<tr id="trGWHZone" style="display:none;">
+					<td style="height:24px; text-align:right;">
 						<select id="selectGWHZone" onchange="initControlsGWH2016();">
-							<option value="TOY_LOT">Toy Lot</option>
-							<option value="TOY_EMPORIUM">Toy Emporium</option>
-							<option value="DECORATIVE_OASIS">Decorative Oasis</option>
-							<option value="TINSEL_FOREST">Tinsel Forest</option>
-							<option value="BUNNY_HILLS">Bunny Hills</option>
-							<option value="FROSTY_MOUNTAINS">Frosty Mountains</option>
+							<option value="ORDER1">Tier 1 Order-Zone</option>
+							<option value="ORDER2">Tier 2 Order-Zone</option>
+							<option value="NONORDER1">Tier 1 Non-Order-Zone</option>
+							<option value="NONORDER2">Tier 2 Non-Order-Zone</option>
 							<option value="WINTER_WASTELAND">Winter Wasteland</option>
 							<option value="SNOWBALL_STORM">Snowball Storm</option>
 						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
 					</td>
 					<td style="height:24px">
-						<select id="selectGWHHunt" onchange="saveGWH2016();">
-							<option value="true">Hunt</option>
-							<option value="false">Jet Through</option>
+						<select id="selectGWHAction" onchange="saveGWH2016();">
+							<option value="NONE">None</option>
+							<option value="ANCHOR">Anchor</option>
+							<option value="BOOST">Boost</option>
 						</select>
+					</td>
+				</tr>
+				<tr id="trGWHTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on anchor/boost status"><b>Trap Setup When </b></a>
+						<select id="selectGWHActionStatus" onchange="initControlsGWH2016();">
+							<option value="NONE">None</option>
+							<option value="ANCHOR">Anchor</option>
+							<option value="BOOST">Boost</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
 						<select id="selectGWHWeapon" style="width: 75px" onchange="saveGWH2016();">
 							<option value="Weapon 1">Weapon 1</option>
 							<option value="Weapon 2">Weapon 2</option>
@@ -811,15 +821,19 @@
 							<option value="Base 1">Base 1</option>
 							<option value="Base 2">Base 2</option>
 						</select>
-						<select id="selectGWHTrinket" style="width: 75px" onchange="saveGWH2016();">
+						<select id="selectGWHAnchorTrinket" style="width: 75px; display" onchange="saveGWH2016();">
+							<option value="FAC_EAC">FAC/EAC</option>
+							<option value="Empowered Anchor">EAC</option>
+							<option value="Spiked Anchor">SAC</option>
+						</select>
+						<select id="selectGWHTrinket" style="width: 75px; display" onchange="saveGWH2016();">
 							<option value="None">None</option>
-							<option value="EAC">EAC</option>
 						</select>
 						<select id="selectGWHBait" style="width: 75px" onchange="saveGWH2016();">
 							<option value="None">None</option>
-							<option value="Brie">Brie</option>
-							<option value="Gouda">Gouda</option>
-							<option value="SUPER">SUPER|brie+</option>
+							<option value="ANY_FESTIVE_BRIE">AA/Festive Cheese/Brie</option>
+							<option value="ANY_FESTIVE_GOUDA">AA/Festive Cheese/Gouda</option>
+							<option value="ANY_FESTIVE_SB">AA/Festive Cheese/SUPER|brie+</option>
 						</select>
 					</td>
 				</tr>
@@ -1585,65 +1599,95 @@
 		if(isNullOrUndefined(bAutoChangeZone))
 			bAutoChangeZone = false;
 		var selectGWHZone = document.getElementById('selectGWHZone');
-		var selectGWHHunt = document.getElementById('selectGWHHunt');
+		var selectGWHAction = document.getElementById('selectGWHAction');
+		var selectGWHActionStatus = document.getElementById('selectGWHActionStatus');
 		var selectGWHWeapon = document.getElementById('selectGWHWeapon');
 		var selectGWHBase = document.getElementById('selectGWHBase');
 		var selectGWHTrinket = document.getElementById('selectGWHTrinket');
+		var selectGWHAnchorTrinket = document.getElementById('selectGWHAnchorTrinket');
 		var selectGWHBait = document.getElementById('selectGWHBait');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
-			selectGWHHunt.selectedIndex = 0;
+			selectGWHAction.selectedIndex = -1;
 			selectGWHWeapon.selectedIndex = -1;
 			selectGWHBase.selectedIndex = -1;
 			selectGWHTrinket.selectedIndex = -1;
+			selectGWHAnchorTrinket.selectedIndex = -1;
 			selectGWHBait.selectedIndex = -1;
 			selectGWHUseTurboBoost.selectedIndex = 0;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			var nIndex = storageValue.order.indexOf(selectGWHZone.value);
+			
+			var nIndex = storageValue.zone.order.indexOf(selectGWHZone.value);
+			if(nIndex < 0)
+				nIndex = 0;
+			selectGWHAction.value = storageValue.zone.action[nIndex];
+			nIndex = storageValue.status.indexOf(selectGWHActionStatus.value);
 			if(nIndex < 0)
 				nIndex = 0;
 			selectGWHWeapon.value = storageValue.weapon[nIndex];
 			selectGWHBase.value = storageValue.base[nIndex];
-			selectGWHTrinket.value = storageValue.trinket[nIndex];
 			selectGWHBait.value = storageValue.bait[nIndex];
-			selectGWHHunt.value = (storageValue.hunt[nIndex] === true) ? 'true' : 'false';
+			if(selectGWHActionStatus.value == 'ANCHOR')
+				selectGWHAnchorTrinket.value = storageValue.trinket[nIndex];
+			else
+				selectGWHTrinket.value = storageValue.trinket[nIndex];
+			storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
 			selectGWHUseTurboBoost.value = (storageValue.turbo === true) ? 'true' : 'false';
+		}
+		if(selectGWHActionStatus.value == 'ANCHOR'){
+			selectGWHAnchorTrinket.style.display = '';
+			selectGWHTrinket.style.display = 'none';
+		}
+		else{
+			selectGWHAnchorTrinket.style.display = 'none';
+			selectGWHTrinket.style.display = '';
 		}
 	}
 	
 	function saveGWH2016(){
 		var selectGWHZone = document.getElementById('selectGWHZone');
-		var selectGWHHunt = document.getElementById('selectGWHHunt');
+		var selectGWHAction = document.getElementById('selectGWHAction');
+		var selectGWHActionStatus = document.getElementById('selectGWHActionStatus');
 		var selectGWHWeapon = document.getElementById('selectGWHWeapon');
 		var selectGWHBase = document.getElementById('selectGWHBase');
 		var selectGWHTrinket = document.getElementById('selectGWHTrinket');
+		var selectGWHAnchorTrinket = document.getElementById('selectGWHAnchorTrinket');
 		var selectGWHBait = document.getElementById('selectGWHBait');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
-				order : ['TOY_LOT','TOY_EMPORIUM','DECORATIVE_OASIS','TINSEL_FOREST','BUNNY_HILLS','FROSTY_MOUNTAINS','WINTER_WASTELAND','SNOWBALL_STORM'],
-				weapon : new Array(8).fill(''),
-				base : new Array(8).fill(''),
-				trinket : new Array(8).fill('None'),
-				bait : new Array(8).fill('Gouda'),
-				hunt : new Array(8).fill(true),
+				status : ['ANCHOR', 'BOOST', 'NONE'],
+				zone : {
+					order : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM'],
+					action : new Array(6).fill('NONE'),
+				},
+				weapon : new Array(3).fill(''),
+				base : new Array(3).fill(''),
+				trinket : new Array(3).fill(''),
+				bait : new Array(3).fill(''),
 				turbo : false
 			};
 			storageValue = JSON.stringify(objDefaultGWH2016);
 		}
 		storageValue = JSON.parse(storageValue);
-		var nIndex = storageValue.order.indexOf(selectGWHZone.value);
+		var nIndex = storageValue.zone.order.indexOf(selectGWHZone.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.zone.action[nIndex] = selectGWHAction.value;
+		nIndex = storageValue.status.indexOf(selectGWHActionStatus.value);
 		if(nIndex < 0)
 			nIndex = 0;
 		storageValue.weapon[nIndex] = selectGWHWeapon.value;
 		storageValue.base[nIndex] = selectGWHBase.value;
 		storageValue.bait[nIndex] = selectGWHBait.value;
-		storageValue.trinket[nIndex] = selectGWHTrinket.value;
-		storageValue.hunt[nIndex] = (selectGWHHunt.value == 'true');
+		if(selectGWHActionStatus.value == 'ANCHOR')
+			storageValue.trinket[nIndex] = selectGWHAnchorTrinket.value;
+		else
+			storageValue.trinket[nIndex] = selectGWHTrinket.value;
 		storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
 		window.sessionStorage.setItem('GWH2016', JSON.stringify(storageValue));
 	}
@@ -3202,7 +3246,7 @@
 				init : function(data){initControlsFRox(data);}
 			},
 			'GWH2016' : {
-				arr : ['trGWHTrapSetup','trGWHTurboBoost'],
+				arr : ['trGWHZone','trGWHTrapSetup','trGWHTurboBoost'],
 				init : function(data){initControlsGWH2016(data);}
 			},
 		};
