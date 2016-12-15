@@ -1902,20 +1902,39 @@ function gwh(nYear){
 
 	var userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestWinterHunt2016)'));
 	var objDefaultGWH2016 = {
-		status : ['ANCHOR', 'BOOST', 'NONE'],
+		status : ['ANCHOR', 'BOOST', 'NONE', 'FLYING'],
 		zone : {
 			order : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM'],
 			action : new Array(6).fill('NONE'),
 		},
-		weapon : new Array(3).fill(''),
-		base : new Array(3).fill(''),
-		trinket : new Array(3).fill(''),
-		bait : new Array(3).fill(''),
+		weapon : new Array(4).fill(''),
+		base : new Array(4).fill(''),
+		trinket : new Array(4).fill(''),
+		bait : new Array(4).fill(''),
 		turbo : false
 	};
 	var objGWH = getStorageToObject('GWH2016', objDefaultGWH2016);
 	var i,j,nLimit,strTemp,nIndex,nIndexTemp,strONOFF;
 	var arrFestiveCheese = ['Arctic Asiago', 'Nutmeg', 'Snowball Bocconcini', 'Festive Feta', 'Gingerbread'];
+	if(userVariable.status == 'flying'){
+		console.plog('Flying');
+		nIndex = objGWH.status.indexOf('FLYING');
+		checkThenArm(null, 'weapon', objGWH.weapon[nIndex]);
+		checkThenArm(null, 'base', objGWH.base[nIndex]);
+		checkThenArm(null, 'trinket', objGWH.trinket[nIndex]);
+		if(objGWH.bait[nIndex].indexOf('ANY') > -1){
+			if(objGWH.bait[nIndex] == 'ANY_FESTIVE_BRIE')
+				arrFestiveCheese.push('Brie Cheese');
+			else if(objGWH.bait[nIndex] == 'ANY_FESTIVE_GOUDA')
+				arrFestiveCheese.push('Gouda');
+			else if(objGWH.bait[nIndex] == 'ANY_FESTIVE_SB')
+				arrFestiveCheese.push('SUPER');
+			checkThenArm('best', 'bait', arrFestiveCheese);
+		}
+		else
+			checkThenArm(null, 'bait', objGWH.bait[nIndex]);
+		return;
+	}
 	if(userVariable.order_progress >= 10){ // can fly
 		console.plog('Order Progress:', userVariable.order_progress);
 		fireEvent(document.getElementsByClassName('winterHunt2016HUD-flightButton')[0], 'click');
@@ -5197,6 +5216,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="NONE">None</option>';
 			preferenceHTMLStr += '<option value="ANCHOR">Anchor</option>';
 			preferenceHTMLStr += '<option value="BOOST">Boost</option>';
+			preferenceHTMLStr += '<option value="FLYING">Flying</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -7885,15 +7905,15 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
-				status : ['ANCHOR', 'BOOST', 'NONE'],
+				status : ['ANCHOR', 'BOOST', 'NONE', 'FLYING'],
 				zone : {
 					order : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM'],
 					action : new Array(6).fill('NONE'),
 				},
-				weapon : new Array(3).fill(''),
-				base : new Array(3).fill(''),
-				trinket : new Array(3).fill(''),
-				bait : new Array(3).fill(''),
+				weapon : new Array(4).fill(''),
+				base : new Array(4).fill(''),
+				trinket : new Array(4).fill(''),
+				bait : new Array(4).fill(''),
 				turbo : false
 			};
 			storageValue = JSON.stringify(objDefaultGWH2016);
