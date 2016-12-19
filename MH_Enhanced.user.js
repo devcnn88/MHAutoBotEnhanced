@@ -1914,8 +1914,13 @@ function gwh(nYear){
 		turbo : false
 	};
 	var objGWH = getStorageToObject('GWH2016', objDefaultGWH2016);
-	var i,j,nLimit,strTemp,nIndex,nIndexTemp,strONOFF;
+	var i,j,nLimit,strTemp,nIndex,nIndexTemp;
 	var arrFestiveCheese = ['Arctic Asiago', 'Nutmeg', 'Snowball Bocconcini', 'Festive Feta', 'Gingerbread'];
+	if(userVariable.order_progress >= 10){ // can fly
+		console.plog('Order Progress:', userVariable.order_progress);
+		fireEvent(document.getElementsByClassName('winterHunt2016HUD-flightButton')[0], 'click');
+		userVariable.status = 'flying';
+	}
 	if(userVariable.status == 'flying'){
 		console.plog('Flying');
 		nIndex = objGWH.status.indexOf('FLYING');
@@ -1933,12 +1938,6 @@ function gwh(nYear){
 		}
 		else
 			checkThenArm(null, 'bait', objGWH.bait[nIndex]);
-		return;
-	}
-	if(userVariable.order_progress >= 10){ // can fly
-		console.plog('Order Progress:', userVariable.order_progress);
-		fireEvent(document.getElementsByClassName('winterHunt2016HUD-flightButton')[0], 'click');
-		checkThenArm('best', 'bait', arrFestiveCheese);
 		return;
 	}
 	var objOrderTemplate = {
@@ -1983,7 +1982,7 @@ function gwh(nYear){
 	for(i=0;i<userVariable.sprites.length;i++){
 		if(userVariable.sprites[i].css_class.indexOf('active') > -1){ // current zone
 			nIndexActive = i;
-			if(userVariable.meters_remaining===0)
+			if(parseInt(userVariable.meters_remaining)===0)
 				nIndexActive++;
 			break;
 		}
@@ -2005,7 +2004,7 @@ function gwh(nYear){
 		else if(arrZone[nIndex].name == 'Bunny Hills' || arrZone[nIndex].name == 'Frosty Mountains')
 			arrZone[nIndex].type = "ski";
 		for(j=0;j<arrOrder.length;j++){
-			if(arrOrder[j].type == arrZone[nIndex].type){
+			if(arrOrder[j].type == arrZone[nIndex].type && arrOrder[j].tier == arrZone[nIndex].tier){
 				arrZone[nIndex].isOrderZone = true;
 				break;
 			}
@@ -2051,7 +2050,7 @@ function gwh(nYear){
 		console.plog('Nitro Quantity:', nNitroQuantity);
 		if(Number.isNaN(nNitroQuantity) || nNitroQuantity < 1)
 			return;
-		var nTotalMetersRemaining = userVariable.meters_remaining;
+		var nTotalMetersRemaining = parseInt(userVariable.meters_remaining);
 		for(i=1;i<arrZone.length;i++){
 			nIndexZone = objGWH.zone.order.indexOf(arrZone[i].codename);
 			if(nIndexZone < 0)
@@ -2061,6 +2060,7 @@ function gwh(nYear){
 			else
 				break;
 		}
+		console.plog('Boost Distance:', nTotalMetersRemaining, 'Turbo:', objGWH.turbo);
 		var fTemp = nTotalMetersRemaining/250;
 		var nLevel = Math.floor(fTemp);
 		if((nLevel - fTemp) >= 0.92) // because 230/250 = 0.92
@@ -6586,7 +6586,6 @@ function kingRewardAction() {
 		var krDelayMinute = krStartHourDelayMin + Math.floor(Math.random() * (krStartHourDelayMax - krStartHourDelayMin));
 		krDelaySec += krStartHour * 3600 - (nowDate.getHours() * 3600 + nowDate.getMinutes() * 60 + nowDate.getSeconds());
 		krDelaySec += krDelayMinute * 60;
-		var timeNow = new Date();
 		kingRewardCountdownTimer(krDelaySec, true);
 	}
 	else{
@@ -7864,7 +7863,6 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			
 			var nIndex = storageValue.zone.order.indexOf(selectGWHZone.value);
 			if(nIndex < 0)
 				nIndex = 0;
@@ -7879,7 +7877,6 @@ function bodyJS(){
 				selectGWHAnchorTrinket.value = storageValue.trinket[nIndex];
 			else
 				selectGWHTrinket.value = storageValue.trinket[nIndex];
-			storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
 			selectGWHUseTurboBoost.value = (storageValue.turbo === true) ? 'true' : 'false';
 		}
 		if(selectGWHActionStatus.value == 'ANCHOR'){
