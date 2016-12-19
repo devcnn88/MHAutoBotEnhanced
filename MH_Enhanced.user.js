@@ -4268,7 +4268,11 @@ function embedTimer(targetPage) {
 
 			var restorePreferenceStr = '<input type="file" id="inputFiles" name="files" style="display:none;" onchange="handleFiles(this.files)"/>';
 			restorePreferenceStr += '<a id="idRestore" name="Restore" title="Click to restore preference" onclick="onIdRestoreClicked();">';
-			restorePreferenceStr += '<b>[Restore]</b></a>&nbsp;&nbsp;&nbsp;';
+			if(getSessionStorage('bRestart') != 'true')
+				restorePreferenceStr += '<b>[Restore]</b>';
+			else
+				restorePreferenceStr += '<b>Restart browser is required!</b>';
+			restorePreferenceStr += '</a>&nbsp;&nbsp;&nbsp;';
 			var getLogPreferenceStr = '<a id="idGetLogAndPreference" name="GetLogAndPreference" title="Click to get saved log & preference" onclick="onIdGetLogPreferenceClicked();">';
 			getLogPreferenceStr += '<b>[Get Log & Preference / Backup]</b></a>&nbsp;&nbsp;&nbsp;';
 			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="\
@@ -7451,14 +7455,20 @@ function bodyJS(){
 				var arr = evt.target.result.split('\r\n');
 				var arrSplit = [];
 				var bRestart = false;
+				var nIndex = -1;
+				var temp = "";
 				for(var i=0;i<arr.length;i++){
 					if(arr[i].indexOf('|') > -1){
 						arrSplit = arr[i].split('|');
-						if(arrSplit.length == 2 && Number.isNaN(Date.parse(arrSplit[0]))){
-							console.log(arrSplit);
-							window.localStorage.setItem(arrSplit[0], arrSplit[1]);
-							window.sessionStorage.setItem(arrSplit[0], arrSplit[1]);
-							bRestart = true;
+						if(arrSplit.length == 2){
+							nIndex = arrSplit[0].indexOf('Z');
+							temp = (nIndex > -1) ? arrSplit[0].substr(0,nIndex+1) : arrSplit[0];
+							if(Number.isNaN(Date.parse(temp))){
+								console.log(arrSplit);
+								window.localStorage.setItem(arrSplit[0], arrSplit[1]);
+								window.sessionStorage.setItem(arrSplit[0], arrSplit[1]);
+								bRestart = true;
+							}
 						}
 					}
 				}
