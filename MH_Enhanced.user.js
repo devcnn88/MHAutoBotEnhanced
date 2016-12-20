@@ -2035,6 +2035,10 @@ function gwh(nYear){
 	else
 		checkThenArm(null, 'trinket', objGWH.trinket[nIndexAction]);
 	if(objGWH.bait[nIndexAction].indexOf('ANY') > -1){
+		var nAAQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-featuredItem-quantity')[0].textContent);
+		if(nAAQuantity > 0)
+			checkThenArm(null, 'bait', 'Arctic Asiago');
+		else{
 		if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_BRIE')
 			arrFestiveCheese.push('Brie Cheese');
 		else if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_GOUDA')
@@ -2042,6 +2046,7 @@ function gwh(nYear){
 		else if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_SB')
 			arrFestiveCheese.push('SUPER');
 		checkThenArm('best', 'bait', arrFestiveCheese);
+	}
 	}
 	else
 		checkThenArm(null, 'bait', objGWH.bait[nIndexAction]);
