@@ -1833,15 +1833,12 @@ function SunkenCity(isAggro) {
 	var charmElement = document.getElementsByClassName('charm');
 	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);
 	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
-	if (currentZone == objSCZone.ZONE_OXYGEN || currentZone == objSCZone.ZONE_TREASURE || currentZone == objSCZone.ZONE_BONUS)
-	{
+	if (currentZone == objSCZone.ZONE_OXYGEN || currentZone == objSCZone.ZONE_TREASURE || currentZone == objSCZone.ZONE_BONUS){
 		if (isAggro && (currentZone == objSCZone.ZONE_TREASURE))
 			checkThenArm('best', 'trinket', objSCTrap.scAnchorTreasure);
-		else
-		{
+		else{
 			// arm Empowered Anchor Charm
-			if (!isEACArmed)
-			{
+			if (!isEACArmed){
 				if (parseInt(charmElement[0].innerText) > 0)
 					fireEvent(charmElement[0], 'click');
 			}
@@ -1849,13 +1846,10 @@ function SunkenCity(isAggro) {
 		
 		checkThenArm(null, 'bait', 'SUPER');
 	}
-	else if (currentZone == objSCZone.ZONE_DANGER_PP)
-	{
-		if (!isAggro)
-		{
+	else if (currentZone == objSCZone.ZONE_DANGER_PP){
+		if (!isAggro){
 			// arm Empowered Anchor Charm
-			if (!isEACArmed && !isAggro)
-			{
+			if (!isEACArmed && !isAggro){
 				if (parseInt(charmElement[0].innerText) > 0)
 					fireEvent(charmElement[0], 'click');
 			}
@@ -1864,33 +1858,27 @@ function SunkenCity(isAggro) {
 			checkThenArm('best', 'trinket', objSCTrap.scAnchorDanger);
 		checkThenArm(null, 'bait', 'Gouda');
 	}
-	else if ((currentZone == objSCZone.ZONE_DEFAULT) && isAggro)
-	{
+	else if ((currentZone == objSCZone.ZONE_DEFAULT) && isAggro){
 		var depth = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[1].length'));
-		if (depth >= 500)
-		{
+		if (depth >= 500){
 			var nextZoneName = getPageVariable('user.quests.QuestSunkenCity.zones[2].name');
 			var nextZoneLeft = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[2].left'));
 			var nextZone = GetSunkenCityZone(nextZoneName);
 			var distanceToNextZone = parseInt((nextZoneLeft - 80) / 0.6);
 			console.pdebug('Distance to next zone(m):', distanceToNextZone);
-			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == objSCZone.ZONE_DEFAULT))
-			{
+			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == objSCZone.ZONE_DEFAULT)){
 				// arm Water Jet Charm
 				checkThenArm('best', 'trinket', ['Smart Water Jet', 'Water Jet']);
 			}
 			else
-			{
 				DisarmSCSpecialCharm(charmArmed);
-			}
 		}
 		else
 			DisarmSCSpecialCharm(charmArmed);
 		
 		checkThenArm(null, 'bait', 'Gouda');
 	}
-	else
-	{
+	else{
 		DisarmSCSpecialCharm(charmArmed);
 		checkThenArm(null, 'bait', 'Gouda');
 	}
@@ -2003,13 +1991,13 @@ function gwh(nYear){
 			arrZone[nIndex].type = "decoration";
 		else if(arrZone[nIndex].name == 'Bunny Hills' || arrZone[nIndex].name == 'Frosty Mountains')
 			arrZone[nIndex].type = "ski";
+		arrZone[nIndex].tier = (userVariable.sprites[i].css_class.indexOf('tier_two') > -1) ? 2 : 1;
 		for(j=0;j<arrOrder.length;j++){
-			if(arrOrder[j].type == arrZone[nIndex].type && arrOrder[j].tier == arrZone[nIndex].tier){
+			if(arrOrder[j].type == arrZone[nIndex].type && arrOrder[j].tier <= arrZone[nIndex].tier){
 				arrZone[nIndex].isOrderZone = true;
 				break;
 			}
 		}
-		arrZone[nIndex].tier = (userVariable.sprites[i].css_class.indexOf('tier_two') > -1) ? 2 : 1;
 		if(arrZone[nIndex].type == "none"){
 			arrZone[nIndex].codename = arrZone[nIndex].name.toUpperCase().replace(/ /,'_');
 		}
@@ -2039,14 +2027,14 @@ function gwh(nYear){
 		if(nAAQuantity > 0)
 			checkThenArm(null, 'bait', 'Arctic Asiago');
 		else{
-		if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_BRIE')
-			arrFestiveCheese.push('Brie Cheese');
-		else if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_GOUDA')
-			arrFestiveCheese.push('Gouda');
-		else if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_SB')
-			arrFestiveCheese.push('SUPER');
-		checkThenArm('best', 'bait', arrFestiveCheese);
-	}
+			if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_BRIE')
+				arrFestiveCheese.push('Brie Cheese');
+			else if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_GOUDA')
+				arrFestiveCheese.push('Gouda');
+			else if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_SB')
+				arrFestiveCheese.push('SUPER');
+			checkThenArm('best', 'bait', arrFestiveCheese);
+		}
 	}
 	else
 		checkThenArm(null, 'bait', objGWH.bait[nIndexAction]);
