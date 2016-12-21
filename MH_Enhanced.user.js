@@ -1933,6 +1933,7 @@ function gwh(nYear){
 		tier : 1,
 		progress : 0
 	};
+	var arrIndex = [];
 	var arrOrder = [];
 	var arrType = ["decoration", "ski", "toy"];
 	for(i=0;i<userVariable.orders.length;i++){
@@ -1948,13 +1949,18 @@ function gwh(nYear){
 		else
 			arrOrder[i].tier = 2;
 		arrOrder[i].progress = userVariable.orders[i].progress;
-		if(arrOrder[i].progress >= 100){
-			console.plog('Order No:',i,'Type:',arrOrder[i].type,'Tier:',arrOrder[i].tier,'Progress:',arrOrder[i].progress);
-			fireEvent(document.getElementsByClassName('winterHunt2016HUD-order-action')[i],'click');
+		if(arrOrder[i].progress >= 100)
+			arrIndex.push(i);
+	}
+	for(i=0;i<arrIndex.length;i++){
+		nIndex = arrIndex[i];
+		console.plog('Order No:',nIndex,'Type:',arrOrder[nIndex].type,'Tier:',arrOrder[nIndex].tier,'Progress:',arrOrder[nIndex].progress);
+		fireEvent(document.getElementsByClassName('winterHunt2016HUD-order-action')[nIndex],'click');
+	}
+	if(arrIndex.length > 0){
 			window.setTimeout(function () { eventLocationCheck('gwh'); }, 5000);
 			return;
 		}
-	}
 	console.plog(arrOrder);
 	
 	var objZoneTemplate = {
