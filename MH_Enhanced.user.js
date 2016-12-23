@@ -1890,15 +1890,15 @@ function gwh(nYear){
 
 	var userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestWinterHunt2016)'));
 	var objDefaultGWH2016 = {
-		status : ['ANCHOR', 'BOOST', 'NONE', 'FLYING'],
+		status : ['NONE', 'ANCHOR', 'ANCHOR_FAC/EAC', 'BOOST', 'FLYING'],
 		zone : {
 			order : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM'],
 			action : new Array(6).fill('NONE'),
 		},
-		weapon : new Array(4).fill(''),
-		base : new Array(4).fill(''),
-		trinket : new Array(4).fill(''),
-		bait : new Array(4).fill(''),
+		weapon : new Array(5).fill(''),
+		base : new Array(5).fill(''),
+		trinket : new Array(5).fill(''),
+		bait : new Array(5).fill(''),
 		turbo : false
 	};
 	var objGWH = getStorageToObject('GWH2016', objDefaultGWH2016);
@@ -1916,13 +1916,18 @@ function gwh(nYear){
 		checkThenArm(null, 'base', objGWH.base[nIndex]);
 		checkThenArm(null, 'trinket', objGWH.trinket[nIndex]);
 		if(objGWH.bait[nIndex].indexOf('ANY') > -1){
-			if(objGWH.bait[nIndex] == 'ANY_FESTIVE_BRIE')
-				arrFestiveCheese.push('Brie Cheese');
-			else if(objGWH.bait[nIndex] == 'ANY_FESTIVE_GOUDA')
-				arrFestiveCheese.push('Gouda');
-			else if(objGWH.bait[nIndex] == 'ANY_FESTIVE_SB')
-				arrFestiveCheese.push('SUPER');
-			checkThenArm('best', 'bait', arrFestiveCheese);
+			var nAAQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-featuredItem-quantity')[0].textContent);
+			if(nAAQuantity > 0)
+				checkThenArm(null, 'bait', 'Arctic Asiago');
+			else{
+				if(objGWH.bait[nIndex] == 'ANY_FESTIVE_BRIE')
+					arrFestiveCheese.push('Brie Cheese');
+				else if(objGWH.bait[nIndex] == 'ANY_FESTIVE_GOUDA')
+					arrFestiveCheese.push('Gouda');
+				else if(objGWH.bait[nIndex] == 'ANY_FESTIVE_SB')
+					arrFestiveCheese.push('SUPER');
+				checkThenArm('best', 'bait', arrFestiveCheese);
+			}
 		}
 		else
 			checkThenArm(null, 'bait', objGWH.bait[nIndex]);
@@ -1958,9 +1963,9 @@ function gwh(nYear){
 		fireEvent(document.getElementsByClassName('winterHunt2016HUD-order-action')[nIndex],'click');
 	}
 	if(arrIndex.length > 0){
-			window.setTimeout(function () { eventLocationCheck('gwh'); }, 5000);
-			return;
-		}
+		window.setTimeout(function () { eventLocationCheck('gwh'); }, 5000);
+		return;
+	}
 	console.plog(arrOrder);
 	
 	var objZoneTemplate = {
@@ -2024,7 +2029,9 @@ function gwh(nYear){
 	var nIndexAction = objGWH.status.indexOf(strActionStatus);
 	checkThenArm(null, 'weapon', objGWH.weapon[nIndexAction]);
 	checkThenArm(null, 'base', objGWH.base[nIndexAction]);
-	if(objGWH.trinket[nIndexAction] == 'FAC_EAC')
+	if(objGWH.trinket[nIndexAction] == 'ANCHOR')
+		checkThenArm(null, 'trinket', 'Empowered Anchor Charm');
+	else if(objGWH.trinket[nIndexAction] == 'ANCHOR_FAC/EAC')
 		checkThenArm('best', 'trinket', ['Festive Anchor Charm', 'Empowered Anchor Charm']);
 	else
 		checkThenArm(null, 'trinket', objGWH.trinket[nIndexAction]);
@@ -5197,10 +5204,10 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<tr id="trGWHZone" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<select id="selectGWHZone" onchange="initControlsGWH2016();">';
-			preferenceHTMLStr += '<option value="ORDER1">Tier 1 Order-Zone</option>';
-			preferenceHTMLStr += '<option value="ORDER2">Tier 2 Order-Zone</option>';
-			preferenceHTMLStr += '<option value="NONORDER1">Tier 1 Non-Order-Zone</option>';
-			preferenceHTMLStr += '<option value="NONORDER2">Tier 2 Non-Order-Zone</option>';
+			preferenceHTMLStr += '<option value="ORDER1">Simple Zone With Order</option>';
+			preferenceHTMLStr += '<option value="ORDER2">Deluxe Zone With Order</option>';
+			preferenceHTMLStr += '<option value="NONORDER1">Simple Zone W/O Order</option>';
+			preferenceHTMLStr += '<option value="NONORDER2">Deluxe Zone W/O Order</option>';
 			preferenceHTMLStr += '<option value="WINTER_WASTELAND">Winter Wasteland</option>';
 			preferenceHTMLStr += '<option value="SNOWBALL_STORM">Snowball Storm</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5208,16 +5215,18 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectGWHAction" onchange="saveGWH2016();">';
 			preferenceHTMLStr += '<option value="NONE">None</option>';
-			preferenceHTMLStr += '<option value="ANCHOR">Anchor</option>';
+			preferenceHTMLStr += '<option value="ANCHOR">Anchor EAC</option>';
+			preferenceHTMLStr += '<option value="ANCHOR_FAC/EAC">Anchor FAC/EAC</option>';
 			preferenceHTMLStr += '<option value="BOOST">Boost</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			preferenceHTMLStr += '<tr id="trGWHTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on anchor/boost status"><b>Trap Setup When </b></a>';
-			preferenceHTMLStr += '<select id="selectGWHActionStatus" onchange="initControlsGWH2016();">';
+			preferenceHTMLStr += '<select id="selectGWHActionStatus" style="width: 75px" onchange="initControlsGWH2016();">';
 			preferenceHTMLStr += '<option value="NONE">None</option>';
-			preferenceHTMLStr += '<option value="ANCHOR">Anchor</option>';
+			preferenceHTMLStr += '<option value="ANCHOR">Anchor EAC</option>';
+			preferenceHTMLStr += '<option value="ANCHOR_FAC/EAC">Anchor FAC/EAC</option>';
 			preferenceHTMLStr += '<option value="BOOST">Boost</option>';
 			preferenceHTMLStr += '<option value="FLYING">Flying</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5226,11 +5235,6 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectGWHWeapon" style="width: 75px" onchange="saveGWH2016();">';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGWHBase" style="width: 75px" onchange="saveGWH2016();">';
-			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectGWHAnchorTrinket" style="width: 75px; display" onchange="saveGWH2016();">';
-			preferenceHTMLStr += '<option value="FAC_EAC">FAC/EAC</option>';
-			preferenceHTMLStr += '<option value="Empowered Anchor">EAC</option>';
-			preferenceHTMLStr += '<option value="Spiked Anchor">SAC</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGWHTrinket" style="width: 75px; display" onchange="saveGWH2016();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
@@ -7857,7 +7861,6 @@ function bodyJS(){
 		var selectGWHWeapon = document.getElementById('selectGWHWeapon');
 		var selectGWHBase = document.getElementById('selectGWHBase');
 		var selectGWHTrinket = document.getElementById('selectGWHTrinket');
-		var selectGWHAnchorTrinket = document.getElementById('selectGWHAnchorTrinket');
 		var selectGWHBait = document.getElementById('selectGWHBait');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var storageValue = window.sessionStorage.getItem('GWH2016');
@@ -7866,7 +7869,6 @@ function bodyJS(){
 			selectGWHWeapon.selectedIndex = -1;
 			selectGWHBase.selectedIndex = -1;
 			selectGWHTrinket.selectedIndex = -1;
-			selectGWHAnchorTrinket.selectedIndex = -1;
 			selectGWHBait.selectedIndex = -1;
 			selectGWHUseTurboBoost.selectedIndex = 0;
 		}
@@ -7882,20 +7884,11 @@ function bodyJS(){
 			selectGWHWeapon.value = storageValue.weapon[nIndex];
 			selectGWHBase.value = storageValue.base[nIndex];
 			selectGWHBait.value = storageValue.bait[nIndex];
-			if(selectGWHActionStatus.value == 'ANCHOR')
-				selectGWHAnchorTrinket.value = storageValue.trinket[nIndex];
-			else
+			if(selectGWHActionStatus.value.indexOf('ANCHOR') < 0)
 				selectGWHTrinket.value = storageValue.trinket[nIndex];
 			selectGWHUseTurboBoost.value = (storageValue.turbo === true) ? 'true' : 'false';
 		}
-		if(selectGWHActionStatus.value == 'ANCHOR'){
-			selectGWHAnchorTrinket.style.display = '';
-			selectGWHTrinket.style.display = 'none';
-		}
-		else{
-			selectGWHAnchorTrinket.style.display = 'none';
-			selectGWHTrinket.style.display = '';
-		}
+		selectGWHTrinket.style.display = (selectGWHActionStatus.value.indexOf('ANCHOR') > -1) ? 'none' : '';
 	}
 	
 	function saveGWH2016(){
@@ -7905,38 +7898,33 @@ function bodyJS(){
 		var selectGWHWeapon = document.getElementById('selectGWHWeapon');
 		var selectGWHBase = document.getElementById('selectGWHBase');
 		var selectGWHTrinket = document.getElementById('selectGWHTrinket');
-		var selectGWHAnchorTrinket = document.getElementById('selectGWHAnchorTrinket');
 		var selectGWHBait = document.getElementById('selectGWHBait');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
-				status : ['ANCHOR', 'BOOST', 'NONE', 'FLYING'],
+				status : ['NONE', 'ANCHOR', 'ANCHOR_FAC/EAC', 'BOOST', 'FLYING'],
 				zone : {
 					order : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM'],
 					action : new Array(6).fill('NONE'),
 				},
-				weapon : new Array(4).fill(''),
-				base : new Array(4).fill(''),
-				trinket : new Array(4).fill(''),
-				bait : new Array(4).fill(''),
+				weapon : new Array(5).fill(''),
+				base : new Array(5).fill(''),
+				trinket : new Array(5).fill(''),
+				bait : new Array(5).fill(''),
 				turbo : false
 			};
 			storageValue = JSON.stringify(objDefaultGWH2016);
 		}
 		storageValue = JSON.parse(storageValue);
 		var nIndex = storageValue.zone.order.indexOf(selectGWHZone.value);
-		if(nIndex < 0)
-			nIndex = 0;
 		storageValue.zone.action[nIndex] = selectGWHAction.value;
 		nIndex = storageValue.status.indexOf(selectGWHActionStatus.value);
-		if(nIndex < 0)
-			nIndex = 0;
 		storageValue.weapon[nIndex] = selectGWHWeapon.value;
 		storageValue.base[nIndex] = selectGWHBase.value;
 		storageValue.bait[nIndex] = selectGWHBait.value;
-		if(selectGWHActionStatus.value == 'ANCHOR')
-			storageValue.trinket[nIndex] = selectGWHAnchorTrinket.value;
+		if(selectGWHActionStatus.value.indexOf('ANCHOR') > -1)
+			storageValue.trinket[nIndex] = selectGWHActionStatus.value;
 		else
 			storageValue.trinket[nIndex] = selectGWHTrinket.value;
 		storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
