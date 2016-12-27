@@ -1595,9 +1595,11 @@ function iceberg(){
 		else{
 			phase = phase.toUpperCase();
 			for(var i=1;i<objIceberg.order.length;i++){
-				nIndex = phase.indexOf(objIceberg.order[i]);
-				if(nIndex > -1)
+				if(phase.indexOf(objIceberg.order[i]) > -1){
+					nIndex = i;
 					break;
+				}
+					
 			}
 		}
 
