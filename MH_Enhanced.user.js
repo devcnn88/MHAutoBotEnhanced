@@ -224,16 +224,7 @@ var objSCZone = {
 	ZONE_OXYGEN : 8,
 	ZONE_BONUS : 9
 };
-
 var bestSCBase = ['Minotaur Base', 'Depth Charge Base'];
-var objSCTrap = {
-	scOxyBait : ['Fishy Fromage', 'Gouda'],
-	TT : 'Treasure Trawling',
-	EAC : 'Empowered Anchor',
-	scAnchorTreasure : ['Golden Anchor', 'Empowered Anchor'],
-	scAnchorDanger : ['Spiked Anchor', 'Empowered Anchor'],
-	scAnchorUlti : ['Ultimate Anchor', 'Empowered Anchor']
-};
 
 // // Spring Egg Hunt
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
@@ -286,6 +277,53 @@ var objFRBattery = {
 	cumulative : [20,65,140,260,460,770,1220,1835,2625,3600]
 };
 
+var g_objConstTrap = {
+	bait : {
+		ANY_HALLOWEEN : {
+			sort : 'any',
+			name : ['Ghoulgonzola', 'Candy Corn']
+		},
+		ANY_MASTER : {
+			sort : 'any',
+			name : ['Rift Glutter', 'Rift Combat', 'Rift Susheese']
+		},
+		ANY_LUNAR : {
+			sort : 'any',
+			name : ['Moon Cheese', 'Crescent Cheese']
+		},
+		ANY_FESTIVE_BRIE : {
+			sort : 'best',
+			name : ['Arctic Asiago', 'Nutmeg', 'Snowball Bocconcini', 'Festive Feta', 'Gingerbread', 'Brie Cheese']
+		},
+		ANY_FESTIVE_GOUDA : {
+			sort : 'best',
+			name : ['Arctic Asiago', 'Nutmeg', 'Snowball Bocconcini', 'Festive Feta', 'Gingerbread', 'Gouda']
+		},
+		ANY_FESTIVE_SB : {
+			sort : 'best',
+			name : ['Arctic Asiago', 'Nutmeg', 'Snowball Bocconcini', 'Festive Feta', 'Gingerbread', 'SUPER']
+		}
+	},
+	trinket : {
+		GAC_EAC : {
+			sort : 'best',
+			name : ['Golden Anchor', 'Empowered Anchor']
+		},
+		SAC_EAC : {
+			sort : 'best',
+			name : ['Spiked Anchor', 'Empowered Anchor']
+		},
+		UAC_EAC : {
+			sort : 'best',
+			name : ['Ultimate Anchor', 'Empowered Anchor']
+		},
+		'ANCHOR_FAC/EAC' : {
+			sort : 'best',
+			name : ['Festive Anchor Charm', 'Empowered Anchor Charm']
+		}
+	}
+};
+
 // == Advance User Preference Setting (End) ==
 
 
@@ -318,7 +356,6 @@ var checkMouseResult = null;
 var mouseList = [];
 var discharge = false;
 var arming = false;
-var g_arrArmingList = [];
 var kingsRewardRetry = 0;
 var keyKR = [];
 var separator = "~";
@@ -1898,7 +1935,7 @@ function SunkenCity(isAggro) {
 	if (currentZone == objSCZone.ZONE_NOT_DIVE){
 		checkThenArm('best', 'base', objBestTrap.base.luck);
 		checkThenArm(null, 'trinket', 'Oxygen Burst');
-		checkThenArm('best', 'bait', objSCTrap.scOxyBait);
+		checkThenArm('best', 'bait', ['Fishy Fromage', 'Gouda']);
 		return;
 	}
 
@@ -1911,7 +1948,7 @@ function SunkenCity(isAggro) {
 	var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
 	if (currentZone == objSCZone.ZONE_OXYGEN || currentZone == objSCZone.ZONE_TREASURE || currentZone == objSCZone.ZONE_BONUS){
 		if (isAggro && (currentZone == objSCZone.ZONE_TREASURE))
-			checkThenArm('best', 'trinket', objSCTrap.scAnchorTreasure);
+			checkThenArm('best', 'trinket', ['Golden Anchor', 'Empowered Anchor']);
 		else{
 			// arm Empowered Anchor Charm
 			if (!isEACArmed){
@@ -1931,7 +1968,7 @@ function SunkenCity(isAggro) {
 			}
 		}
 		else
-			checkThenArm('best', 'trinket', objSCTrap.scAnchorDanger);
+			checkThenArm('best', 'trinket', ['Spiked Anchor', 'Empowered Anchor']);
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else if ((currentZone == objSCZone.ZONE_DEFAULT) && isAggro){
@@ -1966,47 +2003,53 @@ function gwh(nYear){
 
 	var userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestWinterHunt2016)'));
 	var objDefaultGWH2016 = {
-		status : ['NONE', 'ANCHOR', 'ANCHOR_FAC/EAC', 'BOOST', 'FLYING'],
-		zone : {
-			order : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM'],
-			action : new Array(6).fill('NONE'),
-		},
-		weapon : new Array(5).fill(''),
-		base : new Array(5).fill(''),
-		trinket : new Array(5).fill(''),
-		bait : new Array(5).fill(''),
-		turbo : false
+		zone : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM', 'FLYING'],
+		weapon : new Array(7).fill(''),
+		base : new Array(7).fill(''),
+		trinket : new Array(7).fill(''),
+		bait : new Array(7).fill(''),
+		boost : new Array(7).fill(''),
+		turbo : false,
+		minAAToFly : 20
 	};
 	var objGWH = getStorageToObject('GWH2016', objDefaultGWH2016);
 	var i,j,nLimit,strTemp,nIndex,nIndexTemp;
-	var arrFestiveCheese = ['Arctic Asiago', 'Nutmeg', 'Snowball Bocconcini', 'Festive Feta', 'Gingerbread'];
+	var bCanFly = false;
+	var nAAQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-featuredItem-quantity')[0].textContent);
 	if(userVariable.order_progress >= 10){ // can fly
-		console.plog('Order Progress:', userVariable.order_progress);
-		fireEvent(document.getElementsByClassName('winterHunt2016HUD-flightButton')[0], 'click');
-		userVariable.status = 'flying';
+		bCanFly = true;
+		console.plog('Order Progress:', userVariable.order_progress, 'AA Quantity:', nAAQuantity);
+		if(nAAQuantity >= objGWH.minAAToFly){
+			fireEvent(document.getElementsByClassName('winterHunt2016HUD-flightButton')[0], 'click');
+			userVariable.status = 'flying';
+		}
 	}
 	if(userVariable.status == 'flying'){
 		console.plog('Flying');
-		nIndex = objGWH.status.indexOf('FLYING');
+		nIndex = objGWH.zone.indexOf('FLYING');
 		checkThenArm(null, 'weapon', objGWH.weapon[nIndex]);
 		checkThenArm(null, 'base', objGWH.base[nIndex]);
 		checkThenArm(null, 'trinket', objGWH.trinket[nIndex]);
-		if(objGWH.bait[nIndex].indexOf('ANY') > -1){
-			var nAAQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-featuredItem-quantity')[0].textContent);
-			if(nAAQuantity > 0)
-				checkThenArm(null, 'bait', 'Arctic Asiago');
-			else{
-				if(objGWH.bait[nIndex] == 'ANY_FESTIVE_BRIE')
-					arrFestiveCheese.push('Brie Cheese');
-				else if(objGWH.bait[nIndex] == 'ANY_FESTIVE_GOUDA')
-					arrFestiveCheese.push('Gouda');
-				else if(objGWH.bait[nIndex] == 'ANY_FESTIVE_SB')
-					arrFestiveCheese.push('SUPER');
-				checkThenArm('best', 'bait', arrFestiveCheese);
-			}
-		}
+		if(objGWH.bait[nIndex].indexOf('ANY') > -1 && nAAQuantity > 0)
+			checkThenArm(null, 'bait', 'Arctic Asiago');
 		else
 			checkThenArm(null, 'bait', objGWH.bait[nIndex]);
+		if(objGWH.boost[nIndex] === true){
+			var nNitroQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-sledDetail')[2].textContent);
+			console.plog('Nitro Quantity:', nNitroQuantity);
+			if(Number.isNaN(nNitroQuantity) || nNitroQuantity < 1)
+				return;
+			if(objGWH.turbo && nNitroQuantity >= 3)
+				fireEvent(document.getElementsByClassName('winterHunt2016HUD-nitroButton-boundingBox')[3], 'click');
+			else
+				fireEvent(document.getElementsByClassName('winterHunt2016HUD-nitroButton-boundingBox')[2], 'click');
+		}
+		else{
+			if(userVariable.speed > 800){ // disable nitro when flying
+				console.plog('Disable nitro, Current Speed:', userVariable.speed);
+				fireEvent(document.getElementsByClassName('winterHunt2016HUD-nitroButton-boundingBox')[1], 'click');
+			}
+		}
 		return;
 	}
 	var objOrderTemplate = {
@@ -2030,7 +2073,7 @@ function gwh(nYear){
 		else
 			arrOrder[i].tier = 2;
 		arrOrder[i].progress = userVariable.orders[i].progress;
-		if(arrOrder[i].progress >= 100)
+		if(arrOrder[i].progress >= 100 && !bCanFly)
 			arrIndex.push(i);
 	}
 	for(i=0;i<arrIndex.length;i++){
@@ -2098,46 +2141,27 @@ function gwh(nYear){
 	}
 	console.plog(arrZone);
 
-	var nIndexZone = objGWH.zone.order.indexOf(arrZone[0].codename);
+	var nIndexZone = objGWH.zone.indexOf(arrZone[0].codename);
 	if(nIndexZone < 0)
 		return;
-	var strActionStatus = objGWH.zone.action[nIndexZone];
-	var nIndexAction = objGWH.status.indexOf(strActionStatus);
-	checkThenArm(null, 'weapon', objGWH.weapon[nIndexAction]);
-	checkThenArm(null, 'base', objGWH.base[nIndexAction]);
-	if(objGWH.trinket[nIndexAction] == 'ANCHOR')
-		checkThenArm(null, 'trinket', 'Empowered Anchor Charm');
-	else if(objGWH.trinket[nIndexAction] == 'ANCHOR_FAC/EAC')
-		checkThenArm('best', 'trinket', ['Festive Anchor Charm', 'Empowered Anchor Charm']);
+	checkThenArm(null, 'weapon', objGWH.weapon[nIndexZone]);
+	checkThenArm(null, 'base', objGWH.base[nIndexZone]);
+	checkThenArm(null, 'trinket', objGWH.trinket[nIndexZone]);
+	if(objGWH.bait[nIndexZone].indexOf('ANY') > -1 && nAAQuantity > 0)
+		checkThenArm(null, 'bait', 'Arctic Asiago');
 	else
-		checkThenArm(null, 'trinket', objGWH.trinket[nIndexAction]);
-	if(objGWH.bait[nIndexAction].indexOf('ANY') > -1){
-		var nAAQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-featuredItem-quantity')[0].textContent);
-		if(nAAQuantity > 0)
-			checkThenArm(null, 'bait', 'Arctic Asiago');
-		else{
-			if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_BRIE')
-				arrFestiveCheese.push('Brie Cheese');
-			else if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_GOUDA')
-				arrFestiveCheese.push('Gouda');
-			else if(objGWH.bait[nIndexAction] == 'ANY_FESTIVE_SB')
-				arrFestiveCheese.push('SUPER');
-			checkThenArm('best', 'bait', arrFestiveCheese);
-		}
-	}
-	else
-		checkThenArm(null, 'bait', objGWH.bait[nIndexAction]);
-	if(strActionStatus == 'BOOST'){
+		checkThenArm(null, 'bait', objGWH.bait[nIndexZone]);
+	if(objGWH.boost[nIndexZone] === true){
 		var nNitroQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-sledDetail')[2].textContent);
 		console.plog('Nitro Quantity:', nNitroQuantity);
 		if(Number.isNaN(nNitroQuantity) || nNitroQuantity < 1)
 			return;
 		var nTotalMetersRemaining = parseInt(userVariable.meters_remaining);
 		for(i=1;i<arrZone.length;i++){
-			nIndexZone = objGWH.zone.order.indexOf(arrZone[i].codename);
+			nIndexZone = objGWH.zone.indexOf(arrZone[i].codename);
 			if(nIndexZone < 0)
 				continue;
-			if(objGWH.zone.action[nIndexZone] == 'BOOST')
+			if(objGWH.boost[nIndexZone] === true)
 				nTotalMetersRemaining += arrZone[i].depth;
 			else
 				break;
@@ -2179,7 +2203,7 @@ function SCCustom() {
 	if (zoneID == objSCZone.ZONE_NOT_DIVE){
 		checkThenArm('best', 'base', objBestTrap.base.luck);
 		checkThenArm(null, 'trinket', 'Oxygen Burst');
-		checkThenArm('best', 'bait', objSCTrap.scOxyBait);
+		checkThenArm('best', 'bait', ['Fishy Fromage', 'Gouda']);
 		return;
 	}
 
@@ -2251,16 +2275,7 @@ function SCCustom() {
 	checkThenArm(null, 'bait', objSCCustom.bait[zoneID]);
 	if (objSCCustom.isHunt[zoneID] || !canJet){
 		// hunt here
-		if (objSCCustom.trinket[zoneID] == "None")
-			disarmTrap('trinket');
-		else if (objSCCustom.trinket[zoneID] == "GAC_EAC")
-			checkThenArm('best', 'trinket', objSCTrap.scAnchorTreasure);
-		else if (objSCCustom.trinket[zoneID] == "SAC_EAC")
-			checkThenArm('best', 'trinket', objSCTrap.scAnchorDanger);
-		else if (objSCCustom.trinket[zoneID] == "UAC_EAC")
-			checkThenArm('best', 'trinket', objSCTrap.scAnchorUlti);
-		else
-			checkThenArm(null, 'trinket', objSCCustom.trinket[zoneID]);
+		checkThenArm(null, 'trinket', objSCCustom.trinket[zoneID]);
 	}
 }
 
@@ -3320,6 +3335,14 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 	if (category == "charm")
         category = "trinket";
 
+	if(!(Array.isArray(name))){
+		var obj = getConstToRealValue(sort, category, name);
+		if(obj.changed){
+			sort = obj.sort;
+			name = obj.name;
+		}
+	}
+
 	if(Array.isArray(name)){
 		if(!(sort == 'best' || sort == 'any'))
 			sort = 'best';
@@ -3400,7 +3423,6 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 		checkThenArm(sort, category, name, false);
 	}
     else if (trapArmed === false){
-        addArmingIntoList(category);
 		var intervalCTA = setInterval(
             function (){
                 if (arming === false){
@@ -3413,18 +3435,23 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
     }
 }
 
-function addArmingIntoList(category){
-	g_arrArmingList.push(category);
-}
-
-function deleteArmingFromList(category){
-	var nIndex = g_arrArmingList.indexOf(category);
-	if(nIndex > -1)
-		g_arrArmingList.splice(nIndex, 1);
-}
-
-function isArmingInList(){
-	return (g_arrArmingList.length > 0);
+function getConstToRealValue(sort, category, name){
+	var objRet = {
+		changed : false,
+		sort : sort,
+		name : name
+	};
+	if(g_objConstTrap.hasOwnProperty(category)){
+		var arrKeys = Object.keys(g_objConstTrap[category]);
+		var nIndex = arrKeys.indexOf(name);
+		if(nIndex > -1){
+			var keyName = arrKeys[nIndex];
+			objRet.sort = g_objConstTrap[category][keyName].sort;
+			objRet.name = g_objConstTrap[category][keyName].name;
+			objRet.changed = true;
+		}
+	}
+	return objRet;
 }
 
 function clickThenArmTrapInterval(sort, trap, name){ //sort = power/luck/attraction
@@ -3438,7 +3465,6 @@ function clickThenArmTrapInterval(sort, trap, name){ //sort = power/luck/attract
 			if (armStatus != LOADING){
                 if(isNewUI)
 					closeTrapSelector(trap);
-				deleteArmingFromList(trap);
 				clearInterval(intervalCTATI);
                 arming = false;
                 intervalCTATI = null;
@@ -3458,7 +3484,6 @@ function clickThenArmTrapInterval(sort, trap, name){ //sort = power/luck/attract
                     sec = secWait;
 					--retry;
 					if (retry <= 0){
-						deleteArmingFromList(trap);
 						clearInterval(intervalCTATI);
 						arming = false;
 						intervalCTATI = null;
@@ -3480,25 +3505,21 @@ function armTrapClassicUI(sort, trap, name){
     var tagElement;
     var nameElement;
 	var nIndex = -1;
-	var nameArray = name;
+	var arrName = (Array.isArray(name)) ? name.slice() : [name];
 	
     if (sort == 'best' || sort == 'any')
         name = name[0];
     
-    if (tagGroupElement.length > 0)
-    {
+    if (tagGroupElement.length > 0){
         console.pdebug('Try to arm', name);
-        for (var i = 0; i < tagGroupElement.length; ++i)
-        {
+        for (var i = 0; i < tagGroupElement.length; ++i){
             tagElement = tagGroupElement[i].getElementsByTagName('a');
-            for (var j = 0; j < tagElement.length; ++j)
-            {
+            for (var j = 0; j < tagElement.length; ++j){
                 nameElement = tagElement[j].getElementsByClassName('name')[0].innerText;
 				nIndex = nameElement.indexOf("...");
 				if(nIndex > -1)
 					name = name.substr(0, nIndex);
-                if (nameElement.indexOf(name) === 0)
-                {
+                if (nameElement.indexOf(name) === 0){
                     if(tagElement[j].getAttribute('class').indexOf('selected')<0)	// only click when not arming
 						fireEvent(tagElement[j], 'click');
 					else
@@ -3508,7 +3529,6 @@ function armTrapClassicUI(sort, trap, name){
 						objTrapList[trap].unshift(nameElement);
 						setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
 					}
-					
 					console.pdebug(name, 'armed');
 					return ARMED;
                 }
@@ -3523,9 +3543,9 @@ function armTrapClassicUI(sort, trap, name){
 			}
 		}
         if (sort == 'best' || sort == 'any'){
-			nameArray.shift();
-            if (nameArray.length > 0)
-                return armTrapClassicUI(sort, trap, nameArray);
+			arrName.shift();
+            if (arrName.length > 0)
+                return armTrapClassicUI(sort, trap, arrName);
 			else
 				return NOT_FOUND;
         }
@@ -3539,7 +3559,7 @@ function armTrapClassicUI(sort, trap, name){
 function armTrapNewUI(sort, trap, name){
 	var passedFiltersEle = document.getElementsByClassName('passedFilters')[0].children;
     var nameElement;
-	var nameArray = name;
+	var arrName = (Array.isArray(name)) ? name.slice() : [name];
 	
     if (sort == 'best' || sort == 'any')
         name = name[0];
@@ -3549,12 +3569,14 @@ function armTrapNewUI(sort, trap, name){
 		for (var i = 0; i < passedFiltersEle.length; i++) {
 			nameElement = passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
 			if (nameElement.indexOf(name) === 0) {
-				fireEvent(passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-armButton')[0], 'click');
+				if(passedFiltersEle[i].getAttribute('class').indexOf('canArm') > -1)
+					fireEvent(passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-armButton')[0], 'click');
+				else
+					closeTrapSelector(trap);
 				if(objTrapList[trap].indexOf(nameElement) < 0){
 					objTrapList[trap].unshift(nameElement);
 					setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
-				}
-					
+				}	
 				console.pdebug(name + ' armed');
 				return ARMED;
 			}
@@ -3569,9 +3591,9 @@ function armTrapNewUI(sort, trap, name){
 			}
 		}
         if (sort == 'best' || sort == 'any'){
-			nameArray.shift();
-            if (nameArray.length > 0)
-                return armTrapNewUI(sort, trap, nameArray);
+			arrName.shift();
+            if (arrName.length > 0)
+                return armTrapNewUI(sort, trap, arrName);
 			else
 				return NOT_FOUND;
         }
@@ -4714,7 +4736,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="GES">Gnawnian Express Station</option>';
 			preferenceHTMLStr += '<option value="GWH2016">GWH 2016</option>';
 			preferenceHTMLStr += '<option value="Halloween 2016">Halloween 2016</option>';
-			//preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>'; // not tested yet
+			preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>'; // not tested yet
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="SG">Seasonal Garden</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
@@ -4810,7 +4832,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="AUTO">Magmatic Crystal/Black Powder/Dusty Coal</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectGESTrapBait" onchange="saveGES();">';
+			preferenceHTMLStr += '<select id="selectGESTrapBait" style="width: 75px" onchange="saveGES();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
@@ -4819,6 +4841,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
@@ -5064,7 +5087,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectIcebergTrinket" style="width: 75px" onchange="saveIceberg();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectIcebergBait" onchange="saveIceberg();">';
+			preferenceHTMLStr += '<select id="selectIcebergBait" style="width: 75px" onchange="saveIceberg();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
@@ -5073,6 +5096,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
@@ -5110,7 +5134,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectZTTrinket1st" style="width: 75px" onchange="saveZT();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectZTBait1st" onchange="saveZT();">';
+			preferenceHTMLStr += '<select id="selectZTBait1st" style="width: 75px" onchange="saveZT();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
@@ -5119,6 +5143,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
 			preferenceHTMLStr += '<option value="Checkmate">Checkmate</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
@@ -5145,7 +5170,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectZTTrinket2nd" style="width: 75px" onchange="saveZT();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectZTBait2nd" onchange="saveZT();">';
+			preferenceHTMLStr += '<select id="selectZTBait2nd" style="width: 75px" onchange="saveZT();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
@@ -5154,6 +5179,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
 			preferenceHTMLStr += '<option value="Checkmate">Checkmate</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
@@ -5185,6 +5211,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
@@ -5279,33 +5306,15 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 
-			preferenceHTMLStr += '<tr id="trGWHZone" style="display:none;">';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-			preferenceHTMLStr += '<select id="selectGWHZone" onchange="initControlsGWH2016();">';
+			preferenceHTMLStr += '<tr id="trGWHTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on anchor/boost status"><b>Trap Setup When </b></a>';
+			preferenceHTMLStr += '<select id="selectGWHZone" style="width: 75px" onchange="initControlsGWH2016();">';
 			preferenceHTMLStr += '<option value="ORDER1">Simple Zone With Order</option>';
 			preferenceHTMLStr += '<option value="ORDER2">Deluxe Zone With Order</option>';
 			preferenceHTMLStr += '<option value="NONORDER1">Simple Zone W/O Order</option>';
 			preferenceHTMLStr += '<option value="NONORDER2">Deluxe Zone W/O Order</option>';
 			preferenceHTMLStr += '<option value="WINTER_WASTELAND">Winter Wasteland</option>';
 			preferenceHTMLStr += '<option value="SNOWBALL_STORM">Snowball Storm</option>';
-			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
-			preferenceHTMLStr += '</td>';
-			preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<select id="selectGWHAction" onchange="saveGWH2016();">';
-			preferenceHTMLStr += '<option value="NONE">None</option>';
-			preferenceHTMLStr += '<option value="ANCHOR">Anchor EAC</option>';
-			preferenceHTMLStr += '<option value="ANCHOR_FAC/EAC">Anchor FAC/EAC</option>';
-			preferenceHTMLStr += '<option value="BOOST">Boost</option>';
-			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '</td>';
-			preferenceHTMLStr += '</tr>';
-			preferenceHTMLStr += '<tr id="trGWHTrapSetup" style="display:none;">';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on anchor/boost status"><b>Trap Setup When </b></a>';
-			preferenceHTMLStr += '<select id="selectGWHActionStatus" style="width: 75px" onchange="initControlsGWH2016();">';
-			preferenceHTMLStr += '<option value="NONE">None</option>';
-			preferenceHTMLStr += '<option value="ANCHOR">Anchor EAC</option>';
-			preferenceHTMLStr += '<option value="ANCHOR_FAC/EAC">Anchor FAC/EAC</option>';
-			preferenceHTMLStr += '<option value="BOOST">Boost</option>';
 			preferenceHTMLStr += '<option value="FLYING">Flying</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
@@ -5314,14 +5323,19 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGWHBase" style="width: 75px" onchange="saveGWH2016();">';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectGWHTrinket" style="width: 75px; display" onchange="saveGWH2016();">';
+			preferenceHTMLStr += '<select id="selectGWHTrinket" style="width: 75px;" onchange="onSelectGWHTrinketChanged();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="ANCHOR_FAC/EAC">FAC/EAC</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGWHBait" style="width: 75px" onchange="saveGWH2016();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="ANY_FESTIVE_BRIE">AA/Festive Cheese/Brie</option>';
 			preferenceHTMLStr += '<option value="ANY_FESTIVE_GOUDA">AA/Festive Cheese/Gouda</option>';
 			preferenceHTMLStr += '<option value="ANY_FESTIVE_SB">AA/Festive Cheese/SUPER|brie+</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectGWHBoost" style="width: 75px" onchange="saveGWH2016();">';
+			preferenceHTMLStr += '<option value="false">Not Boost</option>';
+			preferenceHTMLStr += '<option value="true">Boost</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
@@ -5334,7 +5348,13 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+			preferenceHTMLStr += '<tr id="trGWHFlying" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum AA to take flight"><b>Min AA to Fly</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input type="number" id="inputMinAA" min="0" max="9007199254740991" style="width:50px" value="20" onchange="onInputMinAAChanged(this);">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="trSCCustom" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>';
@@ -5356,7 +5376,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="true">Hunt</option>';
 			preferenceHTMLStr += '<option value="false">Jet Through</option>';
             preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectSCHuntBait" onchange="saveSCCustomAlgo();">';
+			preferenceHTMLStr += '<select id="selectSCHuntBait" style="width: 75px" onchange="saveSCCustomAlgo();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
@@ -5365,6 +5385,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectSCHuntTrinket" style="width: 75px" onchange="saveSCCustomAlgo();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
@@ -5515,7 +5536,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="ACTIVE">Boss Active</option>';
 			preferenceHTMLStr += '<option value="DEFEATED">Boss Defeated</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;';
-			preferenceHTMLStr += '<select id="selectZokorBait" onChange="saveZokor();">';
+			preferenceHTMLStr += '<select id="selectZokorBait" style="width: 75px" onChange="saveZokor();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
@@ -5524,9 +5545,10 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
 			preferenceHTMLStr += '<option value="Glowing Gruyere">GG</option>';
             preferenceHTMLStr += '</select>&nbsp;&nbsp;';
-			preferenceHTMLStr += '<select id="selectZokorTrinket" onChange="saveZokor();">';
+			preferenceHTMLStr += '<select id="selectZokorTrinket" style="width: 75px" onChange="saveZokor();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
@@ -5572,7 +5594,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectFW4TrapSetupTrinket" style="width: 75px" onchange="saveFW();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectFW4TrapSetupBait" onchange="saveFW();">';
+			preferenceHTMLStr += '<select id="selectFW4TrapSetupBait" style="width: 75px" onchange="saveFW();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
@@ -5581,6 +5603,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
@@ -5626,7 +5649,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="14">14</option>';
 			preferenceHTMLStr += '<option value="15">15</option>';
             preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectFWCheese" onChange="saveFW();">';
+			preferenceHTMLStr += '<select id="selectFWCheese" style="width: 75px" onChange="saveFW();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
@@ -5635,6 +5658,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectFWCharmType" onChange="saveFW();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
@@ -6535,7 +6559,6 @@ function afterSoundingHorn(bLog) {
             hornRetry = 0;
         }
     }
-    // eventLocationCheck('afterSoundingHorn()');
 }
 
 function embedScript() {
@@ -6781,7 +6804,9 @@ function checkResumeButton() {
 
 					// simulate mouse click on the horn
 					resumeElement = linkElementList[i].parentNode;
-					console.plog('Click Resume button at:', new Date());
+					var nTimezoneOffset = -(nowDate.getTimezoneOffset()) * 60000;
+					var nowDate = new Date();
+					console.plog('Click Resume button at:', new Date(Date.parse(nowDate)+nTimezoneOffset).toISOString());
 					fireEvent(resumeElement, 'click');
 					resumeElement = null;
 
@@ -6909,7 +6934,6 @@ function trapCheck() {
 	var nDelay = 5000;
 	window.setTimeout(function () { retrieveData(); }, nDelay);
 	window.setTimeout(function () { countdownTimer(); }, nDelay + timerRefreshInterval * 1000);
-    // eventLocationCheck();
 }
 
 function CalculateNextTrapCheckInMinute() {
@@ -7930,82 +7954,83 @@ function bodyJS(){
 		window.sessionStorage.setItem('BestTrap', JSON.stringify(storageValue));
 	}
 	
+	function onInputMinAAChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveGWH2016();
+	}
+	
+	function onSelectGWHTrinketChanged(){
+		saveGWH2016();
+		initControlsGWH2016();
+	}
+	
 	function initControlsGWH2016(bAutoChangeZone){
 		if(isNullOrUndefined(bAutoChangeZone))
 			bAutoChangeZone = false;
 		var selectGWHZone = document.getElementById('selectGWHZone');
-		var selectGWHAction = document.getElementById('selectGWHAction');
-		var selectGWHActionStatus = document.getElementById('selectGWHActionStatus');
 		var selectGWHWeapon = document.getElementById('selectGWHWeapon');
 		var selectGWHBase = document.getElementById('selectGWHBase');
 		var selectGWHTrinket = document.getElementById('selectGWHTrinket');
 		var selectGWHBait = document.getElementById('selectGWHBait');
+		var selectGWHBoost = document.getElementById('selectGWHBoost');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
+		var inputMinAA = document.getElementById('inputMinAA');
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
-			selectGWHAction.selectedIndex = -1;
 			selectGWHWeapon.selectedIndex = -1;
 			selectGWHBase.selectedIndex = -1;
 			selectGWHTrinket.selectedIndex = -1;
 			selectGWHBait.selectedIndex = -1;
+			selectGWHBoost.selectedIndex = -1;
 			selectGWHUseTurboBoost.selectedIndex = 0;
+			inputMinAA.value = 20;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			var nIndex = storageValue.zone.order.indexOf(selectGWHZone.value);
-			if(nIndex < 0)
-				nIndex = 0;
-			selectGWHAction.value = storageValue.zone.action[nIndex];
-			nIndex = storageValue.status.indexOf(selectGWHActionStatus.value);
-			if(nIndex < 0)
-				nIndex = 0;
+			var nIndex = storageValue.zone.indexOf(selectGWHZone.value);
 			selectGWHWeapon.value = storageValue.weapon[nIndex];
 			selectGWHBase.value = storageValue.base[nIndex];
+			selectGWHTrinket.value = storageValue.trinket[nIndex];
 			selectGWHBait.value = storageValue.bait[nIndex];
-			if(selectGWHActionStatus.value.indexOf('ANCHOR') < 0)
-				selectGWHTrinket.value = storageValue.trinket[nIndex];
+			selectGWHBoost.value = (storageValue.boost[nIndex] === true) ? 'true' : 'false';
+			selectGWHBoost.disabled = (selectGWHTrinket.value.toUpperCase().indexOf('ANCHOR') > -1) ? 'disabled' : '';
 			selectGWHUseTurboBoost.value = (storageValue.turbo === true) ? 'true' : 'false';
+			inputMinAA.value = storageValue.minAAToFly;
 		}
-		selectGWHTrinket.style.display = (selectGWHActionStatus.value.indexOf('ANCHOR') > -1) ? 'none' : '';
 	}
 	
 	function saveGWH2016(){
 		var selectGWHZone = document.getElementById('selectGWHZone');
-		var selectGWHAction = document.getElementById('selectGWHAction');
-		var selectGWHActionStatus = document.getElementById('selectGWHActionStatus');
 		var selectGWHWeapon = document.getElementById('selectGWHWeapon');
 		var selectGWHBase = document.getElementById('selectGWHBase');
 		var selectGWHTrinket = document.getElementById('selectGWHTrinket');
 		var selectGWHBait = document.getElementById('selectGWHBait');
+		var selectGWHBoost = document.getElementById('selectGWHBoost');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
+		var inputMinAA = document.getElementById('inputMinAA');
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
-				status : ['NONE', 'ANCHOR', 'ANCHOR_FAC/EAC', 'BOOST', 'FLYING'],
-				zone : {
-					order : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM'],
-					action : new Array(6).fill('NONE'),
-				},
-				weapon : new Array(5).fill(''),
-				base : new Array(5).fill(''),
-				trinket : new Array(5).fill(''),
-				bait : new Array(5).fill(''),
-				turbo : false
+				zone : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM', 'FLYING'],
+				weapon : new Array(7).fill(''),
+				base : new Array(7).fill(''),
+				trinket : new Array(7).fill(''),
+				bait : new Array(7).fill(''),
+				boost : new Array(7).fill(''),
+				turbo : false,
+				minAAToFly : 20
 			};
 			storageValue = JSON.stringify(objDefaultGWH2016);
 		}
 		storageValue = JSON.parse(storageValue);
-		var nIndex = storageValue.zone.order.indexOf(selectGWHZone.value);
-		storageValue.zone.action[nIndex] = selectGWHAction.value;
-		nIndex = storageValue.status.indexOf(selectGWHActionStatus.value);
+		var nIndex = storageValue.zone.indexOf(selectGWHZone.value);
 		storageValue.weapon[nIndex] = selectGWHWeapon.value;
 		storageValue.base[nIndex] = selectGWHBase.value;
+		storageValue.trinket[nIndex] = selectGWHTrinket.value;
 		storageValue.bait[nIndex] = selectGWHBait.value;
-		if(selectGWHActionStatus.value.indexOf('ANCHOR') > -1)
-			storageValue.trinket[nIndex] = selectGWHActionStatus.value;
-		else
-			storageValue.trinket[nIndex] = selectGWHTrinket.value;
+		storageValue.boost[nIndex] = (selectGWHTrinket.value.toUpperCase().indexOf('ANCHOR') > -1) ? false : (selectGWHBoost.value == 'true');
 		storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
+		storageValue.minAAToFly = parseInt(inputMinAA.value);
 		window.sessionStorage.setItem('GWH2016', JSON.stringify(storageValue));
 	}
 	
@@ -9429,7 +9454,7 @@ function bodyJS(){
 				init : function(data){initControlsFRox(data);}
 			},
 			'GWH2016' : {
-				arr : ['trGWHZone','trGWHTrapSetup','trGWHTurboBoost'],
+				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying'],
 				init : function(data){initControlsGWH2016(data);}
 			},
 		};

@@ -4,7 +4,7 @@ function mapSolver(){
 	var classMiceGroups = document.getElementsByClassName('treasureMapPopup-mice-groups');
 	if(classMiceGroups.length > 0){
 		var strMouseName,strTemp,strCurrentZone;
-		var strMouseLocation = arrMouseLocation.join(",");
+		var strMouseLocation = arrMouseLocation.join(",") + ",";
 		var i,nIndex,nIndex1;
 		var arrTemp = [];
 		var classUncaught = document.getElementsByClassName('treasureMapPopup-mice-group-mouse-name');
