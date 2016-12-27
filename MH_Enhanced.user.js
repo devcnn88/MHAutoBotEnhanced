@@ -778,6 +778,74 @@ function notifyMe(notice, icon, body) {
     }
 }
 
+function getJournalDetail(){
+	var strLastRecordedJournal = getStorageToVariableStr('LastRecordedJournal', '');
+	var classJournal = document.getElementsByClassName('journaltext');
+	var i, j, eleA, strTrap, temp, temp1, nIndex;
+	var objResave ={
+		trinket : false,
+		bait : false
+	};
+	for(i=0;i<classJournal.length;i++){
+		if(classJournal[i].parentNode.textContent == strLastRecordedJournal)
+			break;
+
+		eleA = classJournal[i].getElementsByTagName('a');
+		if(eleA.length > 0){ // has loot(s)
+			for(j=0;j<eleA.length;j++){
+				strTrap = '';
+				temp = eleA[j].textContent;
+				if(temp.indexOf('Charm') > -1){
+					strTrap = 'trinket';
+					temp = temp.replace(/Charms/, 'Charm');
+				}
+				else if(temp.indexOf('Cheese') > -1)
+					strTrap = 'bait';
+				temp = temp.replace(/\d+/, '');
+				temp = temp.trimLeft();
+				if(strTrap !== '' && objTrapList[strTrap].indexOf(temp) < 0){
+					console.plog('Add', temp, 'into', strTrap, 'list');
+					objTrapList[strTrap].unshift(temp);
+					objResave[strTrap] = true;
+				}
+			}
+		}
+		else{
+			temp1 = '';
+			if(classJournal[i].textContent.indexOf('crafted') > -1)
+				temp1 = 'crafted';
+			else if(classJournal[i].textContent.indexOf('purchased') > -1)
+				temp1 = 'purchased';
+			if(temp1 !== ''){
+				strTrap = '';
+				temp = classJournal[i].textContent.replace(/\./, '').split(' ');
+				if(classJournal[i].textContent.indexOf('Charm') > -1){
+					strTrap = 'trinket';
+					temp = temp.replace(/Charms/, 'Charm');
+				}
+				else if(classJournal[i].textContent.indexOf('Cheese') > -1)
+					strTrap = 'bait';
+				nIndex = temp.indexOf('temp1');
+				if(strTrap !== '' && nIndex > -1){
+					temp.splice(0,nIndex+2);
+					temp = temp.join(' ');
+					if(temp !== '' && objTrapList[strTrap].indexOf(temp) < 0){
+						console.plog('Add', temp, 'into', strTrap, 'list');
+						objTrapList[strTrap].unshift(temp);
+						objResave[strTrap] = true;
+					}
+				}
+			}
+		}
+		
+	}
+	for (var prop in objResave) {
+		if(objResave.hasOwnProperty(prop) && objResave[prop] === true)
+			setStorage("TrapList" + capitalizeFirstLetter(prop), objTrapList[prop].join(","));
+	}	
+	setStorage('LastRecordedJournal', classJournal[0].parentNode.textContent);
+}
+
 function eventLocationCheck(caller) {
     var selAlgo = getStorageToVariableStr("eventLocation", "None");
 	console.pdebug('Algorithm Selected:', selAlgo, 'Call From:', caller);
@@ -3854,6 +3922,7 @@ function retrieveData() {
 
 		// get trap check time
 		CalculateNextTrapCheckInMinute();
+		getJournalDetail();
 		eventLocationCheck('retrieveData()');
 		mapHunting();
 	}
@@ -3966,6 +4035,7 @@ function action() {
         }
 
         isHornSounding = undefined;
+		getJournalDetail();
 		eventLocationCheck('action()');
 		mapHunting();
     }
