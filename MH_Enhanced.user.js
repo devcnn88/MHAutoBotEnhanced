@@ -14,6 +14,7 @@
 // @include		http://hi5.com/friend/games/MouseHunt*
 // @include		http://mousehunt.hi5.hitgrab.com/*
 // @grant		unsafeWindow
+// @grant		GM_info
 // @downloadURL	https://greasyfork.org/scripts/5705-mousehunt-autobot-enhanced-edition/code/MouseHunt%20AutoBot%20Enhanced%20Edition.user.js
 // @updateURL	https://greasyfork.org/scripts/5705-mousehunt-autobot-enhanced-edition/code/MouseHunt%20AutoBot%20Enhanced%20Edition.meta.js
 // ==/UserScript==
@@ -292,7 +293,7 @@ var objFRBattery = {
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var scriptVersion = "1.36.0 Enhanced Edition";
+var g_strVersion = "";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -475,8 +476,12 @@ function receiveMessage(event)
 			var value = event.data.substring(1, event.data.length);
 			setStorage("krCallBack",value);
 		}
-		else if(event.data.indexOf('Log_')>-1){
+		else if(event.data.indexOf('Log_')>-1)
 			console.plog(event.data.split('_')[1]);
+		else if(event.data.indexOf('MHAKRS_')>-1){
+			var temp = event.data.split('_');
+			console.plog(temp[0], temp[1]);
+			setStorage(temp[0], temp[1]);
 		}
 	}
 }
@@ -488,6 +493,7 @@ if (debugKR)
 var getMapPort;
 try{
 	if(!isNullOrUndefined(chrome.runtime.id)){
+		g_strVersion = chrome.runtime.getManifest().version;
 		getMapPort = chrome.runtime.connect({name: 'map'});
 		getMapPort.onMessage.addListener(function(msg) {
 			console.log(msg);
@@ -499,11 +505,13 @@ try{
 catch (e){
 	// not chrome extension
 	getMapPort = undefined;
+	g_strVersion = GM_info.script.version;
 }
 
 exeScript();
 
 function exeScript() {
+	setStorage('MHAB', g_strVersion);
 	console.pdebug("exeScript() Start");
 	browser = browserDetection();
     // check the trap check setting first
@@ -4157,11 +4165,11 @@ function embedTimer(targetPage) {
             var titleElement = document.createElement('div');
             titleElement.setAttribute('id', 'titleElement');
             if (targetPage && aggressiveMode)
-				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a> - <font color='red'>Aggressive Mode</font>";
+				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a> - <font color='red'>Aggressive Mode</font>";
 			else if (targetPage && browser != 'chrome')
-				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a> - <font color='red'><b>Pls use Chrome browser for fully working features</b></font>";
+				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a> - <font color='red'><b>Pls use Chrome browser for fully working features</b></font>";
             else
-                titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + scriptVersion + ")</b></a>";
+                titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a>";
             timerDivElement.appendChild(titleElement);
             titleElement = null;
 
