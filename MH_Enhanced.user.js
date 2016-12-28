@@ -4059,9 +4059,14 @@ function action() {
         }
 
         isHornSounding = undefined;
+		try{
 		getJournalDetail();
 		eventLocationCheck('action()');
 		mapHunting();
+    }
+		catch (e){
+			console.perror('action:',e.message);
+		}
     }
 }
 
