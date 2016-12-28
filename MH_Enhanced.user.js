@@ -69,8 +69,8 @@ var krStartHourDelayMin = 10;
 var krStartHourDelayMax = 30;
 
 // // Time offset (in seconds) between client time and internet time
-// // -ve - Client time ahead of internet time 
-// // +ve - Internet time ahead of client time 
+// // -ve - Client time ahead of internet time
+// // +ve - Internet time ahead of client time
 var g_nTimeOffset = 0;
 
 // // Maximum retry of solving KR.
@@ -412,7 +412,6 @@ function saveToSessionStorage(){
 			saveToSessionStorage.apply(this,arguments);
 		}
 	}
-	
 }
 console.plog = function(){
 	saveToSessionStorage.apply(this,arguments);
@@ -537,12 +536,13 @@ try{
 			if(msg.array.length > 0)
 				checkCaughtMouse(msg.obj, msg.array);
 		});
-	}	
+	}
+	else
+		g_strVersion = GM_info.script.version;
 }
 catch (e){
-	// not chrome extension
 	getMapPort = undefined;
-	g_strVersion = GM_info.script.version;
+	g_strVersion = undefined;
 }
 
 exeScript();
@@ -818,7 +818,7 @@ function notifyMe(notice, icon, body) {
 function getJournalDetail(){
 	var strLastRecordedJournal = getStorageToVariableStr('LastRecordedJournal', '');
 	var classJournal = document.getElementsByClassName('journaltext');
-	var i, j, eleA, strTrap, temp, temp1, nIndex;
+	var i, j, eleA, strTrap, temp, nIndexStart, nIndexEnd, nIndexCharm, nIndexCheese;
 	var objResave ={
 		trinket : false,
 		bait : false
@@ -848,23 +848,35 @@ function getJournalDetail(){
 			}
 		}
 		else{
-			temp1 = '';
-			if(classJournal[i].textContent.indexOf('crafted') > -1)
-				temp1 = 'crafted';
-			else if(classJournal[i].textContent.indexOf('purchased') > -1)
-				temp1 = 'purchased';
-			if(temp1 !== ''){
+			nIndexStart = -1;
+			temp = classJournal[i].textContent.replace(/\./, '');
+			temp = temp.replace(/Charms/, 'Charm');
+			temp = temp.split(' ');
+			if(classJournal[i].textContent.indexOf('crafted') > -1){
+				nIndexStart = temp.indexOf('crafted');
+				if(nIndexStart > -1)
+					nIndexStart += 2;
+			}
+			else if(classJournal[i].textContent.indexOf('purchased') > -1){
+				nIndexStart = temp.indexOf('purchased');
+				if(nIndexStart > -1)
+					nIndexStart += 2;
+			}
+			if(nIndexStart > -1){
 				strTrap = '';
-				temp = classJournal[i].textContent.replace(/\./, '').split(' ');
-				if(classJournal[i].textContent.indexOf('Charm') > -1){
+				nIndexEnd = -1;
+				nIndexCharm = temp.indexOf('Charm');
+				nIndexCheese = temp.indexOf('Cheese');
+				if(nIndexCharm > -1){
 					strTrap = 'trinket';
-					temp = temp.replace(/Charms/, 'Charm');
+					nIndexEnd = nIndexCharm + 1;
 				}
-				else if(classJournal[i].textContent.indexOf('Cheese') > -1)
+				else if(nIndexCheese > -1){
 					strTrap = 'bait';
-				nIndex = temp.indexOf('temp1');
-				if(strTrap !== '' && nIndex > -1){
-					temp.splice(0,nIndex+2);
+					nIndexEnd = nIndexCheese + 1;
+				}
+				if(strTrap !== '' && nIndexEnd > -1){
+					temp = temp.slice(nIndexStart, nIndexEnd);
 					temp = temp.join(' ');
 					if(temp !== '' && objTrapList[strTrap].indexOf(temp) < 0){
 						console.plog('Add', temp, 'into', strTrap, 'list');
@@ -874,12 +886,11 @@ function getJournalDetail(){
 				}
 			}
 		}
-		
 	}
 	for (var prop in objResave) {
 		if(objResave.hasOwnProperty(prop) && objResave[prop] === true)
 			setStorage("TrapList" + capitalizeFirstLetter(prop), objTrapList[prop].join(","));
-	}	
+	}
 	setStorage('LastRecordedJournal', classJournal[0].parentNode.textContent);
 }
 
@@ -1598,8 +1609,7 @@ function iceberg(){
 				if(phase.indexOf(objIceberg.order[i]) > -1){
 					nIndex = i;
 					break;
-				}
-					
+				}	
 			}
 		}
 
@@ -4060,10 +4070,10 @@ function action() {
 
         isHornSounding = undefined;
 		try{
-		getJournalDetail();
-		eventLocationCheck('action()');
-		mapHunting();
-    }
+			getJournalDetail();
+			eventLocationCheck('action()');
+			mapHunting();
+		}
 		catch (e){
 			console.perror('action:',e.message);
 		}
