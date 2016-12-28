@@ -6776,6 +6776,9 @@ function checkResumeButton() {
 
             // simulate mouse click on the resume button
             resumeElement = document.getElementsByClassName('mousehuntPage-puzzle-form-complete-button')[0];
+			var nowDate = new Date();
+			var nTimezoneOffset = -(nowDate.getTimezoneOffset()) * 60000;
+			console.plog('Click Resume button at:', new Date(Date.parse(nowDate)+nTimezoneOffset).toISOString());
             fireEvent(resumeElement, 'click');
             resumeElement = null;
 
@@ -6811,8 +6814,8 @@ function checkResumeButton() {
 
 					// simulate mouse click on the horn
 					resumeElement = linkElementList[i].parentNode;
-					var nTimezoneOffset = -(nowDate.getTimezoneOffset()) * 60000;
 					var nowDate = new Date();
+					var nTimezoneOffset = -(nowDate.getTimezoneOffset()) * 60000;
 					console.plog('Click Resume button at:', new Date(Date.parse(nowDate)+nTimezoneOffset).toISOString());
 					fireEvent(resumeElement, 'click');
 					resumeElement = null;
