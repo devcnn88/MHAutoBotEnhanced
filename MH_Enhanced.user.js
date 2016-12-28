@@ -4927,13 +4927,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
 			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectWWRiftTrapBase" onchange="saveWWRift();">';
-			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
-			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
-			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
-			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
-			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
-			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '<select id="selectWWRiftTrapBase" style="width: 75px" onchange="saveWWRift();">';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectWWRiftTrapTrinket" style="width: 75px" onchange="saveWWRift();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
@@ -4986,13 +4980,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
 			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapBase" onchange="saveWWRift();">';
-			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
-			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
-			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
-			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
-			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
-			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapBase" style="width: 75px" onchange="saveWWRift();">';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapTrinket" style="width: 75px" onchange="saveWWRift();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
@@ -5747,13 +5735,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
 			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectBRTrapBase" onchange="saveBR();">';
-			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
-			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
-			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
-			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
-			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
-			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '<select id="selectBRTrapBase" style="width: 75px" onchange="saveBR();">';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBRTrapTrinket" style="width: 75px" onchange="saveBR();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
@@ -5825,7 +5807,7 @@ function embedTimer(targetPage) {
 			// insert trap list
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon'],
-				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase'],
+				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase','selectBRTrapBase','selectWWRiftTrapBase','selectWWRiftMBWTrapBase'],
 				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket'],
 				bait : ['selectBait',,'selectGWHBait']
 			};
