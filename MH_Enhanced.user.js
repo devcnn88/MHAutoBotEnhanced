@@ -4753,7 +4753,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="GES">Gnawnian Express Station</option>';
 			preferenceHTMLStr += '<option value="GWH2016">GWH 2016</option>';
 			preferenceHTMLStr += '<option value="Halloween 2016">Halloween 2016</option>';
-			preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>'; // not tested yet
+			preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="SG">Seasonal Garden</option>';
 			preferenceHTMLStr += '<option value="Sunken City">Sunken City</option>';
@@ -8944,7 +8944,9 @@ function bodyJS(){
 		window.sessionStorage.setItem('Iceberg', JSON.stringify(storageValue));
 	}
 	
-	function initControlsIceberg(){
+	function initControlsIceberg(bAutoChangePhase){
+		if(isNullOrUndefined(bAutoChangePhase))
+			bAutoChangePhase = false;
 		var selectIcebergPhase = document.getElementById('selectIcebergPhase');
 		var selectIcebergBase = document.getElementById('selectIcebergBase');
 		var selectIcebergBait = document.getElementById('selectIcebergBait');
@@ -8957,9 +8959,25 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			var nIndex = storageValue.order.indexOf(selectIcebergPhase.value);
-			if(nIndex < 0)
-				nIndex = 0;
+			var nIndex = -1;
+			if(bAutoChangePhase && !isNullOrUndefined(user) && user.location.indexOf('Iceberg') > -1){
+				var classCurrentPhase = document.getElementsByClassName('currentPhase');
+				var phase = (classCurrentPhase.length > 0) ? classCurrentPhase[0].textContent : user.quests.QuestIceberg.current_phase;
+				var classProgress = document.getElementsByClassName('user_progress');
+				var nProgress = (classProgress.length > 0) ? parseInt(classProgress[0].textContent.replace(',', '')) : parseInt(user.quests.QuestIceberg.user_progress);
+				if (nProgress == 300 || nProgress == 600 || nProgress == 1600 || nProgress == 1800)
+					nIndex = 0;
+				else{
+					phase = phase.toUpperCase();
+					for(var i=1;i<storageValue.order.length;i++){
+						if(phase.indexOf(storageValue.order[i]) > -1){
+							selectIcebergPhase.value = storageValue.order[i];
+							break;
+						}	
+					}
+				}
+			}
+			nIndex = storageValue.order.indexOf(selectIcebergPhase.value);
 			selectIcebergBase.value = storageValue.base[nIndex];
 			selectIcebergTrinket.value = storageValue.trinket[nIndex];
 			selectIcebergBait.value = storageValue.bait[nIndex];
