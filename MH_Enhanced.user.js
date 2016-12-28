@@ -898,11 +898,11 @@ function eventLocationCheck(caller) {
         case 'Charge Egg 2016 High':
             checkCharge2016(chargeHigh); break;
 		case 'Burroughs Rift(Red)':
-			BurroughRift(19, 20); break;
+			BurroughRift(true, 19, 20); break;
 		case 'Burroughs Rift(Green)':
-			BurroughRift(6, 18); break;
+			BurroughRift(true, 6, 18); break;
 		case 'Burroughs Rift(Yellow)':
-			BurroughRift(1, 5); break;
+			BurroughRift(true, 1, 5); break;
 		case 'Burroughs Rift Custom':
 			BRCustom(); break;
 		case 'Halloween 2016':
@@ -1615,13 +1615,13 @@ function iceberg(){
     }
 }
 
-function BurroughRift(minMist, maxMist, nToggle)
+function BurroughRift(bCheckLoc, minMist, maxMist, nToggle)
 {
 	//Tier 0: 0 Mist Canisters
 	//Tier 1/Yellow: 1-5 Mist Canisters
 	//Tier 2/Green: 6-18 Mist Canisters
 	//Tier 3/Red: 19-20 Mist Canisters
-	if (GetCurrentLocation().indexOf('Burroughs Rift') < 0)
+	if (bCheckLoc && GetCurrentLocation().indexOf('Burroughs Rift') < 0)
 		return;
 
 	var currentMistQuantity = parseInt(document.getElementsByClassName('mistQuantity')[0].innerText);
@@ -1681,13 +1681,13 @@ function BRCustom(){
 	var objBR = getStorageToObject('BRCustom', objDefaultBRCustom);
 	var mistQuantity = 0;
 	if(objBR.hunt == 'Red')
-		mistQuantity = BurroughRift(19, 20, objBR.toggle);
+		mistQuantity = BurroughRift(false, 19, 20, objBR.toggle);
 	else if(objBR.hunt == 'Green')
-		mistQuantity = BurroughRift(6, 18);
+		mistQuantity = BurroughRift(false, 6, 18);
 	else if(objBR.hunt == 'Yellow')
-		mistQuantity = BurroughRift(1, 5);
+		mistQuantity = BurroughRift(false, 1, 5);
 	else
-		mistQuantity = BurroughRift(0, 0);
+		mistQuantity = BurroughRift(false, 0, 0);
 
 	var currentTier = '';
 	if(mistQuantity >= 19)
