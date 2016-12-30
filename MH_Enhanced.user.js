@@ -2015,12 +2015,12 @@ function gwh(nYear){
 
 	var userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestWinterHunt2016)'));
 	var objDefaultGWH2016 = {
-		zone : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM', 'FLYING'],
-		weapon : new Array(7).fill(''),
-		base : new Array(7).fill(''),
-		trinket : new Array(7).fill(''),
-		bait : new Array(7).fill(''),
-		boost : new Array(7).fill(''),
+		zone : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM','FLYING','NEW_YEAR\'S_PARTY'],
+		weapon : new Array(8).fill(''),
+		base : new Array(8).fill(''),
+		trinket : new Array(8).fill(''),
+		bait : new Array(8).fill(''),
+		boost : new Array(8).fill(false),
 		turbo : false,
 		minAAToFly : 20
 	};
@@ -2109,11 +2109,9 @@ function gwh(nYear){
 	};
 	var arrZone = [];
 	var nIndexActive = -1;
-	for(i=0;i<userVariable.sprites.length;i++){
+	for(i=userVariable.sprites.length-1;i>=0;i--){
 		if(userVariable.sprites[i].css_class.indexOf('active') > -1){ // current zone
 			nIndexActive = i;
-			if(parseInt(userVariable.meters_remaining)===0)
-				nIndexActive++;
 			break;
 		}
 	}
@@ -2141,7 +2139,7 @@ function gwh(nYear){
 			}
 		}
 		if(arrZone[nIndex].type == "none"){
-			arrZone[nIndex].codename = arrZone[nIndex].name.toUpperCase().replace(/ /,'_');
+			arrZone[nIndex].codename = arrZone[nIndex].name.toUpperCase().replace(/ /g,'_');
 		}
 		else{
 			if(arrZone[nIndex].isOrderZone)
@@ -5321,6 +5319,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="WINTER_WASTELAND">Winter Wasteland</option>';
 			preferenceHTMLStr += '<option value="SNOWBALL_STORM">Snowball Storm</option>';
 			preferenceHTMLStr += '<option value="FLYING">Flying</option>';
+			preferenceHTMLStr += '<option value="NEW_YEAR\'S_PARTY">New Year\'s Party</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -6103,6 +6102,26 @@ function loadPreferenceSettingFromStorage() {
 			if(bResave){
 				setStorage('Zokor', JSON.stringify(obj));
 				setSessionStorage('Zokor', JSON.stringify(obj));
+			}
+		}
+		
+		// Backward compatibility of GWH2016
+		keyValue = getStorage('GWH2016');
+		if(!isNullOrUndefined(keyValue)){
+			obj = JSON.parse(keyValue);
+			bResave = false;
+			if(obj.zone.indexOf("NEW_YEAR'S_PARTY") < 0){
+				obj.zone.push("NEW_YEAR'S_PARTY");
+				obj.weapon.push('');
+				obj.base.push('');
+				obj.trinket.push('');
+				obj.bait.push('');
+				obj.boost.push(false);
+				bResave = true;
+			}
+			if(bResave){
+				setStorage('GWH2016', JSON.stringify(obj));
+				setSessionStorage('GWH2016', JSON.stringify(obj));
 			}
 		}
 	}
@@ -8013,12 +8032,12 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
-				zone : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM', 'FLYING'],
-				weapon : new Array(7).fill(''),
-				base : new Array(7).fill(''),
-				trinket : new Array(7).fill(''),
-				bait : new Array(7).fill(''),
-				boost : new Array(7).fill(''),
+				zone : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM','FLYING','NEW_YEAR\'S_PARTY'],
+				weapon : new Array(8).fill(''),
+				base : new Array(8).fill(''),
+				trinket : new Array(8).fill(''),
+				bait : new Array(8).fill(''),
+				boost : new Array(8).fill(false),
 				turbo : false,
 				minAAToFly : 20
 			};
