@@ -924,8 +924,8 @@ function eventLocationCheck(caller) {
 			wwrift(); break;
 		case 'GES':
 			ges(); break;
-		case 'GWH2016':
-			gwh(new Date().getFullYear()); break;
+		case 'GWH2016R':
+			gwh(); break;
 		case 'All LG Area':
 			var objLGTemplate = {
 				isAutoFill : false,
@@ -2009,8 +2009,8 @@ function SunkenCity(isAggro) {
 	}
 }
 
-function gwh(nYear){
-	if (GetCurrentLocation().indexOf("Great Winter Hunt") < 0 || nYear != 2016)
+function gwh(){
+	if (GetCurrentLocation().indexOf("Great Winter Hunt") < 0)
 		return;
 
 	var userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestWinterHunt2016)'));
@@ -2024,7 +2024,7 @@ function gwh(nYear){
 		turbo : false,
 		minAAToFly : 20
 	};
-	var objGWH = getStorageToObject('GWH2016', objDefaultGWH2016);
+	var objGWH = getStorageToObject('GWH2016R', objDefaultGWH2016);
 	var i,j,nLimit,strTemp,nIndex,nIndexTemp;
 	var bCanFly = false;
 	var nAAQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-featuredItem-quantity')[0].textContent);
@@ -4743,7 +4743,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Fort Rox">Fort Rox</option>';
 			preferenceHTMLStr += '<option value="Furoma Rift">Furoma Rift</option>';
 			preferenceHTMLStr += '<option value="GES">Gnawnian Express Station</option>';
-			preferenceHTMLStr += '<option value="GWH2016">GWH 2016</option>';
+			preferenceHTMLStr += '<option value="GWH2016R">GWH 2016</option>';
 			preferenceHTMLStr += '<option value="Halloween 2016">Halloween 2016</option>';
 			preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
@@ -6099,8 +6099,8 @@ function loadPreferenceSettingFromStorage() {
 			}
 		}
 		
-		// Backward compatibility of GWH2016
-		keyValue = getStorage('GWH2016');
+		// Backward compatibility of GWH2016R
+		keyValue = getStorage('GWH2016R');
 		if(!isNullOrUndefined(keyValue)){
 			obj = JSON.parse(keyValue);
 			bResave = false;
@@ -6114,8 +6114,8 @@ function loadPreferenceSettingFromStorage() {
 				bResave = true;
 			}
 			if(bResave){
-				setStorage('GWH2016', JSON.stringify(obj));
-				setSessionStorage('GWH2016', JSON.stringify(obj));
+				setStorage('GWH2016R', JSON.stringify(obj));
+				setSessionStorage('GWH2016R', JSON.stringify(obj));
 			}
 		}
 	}
@@ -7865,7 +7865,7 @@ function bodyJS(){
 		saveMapHunting();
 	}
 
-	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016'];
+	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R'];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -7911,7 +7911,7 @@ function bodyJS(){
 		else if(eventAlgo.value == 'WWRift') keyName = 'WWRift';
 		else if(eventAlgo.value == 'GES') keyName = 'GES';
 		else if(eventAlgo.value == 'Fort Rox') keyName = 'FRox';
-		else if(eventAlgo.value == 'GWH2016') keyName = 'GWH2016';
+		else if(eventAlgo.value == 'GWH2016R') keyName = 'GWH2016R';
 		
 		if(!isNullOrUndefined(keyName)){
 			window.sessionStorage.removeItem(keyName);
@@ -7990,7 +7990,7 @@ function bodyJS(){
 		var selectGWHBoost = document.getElementById('selectGWHBoost');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var inputMinAA = document.getElementById('inputMinAA');
-		var storageValue = window.sessionStorage.getItem('GWH2016');
+		var storageValue = window.sessionStorage.getItem('GWH2016R');
 		if(isNullOrUndefined(storageValue)){
 			selectGWHWeapon.selectedIndex = -1;
 			selectGWHBase.selectedIndex = -1;
@@ -8023,7 +8023,7 @@ function bodyJS(){
 		var selectGWHBoost = document.getElementById('selectGWHBoost');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var inputMinAA = document.getElementById('inputMinAA');
-		var storageValue = window.sessionStorage.getItem('GWH2016');
+		var storageValue = window.sessionStorage.getItem('GWH2016R');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
 				zone : ['ORDER1','ORDER2','NONORDER1','NONORDER2','WINTER_WASTELAND','SNOWBALL_STORM','FLYING','NEW_YEAR\'S_PARTY'],
@@ -8046,7 +8046,7 @@ function bodyJS(){
 		storageValue.boost[nIndex] = (selectGWHTrinket.value.toUpperCase().indexOf('ANCHOR') > -1) ? false : (selectGWHBoost.value == 'true');
 		storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
 		storageValue.minAAToFly = parseInt(inputMinAA.value);
-		window.sessionStorage.setItem('GWH2016', JSON.stringify(storageValue));
+		window.sessionStorage.setItem('GWH2016R', JSON.stringify(storageValue));
 	}
 	
 	function initControlsSCCustom(bAutoChangeZone){
@@ -9486,7 +9486,7 @@ function bodyJS(){
 				arr : ['trFRoxTrapSetup', 'trFRoxDeactiveTower'],
 				init : function(data){initControlsFRox(data);}
 			},
-			'GWH2016' : {
+			'GWH2016R' : {
 				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying'],
 				init : function(data){initControlsGWH2016(data);}
 			},
