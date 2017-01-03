@@ -843,6 +843,15 @@
 						<input type="number" id="inputMinFirework" min="0" max="9007199254740991" style="width:50px" value="20" onchange="onInputMinWorkChanged(this);">
 					</td>
 				</tr>
+				<tr id="trGWHFlyingLand" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select whether land after firework run out"><b>Land after Firework Run Out</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectGWHLandAfterRunOutFirework" onchange="saveGWH2016();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
+				</tr>
 				<tr id="trSCCustom" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -1631,6 +1640,7 @@
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var inputMinAA = document.getElementById('inputMinAA');
 		var inputMinFirework = document.getElementById('inputMinFirework');
+		var selectGWHLandAfterRunOutFirework = document.getElementById('selectGWHLandAfterRunOutFirework');
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
 			selectGWHWeapon.selectedIndex = -1;
@@ -1641,6 +1651,7 @@
 			selectGWHUseTurboBoost.selectedIndex = 0;
 			inputMinAA.value = 20;
 			inputMinFirework.value = 20;
+			selectGWHLandAfterRunOutFirework.selectedIndex = 0;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -1657,6 +1668,7 @@
 			selectGWHUseTurboBoost.value = (storageValue.turbo === true) ? 'true' : 'false';
 			inputMinAA.value = storageValue.minAAToFly;
 			inputMinFirework.value = storageValue.minFireworkToFly;
+			selectGWHLandAfterRunOutFirework.value = (storageValue.landAfterFireworkRunOut === true) ? 'true' : 'false';
 		}
 	}
 	
@@ -1670,6 +1682,7 @@
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var inputMinAA = document.getElementById('inputMinAA');
 		var inputMinFirework = document.getElementById('inputMinFirework');
+		var selectGWHLandAfterRunOutFirework = document.getElementById('selectGWHLandAfterRunOutFirework');
 		var storageValue = window.sessionStorage.getItem('GWH2016');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
@@ -1681,7 +1694,8 @@
 				boost : new Array(7).fill(''),
 				turbo : false,
 				minAAToFly : 20,
-				minFireworkToFly : 20
+				minFireworkToFly : 20,
+				landAfterFireworkRunOut : false
 			};
 			storageValue = JSON.stringify(objDefaultGWH2016);
 		}
@@ -1698,6 +1712,7 @@
 		storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
 		storageValue.minAAToFly = parseInt(inputMinAA.value);
 		storageValue.minFireworkToFly = parseInt(inputMinFirework.value);
+		storageValue.landAfterFireworkRunOut = (selectGWHLandAfterRunOutFirework.value == 'true');
 		window.sessionStorage.setItem('GWH2016', JSON.stringify(storageValue));
 	}
 	
@@ -3255,7 +3270,7 @@
 				init : function(data){initControlsFRox(data);}
 			},
 			'GWH2016' : {
-				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying','trGWHFlyingFirework'],
+				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying','trGWHFlyingFirework','trGWHFlyingLand'],
 				init : function(data){initControlsGWH2016(data);}
 			},
 		};

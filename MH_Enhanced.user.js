@@ -2023,7 +2023,8 @@ function gwh(){
 		boost : new Array(8).fill(false),
 		turbo : false,
 		minAAToFly : 20,
-		minFireworkToFly : 20
+		minFireworkToFly : 20,
+		landAfterFireworkRunOut : false
 	};
 	var objGWH = getStorageToObject('GWH2016R', objDefaultGWH2016);
 	var i,j,nLimit,strTemp,nIndex,nIndexTemp;
@@ -2039,6 +2040,12 @@ function gwh(){
 		}
 	}
 	if(userVariable.status == 'flying'){
+		if(nFireworkQuantity < 1 && objGWH.landAfterFireworkRunOut === true){
+			fireEvent(document.getElementsByClassName('winterHunt2016HUD-landButton mousehuntTooltipParent mousehuntActionButton tiny')[0], 'click');
+			window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small winterHunt2016HUD-help-action-land active')[0], 'click'); }, 1500);
+			window.setTimeout(function () { eventLocationCheck('gwh'); }, 5000);
+			return;
+		}
 		console.plog('Flying');
 		nIndex = objGWH.zone.indexOf('FLYING');
 		checkThenArm(null, 'weapon', objGWH.weapon[nIndex]);
@@ -5360,6 +5367,15 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="inputMinFirework" min="0" max="9007199254740991" style="width:50px" value="20" onchange="onInputMinWorkChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
+			preferenceHTMLStr += '<tr id="trGWHFlyingLand" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select whether land after firework run out"><b>Land after Firework Run Out</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectGWHLandAfterRunOutFirework" onchange="saveGWH2016();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 
 			preferenceHTMLStr += '<tr id="trSCCustom" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -7318,8 +7334,9 @@ function disarmTrap(trapSelector) {
 							if(x.length > 0){
 								fireEvent(x[0], 'click');
 								console.pdebug('Disarmed');
+								closeTrapSelector(trapSelector);
 								arming = false;
-								window.setTimeout(function () { closeTrapSelector(trapSelector); }, 1000);
+								//window.setTimeout(function () { closeTrapSelector(trapSelector); }, 1000);
 								clearInterval(intervalDT);
 								intervalDT = null;
 								return;
@@ -8004,6 +8021,7 @@ function bodyJS(){
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var inputMinAA = document.getElementById('inputMinAA');
 		var inputMinFirework = document.getElementById('inputMinFirework');
+		var selectGWHLandAfterRunOutFirework = document.getElementById('selectGWHLandAfterRunOutFirework');
 		var storageValue = window.sessionStorage.getItem('GWH2016R');
 		if(isNullOrUndefined(storageValue)){
 			selectGWHWeapon.selectedIndex = -1;
@@ -8014,6 +8032,7 @@ function bodyJS(){
 			selectGWHUseTurboBoost.selectedIndex = 0;
 			inputMinAA.value = 20;
 			inputMinFirework.value = 20;
+			selectGWHLandAfterRunOutFirework.selectedIndex = 0;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -8027,6 +8046,7 @@ function bodyJS(){
 			selectGWHUseTurboBoost.value = (storageValue.turbo === true) ? 'true' : 'false';
 			inputMinAA.value = storageValue.minAAToFly;
 			inputMinFirework.value = storageValue.minFireworkToFly;
+			selectGWHLandAfterRunOutFirework.value = (storageValue.landAfterFireworkRunOut === true) ? 'true' : 'false';
 		}
 	}
 	
@@ -8040,6 +8060,7 @@ function bodyJS(){
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var inputMinAA = document.getElementById('inputMinAA');
 		var inputMinFirework = document.getElementById('inputMinFirework');
+		var selectGWHLandAfterRunOutFirework = document.getElementById('selectGWHLandAfterRunOutFirework');
 		var storageValue = window.sessionStorage.getItem('GWH2016R');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
@@ -8051,7 +8072,8 @@ function bodyJS(){
 				boost : new Array(8).fill(false),
 				turbo : false,
 				minAAToFly : 20,
-				minFireworkToFly : 20
+				minFireworkToFly : 20,
+				landAfterFireworkRunOut : false
 			};
 			storageValue = JSON.stringify(objDefaultGWH2016);
 		}
@@ -8065,6 +8087,7 @@ function bodyJS(){
 		storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
 		storageValue.minAAToFly = parseInt(inputMinAA.value);
 		storageValue.minFireworkToFly = parseInt(inputMinFirework.value);
+		storageValue.landAfterFireworkRunOut = (selectGWHLandAfterRunOutFirework.value == 'true');
 		window.sessionStorage.setItem('GWH2016R', JSON.stringify(storageValue));
 	}
 	
@@ -9506,7 +9529,7 @@ function bodyJS(){
 				init : function(data){initControlsFRox(data);}
 			},
 			'GWH2016R' : {
-				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying','trGWHFlyingFirework'],
+				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying','trGWHFlyingFirework','trGWHFlyingLand'],
 				init : function(data){initControlsGWH2016(data);}
 			},
 		};
