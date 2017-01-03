@@ -2022,16 +2022,18 @@ function gwh(){
 		bait : new Array(8).fill(''),
 		boost : new Array(8).fill(false),
 		turbo : false,
-		minAAToFly : 20
+		minAAToFly : 20,
+		minFireworkToFly : 20
 	};
 	var objGWH = getStorageToObject('GWH2016R', objDefaultGWH2016);
 	var i,j,nLimit,strTemp,nIndex,nIndexTemp;
 	var bCanFly = false;
 	var nAAQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-featuredItem-quantity')[0].textContent);
+	var nFireworkQuantity = parseInt(document.getElementsByClassName('winterHunt2016HUD-fireworks-quantity')[0].textContent);
 	if(userVariable.order_progress >= 10){ // can fly
 		bCanFly = true;
-		console.plog('Order Progress:', userVariable.order_progress, 'AA Quantity:', nAAQuantity);
-		if(nAAQuantity >= objGWH.minAAToFly){
+		console.plog('Order Progress:', userVariable.order_progress, 'AA Quantity:', nAAQuantity, 'Firework Quantity:', nFireworkQuantity);
+		if(nAAQuantity >= objGWH.minAAToFly && nFireworkQuantity >= objGWH.minFireworkToFly){
 			fireEvent(document.getElementsByClassName('winterHunt2016HUD-flightButton')[0], 'click');
 			userVariable.status = 'flying';
 		}
@@ -5352,6 +5354,12 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="inputMinAA" min="0" max="9007199254740991" style="width:50px" value="20" onchange="onInputMinAAChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
+			preferenceHTMLStr += '<tr id="trGWHFlyingFirework" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum firework to take flight"><b>Min Firework to Fly</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input type="number" id="inputMinFirework" min="0" max="9007199254740991" style="width:50px" value="20" onchange="onInputMinWorkChanged(this);">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 
 			preferenceHTMLStr += '<tr id="trSCCustom" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -7973,6 +7981,11 @@ function bodyJS(){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveGWH2016();
 	}
+
+	function onInputMinWorkChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveGWH2016();
+	}
 	
 	function onSelectGWHTrinketChanged(){
 		saveGWH2016();
@@ -7990,6 +8003,7 @@ function bodyJS(){
 		var selectGWHBoost = document.getElementById('selectGWHBoost');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var inputMinAA = document.getElementById('inputMinAA');
+		var inputMinFirework = document.getElementById('inputMinFirework');
 		var storageValue = window.sessionStorage.getItem('GWH2016R');
 		if(isNullOrUndefined(storageValue)){
 			selectGWHWeapon.selectedIndex = -1;
@@ -7999,6 +8013,7 @@ function bodyJS(){
 			selectGWHBoost.selectedIndex = -1;
 			selectGWHUseTurboBoost.selectedIndex = 0;
 			inputMinAA.value = 20;
+			inputMinFirework.value = 20;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -8011,6 +8026,7 @@ function bodyJS(){
 			selectGWHBoost.disabled = (selectGWHTrinket.value.toUpperCase().indexOf('ANCHOR') > -1) ? 'disabled' : '';
 			selectGWHUseTurboBoost.value = (storageValue.turbo === true) ? 'true' : 'false';
 			inputMinAA.value = storageValue.minAAToFly;
+			inputMinFirework.value = storageValue.minFireworkToFly;
 		}
 	}
 	
@@ -8023,6 +8039,7 @@ function bodyJS(){
 		var selectGWHBoost = document.getElementById('selectGWHBoost');
 		var selectGWHUseTurboBoost = document.getElementById('selectGWHUseTurboBoost');
 		var inputMinAA = document.getElementById('inputMinAA');
+		var inputMinFirework = document.getElementById('inputMinFirework');
 		var storageValue = window.sessionStorage.getItem('GWH2016R');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGWH2016 = {
@@ -8033,7 +8050,8 @@ function bodyJS(){
 				bait : new Array(8).fill(''),
 				boost : new Array(8).fill(false),
 				turbo : false,
-				minAAToFly : 20
+				minAAToFly : 20,
+				minFireworkToFly : 20
 			};
 			storageValue = JSON.stringify(objDefaultGWH2016);
 		}
@@ -8046,6 +8064,7 @@ function bodyJS(){
 		storageValue.boost[nIndex] = (selectGWHTrinket.value.toUpperCase().indexOf('ANCHOR') > -1) ? false : (selectGWHBoost.value == 'true');
 		storageValue.turbo = (selectGWHUseTurboBoost.value == 'true');
 		storageValue.minAAToFly = parseInt(inputMinAA.value);
+		storageValue.minFireworkToFly = parseInt(inputMinFirework.value);
 		window.sessionStorage.setItem('GWH2016R', JSON.stringify(storageValue));
 	}
 	
@@ -9487,7 +9506,7 @@ function bodyJS(){
 				init : function(data){initControlsFRox(data);}
 			},
 			'GWH2016R' : {
-				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying'],
+				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying','trGWHFlyingFirework'],
 				init : function(data){initControlsGWH2016(data);}
 			},
 		};
