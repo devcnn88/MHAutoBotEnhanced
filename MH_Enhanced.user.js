@@ -356,6 +356,7 @@ var checkMouseResult = null;
 var mouseList = [];
 var discharge = false;
 var arming = false;
+var g_arrArmingList = [];
 var kingsRewardRetry = 0;
 var keyKR = [];
 var separator = "~";
@@ -3437,6 +3438,7 @@ function checkThenArm(sort, category, name, isForcedRetry)   //category = weapon
 		checkThenArm(sort, category, name, false);
 	}
     else if (trapArmed === false){
+		addArmingIntoList(category);
 		var intervalCTA = setInterval(
             function (){
                 if (arming === false){
@@ -3468,6 +3470,20 @@ function getConstToRealValue(sort, category, name){
 	return objRet;
 }
 
+function addArmingIntoList(category){
+	g_arrArmingList.push(category);
+}
+
+function deleteArmingFromList(category){
+	var nIndex = g_arrArmingList.indexOf(category);
+	if(nIndex > -1)
+		g_arrArmingList.splice(nIndex, 1);
+}
+
+function isArmingInList(){
+	return (g_arrArmingList.length > 0);
+}
+
 function clickThenArmTrapInterval(sort, trap, name){ //sort = power/luck/attraction
     clickTrapSelector(trap);
     var sec = secWait;
@@ -3477,7 +3493,8 @@ function clickThenArmTrapInterval(sort, trap, name){ //sort = power/luck/attract
         function (){
             armStatus = armTrap(sort, trap, name);
 			if (armStatus != LOADING){
-                if(isNewUI)
+				deleteArmingFromList(trap);
+                if(isNewUI && !isArmingInList())
 					closeTrapSelector(trap);
 				clearInterval(intervalCTATI);
                 arming = false;
@@ -3494,10 +3511,13 @@ function clickThenArmTrapInterval(sort, trap, name){ //sort = power/luck/attract
             else{
                 --sec;
                 if (sec <= 0){
-                    clickTrapSelector(trap);
+                    clickTrapSelector(trap, true);
                     sec = secWait;
 					--retry;
 					if (retry <= 0){
+						deleteArmingFromList(trap);
+						if(isNewUI && !isArmingInList())
+							closeTrapSelector(trap);
 						clearInterval(intervalCTATI);
 						arming = false;
 						intervalCTATI = null;
@@ -3618,22 +3638,23 @@ function armTrapNewUI(sort, trap, name){
 		return LOADING;
 }
 
-function clickTrapSelector(strSelect){ //strSelect = weapon/base/charm/trinket/bait
+function clickTrapSelector(strSelect, bForceClick){ //strSelect = weapon/base/charm/trinket/bait
+	if(isNullOrUndefined(bForceClick))
+		bForceClick = false;
 	if(isNewUI){
 		var armedItem = document.getElementsByClassName('campPage-trap-armedItem ' + strSelect)[0];
 		var arrTemp = armedItem.getAttribute('class').split(" ");
-		if(arrTemp[arrTemp.length-1] == 'active'){ // trap selector opened
+		if(bForceClick !== true && arrTemp[arrTemp.length-1] == 'active'){ // trap selector opened
 			arming = true;
 			return (console.pdebug('Trap selector', strSelect, 'opened'));
 		}
 		fireEvent(armedItem, 'click');
 	}
 	else{
-		if(document.getElementsByClassName("showComponents " + strSelect).length > 0){ // trap selector opened
+		if(bForceClick !== true && document.getElementsByClassName("showComponents " + strSelect).length > 0){ // trap selector opened
 			arming = true;
 			return (console.pdebug('Trap selector', strSelect, 'opened'));
 		}
-
 		if (strSelect == "base")
 			fireEvent(document.getElementsByClassName('trapControlThumb')[0], 'click');
 		else if (strSelect == "weapon")
@@ -3645,9 +3666,8 @@ function clickTrapSelector(strSelect){ //strSelect = weapon/base/charm/trinket/b
 		else
 			return (console.pdebug("Invalid trapSelector"));
 	}
-	
     arming = true;
-    return (console.pdebug("Trap selector", strSelect, "clicked"));
+	console.pdebug("Trap selector", strSelect, "clicked")
 }
 
 function closeTrapSelector(category){
@@ -7320,13 +7340,19 @@ function disarmTrap(trapSelector) {
 		return;
 
 	var nQuantity = parseInt(getPageVariable("user." + trapSelector + "_quantity"));
-	if(nQuantity === 0)
+	if(nQuantity === 0){
+		deleteArmingFromList(trapSelector);
+		if(isNewUI && !isArmingInList())
+			closeTrapSelector(trapSelector);
+		arming = false;
 		return;
+	}
 	var x;
 	var strTemp = "";
 	var intervalDisarm = setInterval(
 		function (){
 			if(arming === false){
+				addArmingIntoList(trapSelector);
 				clickTrapSelector(trapSelector);
 				var intervalDT = setInterval(
 					function () {
@@ -7335,7 +7361,9 @@ function disarmTrap(trapSelector) {
 							if(x.length > 0){
 								fireEvent(x[0], 'click');
 								console.pdebug('Disarmed');
-								closeTrapSelector(trapSelector);
+								deleteArmingFromList(trapSelector);
+								if(isNewUI && !isArmingInList())
+									closeTrapSelector(trapSelector);
 								arming = false;
 								//window.setTimeout(function () { closeTrapSelector(trapSelector); }, 1000);
 								clearInterval(intervalDT);
@@ -7351,6 +7379,7 @@ function disarmTrap(trapSelector) {
 									if (strTemp.indexOf('Click to disarm') > -1) {
 										fireEvent(x[i], 'click');
 										console.pdebug('Disarmed');
+										deleteArmingFromList(trapSelector);
 										arming = false;
 										clearInterval(intervalDT);
 										intervalDT = null;
