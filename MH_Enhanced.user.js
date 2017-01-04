@@ -2041,6 +2041,7 @@ function gwh(){
 	}
 	if(userVariable.status == 'flying'){
 		if(nFireworkQuantity < 1 && objGWH.landAfterFireworkRunOut === true){
+			console.plog('Landing');
 			fireEvent(document.getElementsByClassName('winterHunt2016HUD-landButton mousehuntTooltipParent mousehuntActionButton tiny')[0], 'click');
 			window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small winterHunt2016HUD-help-action-land active')[0], 'click'); }, 1500);
 			window.setTimeout(function () { eventLocationCheck('gwh'); }, 5000);
