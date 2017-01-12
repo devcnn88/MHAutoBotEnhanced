@@ -4425,6 +4425,7 @@ function embedTimer(targetPage) {
 				window.localStorage.removeItem(\'TrapListBase\');\
 				window.localStorage.removeItem(\'TrapListTrinket\');\
 				window.localStorage.removeItem(\'TrapListBait\');\
+				window.localStorage.removeItem(\'LastRecordedJournal\');\
 				document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Done!]\';\
 				window.setTimeout(function () { document.getElementById(\'clearTrapList\').getElementsByTagName(\'b\')[0].innerHTML = \'[Clear Trap List]\'; }, 1000);\
 				">';
@@ -4773,7 +4774,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Fort Rox">Fort Rox</option>';
 			preferenceHTMLStr += '<option value="Furoma Rift">Furoma Rift</option>';
 			preferenceHTMLStr += '<option value="GES">Gnawnian Express Station</option>';
-			preferenceHTMLStr += '<option value="GWH2016R">GWH 2016</option>';
+			//preferenceHTMLStr += '<option value="GWH2016R">GWH 2016</option>';
 			preferenceHTMLStr += '<option value="Halloween 2016">Halloween 2016</option>';
 			preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
@@ -6163,6 +6164,10 @@ function loadPreferenceSettingFromStorage() {
 				setSessionStorage('GWH2016R', JSON.stringify(obj));
 			}
 		}
+		
+		// Disable GWH2016
+		if(getStorageToVariableStr("eventLocation", "None").indexOf('GWH2016') > -1)
+			setStorage("eventLocation", "None");
 	}
 	catch (e){
 		console.perror('loadPreferenceSettingFromStorage',e.message);
