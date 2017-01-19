@@ -2980,51 +2980,70 @@ function fRiftArmTrap(obj, nIndex){
 
 function livingGarden(obj) {
     checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
+	var charmArmed = getPageVariable('user.trinket_name');
+	var baitArmed = getPageVariable('user.bait_name');
 	var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
-    if (pourEstimate.innerText !== ""){
-        checkThenArm('best', 'base', bestLGBase);
-		if(!obj.LG.isAutoFill){
-			if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
-				disarmTrap('trinket');
-			return;
-		}
-		// Not pouring
-        var estimateHunt = parseInt(pourEstimate.innerText);
-        console.pdebug('Filling, Estimate Hunt:', estimateHunt);
-        if (estimateHunt >= 35){
-			if (obj.LG.isAutoPour) {
-				console.pdebug('Going to click Pour...');
-				var pourButton = document.getElementsByClassName('pour')[0];
-				if (pourButton){
-					fireEvent(pourButton, 'click');
-					if (document.getElementsByClassName('confirm button')[0])
-						window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 2000);
-				}
+	var estimateHunt = parseInt(pourEstimate.innerText);
+	var bPoured = Number.isNaN(estimateHunt);
+	var bFilled, bFilling;
+	if(bPoured){
+		bFilled = false;
+		bFilling = false;
+	}
+	else{
+		bFilled = (estimateHunt >= 35);
+		bFilling = !bFilled;
+	}
+	console.pdebug('Estimate Hunt:', estimateHunt, 'Filling:', bFilling, 'Filled:', bFilled, 'Poured:', bPoured);
+	if (obj.LG.trinket.after.indexOf('Sponge') > -1)
+		obj.LG.trinket.after = 'None';
+	if(bPoured){
+		checkThenArm(null, 'base', obj.LG.base.after);
+		checkThenArm(null, 'trinket', obj.LG.trinket.after);
+		checkThenArm(null, 'bait', obj.LG.bait.after);
+	}
+	else if(bFilled){
+		var pourButton = document.getElementsByClassName('pour')[0];
+		if(obj.LG.isAutoPour && !isNullOrUndefined(pourButton)){
+			fireEvent(pourButton, 'click');
+			if (document.getElementsByClassName('confirm button')[0]){
+				window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
 				checkThenArm(null, 'base', obj.LG.base.after);
-				checkThenArm(null, 'bait', obj.LG.bait.after);
-				if (obj.LG.trinket.after.indexOf('Sponge') > -1)
-					obj.LG.trinket.after = 'None';
 				checkThenArm(null, 'trinket', obj.LG.trinket.after);
+				checkThenArm(null, 'bait', obj.LG.bait.after);
 			}
 			else{
-				if (getPageVariable('user.trinket_name').indexOf('Sponge') > -1)
+				checkThenArm('best', 'base', bestLGBase);
+				if (charmArmed.indexOf('Sponge') > -1)
 					disarmTrap('trinket');
+				if (baitArmed.indexOf('Camembert') > -1)
+					checkThenArm(null, 'bait', 'Gouda');
 			}
-        }
-		else if (estimateHunt >= 28)
-			checkThenArm(null, 'trinket', 'Sponge');
-        else
-            checkThenArm('best', 'trinket', spongeCharm);
-    }
-    else{
-        // Pouring
-		console.pdebug('Pouring...');
-		checkThenArm(null, 'base', obj.LG.base.after);
-		checkThenArm(null, 'bait', obj.LG.bait.after);
-		if (obj.LG.trinket.after.indexOf('Sponge') > -1)
-			obj.LG.trinket.after = 'None';
-		checkThenArm(null, 'trinket', obj.LG.trinket.after);
-    }
+		}
+		else{
+			checkThenArm('best', 'base', bestLGBase);
+			if (charmArmed.indexOf('Sponge') > -1)
+				disarmTrap('trinket');
+			if (baitArmed.indexOf('Camembert') > -1)
+				checkThenArm(null, 'bait', 'Gouda');
+		}
+	}
+	else if(bFilling){
+		checkThenArm('best', 'base', bestLGBase);
+		if(!obj.LG.isAutoFill){
+			if (charmArmed.indexOf('Sponge') > -1 || 
+				obj.LG.trinket.after.indexOf(charmArmed) > -1 || charmArmed.indexOf(obj.LG.trinket.after) > -1)
+				disarmTrap('trinket');
+		}
+		else{
+			if (estimateHunt >= 28)
+				checkThenArm(null, 'trinket', 'Sponge');
+			else
+				checkThenArm('best', 'trinket', spongeCharm);
+		}
+		if (baitArmed.indexOf('Camembert') > -1)
+			checkThenArm(null, 'bait', 'Gouda');
+	}
 }
 
 function lostCity(obj) {
@@ -3113,7 +3132,8 @@ function twistedGarden(obj) {
 	else if(bFilling){
 		checkThenArm('best', 'base', bestLGBase);
 		if(!obj.TG.isAutoFill){
-			if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
+			if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1 || 
+				obj.TG.trinket.after.indexOf(charmArmed) > -1 || charmArmed.indexOf(obj.TG.trinket.after) > -1)
 				disarmTrap('trinket');
 		}
 		else{
@@ -3688,7 +3708,7 @@ function clickTrapSelector(strSelect, bForceClick){ //strSelect = weapon/base/ch
 			return (console.pdebug("Invalid trapSelector"));
 	}
     arming = true;
-	console.pdebug("Trap selector", strSelect, "clicked")
+	console.pdebug("Trap selector", strSelect, "clicked");
 }
 
 function closeTrapSelector(category){
@@ -5879,7 +5899,7 @@ function embedTimer(targetPage) {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon'],
 				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase','selectBRTrapBase','selectWWRiftTrapBase','selectWWRiftMBWTrapBase'],
 				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket'],
-				bait : ['selectBait',,'selectGWHBait']
+				bait : ['selectBait','selectGWHBait']
 			};
 			var temp;
 			var optionEle;
