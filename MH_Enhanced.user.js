@@ -3064,55 +3064,76 @@ function sandDunes() {
 
 function twistedGarden(obj) {
     checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
-	var strArmType = 'best';
-	var baseName = bestLGBase;
 	var red = parseInt(document.getElementsByClassName('itemImage red')[0].innerText);
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
     var charmArmed = getPageVariable('user.trinket_name');
-    console.pdebug('Red:', red, 'Yellow:', yellow);
-	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
-	if(!obj.TG.isAutoFill){
-		checkThenArm('best', 'base', bestLGBase);
-		if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
-            disarmTrap('trinket');
-		return;
+	var bPoured = (Number.isNaN(red) || Number.isNaN(yellow));
+	var bFilled, bFilling;
+	if(bPoured){
+		bFilled = false;
+		bFilling = false;
 	}
-	if (red <= 8 && yellow <= 8)
-		checkThenArm('best', 'trinket', redPlusYellow);
-    else if (red < 10){
-        if (red <= 8)
-            checkThenArm('best', 'trinket', redSpongeCharm);
-        else
-            checkThenArm(null, 'trinket', 'Red Sponge');
-    }
-    else if (red == 10 && yellow < 10){
-        if (yellow <=8)
-            checkThenArm('best', 'trinket', yellowSpongeCharm);
-        else
-            checkThenArm(null, 'trinket', 'Yellow Sponge');
-    }
-    else {
-        if(obj.TG.isAutoPour){
-			if (!(Number.isNaN(red) || Number.isNaN(yellow))) {
-				var pourButton = document.getElementsByClassName('pour')[0];
-				if (!isNullOrUndefined(pourButton)){
-					fireEvent(pourButton, 'click');
-					if (document.getElementsByClassName('confirm button')[0])
-						window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
-				}
+	else{
+		bFilled = (red == 10 && yellow == 10);
+		bFilling = !bFilled;
+	}
+    console.pdebug('Red:', red, 'Yellow:', yellow, 'Filling:', bFilling, 'Filled:', bFilled, 'Poured:', bPoured);
+	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
+	if (obj.TG.trinket.after.indexOf('Red') > -1 || obj.TG.trinket.after.indexOf('Yellow') > -1)
+		obj.TG.trinket.after = 'None';
+	if(bPoured){
+		checkThenArm(null, 'base', obj.TG.base.after);
+		checkThenArm(null, 'trinket', obj.TG.trinket.after);
+		checkThenArm(null, 'bait', obj.TG.bait.after);
+	}
+	else if(bFilled){
+		var pourButton = document.getElementsByClassName('pour')[0];
+		if(obj.TG.isAutoPour && !isNullOrUndefined(pourButton)){
+			fireEvent(pourButton, 'click');
+			if (document.getElementsByClassName('confirm button')[0]){
+				window.setTimeout(function () { fireEvent(document.getElementsByClassName('confirm button')[0], 'click'); }, 1000);
+				checkThenArm(null, 'base', obj.TG.base.after);
+				checkThenArm(null, 'trinket', obj.TG.trinket.after);
+				checkThenArm(null, 'bait', obj.TG.bait.after);
 			}
-			strArmType = null;
-			baseName = obj.TG.base.after;
-			if (obj.TG.trinket.after.indexOf('Red') > -1 || obj.TG.trinket.after.indexOf('Yellow') > -1)
-				obj.TG.trinket.after = 'None';
-			checkThenArm(null, 'trinket', obj.TG.trinket.after);
+			else{
+				checkThenArm('best', 'base', bestLGBase);
+				if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
+					disarmTrap('trinket');
+				checkThenArm(null, 'bait', 'Duskshade Camembert');
+			}
 		}
 		else{
+			checkThenArm('best', 'base', bestLGBase);
+			if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
+				disarmTrap('trinket');
+			checkThenArm(null, 'bait', 'Duskshade Camembert');
+		}
+	}
+	else if(bFilling){
+		checkThenArm('best', 'base', bestLGBase);
+		if(!obj.TG.isAutoFill){
 			if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1)
 				disarmTrap('trinket');
 		}
-    }
-	checkThenArm(strArmType, 'base', baseName);
+		else{
+			if (red <= 8 && yellow <= 8)
+				checkThenArm('best', 'trinket', redPlusYellow);
+			else if (red < 10){
+				if (red <= 8)
+					checkThenArm('best', 'trinket', redSpongeCharm);
+				else
+					checkThenArm(null, 'trinket', 'Red Sponge');
+			}
+			else if (red == 10 && yellow < 10){
+				if (yellow <=8)
+					checkThenArm('best', 'trinket', yellowSpongeCharm);
+				else
+					checkThenArm(null, 'trinket', 'Yellow Sponge');
+			}
+		}
+		checkThenArm(null, 'bait', 'Duskshade Camembert');
+	}
 }
 
 function cursedCity(obj) {
