@@ -8438,7 +8438,9 @@ function bodyJS(){
 		window.sessionStorage.setItem('LGArea', JSON.stringify(storageValue));
 	}
 	
-	function initControlsLG(){
+	function initControlsLG(bAutoChangeLocation){
+		if(isNullOrUndefined(bAutoChangeLocation))
+			bAutoChangeLocation = false;
 		var selectLGTGAutoFillSide = document.getElementById('selectLGTGAutoFillSide');
 		var selectLGTGAutoFillState = document.getElementById('selectLGTGAutoFillState');
 		var selectLGTGAutoPourSide = document.getElementById('selectLGTGAutoPourSide');
@@ -8467,6 +8469,24 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
+			if(bAutoChangeLocation && !isNullOrUndefined(user)){
+				if(user.location.indexOf('Living Garden') > -1){
+					selectLGTGAutoFillSide.value = 'LG';
+					selectLGTGAutoPourSide.value = 'LG';
+					selectLGTGSide.value = 'LG';
+				}
+				else if(user.location.indexOf('Twisted Garden') > -1){
+					selectLGTGAutoFillSide.value = 'TG';
+					selectLGTGAutoPourSide.value = 'TG';
+					selectLGTGSide.value = 'TG';
+				}
+				else if(user.location.indexOf('Lost City') > -1){
+					selectLCCCSide.value = 'LC';
+				}
+				else if(user.location.indexOf('Cursed City') > -1){
+					selectLCCCSide.value = 'CC';
+				}
+			}
 			selectLGTGAutoFillState.value = storageValue[selectLGTGAutoFillSide.value].isAutoFill;
 			selectLGTGAutoPourState.value = storageValue[selectLGTGAutoPourSide.value].isAutoPour;
 			selectLGTGBase.value = storageValue[selectLGTGSide.value].base.after;
@@ -9554,7 +9574,7 @@ function bodyJS(){
 		var objTableRow = {
 			'All LG Area' : {
 				arr : ['trLGTGAutoFill','trLGTGAutoPour','trPourTrapSetup','trCurseLiftedTrapSetup','trSaltedTrapSetup'],
-				init : function(data){initControlsLG();}
+				init : function(data){initControlsLG(data);}
 			},
 			'Sunken City Custom' : {
 				arr : ['trSCCustom','trSCCustomUseSmartJet'],
