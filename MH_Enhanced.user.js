@@ -2907,12 +2907,15 @@ function fRift(){
 		weapon : new Array(11).fill(''),
 		base : new Array(11).fill(''),
 		trinket : new Array(11).fill(''),
-		bait : new Array(11).fill('')
+		bait : new Array(11).fill(''),
+		masterOrder : new Array(11).fill('Glutter=>Combat=>Susheese')
 	};
 	var objFR = getStorageToObject('FRift', objDefaultFR);
 	objFR.enter = parseInt(objFR.enter);
 	objFR.retreat = parseInt(objFR.retreat);
-	var bInPagoda = (getPageVariable('user.quests.QuestRiftFuroma.view_state') == 'pagoda');
+	var objUserFRift = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftFuroma)'));
+	console.pdebug(objUserFRift);
+	var bInPagoda = (objUserFRift.view_state == 'pagoda');
 	var i;
 	if(bInPagoda){
 		var nCurBatteryLevel = 0;
@@ -2944,15 +2947,17 @@ function fRift(){
 		var nFullBatteryLevel = 0;
 		var classBattery = document.getElementsByClassName('riftFuromaHUD-battery');
 		var nStoredEnerchi = parseInt(document.getElementsByClassName('total_energy')[0].children[1].innerText.replace(/,/g, ''));
-		if(classBattery.length < 1 || Number.isNaN(nStoredEnerchi))
+		if(classBattery.length < 1 || Number.isNaN(nStoredEnerchi)){
+			console.plog('Stored Enerchi:',nStoredEnerchi);
 			return;
+		}
 		for(i=0;i<objFRBattery.cumulative.length;i++){
 			if(nStoredEnerchi >= objFRBattery.cumulative[i])
 				nFullBatteryLevel = i+1;
 			else
 				break;
 		}
-		console.log('In Training Ground, Fully Charged Battery Level:', nFullBatteryLevel, 'Stored Enerchi:', nStoredEnerchi);
+		console.plog('In Training Ground, Fully Charged Battery Level:', nFullBatteryLevel, 'Stored Enerchi:', nStoredEnerchi);
 		if(Number.isInteger(objFR.enter) && nFullBatteryLevel >= objFR.enter){
 			fRiftArmTrap(objFR, objFR.enter);
 			// enter
@@ -2968,14 +2973,14 @@ function fRift(){
 function fRiftArmTrap(obj, nIndex){
 	checkThenArm(null, 'weapon', obj.weapon[nIndex]);
 	checkThenArm(null, 'base', obj.base[nIndex]);
-	if(obj.bait[nIndex] == 'ANY_MASTER')
-		checkThenArm('any', 'bait', ['Rift Glutter', 'Rift Combat', 'Rift Susheese']);
+	checkThenArm(null, 'trinket', obj.trinket[nIndex]);
+	if(obj.bait[nIndex] == 'ORDER_MASTER'){
+		var arr = obj.masterOrder[nIndex].split("=>");
+		arr = arr.map(function(e) {return 'Rift ' + e;});
+		checkThenArm('best', 'bait', arr);
+	}
 	else
 		checkThenArm(null, 'bait', obj.bait[nIndex]);
-	if(obj.trinket[nIndex] == 'None')
-		disarmTrap('trinket');
-	else
-		checkThenArm(null, 'trinket', obj.trinket[nIndex]);
 }
 
 function livingGarden(obj) {
@@ -5115,7 +5120,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectFRTrapTrinket" style="width: 75px" onchange="saveFR();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectFRTrapBait" style="width: 75px" onchange="saveFR();">';
+			preferenceHTMLStr += '<select id="selectFRTrapBait" style="width: 75px" onchange="onSelectFRTrapBait();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Ascended">Ascended</option>';
 			preferenceHTMLStr += '<option value="Null Onyx Gorgonzola">Null Onyx Gorgonzola</option>';
@@ -5124,12 +5129,21 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Rift Susheese">Rift Susheese</option>';
 			preferenceHTMLStr += '<option value="Rift Combat">Rift Combat</option>';
 			preferenceHTMLStr += '<option value="ANY_MASTER">Glutter/Combat/Susheese</option>';
+			preferenceHTMLStr += '<option value="ORDER_MASTER">Master Cheese in Order</option>';
 			preferenceHTMLStr += '<option value="Master Fusion">Master Fusion</option>';
 			preferenceHTMLStr += '<option value="Maki String">Maki</option>';
 			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
 			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
 			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
 			preferenceHTMLStr += '<option value="Marble String">Marble</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFRTrapBaitMasterOrder" style="width: 75px;display:none" onchange="saveFR();">';
+			preferenceHTMLStr += '<option value="Glutter=>Combat=>Susheese">Glutter=>Combat=>Susheese</option>';
+			preferenceHTMLStr += '<option value="Glutter=>Susheese=>Combat">Glutter=>Susheese=>Combat</option>';
+			preferenceHTMLStr += '<option value="Combat=>Glutter=>Susheese">Combat=>Glutter=>Susheese</option>';
+			preferenceHTMLStr += '<option value="Combat=>Susheese=>Glutter">Combat=>Susheese=>Glutter</option>';
+			preferenceHTMLStr += '<option value="Susheese=>Glutter=>Combat">Susheese=>Glutter=>Combat</option>';
+			preferenceHTMLStr += '<option value="Susheese=>Combat=>Glutter">Susheese=>Combat=>Glutter</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
@@ -8992,6 +9006,11 @@ function bodyJS(){
 		}
 	}
 
+	function onSelectFRTrapBait(){
+		saveFR();
+		initControlsFR();
+	}
+	
 	function saveFR(){
 		var selectEnterAtBattery = document.getElementById('selectEnterAtBattery');
 		var selectRetreatAtBattery = document.getElementById('selectRetreatAtBattery');
@@ -9000,6 +9019,7 @@ function bodyJS(){
 		var base = document.getElementById('selectFRTrapBase').value;
 		var trinket = document.getElementById('selectFRTrapTrinket').value;
 		var bait = document.getElementById('selectFRTrapBait').value;
+		var selectFRTrapBaitMasterOrder = document.getElementById('selectFRTrapBaitMasterOrder');
 		var storageValue = window.sessionStorage.getItem('FRift');
 		if(isNullOrUndefined(storageValue)){
 			var objFR = {
@@ -9008,7 +9028,8 @@ function bodyJS(){
 				weapon : new Array(11).fill(''),
 				base : new Array(11).fill(''),
 				trinket : new Array(11).fill(''),
-				bait : new Array(11).fill('')
+				bait : new Array(11).fill(''),
+				masterOrder : new Array(11).fill('Glutter=>Combat=>Susheese')
 			};
 			storageValue = JSON.stringify(objFR);
 		}
@@ -9019,6 +9040,7 @@ function bodyJS(){
 		storageValue.base[nIndex] = base;
 		storageValue.trinket[nIndex] = trinket;
 		storageValue.bait[nIndex] = bait;
+		storageValue.masterOrder[nIndex] = selectFRTrapBaitMasterOrder.value;
 		window.sessionStorage.setItem('FRift', JSON.stringify(storageValue));
 	}
 	
@@ -9032,6 +9054,7 @@ function bodyJS(){
 		var selectFRTrapBase = document.getElementById('selectFRTrapBase');
 		var selectFRTrapTrinket = document.getElementById('selectFRTrapTrinket');
 		var selectFRTrapBait = document.getElementById('selectFRTrapBait');
+		var selectFRTrapBaitMasterOrder = document.getElementById('selectFRTrapBaitMasterOrder');
 		var storageValue = window.sessionStorage.getItem('FRift');
 		if(isNullOrUndefined(storageValue)){
 			selectEnterAtBattery.selectedIndex = -1;
@@ -9040,6 +9063,7 @@ function bodyJS(){
 			selectFRTrapBase.selectedIndex = -1;
 			selectFRTrapTrinket.selectedIndex = -1;
 			selectFRTrapBait.selectedIndex = -1;
+			selectFRTrapBaitMasterOrder.selectedIndex = 0;
 			selectTrapSetupAtBattery.selectedIndex = 0;
 		}
 		else{
@@ -9070,7 +9094,9 @@ function bodyJS(){
 			selectFRTrapBase.value = storageValue.base[nIndex];
 			selectFRTrapTrinket.value = storageValue.trinket[nIndex];
 			selectFRTrapBait.value = storageValue.bait[nIndex];
+			selectFRTrapBaitMasterOrder.value = storageValue.masterOrder[nIndex];
 		}
+		selectFRTrapBaitMasterOrder.style.display = (selectFRTrapBait.value == 'ORDER_MASTER') ? '' : 'none';
 	}
 
 	function saveIceberg(){
