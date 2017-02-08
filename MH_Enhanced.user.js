@@ -2984,25 +2984,22 @@ function livingGarden(obj) {
 	var baitArmed = getPageVariable('user.bait_name');
 	var pourEstimate = document.getElementsByClassName('pourEstimate')[0];
 	var estimateHunt = parseInt(pourEstimate.innerText);
-	var bPoured = Number.isNaN(estimateHunt);
-	var bFilled, bFilling;
-	if(bPoured){
-		bFilled = false;
-		bFilling = false;
-	}
-	else{
-		bFilled = (estimateHunt >= 35);
-		bFilling = !bFilled;
-	}
-	console.pdebug('Estimate Hunt:', estimateHunt, 'Filling:', bFilling, 'Filled:', bFilled, 'Poured:', bPoured);
+	var strStatus = '';
+	if(Number.isNaN(estimateHunt))
+		strStatus = 'Poured';
+	else if(estimateHunt >= 35)
+		strStatus = 'Filled';
+	else
+		strStatus = 'Filling';
+	console.pdebug('Estimate Hunt:', estimateHunt, 'Status:', strStatus);
 	if (obj.LG.trinket.after.indexOf('Sponge') > -1)
 		obj.LG.trinket.after = 'None';
-	if(bPoured){
+	if(strStatus == 'Poured'){
 		checkThenArm(null, 'base', obj.LG.base.after);
 		checkThenArm(null, 'trinket', obj.LG.trinket.after);
 		checkThenArm(null, 'bait', obj.LG.bait.after);
 	}
-	else if(bFilled){
+	else if(strStatus == 'Filled'){
 		var pourButton = document.getElementsByClassName('pour')[0];
 		if(obj.LG.isAutoPour && !isNullOrUndefined(pourButton)){
 			fireEvent(pourButton, 'click');
@@ -3028,7 +3025,7 @@ function livingGarden(obj) {
 				checkThenArm(null, 'bait', 'Gouda');
 		}
 	}
-	else if(bFilling){
+	else if(strStatus == 'Filling'){
 		checkThenArm('best', 'base', bestLGBase);
 		if(!obj.LG.isAutoFill){
 			if (charmArmed.indexOf('Sponge') > -1 || 
@@ -3041,7 +3038,7 @@ function livingGarden(obj) {
 			else
 				checkThenArm('best', 'trinket', spongeCharm);
 		}
-		if (baitArmed.indexOf('Camembert') > -1)
+		if (baitArmed.indexOf('Camembert') > -1 && baitArmed.indexOf('Duskshade') < 0)
 			checkThenArm(null, 'bait', 'Gouda');
 	}
 }
@@ -3085,27 +3082,27 @@ function twistedGarden(obj) {
     checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 	var red = parseInt(document.getElementsByClassName('itemImage red')[0].innerText);
     var yellow = parseInt(document.getElementsByClassName('itemImage yellow')[0].innerText);
+	var nEstimateHunt = -1;
     var charmArmed = getPageVariable('user.trinket_name');
-	var bPoured = (Number.isNaN(red) || Number.isNaN(yellow));
-	var bFilled, bFilling;
-	if(bPoured){
-		bFilled = false;
-		bFilling = false;
+	var strStatus = '';
+	if(Number.isNaN(red) || Number.isNaN(yellow) || document.getElementsByClassName('stateFilling hidden').length > 0){
+		strStatus = 'Poured';
+		nEstimateHunt = parseInt(document.getElementsByClassName('pouring')[0].textContent);
 	}
-	else{
-		bFilled = (red == 10 && yellow == 10);
-		bFilling = !bFilled;
-	}
-    console.pdebug('Red:', red, 'Yellow:', yellow, 'Filling:', bFilling, 'Filled:', bFilled, 'Poured:', bPoured);
+	else if(red == 10 && yellow == 10)
+		strStatus = 'Filled';
+	else
+		strStatus = 'Filling';
+    console.pdebug('Red:', red, 'Yellow:', yellow, 'Estimate Hunt:', nEstimateHunt, 'Status:', strStatus);
 	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
 	if (obj.TG.trinket.after.indexOf('Red') > -1 || obj.TG.trinket.after.indexOf('Yellow') > -1)
 		obj.TG.trinket.after = 'None';
-	if(bPoured){
+	if(strStatus == 'Poured'){
 		checkThenArm(null, 'base', obj.TG.base.after);
 		checkThenArm(null, 'trinket', obj.TG.trinket.after);
 		checkThenArm(null, 'bait', obj.TG.bait.after);
 	}
-	else if(bFilled){
+	else if(strStatus == 'Filled'){
 		var pourButton = document.getElementsByClassName('pour')[0];
 		if(obj.TG.isAutoPour && !isNullOrUndefined(pourButton)){
 			fireEvent(pourButton, 'click');
@@ -3129,7 +3126,7 @@ function twistedGarden(obj) {
 			checkThenArm(null, 'bait', 'Duskshade Camembert');
 		}
 	}
-	else if(bFilling){
+	else if(strStatus == 'Filling'){
 		checkThenArm('best', 'base', bestLGBase);
 		if(!obj.TG.isAutoFill){
 			if (charmArmed.indexOf('Red') > -1 || charmArmed.indexOf('Yellow') > -1 || 
@@ -3504,7 +3501,7 @@ function getConstToRealValue(sort, category, name){
 		if(nIndex > -1){
 			var keyName = arrKeys[nIndex];
 			objRet.sort = g_objConstTrap[category][keyName].sort;
-			objRet.name = g_objConstTrap[category][keyName].name;
+			objRet.name = g_objConstTrap[category][keyName].name.slice();
 			objRet.changed = true;
 		}
 	}
@@ -7258,6 +7255,10 @@ function average(data){
 	return avg;
 }
 
+function moveArrayElement(arr, fromIndex, toIndex) {
+    arr.splice(toIndex,0,arr.splice(fromIndex,1)[0]);
+}
+
 function functionToHTMLString(func){
 	var str = func.toString();
 	str = str.substring(str.indexOf("{")+1, str.lastIndexOf("}"));
@@ -7443,7 +7444,9 @@ function disarmTrap(trapSelector) {
 }
 
 function fireEvent(element, event) {
-    var evt;
+    if(element === null || element === undefined)
+		return;
+	var evt;
 	if (document.createEventObject) {
         // dispatch for IE
         evt = document.createEventObject();
