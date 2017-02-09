@@ -2914,8 +2914,8 @@ function fRift(){
 	objFR.enter = parseInt(objFR.enter);
 	objFR.retreat = parseInt(objFR.retreat);
 	var objUserFRift = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftFuroma)'));
-	console.pdebug(objUserFRift);
-	var bInPagoda = (objUserFRift.view_state == 'pagoda');
+	console.pdebug(objUserFRift.view_state);
+	var bInPagoda = (objUserFRift.view_state == 'pagoda' || objUserFRift.view_state == 'pagoda knows_all');
 	var i;
 	if(bInPagoda){
 		var nCurBatteryLevel = 0;
