@@ -9069,7 +9069,7 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = 0;
-			if(bAutoChangeBatteryLevel && !isNullOrUndefined(user) && user.location.indexOf('Furoma Rift') > -1 && user.quests.QuestRiftFuroma.view_state == 'pagoda'){
+			if(bAutoChangeBatteryLevel && !isNullOrUndefined(user) && user.location.indexOf('Furoma Rift') > -1 && (user.quests.QuestRiftFuroma.view_state == 'pagoda' || user.quests.QuestRiftFuroma.view_state == 'pagoda knows all')){
 				var classCharge = document.getElementsByClassName('riftFuromaHUD-droid-charge');
 				if(classCharge.length > 0){
 					var nRemainingEnergy = parseInt(classCharge[0].innerText.replace(/,/g, ''));
