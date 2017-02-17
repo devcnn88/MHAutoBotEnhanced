@@ -895,6 +895,18 @@ function getJournalDetail(){
 	setStorage('LastRecordedJournal', classJournal[0].parentNode.textContent);
 }
 
+function specialFeature(caller){
+	return;
+	var strSpecial = getStorageToVariableStr("SpecialFeature", "None");
+	console.pdebug('Special Selected:', strSpecial, 'Call From:', caller);
+    switch (strSpecial) {
+        case 'PILLOWCASE':
+            magicalPillowcase(); break;
+        default:
+            break;
+    }
+}
+
 function eventLocationCheck(caller) {
     var selAlgo = getStorageToVariableStr("eventLocation", "None");
 	console.pdebug('Algorithm Selected:', selAlgo, 'Call From:', caller);
@@ -3280,6 +3292,10 @@ function checkMouse(mouseName) {
     }
 }
 
+function magicalPillowcase(){
+	
+}
+
 function checkCharge2016(stopDischargeAt){
 	try {
 		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
@@ -4023,6 +4039,7 @@ function retrieveData() {
 		CalculateNextTrapCheckInMinute();
 		getJournalDetail();
 		eventLocationCheck('retrieveData()');
+		specialFeature('retrieveData()');
 		mapHunting();
 	}
 	catch (e) {
@@ -4137,6 +4154,7 @@ function action() {
 		try{
 			getJournalDetail();
 			eventLocationCheck('action()');
+			specialFeature('action()');
 			mapHunting();
 		}
 		catch (e){
@@ -4643,7 +4661,7 @@ function embedTimer(targetPage) {
 			
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Weapon for </b></a>';
-			preferenceHTMLStr += '<select id="selectBestTrapPowerType" onchange="initControlsBestTrap();">';
+			preferenceHTMLStr += '<select id="selectBestTrapPowerType" style="width:75px;" onchange="initControlsBestTrap();">';
 			preferenceHTMLStr += '<option value="arcane">Arcane</option>';
 			preferenceHTMLStr += '<option value="draconic">Draconic</option>';
 			preferenceHTMLStr += '<option value="forgotten">Forgotten</option>';
@@ -4663,7 +4681,7 @@ function embedTimer(targetPage) {
 
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Base for </b></a>';
-			preferenceHTMLStr += '<select id="selectBestTrapBaseType" onchange="initControlsBestTrap();">';
+			preferenceHTMLStr += '<select id="selectBestTrapBaseType" style="width:75px;" onchange="initControlsBestTrap();">';
 			preferenceHTMLStr += '<option value="luck">Luck</option>';
 			preferenceHTMLStr += '<option value="power">Power</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -4716,6 +4734,16 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<td style="height:24px" colspan="2">';
             preferenceHTMLStr += '<div style="width: 100%; height: 1px; background: #000000; overflow: hidden;">';
             preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trSpecialFeature" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select special feature"><b>Special Feature</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectSpecialFeature" onchange="onSelectSpecialFeature();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="PILLOWCASE">Open Magical Pillowcase</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr>';
@@ -7806,6 +7834,24 @@ function bodyJS(){
 		}
 	}
 	
+	function onSelectSpecialFeature(){
+		saveSpecialFeature();
+	}
+	
+	function saveSpecialFeature(){
+		var selectSpecialFeature = document.getElementById('selectSpecialFeature');
+		window.sessionStorage.setItem('SpecialFeature', selectSpecialFeature.value);
+	}
+	
+	function initControlsSpecialFeature(){
+		var selectSpecialFeature = document.getElementById('selectSpecialFeature');
+		var storageValue = window.sessionStorage.getItem('SpecialFeature');
+		if(storageValue === null || storageValue === undefined){
+			storageValue = 'None';
+		}
+		selectSpecialFeature.value = storageValue;
+	}
+	
 	function onSelectMapHuntingChanged(){
 		saveMapHunting();
 		initControlsMapHunting();
@@ -7983,7 +8029,7 @@ function bodyJS(){
 		saveMapHunting();
 	}
 
-	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R'];
+	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R','SpecialFeature'];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -9670,6 +9716,7 @@ function bodyJS(){
 			objTableRow[algo].init(true);
 
 		initControlsMapHunting();
+		initControlsSpecialFeature();
 	}
 }
 // ################################################################################################
