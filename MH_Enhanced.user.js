@@ -1862,10 +1862,14 @@ function zugzwangTower(){
 	if(objZT.weapon[nIndex] == 'MPP/TPP'){
 		if(objZT.focus.indexOf('MYSTIC') === 0)
 			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Technic Pawn Pincher' : 'Mystic Pawn Pincher';
+		else
+			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Mystic Pawn Pincher' : 'Technic Pawn Pincher';
 	}
 	else if(objZT.weapon[nIndex] == 'BPT/OAT'){
 		if(objZT.focus.indexOf('MYSTIC') === 0)
 			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Obvious Ambush Trap' : 'Blackstone Pass Trap';
+		else
+			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Blackstone Pass Trap' : 'Obvious Ambush Trap';
 	}
 	
 	for (var prop in objZT) {
