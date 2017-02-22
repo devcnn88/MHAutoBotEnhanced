@@ -224,7 +224,7 @@ var objSCZone = {
 	ZONE_OXYGEN : 8,
 	ZONE_BONUS : 9
 };
-var bestSCBase = ['Minotaur Base', 'Depth Charge Base'];
+var bestSCBase = ['Minotaur Base','Fissure Base','Depth Charge Base'];
 
 // // Spring Egg Hunt
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
