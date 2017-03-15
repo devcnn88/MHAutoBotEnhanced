@@ -1006,14 +1006,12 @@
 						</select>
 					</td>
 				</tr>
-				<tr id="trLabyrinthGG" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select when/how GG is armed"><b>Arm GG At</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+				<tr id="trLabyrinthWeaponFarming" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select weapon type in farming hallways"><b>Weapon Type in Farming</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="selectGGType" onchange="onSelectGGTypeChanged();">
-							<option value="CLUE_RANGE">Clue Range</option>
-							<option value="HALLWAY_TYPE">Hallway Type</option>
-							<option value="FOCUSING_DISTRICT">Focusing District</option>
-							<option value="None">None</option>
+						<select id="selectLabyrinthWeaponType" onchange="onSelectLabyrinthWeaponType();">
+							<option value="Forgotten">Forgotten</option>
+							<option value="Arcane">Arcane</option>
 						</select>
 					</td>
 				</tr>
@@ -1852,6 +1850,10 @@
 		saveLabyrinthHallway();
 	}
 	
+	function onSelectLabyrinthWeaponType(){
+		saveLabyrinthHallway();
+	}
+	
 	function saveLabyrinthHallway(){
 		var selectHallway15Plain = document.getElementById('selectHallway15Plain');
 		var selectHallway1560Plain = document.getElementById('selectHallway1560Plain');
@@ -1860,6 +1862,7 @@
 		var selectHallway60Superior = document.getElementById('selectHallway60Superior');
 		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
+		var selectLabyrinthWeaponType = document.getElementById('selectLabyrinthWeaponType');
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
 			between15and59  : ['SP','LS'],
@@ -1868,7 +1871,8 @@
 			typeOtherDoors : "SHORTEST_ONLY",
 			securityDisarm : false,
 			lastHunt : 0,
-			armOtherBase : 'None'
+			armOtherBase : 'None',
+			weaponFarming : 'Forgotten'
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		if(storageValue === null)
@@ -1882,6 +1886,7 @@
 		storageValue.securityDisarm = (document.getElementById('selectLabyrinthDisarm').value == 'true');
 		storageValue.lastHunt = parseInt(document.getElementById('inputLabyrinthLastHunt').value);
 		storageValue.armOtherBase = selectLabyrinthOtherBase.value;
+		storageValue.weaponFarming = selectLabyrinthWeaponType.value;
 		window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
 	}
 	
@@ -1910,6 +1915,7 @@
 		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
+		var selectLabyrinthWeaponType = document.getElementById('selectLabyrinthWeaponType');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
@@ -1919,7 +1925,8 @@
 			typeOtherDoors : "SHORTEST_ONLY",
 			securityDisarm : false,
 			lastHunt : 0,
-			armOtherBase : 'None'
+			armOtherBase : 'None',
+			weaponFarming : 'Forgotten'
 		};
 		if(storageValue === null){
 			storageValue = JSON.stringify(objDefaultHallwayPriorities);
@@ -1944,6 +1951,7 @@
 		typeOtherDoors.value = storageValue.typeOtherDoors;
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 		selectLabyrinthOtherBase.value = storageValue.armOtherBase;
+		selectLabyrinthWeaponType.value = storageValue.weaponFarming;
 	}
 
 	function onSelectLGTGAutoPourSide(){
@@ -3257,7 +3265,7 @@
 				init : function(data){initControlsSCCustom(data);}
 			},
 			'Labyrinth' : {
-				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass'],
+				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass','trLabyrinthWeaponFarming'],
 				init : function(data){initControlsLaby(data);}
 			},
 			'Fiery Warpath' : {

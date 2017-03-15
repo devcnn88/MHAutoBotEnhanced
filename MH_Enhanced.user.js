@@ -261,7 +261,8 @@ var objDefaultLaby = {
 	lastHunt : 0,
 	armOtherBase : 'false',
 	disarmCompass : true,
-	nDeadEndClue : 0
+	nDeadEndClue : 0,
+	weaponFarming : 'Forgotten'
 };
 var objLength = {
 	SHORT : 0,
@@ -2414,8 +2415,12 @@ function labyrinth() {
 
 	if(isAtHallway){
 		var strCurHallwayFullname = document.getElementsByClassName('labyrinthHUD-hallwayName')[0].textContent.toUpperCase();
-		if(strCurHallwayFullname.indexOf('FARMING') > -1)
-			checkThenArm('best', 'weapon', ['New Horizon Trap','Event Horizon'].concat(objBestTrap.weapon.forgotten));
+		if(strCurHallwayFullname.indexOf('FARMING') > -1){
+			if(objLaby.weaponFarming == 'Arcane')
+				checkThenArm('best', 'weapon', objBestTrap.weapon.arcane.concat(objBestTrap.weapon.forgotten));
+			else
+				checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
+		}
 		else
 			checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 		if(objLaby.securityDisarm){
@@ -2575,8 +2580,12 @@ function labyrinth() {
 				}
 				for(var i=0;i<arrTemp.length;i++){
 					if(objDoors.name[arrTemp[i]].indexOf("BROKEN") < 0){
-						if(objDoors.name[arrTemp[i]].indexOf('FARMING') > -1)
-							checkThenArm('best', 'weapon', ['New Horizon Trap','Event Horizon'].concat(objBestTrap.weapon.forgotten));
+						if(objDoors.name[arrTemp[i]].indexOf('FARMING') > -1){
+							if(objLaby.weaponFarming == 'Arcane')
+								checkThenArm('best', 'weapon', objBestTrap.weapon.arcane.concat(objBestTrap.weapon.forgotten));
+							else
+								checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
+						}
 						else
 							checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 						checkThenArm(null, 'bait', 'Gouda');
@@ -2633,8 +2642,12 @@ function labyrinth() {
 		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
 		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
 		window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
-		if(objLaby.districtFocus.indexOf('FARMING') > -1)
-			checkThenArm('best', 'weapon', ['New Horizon Trap','Event Horizon'].concat(objBestTrap.weapon.forgotten));
+		if(objLaby.districtFocus.indexOf('FARMING') > -1){
+			if(objLaby.weaponFarming == 'Arcane')
+				checkThenArm('best', 'weapon', objBestTrap.weapon.arcane.concat(objBestTrap.weapon.forgotten));
+			else
+				checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
+		}
 		else
 			checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 	}
@@ -3998,7 +4011,7 @@ function retrieveData() {
 		isKingReward = getKingRewardStatus();
 		g_nBaitQuantity = getBaitQuantity();
 		nextActiveTime = GetHornTime();
-
+		console.plog('User Last Active Turn:', getPageVariable("user.last_activeturn_timestamp"), 'Client Time:',Math.floor(Date.now()/1000));
 		if (nextActiveTime === "" || isNaN(nextActiveTime)) {
 			// fail to retrieve data, might be due to slow network
 
@@ -5652,6 +5665,16 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trLabyrinthWeaponFarming" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select weapon type in farming hallways"><b>Weapon Type in Farming</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectLabyrinthWeaponType" onchange="saveLaby();">';
+			preferenceHTMLStr += '<option value="Forgotten">Forgotten</option>';
+			preferenceHTMLStr += '<option value="Arcane">Arcane</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr id="trZokorTrapSetup" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -8355,6 +8378,7 @@ function bodyJS(){
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 		var inputLabyrinthDEC = document.getElementById('inputLabyrinthDEC');
 		var selectLabyrinthDisarmCompass = document.getElementById('selectLabyrinthDisarmCompass');
+		var selectLabyrinthWeaponType = document.getElementById('selectLabyrinthWeaponType');
 		var storageValue = window.sessionStorage.getItem('Labyrinth');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultLaby = {
@@ -8368,7 +8392,8 @@ function bodyJS(){
 				lastHunt : 0,
 				armOtherBase : 'false',
 				disarmCompass : true,
-				nDeadEndClue : 0
+				nDeadEndClue : 0,
+				weaponFarming : 'Forgotten'
 			};
 			storageValue = JSON.stringify(objDefaultLaby);
 		}
@@ -8385,6 +8410,7 @@ function bodyJS(){
 		storageValue.armOtherBase = selectLabyrinthOtherBase.value;
 		storageValue.disarmCompass = (selectLabyrinthDisarmCompass.value == 'true');
 		storageValue.nDeadEndClue = parseInt(inputLabyrinthDEC.value);
+		storageValue.weaponFarming = selectLabyrinthWeaponType.value;
 		window.sessionStorage.setItem('Labyrinth', JSON.stringify(storageValue));
 	}
 
@@ -8403,6 +8429,7 @@ function bodyJS(){
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 		var selectLabyrinthDisarmCompass = document.getElementById('selectLabyrinthDisarmCompass');
 		var inputLabyrinthDEC = document.getElementById('inputLabyrinthDEC');
+		var selectLabyrinthWeaponType = document.getElementById('selectLabyrinthWeaponType');
 		var storageValue = window.sessionStorage.getItem('Labyrinth');
 		if(isNullOrUndefined(storageValue)){
 			selectLabyrinthDistrict.selectedIndex = -1;
@@ -8419,6 +8446,7 @@ function bodyJS(){
 			selectLabyrinthOtherBase.selectedIndex = -1;
 			selectLabyrinthDisarmCompass.selectedIndex = -1;
 			inputLabyrinthDEC.value = 0;
+			selectLabyrinthWeaponType.selectedIndex = 0;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -8436,6 +8464,7 @@ function bodyJS(){
 			selectLabyrinthOtherBase.value = storageValue.armOtherBase;
 			selectLabyrinthDisarmCompass.value = (storageValue.disarmCompass) ? 'true' : 'false';
 			inputLabyrinthDEC.value = storageValue.nDeadEndClue;
+			selectLabyrinthWeaponType.value = storageValue.weaponFarming;
 		}
 		inputLabyrinthLastHunt.disabled = (storageValue.securityDisarm) ? '' : 'disabled';
 		document.getElementById('trPriorities15').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
@@ -9660,7 +9689,7 @@ function bodyJS(){
 				init : function(data){initControlsSCCustom(data);}
 			},
 			'Labyrinth' : {
-				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass'],
+				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass','trLabyrinthWeaponFarming'],
 				init : function(data){initControlsLaby(data);}
 			},
 			'Fiery Warpath' : {
