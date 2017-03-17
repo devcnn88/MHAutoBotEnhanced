@@ -3667,20 +3667,20 @@ function armTrapClassicUI(sort, trap, name){
 }
 
 function armTrapNewUI(sort, trap, name){
-	var passedFiltersEle = document.getElementsByClassName('passedFilters')[0].children;
+	var itemEle = document.getElementsByClassName('campPage-trap-itemBrowser-item');
     var nameElement;
 	var arrName = (Array.isArray(name)) ? name.slice() : [name];
 	
     if (sort == 'best' || sort == 'any')
         name = name[0];
 	
-	if (passedFiltersEle.length > 0) {
+	if (itemEle.length > 0) {
 		console.pdebug('Trying to arm ' + name);
-		for (var i = 0; i < passedFiltersEle.length; i++) {
-			nameElement = passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
+		for (var i = 0; i < itemEle.length; i++) {
+			nameElement = itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
 			if (nameElement.indexOf(name) === 0) {
-				if(passedFiltersEle[i].getAttribute('class').indexOf('canArm') > -1)
-					fireEvent(passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-armButton')[0], 'click');
+				if(itemEle[i].getAttribute('class').indexOf('canArm') > -1)
+					fireEvent(itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-armButton')[0], 'click');
 				else
 					closeTrapSelector(trap);
 				if(objTrapList[trap].indexOf(nameElement) < 0){
