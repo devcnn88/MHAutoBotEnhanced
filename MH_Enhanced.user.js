@@ -1192,6 +1192,10 @@ function fortRox(){
 	checkThenArm(null, 'trinket', objFRox.trinket[nIndex]);
 	if(objFRox.bait[nIndex] == 'ANY_LUNAR')
 		checkThenArm('any', 'bait', ['Moon Cheese', 'Crescent Cheese']);
+	else if(objFRox.bait[nIndex].indexOf('=>') > -1){
+		var arr = objFRox.bait[nIndex].split('=>');
+		checkThenArm('best', 'bait', arr);
+	}
 	else
 		checkThenArm(null, 'bait', objFRox.bait[nIndex]);
 	
@@ -4906,6 +4910,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Crescent">Crescent</option>';
 			preferenceHTMLStr += '<option value="Moon">Moon</option>';
 			preferenceHTMLStr += '<option value="ANY_LUNAR">Moon/Crescent</option>';
+			preferenceHTMLStr += '<option value="Moon=>Crescent">Moon=>Crescent</option>';
+			preferenceHTMLStr += '<option value="Crescent=>Moon">Crescent=>Moon</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectFRoxActivateTower" style="width: 75px;" onchange="saveFRox();">';
 			preferenceHTMLStr += '<option value="false">Deactivate Tower</option>';
