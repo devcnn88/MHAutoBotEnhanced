@@ -1102,7 +1102,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	else{
 		bChangeTrap = (countArrayElement(-1, arrIndex) > 0 || bHasReward);
 	}
-	
+
 	bCanLeave = !bHasReward && bChangeTrap;
 	if(bChangeTrap){
 		for(i=arrIndex.length-1;i>=0;i--){
@@ -1497,10 +1497,14 @@ function wwrift(){
 	var bResave = false;
 	if(objWWRift.factionFocus == 'MBW_40_44'){
 		for(i=0;i<objWWRift.rage.length;i++){
-			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
-				nBarMinRage++;
 			if(objWWRift.rage[i] >= 25)
 				nBar25++;
+		}
+		if(nBar25 >= 3){
+			for(i=0;i<objWWRift.rage.length;i++){
+				if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
+					nBarMinRage++;
+			}
 		}
 		nIndex = nBarMinRage + nBar25;
 		checkThenArm(null, 'weapon', objWWRift.MBW.rage4044.weapon[nIndex]);
@@ -1528,12 +1532,20 @@ function wwrift(){
 	}
 	else if(objWWRift.factionFocus == 'MBW_45_48'){
 		for(i=0;i<objWWRift.rage.length;i++){
-			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
-				nBarMinRage++;
-			if(objWWRift.rage[i] >= 44)
-				nBar44++;
 			if(objWWRift.rage[i] >= 25)
 				nBar25++;
+		}
+		if(nBar25 >= 3){
+			for(i=0;i<objWWRift.rage.length;i++){
+				if(objWWRift.rage[i] >= 44)
+					nBar44++;
+			}
+		}
+		if(nBar44 >= 3){
+			for(i=0;i<objWWRift.rage.length;i++){
+				if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
+					nBarMinRage++;
+			}
 		}
 		nIndex = nBar25 + nBar44 + nBarMinRage;
 		checkThenArm(null, 'weapon', objWWRift.MBW.rage4548.weapon[nIndex]);
@@ -3789,7 +3801,7 @@ function retrieveDataFirst() {
 					nextActiveTime = parseInt(hornTimerString);
 
 					hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
-					console.plog('Horn Time:', nextActiveTime, 'Delay:', hornTimeDelay);
+					//console.plog('Horn Time:', nextActiveTime, 'Delay:', hornTimeDelay);
 					if (!aggressiveMode) {
 						// calculation base on the js in Mousehunt
 						var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
@@ -4015,7 +4027,7 @@ function retrieveData() {
 		isKingReward = getKingRewardStatus();
 		g_nBaitQuantity = getBaitQuantity();
 		nextActiveTime = GetHornTime();
-		console.plog('User Last Active Turn:', getPageVariable("user.last_activeturn_timestamp"), 'Client Time:',Math.floor(Date.now()/1000));
+		//console.plog('User Last Active Turn:', getPageVariable("user.last_activeturn_timestamp"), 'Client Time:',Math.floor(Date.now()/1000));
 		if (nextActiveTime === "" || isNaN(nextActiveTime)) {
 			// fail to retrieve data, might be due to slow network
 
