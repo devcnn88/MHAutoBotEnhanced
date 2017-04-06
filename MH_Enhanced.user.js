@@ -6349,17 +6349,17 @@ function getTrapListFromTrapSelector(sort, category, name, isForcedRetry){
 	objTrapList[category] = [];
 	var sec = secWait;
 	var retry = armTrapRetry;
-	var i, j, tagGroupElement, tagElement, nameElement, passedFiltersEle;
+	var i, j, tagGroupElement, tagElement, nameElement, itemEle;
     var intervalGTLFTS = setInterval(
         function (){
 			if(isNewUI)
-				passedFiltersEle = document.getElementsByClassName('passedFilters')[0].children;
+				itemEle = document.getElementsByClassName('campPage-trap-itemBrowser-item');
 			else
 				tagGroupElement = document.getElementsByClassName('tagGroup');
 
-			if(isNewUI && passedFiltersEle.length > 0){
-				for (i = 0; i < passedFiltersEle.length; i++) {
-					nameElement = passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
+			if(isNewUI && itemEle.length > 0){
+				for (i = 0; i < itemEle.length; i++) {
+					nameElement = itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
 					objTrapList[category].push(nameElement);
 				}
 				setStorage("TrapList" + capitalizeFirstLetter(category), objTrapList[category].join(","));
