@@ -569,6 +569,7 @@
 							<option value="ICEWING">Icewing's Lair</option>
 							<option value="HIDDEN">Hidden Depths</option>
 							<option value="DEEP">The Deep Lair</option>
+							<option value="SLUSHY">Slushy Shoreline</option>
 						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
 					</td>
 					<td style="height:24px">
@@ -2709,10 +2710,10 @@
 		var storageValue = window.sessionStorage.getItem('Iceberg');
 		if(storageValue === null || storageValue === undefined){
 			var objDefaultIceberg = {
-				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
-				base : new Array(8).fill(''),
-				trinket : new Array(8).fill('None'),
-				bait : new Array(8).fill('Gouda')
+				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP', 'SLUSHY'],
+				base : new Array(9).fill(''),
+				trinket : new Array(9).fill('None'),
+				bait : new Array(9).fill('Gouda')
 			};
 			storageValue = JSON.stringify(objDefaultIceberg);
 		}

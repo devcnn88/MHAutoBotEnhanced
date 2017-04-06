@@ -1607,14 +1607,15 @@ function wwrift(){
 
 function iceberg(){
 	var loc = GetCurrentLocation();
+	var arrOrder = ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP', 'SLUSHY'];
+	var objDefaultIceberg = {
+		base : new Array(9).fill(''),
+		trinket : new Array(9).fill('None'),
+		bait : new Array(9).fill('Gouda')
+	};
+	var objIceberg = getStorageToObject('Iceberg', objDefaultIceberg);
+	var nIndex = -1;
     if (loc.indexOf('Iceberg') > -1) {
-        var objDefaultIceberg = {
-			order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
-			base : new Array(8).fill(''),
-			trinket : new Array(8).fill('None'),
-			bait : new Array(8).fill('Gouda')
-		};
-		var objIceberg = getStorageToObject('Iceberg', objDefaultIceberg);
 		var phase;
 		var nProgress = -1;
 		var classCurrentPhase = document.getElementsByClassName('currentPhase');
@@ -1627,32 +1628,28 @@ function iceberg(){
 			nProgress = parseInt(classProgress[0].textContent.replace(',', ''));
 		else
 			nProgress = parseInt(getPageVariable('user.quests.QuestIceberg.user_progress'));
-		checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
         console.plog('In', phase, 'at', nProgress, 'feets');
 
-        var nIndex = -1;
 		if (nProgress == 300 || nProgress == 600 || nProgress == 1600 || nProgress == 1800)
 			nIndex = 0;
 		else{
 			phase = phase.toUpperCase();
-			for(var i=1;i<objIceberg.order.length;i++){
-				if(phase.indexOf(objIceberg.order[i]) > -1){
+			for(var i=1;i<arrOrder.length;i++){
+				if(phase.indexOf(arrOrder[i]) > -1){
 					nIndex = i;
 					break;
 				}	
 			}
 		}
-
-		if(nIndex < 0)
-			return;
-		checkThenArm(null, 'base', objIceberg.base[nIndex]);
-		checkThenArm(null, 'trinket', objIceberg.trinket[nIndex]);
-		checkThenArm(null, 'bait', objIceberg.bait[nIndex]);
     }
-	else if (loc.indexOf('Slushy Shoreline') > -1) {
-        checkThenArm(null, 'bait', 'Gouda');
-		disarmTrap('trinket');
-    }
+	else if (loc.indexOf('Slushy Shoreline') > -1)
+        nIndex = arrOrder.indexOf('SLUSHY');
+	if(nIndex < 0)
+		return;
+	checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
+	checkThenArm(null, 'base', objIceberg.base[nIndex]);
+	checkThenArm(null, 'trinket', objIceberg.trinket[nIndex]);
+	checkThenArm(null, 'bait', objIceberg.bait[nIndex]);
 }
 
 function BurroughRift(bCheckLoc, minMist, maxMist, nToggle)
@@ -5222,6 +5219,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="ICEWING">Icewing\'s Lair</option>';
 			preferenceHTMLStr += '<option value="HIDDEN">Hidden Depths</option>';
 			preferenceHTMLStr += '<option value="DEEP">The Deep Lair</option>';
+			preferenceHTMLStr += '<option value="SLUSHY">Slushy Shoreline</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -9202,17 +9200,17 @@ function bodyJS(){
 		var selectIcebergBait = document.getElementById('selectIcebergBait');
 		var selectIcebergTrinket = document.getElementById('selectIcebergTrinket');
 		var storageValue = window.sessionStorage.getItem('Iceberg');
+		var arrOrder = ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP', 'SLUSHY'];
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultIceberg = {
-				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
-				base : new Array(8).fill(''),
-				trinket : new Array(8).fill('None'),
-				bait : new Array(8).fill('Gouda')
+				base : new Array(9).fill(''),
+				trinket : new Array(9).fill('None'),
+				bait : new Array(9).fill('Gouda')
 			};
 			storageValue = JSON.stringify(objDefaultIceberg);
 		}
 		storageValue = JSON.parse(storageValue);
-		var nIndex = storageValue.order.indexOf(selectIcebergPhase.value);
+		var nIndex = arrOrder.indexOf(selectIcebergPhase.value);
 		if(nIndex < 0)
 			nIndex = 0;
 		storageValue.base[nIndex] = selectIcebergBase.value;
@@ -9237,24 +9235,29 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = -1;
-			if(bAutoChangePhase && !isNullOrUndefined(user) && user.location.indexOf('Iceberg') > -1){
-				var classCurrentPhase = document.getElementsByClassName('currentPhase');
-				var phase = (classCurrentPhase.length > 0) ? classCurrentPhase[0].textContent : user.quests.QuestIceberg.current_phase;
-				var classProgress = document.getElementsByClassName('user_progress');
-				var nProgress = (classProgress.length > 0) ? parseInt(classProgress[0].textContent.replace(',', '')) : parseInt(user.quests.QuestIceberg.user_progress);
-				if (nProgress == 300 || nProgress == 600 || nProgress == 1600 || nProgress == 1800)
-					nIndex = 0;
-				else{
-					phase = phase.toUpperCase();
-					for(var i=1;i<storageValue.order.length;i++){
-						if(phase.indexOf(storageValue.order[i]) > -1){
-							selectIcebergPhase.value = storageValue.order[i];
-							break;
-						}	
+			var arrOrder = ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP', 'SLUSHY'];
+			if(bAutoChangePhase && !isNullOrUndefined(user)){
+				if(user.location.indexOf('Iceberg') > -1){
+					var classCurrentPhase = document.getElementsByClassName('currentPhase');
+					var phase = (classCurrentPhase.length > 0) ? classCurrentPhase[0].textContent : user.quests.QuestIceberg.current_phase;
+					var classProgress = document.getElementsByClassName('user_progress');
+					var nProgress = (classProgress.length > 0) ? parseInt(classProgress[0].textContent.replace(',', '')) : parseInt(user.quests.QuestIceberg.user_progress);
+					if (nProgress == 300 || nProgress == 600 || nProgress == 1600 || nProgress == 1800)
+						nIndex = 0;
+					else{
+						phase = phase.toUpperCase();
+						for(var i=1;i<arrOrder.length;i++){
+							if(phase.indexOf(arrOrder[i]) > -1){
+								selectIcebergPhase.value = arrOrder[i];
+								break;
+							}	
+						}
 					}
 				}
+				else if(user.location.indexOf('Slushy Shoreline') > -1)
+					selectIcebergPhase.value = 'SLUSHY';
 			}
-			nIndex = storageValue.order.indexOf(selectIcebergPhase.value);
+			nIndex = arrOrder.indexOf(selectIcebergPhase.value);
 			selectIcebergBase.value = storageValue.base[nIndex];
 			selectIcebergTrinket.value = storageValue.trinket[nIndex];
 			selectIcebergBait.value = storageValue.bait[nIndex];
