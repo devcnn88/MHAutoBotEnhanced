@@ -151,7 +151,7 @@ var objBestTrap = {
 		draconic : ['Dragon Lance','Ice Maiden'],
 		forgotten : ['Infinite Labyrinth Trap','Endless Labyrinth Trap','Crystal Crucible Trap','Stale Cupcake Golem Trap','Tarannosaurus Rex Trap','Crystal Mineral Crusher Trap','The Forgotten Art of Dance'],
 		hydro : ['School of Sharks','Rune Shark Trap','Chrome Phantasmic Oasis Trap','Phantasmic Oasis Trap','Oasis Water Node Trap','Steam Laser Mk. III','Steam Laser Mk. II','Steam Laser Mk. I','Ancient Spear Gun'],
-		law : ['The Law Draw','Law Laser Trap','Engine Doubler','Bandit Deflector','Supply Grabber','S.L.A.C. II','S.L.A.C.'],
+		law : ['Meteor Prison Core Trap','The Law Draw','Law Laser Trap','Engine Doubler','Bandit Deflector','Supply Grabber','S.L.A.C. II','S.L.A.C.'],
 		physical : ['Chrome MonstroBot','Sandstorm MonstroBot','Sandtail Sentinel','Enraged RhinoBot'],
 		rift : ['Mysteriously unYielding','Multi-Crystal Laser','Focused Crystal Laser','Biomolecular Re-atomizer Trap','Crystal Tower'],
 		shadow : ['Temporal Turbine','Clockwork Portal Trap','Reaper\'s Perch','Dreaded Totem Trap','Candy Crusher Trap','Clockapult of Time','Clockapult of Winter Past'],
@@ -4953,7 +4953,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<select id="selectGESTrapWeapon" onchange="saveGES();">';
+			preferenceHTMLStr += '<select id="selectGESTrapWeapon" style="width: 75px;" onchange="saveGES();">';
 			preferenceHTMLStr += '<option value="S.L.A.C.">S.L.A.C.</option>';
 			preferenceHTMLStr += '<option value="S.L.A.C. II">S.L.A.C. II</option>';
 			preferenceHTMLStr += '<option value="Supply Grabber">Supply Grabber</option>';
@@ -4961,6 +4961,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Engine Doubler">Engine Doubler</option>';
 			preferenceHTMLStr += '<option value="The Law Draw">The Law Draw</option>';
 			preferenceHTMLStr += '<option value="Law Laser Trap">Law Laser Trap</option>';
+			preferenceHTMLStr += '<option value="Meteor Prison Core Trap">Meteor Prison Core Trap</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGESTrapBase" style="width: 75px" onchange="saveGES();">';
 			preferenceHTMLStr += '</select>';
