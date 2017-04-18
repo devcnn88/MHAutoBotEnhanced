@@ -654,9 +654,9 @@ function exeScript() {
                 action();
             }
             else {
-                // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
+				// fail to retrieve data, display error msg and reload the page
+				document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+				window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
         }
         else {
@@ -691,11 +691,11 @@ function exeScript() {
                 action();
             }
             else {
-                // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
+				// fail to retrieve data, display error msg and reload the page
+				document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+				window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
-        }
+		}
         else {
             // not in huntcamp, just show the title of autobot version
             embedTimer(false);
@@ -735,18 +735,17 @@ function exeScript() {
                 action();
             }
             else {
-                // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
-            }
-        }
+				// fail to retrieve data, display error msg and reload the page
+				document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+				window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
+			}
+		}
         else {
             // not in huntcamp, just show the title of autobot version
             embedTimer(false);
         }
     }
 	console.pdebug("exeScript() End");
-	return;
 }
 
 function GetTrapCheckTime(){
@@ -3855,6 +3854,7 @@ function retrieveDataFirst() {
 					hasPuzzleStartIndex += 12;
 					var hasPuzzleEndIndex = scriptString.indexOf(",", hasPuzzleStartIndex);
 					var hasPuzzleString = scriptString.substring(hasPuzzleStartIndex, hasPuzzleEndIndex);
+					console.plog('hasPuzzleString:', hasPuzzleString);
 					isKingReward = (hasPuzzleString != 'false');
 
 					gotPuzzle = true;
@@ -3969,21 +3969,19 @@ function GetHornTime() {
 }
 
 function getKingRewardStatus() {
-	return (getPageVariable('user.has_puzzle') == 'true');
+	var strValue = getPageVariable('user.has_puzzle');
+	console.plog('user.has_puzzle:', strValue);
+	return (strValue == 'true');
 	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
 	if (headerOrHud !== null) {
 		var textContentLowerCase = headerOrHud.textContent.toLowerCase();
-		if(bLog === true){
-			console.plog('user.has_puzzle:', getPageVariable('user.has_puzzle'));
-			console.plog('textContentLowerCase:', textContentLowerCase);
-		}
 		if (textContentLowerCase.indexOf("king reward") > -1 ||
 			textContentLowerCase.indexOf("king's reward") > -1 ||
 			textContentLowerCase.indexOf("kings reward") > -1) {
 			return true;
 		}
 		else
-			return (getPageVariable('user.has_puzzle') == 'true');
+			return (strValue == 'true');
 	}
 	else
 		return false;
@@ -4020,16 +4018,10 @@ function getCurrentLocation() {
 function retrieveData() {
 	try {
 		// get next horn time
-		browser = browserDetection();
-		if (!(browser == 'firefox' || browser == 'opera' || browser == 'chrome')) {
-			window.setTimeout(function () { reloadWithMessage("Browser not supported. Reloading...", false); }, 60000);
-		}
-		
 		currentLocation = getCurrentLocation();
 		isKingReward = getKingRewardStatus();
 		g_nBaitQuantity = getBaitQuantity();
 		nextActiveTime = GetHornTime();
-		//console.plog('User Last Active Turn:', getPageVariable("user.last_activeturn_timestamp"), 'Client Time:',Math.floor(Date.now()/1000));
 		if (nextActiveTime === "" || isNaN(nextActiveTime)) {
 			// fail to retrieve data, might be due to slow network
 
@@ -4038,36 +4030,22 @@ function retrieveData() {
 		}
 		else {
 			// got the timer right!
-
 			if(nextActiveTime === 0)
 				hornTimeDelay = 0;
 			else{
 				// calculate the delay
 				hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
 			}
-
 			console.plog('Horn Time:', nextActiveTime, 'Delay:', hornTimeDelay);
 			if (!aggressiveMode) {
-				// calculation base on the js in Mousehunt
-				var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
-				if (timerInterval !== "" && !isNaN(timerInterval) && timerInterval == 1) {
-					additionalDelayTime = 2;
-				}
-
 				// safety mode, include extra delay like time in horn image appear
-				//hornTime = nextActiveTime + additionalDelayTime + hornTimeDelay;
 				hornTime = nextActiveTime + hornTimeDelay;
-				lastDateRecorded = undefined;
-				lastDateRecorded = new Date();
-
-				additionalDelayTime = undefined;
 			}
 			else {
 				// aggressive mode, no extra delay like time in horn image appear
 				hornTime = nextActiveTime;
-				lastDateRecorded = undefined;
-				lastDateRecorded = new Date();
 			}
+			lastDateRecorded = new Date();
 		}
 
 		// get trap check time
