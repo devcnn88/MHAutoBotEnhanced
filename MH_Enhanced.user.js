@@ -553,6 +553,11 @@ function exeScript() {
 	setStorage('MHAB', g_strVersion);
 	console.pdebug("exeScript() Start");
 	browser = browserDetection();
+	if (!(browser == 'opera' || browser == 'chrome')){
+		console.plog(browser + " not supported.");
+		console.pdebug("exeScript() End");
+		return;
+	}
     // check the trap check setting first
 	trapCheckTimeDiff = GetTrapCheckTime();
 
@@ -7362,7 +7367,7 @@ function browserDetection() {
     if (userAgentStr.indexOf("firefox") >= 0) {
         browserName = "firefox";
     }
-    else if (userAgentStr.indexOf("opera") >= 0) {
+    else if (userAgentStr.indexOf("opera") >= 0 || userAgentStr.indexOf("opr/") >= 0) {
         browserName = "opera";
     }
     else if (userAgentStr.indexOf("chrome") >= 0) {
