@@ -550,7 +550,6 @@ catch (e){
 exeScript();
 
 function exeScript() {
-	setStorage('MHAB', g_strVersion);
 	console.pdebug("exeScript() Start");
 	browser = browserDetection();
 	if (!(browser == 'opera' || browser == 'chrome')){
@@ -558,6 +557,7 @@ function exeScript() {
 		console.pdebug("exeScript() End");
 		return;
 	}
+	setStorage('MHAB', g_strVersion);
     // check the trap check setting first
 	trapCheckTimeDiff = GetTrapCheckTime();
 
@@ -4371,7 +4371,7 @@ function embedTimer(targetPage) {
             titleElement.setAttribute('id', 'titleElement');
             if (targetPage && aggressiveMode)
 				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a> - <font color='red'>Aggressive Mode</font>";
-			else if (targetPage && browser != 'chrome')
+			else if (targetPage && browser != 'chrome' && browser != 'opera')
 				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a> - <font color='red'><b>Pls use Chrome browser for fully working features</b></font>";
             else
                 titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a>";
@@ -7548,10 +7548,10 @@ function fireEvent(element, event) {
 }
 
 function getPageVariable(variableName) {
-    var value;
+    var value = "";
 	try {
-		if (browser == 'chrome') {
-			// google chrome only
+		if (browser == 'chrome' || browser == 'opera') {
+			// google chrome & opera only
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('id', "scriptElement");
 			scriptElement.setAttribute('type', "text/javascript");
@@ -7563,15 +7563,11 @@ function getPageVariable(variableName) {
 			scriptElement = null;
 			variableName = null;
 		}
-		else {
-			value = eval(variableName + ';');
-		}
-		return value;
 	}
 	catch (e) {
 		console.perror('getPageVariable',e.message);
-		return "";
 	}
+	return value;
 }
 
 function timeElapsed(dateA, dateB) {
