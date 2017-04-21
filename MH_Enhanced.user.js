@@ -333,6 +333,7 @@ var g_objConstTrap = {
 
 // All global variable declaration and default value
 var g_strVersion = "";
+var g_strScriptHandler = "";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -531,6 +532,7 @@ if (debugKR)
 var getMapPort;
 try{
 	if(!isNullOrUndefined(chrome.runtime.id)){
+		g_strScriptHandler = "Extensions";
 		g_strVersion = chrome.runtime.getManifest().version;
 		getMapPort = chrome.runtime.connect({name: 'map'});
 		getMapPort.onMessage.addListener(function(msg) {
@@ -539,12 +541,16 @@ try{
 				checkCaughtMouse(msg.obj, msg.array);
 		});
 	}
-	else
+	else{
+		g_strScriptHandler = GM_info.scriptHandler + " " + GM_info.version;
 		g_strVersion = GM_info.script.version;
+	}
 }
 catch (e){
+	console.perror('Before exeScript',e.message);
 	getMapPort = undefined;
 	g_strVersion = undefined;
+	g_strScriptHandler = undefined;
 }
 
 exeScript();
@@ -558,6 +564,7 @@ function exeScript() {
 		return;
 	}
 	setStorage('MHAB', g_strVersion);
+	setStorage('ScriptHandler', g_strScriptHandler);
     // check the trap check setting first
 	trapCheckTimeDiff = GetTrapCheckTime();
 
@@ -7341,26 +7348,16 @@ function replaceAll(str, find, replace) {
 
 function browserDetection() {
     var browserName = "unknown";
-
     var userAgentStr = navigator.userAgent.toString().toLowerCase();
-    if (userAgentStr.indexOf("firefox") >= 0) {
+    if (userAgentStr.indexOf("firefox") >= 0)
         browserName = "firefox";
-    }
-    else if (userAgentStr.indexOf("opera") >= 0 || userAgentStr.indexOf("opr/") >= 0) {
+    else if (userAgentStr.indexOf("opera") >= 0 || userAgentStr.indexOf("opr/") >= 0)
         browserName = "opera";
-    }
-    else if (userAgentStr.indexOf("chrome") >= 0) {
+    else if (userAgentStr.indexOf("chrome") >= 0)
         browserName = "chrome";
-    }
+	setStorage('Browser', browserName);
 	setStorage('UserAgent', userAgentStr);
-    userAgentStr = null;
-
-    try {
-        return (browserName);
-    }
-    finally {
-        browserName = null;
-    }
+	return browserName;
 }
 
 function setSessionStorage(name, value) {
