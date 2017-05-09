@@ -1135,6 +1135,7 @@
 							<option value="None">None</option>
 							<option value="COMMANDER">Commander</option>
 							<option value="GARGANTUA">Gargantua</option>
+							<option value="GARGANTUA_GGC" disabled="disabled">Gargantua - GGC</option>
 						</select>
 					</td>
 				</tr>
@@ -2273,6 +2274,15 @@
 				selectFWLastTypeConfigIncludeArtillery.disabled = '';
 			else
 				selectFWLastTypeConfigIncludeArtillery.disabled = 'disabled';
+		}
+		for(var i=0;i<selectFWSpecial.options.length;i++){
+			if(selectFWSpecial.options[i].value == 'GARGANTUA_GGC'){
+				if(selectFWStreak.selectedIndex >= 7)
+					selectFWSpecial.options[i].removeAttribute('disabled');
+				else
+					selectFWSpecial.options[i].setAttribute('disabled','disabled');
+				break;
+			}
 		}
 	}
 	

@@ -2844,12 +2844,12 @@ function fw(){
 		else
 			charmName = "Warpath Commander's Charm";
 	}
-	else if(objFW.special[objFW.streak] == 'GARGANTUA'){
+	else if(objFW.special[objFW.streak].indexOf('GARGANTUA') === 0){
 		checkThenArm('best', 'weapon', objBestTrap.weapon.draconic);
-		if(charmArmed.indexOf('Warpath') > -1)
-			charmName = 'None';
+		if(objFW.special[objFW.streak] == 'GARGANTUA_GGC' && objFW.streak >= 7)
+			charmName = 'Gargantua Guarantee Charm';
 		else
-			charmName = undefined;
+			charmName = (charmArmed.indexOf('Warpath') > -1) ? 'None' : undefined;
 	}
 	else{
 		var bCurrentStreakZeroPopulation = false;
@@ -5827,6 +5827,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="COMMANDER">Commander</option>';
 			preferenceHTMLStr += '<option value="GARGANTUA">Gargantua</option>';
+			preferenceHTMLStr += '<option value="GARGANTUA_GGC" disabled="disabled">Gargantua GGC</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -8664,6 +8665,15 @@ function bodyJS(){
 			selectFWLastTypeConfig.value = storageValue[strWave].lastSoldierConfig;
 			selectFWLastTypeConfigIncludeArtillery.value = (storageValue[strWave].includeArtillery) ? 'true' : 'false';
 			selectFWSupportConfig.value = (storageValue[strWave].disarmAfterSupportRetreat) ? 'true' : 'false';
+		}
+		for(var i=0;i<selectFWSpecial.options.length;i++){
+			if(selectFWSpecial.options[i].value == 'GARGANTUA_GGC'){
+				if(selectFWStreak.selectedIndex >= 7)
+					selectFWSpecial.options[i].removeAttribute('disabled');
+				else
+					selectFWSpecial.options[i].setAttribute('disabled','disabled');
+				break;
+			}
 		}
 		var nWave = parseInt(selectFWWave.value);
 		var option = selectFWFocusType.children;
