@@ -1302,151 +1302,180 @@ function ges(){
 	var charmArmed = getPageVariable("user.trinket_name");
 	var arrCharm;
 	var nCharmQuantity;
-	if (!bOnTrain){
-		checkThenArm('best', 'weapon', objBestTrap.weapon.law);
-		checkThenArm('best', 'base', objBestTrap.base.luck);
-		arrCharm = ['Supply Schedule', 'Roof Rack', 'Door Guard', 'Greasy Blob', 'Magmatic Crystal', 'Black Powder', 'Dusty Coal'];
-		for(i=0;i<arrCharm.length;i++){
-			if(charmArmed.indexOf(arrCharm) > -1){
-				disarmTrap('trinket');
-				break;
-			}
-		}
-		return;
-	}
-
 	var objDefaultGES = {
-		SD : {
+		bLoadCrate : false,
+		nMinCrate : 11,
+		bUseRepellent : false,
+		nMinRepellent : 11,
+		bStokeEngine : false,
+		nMinFuelNugget : 20,
+		SD_BEFORE : {
 			weapon : '',
 			base : '',
-			trinket : {
-				before : '',
-				after : ''
-			},
-			bait : '',
-			bLoadCrate : false,
-			nMinCrate : 11
+			trinket : '',
+			bait : ''
+		},
+		SD_AFTER : {
+			weapon : '',
+			base : '',
+			trinket : '',
+			bait : ''
 		},
 		RR : {
 			weapon : '',
 			base : '',
 			trinket : '',
-			bait : '',
-			bUseRepellent : false,
-			nMinRepellent : 11
+			bait : ''
 		},
 		DC : {
 			weapon : '',
 			base : '',
 			trinket : '',
-			bait : '',
-			bStokeEngine : false,
-			nMinFuelNugget : 20
+			bait : ''
 		},
+		WAITING : {
+			weapon : '',
+			base : '',
+			trinket : '',
+			bait : ''
+		}
 	};
 	var objGES = getStorageToObject('GES', objDefaultGES);
+	var nPhaseSecLeft = parseInt(getPageVariable('user.quests.QuestTrainStation.phase_seconds_remaining'));
 	var strCurrentPhase = '';
-	var classPhase = document.getElementsByClassName('box phaseName');
-	if(classPhase.length > 0 && classPhase[0].children.length > 1)
-		strCurrentPhase = classPhase[0].children[1].textContent;
-	console.plog('Current Phase:', strCurrentPhase);
+	if(!bOnTrain){
+		strCurrentPhase = 'WAITING';
+	}
+	else{
+		var classPhase = document.getElementsByClassName('box phaseName');
+		if(classPhase.length > 0 && classPhase[0].children.length > 1)
+			strCurrentPhase = classPhase[0].children[1].textContent;
+	}
+	console.plog('Current Phase:', strCurrentPhase, 'Time Left (s):', nPhaseSecLeft);
 	if(strCurrentPhase === '')
 		return;
 	
 	var strStage = '';
 	if(strCurrentPhase.indexOf('Supply Depot') > -1 ){
-		strStage = 'SD';
-		var nTurn = parseInt(document.getElementsByClassName('supplyHoarderTab')[0].textContent.substr(0, 1));
-		console.plog("Supply Hoarder Turn:", nTurn);
-		if(nTurn <= 0){
-			if(objGES.SD.trinket.before.indexOf('Supply Schedule') > -1 && charmArmed.indexOf('Supply Schedule') < 0){
-				var classCharm = document.getElementsByClassName('charms');
-				var linkCharm = classCharm[0].children[0];
-				nCharmQuantity = parseInt(document.getElementsByClassName('charms')[0].getElementsByClassName('quantity')[0].textContent);
-				console.plog('Supply Schedule Charm Quantity:', nCharmQuantity);
-				if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0)
-					fireEvent(linkCharm, 'click');
-			}
-			else
-				checkThenArm(null, 'trinket', objGES.SD.trinket.before);
+		if(nPhaseSecLeft <= nextActiveTime || (enableTrapCheck && trapCheckTimeDiff===0 && nPhaseSecLeft <= 900)){ // total seconds left to next phase less than next active time or next trap check time
+			strStage = 'RR';
+			checkThenArm(null, 'trinket', objGES[strStage].trinket);
 		}
 		else{
-			if(objGES.SD.trinket.after.indexOf('Supply Schedule') > -1)
-				disarmTrap('trinket');
-			else
-				checkThenArm(null, 'trinket', objGES.SD.trinket.after);
+			var nTurn = parseInt(document.getElementsByClassName('supplyHoarderTab')[0].textContent.substr(0, 1));
+			console.plog("Supply Hoarder Turn:", nTurn);
+			if(nTurn <= 0){ // before
+				strStage = 'SD_BEFORE';
+				if(objGES.SD_BEFORE.trinket.indexOf('Supply Schedule') > -1 && charmArmed.indexOf('Supply Schedule') < 0){
+					var classCharm = document.getElementsByClassName('charms');
+					var linkCharm = classCharm[0].children[0];
+					nCharmQuantity = parseInt(document.getElementsByClassName('charms')[0].getElementsByClassName('quantity')[0].textContent);
+					console.plog('Supply Schedule Charm Quantity:', nCharmQuantity);
+					if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0)
+						fireEvent(linkCharm, 'click');
+				}
+				else
+					checkThenArm(null, 'trinket', objGES.SD_BEFORE.trinket);
+			}
+			else{
+				strStage = 'SD_AFTER';
+				if(objGES.SD_AFTER.trinket.indexOf('Supply Schedule') > -1)
+					disarmTrap('trinket');
+				else
+					checkThenArm(null, 'trinket', objGES.SD_AFTER.trinket);
+			}
 		}
 		
-		if(objGES.SD.bLoadCrate){
+		if(objGES.bLoadCrate){
 			var nCrateQuantity = parseInt(document.getElementsByClassName('supplyCrates')[0].getElementsByClassName('quantity')[0].textContent);
 			console.plog('Crate Quantity:', nCrateQuantity);
-			if(Number.isInteger(nCrateQuantity) && nCrateQuantity >= objGES.SD.nMinCrate)
+			if(Number.isInteger(nCrateQuantity) && nCrateQuantity >= objGES.nMinCrate)
 				fireEvent(document.getElementsByClassName('phaseButton')[0], 'click');
 		}
 	}
 	else if(strCurrentPhase.indexOf('Raider River') > -1 ){
-		strStage = 'RR';
-		if(objGES.RR.trinket == 'AUTO'){
-			// get raider status and arm respective charm
-			arrCharm = ['Roof Rack', 'Door Guard', 'Greasy Glob'];
-			var classTrainCarArea = document.getElementsByClassName('trainCarArea');
-			nCharmQuantity = 0;
-			var strAttack = '';
-			for (i=0;i<classTrainCarArea.length;i++) {
-				if(classTrainCarArea[i].className.indexOf('attacked') > -1){
-					strAttack = classTrainCarArea[i].className.substr(0, classTrainCarArea[i].className.indexOf(' '));
-					nCharmQuantity = parseInt(classTrainCarArea[i].getElementsByClassName('quantity')[0].textContent);
-					console.plog('Raiders Attack:', capitalizeFirstLetter(strAttack), ',', arrCharm[i], 'Charm Quantity:', nCharmQuantity);
-					if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(arrCharm[i]) < 0)
-						fireEvent(classTrainCarArea[i].firstChild, 'click');
-					else{
-						for(j=0;j<arrCharm.length;j++){
-							if(j!=i && charmArmed.indexOf(arrCharm[j]) > -1){
-								disarmTrap('trinket');
-								break;
+		if(nPhaseSecLeft <= nextActiveTime || (enableTrapCheck && trapCheckTimeDiff===0 && nPhaseSecLeft <= 900)){ // total seconds left to next phase less than next active time or next trap check time
+			strStage = 'DC';
+			checkThenArm(null, 'trinket', objGES[strStage].trinket);
+		}
+		else{
+			strStage = 'RR';
+			if(objGES.RR.trinket == 'AUTO'){
+				// get raider status and arm respective charm
+				arrCharm = ['Roof Rack', 'Door Guard', 'Greasy Glob'];
+				var classTrainCarArea = document.getElementsByClassName('trainCarArea');
+				nCharmQuantity = 0;
+				var strAttack = '';
+				for (i=0;i<classTrainCarArea.length;i++) {
+					if(classTrainCarArea[i].className.indexOf('attacked') > -1){
+						strAttack = classTrainCarArea[i].className.substr(0, classTrainCarArea[i].className.indexOf(' '));
+						nCharmQuantity = parseInt(classTrainCarArea[i].getElementsByClassName('quantity')[0].textContent);
+						console.plog('Raiders Attack:', capitalizeFirstLetter(strAttack), ',', arrCharm[i], 'Charm Quantity:', nCharmQuantity);
+						if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(arrCharm[i]) < 0)
+							fireEvent(classTrainCarArea[i].firstChild, 'click');
+						else{
+							for(j=0;j<arrCharm.length;j++){
+								if(j!=i && charmArmed.indexOf(arrCharm[j]) > -1){
+									disarmTrap('trinket');
+									break;
+								}
 							}
 						}
+						break;
 					}
-					break;
 				}
 			}
+			else
+				checkThenArm(null, 'trinket', objGES.RR.trinket);
 		}
-		else
-			checkThenArm(null, 'trinket', objGES.RR.trinket);
 		
-		if(objGES.RR.bUseRepellent){
+		if(objGES.bUseRepellent){
 			var nRepellentQuantity = parseInt(document.getElementsByClassName('mouseRepellent')[0].getElementsByClassName('quantity')[0].textContent);
 			console.plog('Repellent Quantity:', nRepellentQuantity);
-			if(Number.isInteger(nRepellentQuantity) && nRepellentQuantity >= objGES.RR.nMinRepellent)
+			if(Number.isInteger(nRepellentQuantity) && nRepellentQuantity >= objGES.nMinRepellent)
 				fireEvent(document.getElementsByClassName('phaseButton')[0], 'click');
 		}
 	}
-	if(strCurrentPhase.indexOf('Daredevil Canyon') > -1 ){
-		strStage = 'DC';
-		arrCharm = ['Magmatic Crystal Charm', 'Black Powder Charm', 'Dusty Coal Charm'];
-		if(objGES.DC.trinket == 'AUTO')
-			checkThenArm('best', 'trinket', arrCharm);
+	else if(strCurrentPhase.indexOf('Daredevil Canyon') > -1 ){
+		if(nPhaseSecLeft <= nextActiveTime || (enableTrapCheck && trapCheckTimeDiff===0 && nPhaseSecLeft <= 900)){ // total seconds left to next phase less than next active time or next trap check time
+			strStage = 'WAITING';
+			checkThenArm(null, 'trinket', objGES[strStage].trinket);
+		}
 		else{
-			arrCharm.reverse();
-			var nIndex = arrCharm.indexOf(objGES.DC.trinket);
-			if(arrCharm.indexOf(objGES.DC.trinket) > -1){
-				var classCharms = document.getElementsByClassName('charms');
-				nCharmQuantity = parseInt(classCharms[0].children[nIndex].getElementsByClassName('quantity')[0].textContent);
-				console.plog(objGES.DC.trinket, 'Quantity:', nCharmQuantity);
-				if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(objGES.DC.trinket) < 0)
-					fireEvent(classCharms[0].children[nIndex], 'click');
+			strStage = 'DC';
+			arrCharm = ['Magmatic Crystal Charm', 'Black Powder Charm', 'Dusty Coal Charm'];
+			if(objGES.DC.trinket == 'AUTO')
+				checkThenArm('best', 'trinket', arrCharm);
+			else{
+				arrCharm.reverse();
+				var nIndex = arrCharm.indexOf(objGES.DC.trinket);
+				if(arrCharm.indexOf(objGES.DC.trinket) > -1){
+					var classCharms = document.getElementsByClassName('charms');
+					nCharmQuantity = parseInt(classCharms[0].children[nIndex].getElementsByClassName('quantity')[0].textContent);
+					console.plog(objGES.DC.trinket, 'Quantity:', nCharmQuantity);
+					if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(objGES.DC.trinket) < 0)
+						fireEvent(classCharms[0].children[nIndex], 'click');
+				}
+				else
+					checkThenArm(null, 'trinket', objGES.DC.trinket);
 			}
-			else
-				checkThenArm(null, 'trinket', objGES.DC.trinket);
 		}
 		
-		if(objGES.DC.bStokeEngine){
+		if(objGES.bStokeEngine){
 			// get fuel nugget quantity
 			var nFuelQuantity = parseInt(document.getElementsByClassName('fuelNugget')[0].getElementsByClassName('quantity')[0].textContent);
 			console.plog('Fuel Nugget Quantity:', nFuelQuantity);
-			if(Number.isInteger(nFuelQuantity) && nFuelQuantity >= objGES.DC.nMinFuelNugget)
+			if(Number.isInteger(nFuelQuantity) && nFuelQuantity >= objGES.nMinFuelNugget)
 				fireEvent(document.getElementsByClassName('phaseButton')[0], 'click');
 		}
+	}
+	else{
+		strStage = 'WAITING';
+		arrCharm = ['Supply Schedule', 'Roof Rack', 'Door Guard', 'Greasy Blob', 'Magmatic Crystal', 'Black Powder', 'Dusty Coal'];
+		if(objGES.WAITING.trinket.indexOf(arrCharm) > -1)
+			disarmTrap('trinket');
+		else
+			checkThenArm(null, 'trinket', objGES.WAITING.trinket);
 	}
 	checkThenArm(null, 'weapon', objGES[strStage].weapon);
 	checkThenArm(null, 'base', objGES[strStage].base);
@@ -4931,10 +4960,12 @@ function embedTimer(targetPage) {
 
 			preferenceHTMLStr += '<tr id="trGESTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Trap Setup at </b></a>';
-			preferenceHTMLStr += '<select id="selectGESStage" onchange="initControlsGES();">';
-			preferenceHTMLStr += '<option value="SD">Supply Depot</option>';
+			preferenceHTMLStr += '<select id="selectGESStage" style="width: 75px;" onchange="initControlsGES();">';
+			preferenceHTMLStr += '<option value="SD_BEFORE">Supply Depot (No Supply Rush)</option>';
+			preferenceHTMLStr += '<option value="SD_AFTER">Supply Depot (Supply Rush)</option>';
 			preferenceHTMLStr += '<option value="RR">Raider River</option>';
 			preferenceHTMLStr += '<option value="DC">Daredevil Canyon</option>';
+			preferenceHTMLStr += '<option value="WAITING">Waiting</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -4950,12 +4981,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGESTrapBase" style="width: 75px" onchange="saveGES();">';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectGESSDTrapTrinketBefore" style="width: 75px;" onchange="saveGES();">';
-			preferenceHTMLStr += '<option value="NSR" disabled="disabled">===No Supply Rush===</option>';
-			preferenceHTMLStr += '<option value="None">None</option>';
-			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectGESSDTrapTrinketAfter" style="width: 75px;" onchange="saveGES();">';
-			preferenceHTMLStr += '<option value="DSR" disabled="disabled">===During Supply Rush===</option>';
+			preferenceHTMLStr += '<select id="selectGESTrapTrinket" style="width: 75px;" onchange="saveGES();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGESRRTrapTrinket" style="width: 75px;display:none" onchange="saveGES();">';
@@ -5972,7 +5998,7 @@ function embedTimer(targetPage) {
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon'],
 				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase','selectBRTrapBase','selectWWRiftTrapBase','selectWWRiftMBWTrapBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESTrapTrinket','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket','selectGESTrapTrinket'],
 				bait : ['selectBait','selectGWHBait']
 			};
 			var temp;
@@ -6283,6 +6309,54 @@ function loadPreferenceSettingFromStorage() {
 		// Disable GWH2016
 		if(getStorageToVariableStr("eventLocation", "None").indexOf('GWH2016') > -1)
 			setStorage("eventLocation", "None");
+		
+		// Backward compatibility of GES
+		keyValue = getStorage('GES');
+		if(!isNullOrUndefined(keyValue)){
+			obj = JSON.parse(keyValue);
+			if(isNullOrUndefined(obj.SD_BEFORE)){
+				var objNew = {
+					bLoadCrate : obj.SD.bLoadCrate,
+					nMinCrate : obj.SD.nMinCrate,
+					bUseRepellent : obj.RR.bUseRepellent,
+					nMinRepellent : obj.RR.nMinRepellent,
+					bStokeEngine : obj.DC.bStokeEngine,
+					nMinFuelNugget : obj.DC.nMinFuelNugget,
+					SD_BEFORE : {
+						weapon : obj.SD.weapon,
+						base : obj.SD.base,
+						trinket : obj.SD.trinket.before,
+						bait : obj.SD.bait,
+					},
+					SD_AFTER : {
+						weapon : obj.SD.weapon,
+						base : obj.SD.base,
+						trinket : obj.SD.trinket.after,
+						bait : obj.SD.bait,
+					},
+					RR : {
+						weapon : obj.RR.weapon,
+						base : obj.RR.base,
+						trinket : obj.RR.trinket,
+						bait : obj.RR.bait,
+					},
+					DC : {
+						weapon : obj.DC.weapon,
+						base : obj.DC.base,
+						trinket : obj.DC.trinket,
+						bait : obj.DC.bait,
+					},
+					WAITING : {
+						weapon : '',
+						base : '',
+						trinket : '',
+						bait : ''
+					}
+				};
+				setStorage('GES', JSON.stringify(objNew));
+				setSessionStorage('GES', JSON.stringify(objNew));
+			}
+		}
 	}
 	catch (e){
 		console.perror('loadPreferenceSettingFromStorage',e.message);
@@ -9151,7 +9225,7 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = 0;
-			if(bAutoChangeBatteryLevel && !isNullOrUndefined(user) && user.location.indexOf('Furoma Rift') > -1 && (user.quests.QuestRiftFuroma.view_state == 'pagoda' || user.quests.QuestRiftFuroma.view_state == 'pagoda knows all')){
+			if(bAutoChangeBatteryLevel && !isNullOrUndefined(user) && user.location.indexOf('Furoma Rift') > -1 && (user.quests.QuestRiftFuroma.view_state == 'pagoda' || user.quests.QuestRiftFuroma.view_state == 'pagoda knows_all')){
 				var classCharge = document.getElementsByClassName('riftFuromaHUD-droid-charge');
 				if(classCharge.length > 0){
 					var nRemainingEnergy = parseInt(classCharge[0].innerText.replace(/,/g, ''));
@@ -9526,8 +9600,7 @@ function bodyJS(){
 		var selectGESStage = document.getElementById('selectGESStage');
 		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
 		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
-		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
-		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESSDTrapTrinket = document.getElementById('selectGESSDTrapTrinket');
 		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
 		var selectGESDCTrapTrinket = document.getElementById('selectGESDCTrapTrinket');
 		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
@@ -9540,33 +9613,42 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('GES');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGES = {
-				SD : {
+				bLoadCrate : false,
+				nMinCrate : 11,
+				bUseRepellent : false,
+				nMinRepellent : 11,
+				bStokeEngine : false,
+				nMinFuelNugget : 20,
+				SD_BEFORE : {
 					weapon : '',
 					base : '',
-					trinket : {
-						before : '',
-						after : ''
-					},
-					bait : '',
-					bLoadCrate : false,
-					nMinCrate : 11
+					trinket : '',
+					bait : ''
+				},
+				SD_AFTER : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : ''
 				},
 				RR : {
 					weapon : '',
 					base : '',
 					trinket : '',
-					bait : '',
-					bUseRepellent : false,
-					nMinRepellent : 11
+					bait : ''
 				},
 				DC : {
 					weapon : '',
 					base : '',
 					trinket : '',
-					bait : '',
-					bStokeEngine : false,
-					nMinFuelNugget : 20
+					bait : ''
 				},
+				WAITING : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : ''
+				}
 			};
 			storageValue = JSON.stringify(objDefaultGES);
 		}
@@ -9575,22 +9657,18 @@ function bodyJS(){
 		storageValue[strStage].weapon = selectGESTrapWeapon.value;
 		storageValue[strStage].base = selectGESTrapBase.value;
 		storageValue[strStage].bait = selectGESTrapBait.value;
-		if(strStage == 'SD'){
-			storageValue.SD.trinket.before = selectGESSDTrapTrinketBefore.value;
-			storageValue.SD.trinket.after = selectGESSDTrapTrinketAfter.value;
-		}
-		else if (strStage == 'RR'){
-			storageValue.RR.trinket = selectGESRRTrapTrinket.value;
-		}
-		else if (strStage == 'DC'){
-			storageValue.DC.trinket = selectGESDCTrapTrinket.value;
-		}
-		storageValue.SD.bLoadCrate = (selectGESSDLoadCrate.value == 'true');
-		storageValue.SD.nMinCrate = parseInt(inputMinCrate.value);
-		storageValue.RR.bUseRepellent = (selectGESRRRepellent.value == 'true');
-		storageValue.RR.nMinRepellent = parseInt(inputMinRepellent.value);
-		storageValue.DC.bStokeEngine = (selectGESDCStokeEngine.value == 'true');
-		storageValue.DC.nMinFuelNugget = parseInt(inputMinFuelNugget.value);
+		if (strStage == 'RR')
+			storageValue[strStage].trinket = selectGESRRTrapTrinket.value;
+		else if (strStage == 'DC')
+			storageValue[strStage].trinket = selectGESDCTrapTrinket.value;
+		else
+			storageValue[strStage].trinket = selectGESTrapTrinket.value;
+		storageValue.bLoadCrate = (selectGESSDLoadCrate.value == 'true');
+		storageValue.nMinCrate = parseInt(inputMinCrate.value);
+		storageValue.bUseRepellent = (selectGESRRRepellent.value == 'true');
+		storageValue.nMinRepellent = parseInt(inputMinRepellent.value);
+		storageValue.bStokeEngine = (selectGESDCStokeEngine.value == 'true');
+		storageValue.nMinFuelNugget = parseInt(inputMinFuelNugget.value);
 		window.sessionStorage.setItem('GES', JSON.stringify(storageValue));
 	}
 	
@@ -9600,8 +9678,7 @@ function bodyJS(){
 		var selectGESStage = document.getElementById('selectGESStage');
 		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
 		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
-		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
-		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESTrapTrinket = document.getElementById('selectGESTrapTrinket');
 		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
 		var selectGESDCTrapTrinket = document.getElementById('selectGESDCTrapTrinket');
 		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
@@ -9618,20 +9695,24 @@ function bodyJS(){
 				var classPhase = document.getElementsByClassName('box phaseName');
 				if(classPhase.length > 0 && classPhase[0].children.length > 1)
 					strCurrentPhase = classPhase[0].children[1].textContent;
-				if(strCurrentPhase == 'Supply Depot')
+				if(strCurrentPhase == 'Supply Depot'){
 					selectGESStage.value = 'SD';
+					var nTurn = parseInt(document.getElementsByClassName('supplyHoarderTab')[0].textContent.substr(0, 1));
+					selectGESStage.value = (nTurn <= 0) ? 'SD_BEFORE' : 'SD_AFTER';
+				}
 				else if(strCurrentPhase == 'Raider River')
 					selectGESStage.value = 'RR';
 				else if(strCurrentPhase == 'Daredevil Canyon')
 					selectGESStage.value = 'DC';
 			}
+			else
+				selectGESStage.value = 'WAITING';
 		}
 		var strStage = selectGESStage.value;
 		if(isNullOrUndefined(storageValue)){
 			selectGESTrapWeapon.selectedIndex = -1;
 			selectGESTrapBase.selectedIndex = -1;
-			selectGESSDTrapTrinketBefore.selectedIndex = -1;
-			selectGESSDTrapTrinketAfter.selectedIndex = -1;
+			selectGESTrapTrinket.selectedIndex = -1;
 			selectGESRRTrapTrinket.selectedIndex = -1;
 			selectGESDCTrapTrinket.selectedIndex = -1;
 			selectGESTrapBait.selectedIndex = -1;
@@ -9647,39 +9728,33 @@ function bodyJS(){
 			selectGESTrapWeapon.value = storageValue[strStage].weapon;
 			selectGESTrapBase.value = storageValue[strStage].base;
 			selectGESTrapBait.value = storageValue[strStage].bait;
-			if(strStage == 'SD'){
-				selectGESSDTrapTrinketBefore.value = storageValue.SD.trinket.before;
-				selectGESSDTrapTrinketAfter.value = storageValue.SD.trinket.after;
-			}
-			else if(strStage == 'RR')
+			if(strStage == 'RR')
 				selectGESRRTrapTrinket.value = storageValue.RR.trinket;
 			else if(strStage == 'DC')
 				selectGESDCTrapTrinket.value = storageValue.DC.trinket;
-
-			selectGESSDLoadCrate.value = (storageValue.SD.bLoadCrate === true) ? 'true' : 'false';
-			inputMinCrate.value = storageValue.SD.nMinCrate;
-			selectGESRRRepellent.value = (storageValue.RR.bUseRepellent === true) ? 'true' : 'false';
-			inputMinRepellent.value = storageValue.RR.nMinRepellent;
-			selectGESDCStokeEngine.value = (storageValue.DC.bStokeEngine === true) ? 'true' : 'false';
-			inputMinFuelNugget.value = storageValue.DC.nMinFuelNugget;
+			else
+				selectGESTrapTrinket.value = storageValue[strStage].trinket;
+			selectGESSDLoadCrate.value = (storageValue.bLoadCrate === true) ? 'true' : 'false';
+			inputMinCrate.value = storageValue.nMinCrate;
+			selectGESRRRepellent.value = (storageValue.bUseRepellent === true) ? 'true' : 'false';
+			inputMinRepellent.value = storageValue.nMinRepellent;
+			selectGESDCStokeEngine.value = (storageValue.bStokeEngine === true) ? 'true' : 'false';
+			inputMinFuelNugget.value = storageValue.nMinFuelNugget;
 		}
-		if(strStage == 'SD'){
-			selectGESSDTrapTrinketBefore.style.display = '';
-			selectGESSDTrapTrinketAfter.style.display = '';
-			selectGESRRTrapTrinket.style.display = 'none';
-			selectGESDCTrapTrinket.style.display = 'none';
-		}
-		else if(strStage == 'RR'){
-			selectGESSDTrapTrinketBefore.style.display = 'none';
-			selectGESSDTrapTrinketAfter.style.display = 'none';
+		if(strStage == 'RR'){
+			selectGESTrapTrinket.style.display = 'none';
 			selectGESRRTrapTrinket.style.display = '';
 			selectGESDCTrapTrinket.style.display = 'none';
 		}
 		else if(strStage == 'DC'){
-			selectGESSDTrapTrinketBefore.style.display = 'none';
-			selectGESSDTrapTrinketAfter.style.display = 'none';
+			selectGESTrapTrinket.style.display = 'none';
 			selectGESRRTrapTrinket.style.display = 'none';
 			selectGESDCTrapTrinket.style.display = '';
+		}
+		else{
+			selectGESTrapTrinket.style.display = '';
+			selectGESRRTrapTrinket.style.display = 'none';
+			selectGESDCTrapTrinket.style.display = 'none';
 		}
 		inputMinCrate.disabled = (selectGESSDLoadCrate.value == 'true') ? '' : 'disabled';
 		inputMinRepellent.disabled = (selectGESRRRepellent.value == 'true') ? '' : 'disabled';
