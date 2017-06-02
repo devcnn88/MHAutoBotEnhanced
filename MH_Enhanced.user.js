@@ -1197,6 +1197,12 @@ function bwRift(){
 	checkThenArm(null, 'base', objBWRift.base[nIndex]);
 	checkThenArm(null, 'trinket', objBWRift.trinket[nIndex]);
 	checkThenArm(null, 'bait', objBWRift.bait[nIndex]);
+	if(objBWRift.bait[nIndex] == 'Runic/Ancient')
+		checkThenArm('any', 'bait', ['Runic String Cheese', 'Ancient String Cheese']);
+	else if(objBWRift.bait[nIndex] == 'Runic=>Ancient')
+		checkThenArm('best', 'bait', ['Runic String Cheese', 'Ancient String Cheese']);
+	else
+		checkThenArm(null, 'bait', objBWRift.bait[nIndex]);
 	var classLootBooster = document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment lootBooster mousehuntTooltipParent')[0];
 	var bPocketwatchActive = (classLootBooster.getAttribute('class').indexOf('selected') > -1);
 	if(objBWRift.activate[nIndex] ^ bPocketwatchActive)
@@ -4991,6 +4997,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Runic String">Runic</option>';
 			preferenceHTMLStr += '<option value="Ancient String">Ancient</option>';
+			preferenceHTMLStr += '<option value="Runic/Ancient">Runic/Ancient</option>';
+			preferenceHTMLStr += '<option value="Runic=>Ancient">Runic=>Ancient</option>';
 			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
 			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
 			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
