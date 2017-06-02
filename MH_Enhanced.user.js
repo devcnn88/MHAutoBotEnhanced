@@ -9464,7 +9464,9 @@ function bodyJS(){
 		window.sessionStorage.setItem('BWRift', JSON.stringify(storageValue));
 	}
 	
-	function initControlsBWRift(){
+	function initControlsBWRift(bAutoChangeChamber){
+		if(isNullOrUndefined(bAutoChangeChamber))
+			bAutoChangeChamber = false;
 		var selectBWRiftChamber = document.getElementById('selectBWRiftChamber');
 		var selectBWRiftWeapon = document.getElementById('selectBWRiftWeapon');
 		var selectBWRiftBase = document.getElementById('selectBWRiftBase');
@@ -9481,7 +9483,18 @@ function bodyJS(){
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
-			var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
+			var nIndex = -1;
+			if(bAutoChangeChamber && !isNullOrUndefined(user) && user.location.indexOf('Bristle Woods Rift') > -1){
+				var nRemaining = user.quests.QuestRiftBristleWoods.progress_remaining;
+				if(nRemaining > 0){
+					nIndex = storageValue.chamber.indexOf(user.quests.QuestRiftBristleWoods.chamber_name);
+					if(nIndex > -1)
+						selectBWRiftChamber.value = storageValue.order[nIndex];
+				}
+				else
+					selectBWRiftChamber.value = 'NONE';
+			}
+			nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
 			if(nIndex < 0)
 				nIndex = 0;
 			selectBWRiftWeapon.value = storageValue.weapon[nIndex];
