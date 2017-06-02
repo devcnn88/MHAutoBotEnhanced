@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        MouseHunt AutoBot Enhanced Edition
 // @author      Ooi Keng Siang, CnN
-// @version    	1.36.4
+// @version    	1.36.12
 // @namespace   http://ooiks.com/blog/mousehunt-autobot, https://devcnn.wordpress.com/
 // @description Ooiks: An advance user script to automate sounding the hunter horn in MouseHunt application in Facebook with MouseHunt version 3.0 (Longtail) supported and many other features. CnN: An enhanced version to sound horn based on selected algorithm of event or location.
 // @require		https://code.jquery.com/jquery-2.2.2.min.js
@@ -138,10 +138,10 @@ var objTrapList = {
 
 // // Trap Collection
 var objTrapCollection = {
-	weapon: ["New Horizon Trap","New Year's Fireworks Trap","Holiday Hydro Hailstorm Trap","Festive Forgotten Fir Trap","Interdimensional Crossbow Trap","Droid Archmagus Trap","Sandcastle Shard","Crystal Mineral Crusher Trap","Biomolecular Re-atomizer Trap","Chrome Arcane Capturing Rod","Law Laser Trap","Zugzwang's Ultimate Move","2010 Blastoff Trap","2012 Big Boom Trap","500 Pound Spiked Crusher","Ambrosial Portal","Ambush","Ancient Box Trap","Ancient Gauntlet","Ancient Spear Gun","Arcane Blast Trap","Arcane Capturing Rod Of Never Yielding Mystery","Bandit Deflector","Birthday Candle Kaboom","Birthday Party Piñata Bonanza","Blackstone Pass Trap","Bottomless Grave","Brain Extractor","Bubbles: The Party Crasher Trap","Cackle Lantern Trap","Candy Crusher Trap","Chesla's Revenge","Christmas Cracker Trap","Chrome DeathBot","Chrome DrillBot","Chrome MonstroBot","Chrome Nannybot","Chrome Oasis Water Node Trap","Chrome Onyx Mallet","Chrome Phantasmic Oasis Trap","Chrome RhinoBot","Chrome Sphynx Wrath","Chrome Tacky Glue Trap","Clockapult of Time","Clockapult of Winter Past","Clockwork Portal Trap","Crystal Crucible Trap","Crystal Tower","Digby DrillBot","Dimensional Chest Trap","Double Diamond Adventure","Dragon Lance","Dreaded Totem Trap","Endless Labyrinth Trap","Engine Doubler","Enraged RhinoBot","Event Horizon","Explosive Toboggan Ride","Festive Gauntlet Crusher","Fluffy DeathBot","Focused Crystal Laser","The Forgotten Art of Dance","Forgotten Pressure Plate Trap","Giant Speaker","Gingerbread House Surprise","Glacier Gatler","Gorgon Trap","Grand Arcanum Trap","Grungy DeathBot","Harpoon Gun","Heat Bath","High Tension Spring","HitGrab Horsey","HitGrab Rainbow Rockin' Horse","HitGrab Rockin' Horse","Horrific Venus Mouse Trap","Ice Blaster","Ice Maiden","Icy RhinoBot","Infinite Labyrinth Trap","Isle Idol Trap","Isle Idol Trap","Isle Idol Trap","Kraken Chaos","The Law Draw","Maniacal Brain Extractor","Mouse DeathBot","Mouse Hot Tub","Mouse Mary O'Nette","Mouse Rocketine","Mouse Trebuchet","Multi-Crystal Laser","Mutated Venus Mouse Trap","Mysteriously unYielding Null-Onyx Rampart of Cascading Amperes","Mystic Pawn Pincher","Nannybot","Net Cannon","Ninja Ambush Trap","Nutcracker Nuisance Trap","NVMRC Forcefield Trap","Oasis Water Node Trap","Obelisk of Incineration","Obelisk of Slumber","Obvious Ambush Trap","Onyx Mallet","PartyBot","Phantasmic Oasis Trap","Pneumatic Tube Trap","Pumpkin Pummeler","Reaper's Perch","Rewers Riposte","RhinoBot","Rune Shark Trap","S.A.M. F.E.D. DN-5","S.L.A.C.","S.L.A.C. II","S.U.P.E.R. Scum Scrubber","Sandstorm MonstroBot","Sandtail Sentinel","School of Sharks","Scum Scrubber","Shrink Ray Trap","Sinister Portal","Snow Barrage","Snowglobe Trap","Soul Catcher","Soul Harvester","Sphynx Wrath","Stale Cupcake Golem Trap","Steam Laser Mk. I","Steam Laser Mk. II","Steam Laser Mk. II (Broken!)","Steam Laser Mk. III","Supply Grabber","Swiss Army Mouse Trap","Tacky Glue Trap","Tarannosaurus Rex Trap","Technic Pawn Pincher","Temporal Turbine","Terrifying Spider Trap","Thorned Venus Mouse Trap","Ultra MegaMouser MechaBot Trap","Veiled Vine Trap","Venus Mouse Trap","Warden Slayer Trap","Warpath Thrasher","Wrapped Gift Trap","Zugzwang's First Move","Zugzwang's Last Move","Zurreal's Folly"],
-	base: ["Rooster Jade Base","2017 New Year's Base","Aqua Base","Attuned Enerchi Induction Base","Bacon Base","Bamboozler Base","Birthday Cake Base","Birthday Dragée Cake Base","Bronze Tournament Base","Candy Cane Base","Carrot Birthday Cake Base","Cheesecake Base","Chocolate Birthday Cake Base","Claw Shot Base","Crushed Birthday Cake Base","Cupcake Birthday Base","Deep Freeze Base","Dehydration Base","Depth Charge Base","Dragon Jade Base","Eerie Base","Eerier Base","Enerchi Induction Base","Explosive Base","Extra Sweet Cupcake Birthday Base","Fan Base","Firecracker Base","Fissure Base","Fracture Base","Gingerbread Base","Golden Tournament Base","Hearthstone Base","Horse Jade Base","Hothouse Base","Jade Base","Labyrinth Base","Living Base","Magma Base","Magnet Base","Minotaur Base","Molten Shrapnel Base","Monkey Jade Base","Monolith Base","Papyrus Base","Physical Brace Base","Polar Base","Polluted Base","Refined Pollutinum Base","Remote Detonator Base","Rift Base","Runic Base","Seasonal Base","Sheep Jade Base","Silver Tournament Base","Skello-ton Base","Snake Jade Base","Soiled Base","Spellbook Base","Spiked Base","Stone Base","Tidal Base","Tiki Base","Tribal Base","Tribal Kaboom Base","Washboard Base","Wooden Base","Wooden Base with Target"],
-	bait: ["Dumpling Cheese","Crescent Cheese","Ancient Cheese","Arctic Asiago Cheese","Ascended Cheese","Brie Cheese","Brie String Cheese","Candy Corn Cheese","Checkmate Cheese","Cheddar Cheese","Cherry Cheese","Combat Cheese","Creamy Havarti Cheese","Crunchy Cheese","Crunchy Havarti Cheese","Cupcake Colby","Dewthief Camembert","Diamond Cheese","Duskshade Camembert","Extra Sweet Cupcake Colby","Festive Feta","Fishy Fromage","Fusion Fondue","Galleon Gouda","Gauntlet Cheese Tier 2","Gauntlet Cheese Tier 3","Gauntlet Cheese Tier 4","Gauntlet Cheese Tier 5","Gauntlet Cheese Tier 6","Gauntlet Cheese Tier 7","Gauntlet Cheese Tier 8","Gemstone Cheese","Ghoulgonzola Cheese","Gilded Cheese","Gingerbread Cheese","Glowing Gruyere Cheese","Glutter Cheese","Gnarled Cheese","Gouda Cheese","Graveblossom Camembert","Grilled Cheese","Gumbo Cheese","Inferno Havarti Cheese","Lactrodectus Lancashire Cheese","Limelight Cheese","Lunaria Camembert","Magical Havarti Cheese","Magical String Cheese","Maki Cheese","Maki String Cheese","Marble Cheese","Marble String Cheese","Marshmallow Monterey","Master Fusion Cheese","Mineral Cheese","Moon Cheese","Mozzarella Cheese","Null Onyx Gorgonzola","Nutmeg Cheese","Onyx Gorgonzola","Polluted Parmesan Cheese","Pungent Havarti Cheese","Radioactive Blue Cheese","Rancid Radioactive Blue Cheese","Rift Combat Cheese","Rift Glutter Cheese","Rift Rumble Cheese","Rift Susheese Cheese","Riftiago Cheese","Resonator Cheese","Rockforth Cheese","Rumble Cheese","Runic Cheese","Runny Cheese","Seasoned Gouda","Shell Cheese","Snowball Bocconcini","Spicy Havarti Cheese","SUPER|brie+","Susheese Cheese","Sweet Havarti Cheese","Swiss Cheese","Swiss String Cheese","Terre Ricotta Cheese","Toxic Brie","Toxic SUPER|brie+","Undead Emmental","Vanilla Stilton Cheese","Vengeful Vanilla Stilton Cheese","White Cheddar Cheese","Wicked Gnarly Cheese"],
-	trinket: ["Festive Anchor Charm","2014 Charm","2015 Charm","2016 Charm","2017 Charm","Airship Charm","Amplifier Charm","Ancient Charm","Antiskele Charm","Artisan Charm","Athlete Charm","Attraction Charm","Baitkeep Charm","Black Powder Charm","Blue Double Sponge Charm","Brain Charm","Bravery Charm","Cackle Charm","Cactus Charm","Candy Charm","Champion Charm","Cherry Charm","Chrome Charm","Clarity Charm","Compass Magnet Charm","Crucible Cloning Charm","Cupcake Charm","Dark Chocolate Charm","Derr Power Charm","Diamond Boost Charm","Door Guard Charm","Dragonbane Charm","Dragonbreath Charm","Dreaded Charm","Dusty Coal Charm","Eggscavator Charge Charm","Eggstra Charge Charm","Eggstra Charm","Elub Power Charm","EMP400 Charm","Empowered Anchor Charm","Enerchi Charm","Extra Spooky Charm","Extra Sweet Cupcake Charm","Extreme Ancient Charm","Extreme Attraction Charm","Extreme Luck Charm","Extreme Polluted Charm","Extreme Power Charm","Extreme Wealth Charm","Festive Ultimate Luck Charm","Festive Ultimate Power Charm","Firecracker Charm","First Ever Charm","Flamebane Charm","Forgotten Charm","Freshness Charm","Gargantua Guarantee Charm","Gemstone Boost Charm","Gilded Charm","Glowing Gourd Charm","Gnarled Charm","Golden Anchor Charm","Greasy Glob Charm","Growth Charm","Grub Salt Charm","Grub Scent Charm","Grubling Bonanza Charm","Grubling Chow Charm","Haunted Ultimate Luck Charm","Horsepower Charm","Hydro Charm","Lantern Oil Charm","Luck Charm","Lucky Power Charm","Lucky Rabbit Charm","Magmatic Crystal Charm","Mining Charm","Mobile Charm","Monger Charm","Monkey Fling Charm","Nanny Charm","Nerg Power Charm","Nightshade Farming Charm","Nitropop Charm","Oxygen Burst Charm","Party Charm","Polluted Charm","Power Charm","Prospector's Charm","Rainbow Luck Charm","Ramming Speed Charm","Red Double Sponge Charm","Red Sponge Charm","Regal Charm","Rift Power Charm","Rift Ultimate Luck Charm","Rift Ultimate Lucky Power Charm","Rift Ultimate Power Charm","Rift Vacuum Charm","Roof Rack Charm","Rook Crumble Charm","Rotten Charm","Safeguard Charm","Scholar Charm","Scientist's Charm","Searcher Charm","Shadow Charm","Shamrock Charm","Shattering Charm","Sheriff's Badge Charm","Shielding Charm","Shine Charm","Shortcut Charm","Smart Water Jet Charm","Snakebite Charm","Snowball Charm","Soap Charm","Softserve Charm","Spellbook Charm","Spiked Anchor Charm","Sponge Charm","Spooky Charm","Spore Charm","Stagnant Charm","Sticky Charm","Striker Charm","Super Ancient Charm","Super Attraction Charm","Super Brain Charm","Super Cactus Charm","Super Luck Charm","Super Nightshade Farming Charm","Super Polluted Charm","Super Power Charm","Super Regal Charm","Super Rift Vacuum Charm","Super Rotten Charm","Super Salt Charm","Super Soap Charm","Super Spore Charm","Super Warpath Archer Charm","Super Warpath Cavalry Charm","Super Warpath Commander's Charm","Super Warpath Mage Charm","Super Warpath Scout Charm","Super Warpath Warrior Charm","Super Wealth Charm","Supply Schedule Charm","Tarnished Charm","Taunting Charm","Treasure Trawling Charm","Ultimate Anchor Charm","Ultimate Ancient Charm","Ultimate Attraction Charm","Ultimate Charm","Ultimate Luck Charm","Ultimate Lucky Power Charm","Ultimate Polluted Charm","Ultimate Power Charm","Ultimate Spore Charm","Uncharged Scholar Charm","Unstable Charm","Valentine Charm","Warpath Archer Charm","Warpath Cavalry Charm","Warpath Commander's Charm","Warpath Mage Charm","Warpath Scout Charm","Warpath Warrior Charm","Water Jet Charm","Wax Charm","Wealth Charm","Wild Growth Charm","Winter Builder Charm","Winter Charm","Winter Hoarder Charm","Winter Miser Charm","Winter Screw Charm","Winter Spring Charm","Winter Wood Charm","Yellow Double Sponge Charm","Yellow Sponge Charm"]
+	weapon: ["Meteor Prison Core Trap","Sprinkly Cupcake Surprise Trap","New Horizon Trap","New Year's Fireworks Trap","Holiday Hydro Hailstone Trap","Festive Forgotten Fir Trap","Interdimensional Crossbow Trap","Droid Archmagus Trap","Sandcastle Shard","Crystal Mineral Crusher Trap","Biomolecular Re-atomizer Trap","Chrome Arcane Capturing Rod","Law Laser Trap","Zugzwang's Ultimate Move","2010 Blastoff Trap","2012 Big Boom Trap","500 Pound Spiked Crusher","Ambrosial Portal","Ambush","Ancient Box Trap","Ancient Gauntlet","Ancient Spear Gun","Arcane Blast Trap","Arcane Capturing Rod Of Never Yielding Mystery","Bandit Deflector","Birthday Candle Kaboom","Birthday Party Piñata Bonanza","Blackstone Pass Trap","Bottomless Grave","Brain Extractor","Bubbles: The Party Crasher Trap","Cackle Lantern Trap","Candy Crusher Trap","Chesla's Revenge","Christmas Cracker Trap","Chrome DeathBot","Chrome DrillBot","Chrome MonstroBot","Chrome Nannybot","Chrome Oasis Water Node Trap","Chrome Onyx Mallet","Chrome Phantasmic Oasis Trap","Chrome RhinoBot","Chrome Sphynx Wrath","Chrome Tacky Glue Trap","Clockapult of Time","Clockapult of Winter Past","Clockwork Portal Trap","Crystal Crucible Trap","Crystal Tower","Digby DrillBot","Dimensional Chest Trap","Double Diamond Adventure","Dragon Lance","Dreaded Totem Trap","Endless Labyrinth Trap","Engine Doubler","Enraged RhinoBot","Event Horizon","Explosive Toboggan Ride","Festive Gauntlet Crusher","Fluffy DeathBot","Focused Crystal Laser","The Forgotten Art of Dance","Forgotten Pressure Plate Trap","Giant Speaker","Gingerbread House Surprise","Glacier Gatler","Gorgon Trap","Grand Arcanum Trap","Grungy DeathBot","Harpoon Gun","Heat Bath","High Tension Spring","HitGrab Horsey","HitGrab Rainbow Rockin' Horse","HitGrab Rockin' Horse","Horrific Venus Mouse Trap","Ice Blaster","Ice Maiden","Icy RhinoBot","Infinite Labyrinth Trap","Isle Idol Trap","Isle Idol Trap","Isle Idol Trap","Kraken Chaos","The Law Draw","Maniacal Brain Extractor","Mouse DeathBot","Mouse Hot Tub","Mouse Mary O'Nette","Mouse Rocketine","Mouse Trebuchet","Multi-Crystal Laser","Mutated Venus Mouse Trap","Mysteriously unYielding Null-Onyx Rampart of Cascading Amperes","Mystic Pawn Pincher","Nannybot","Net Cannon","Ninja Ambush Trap","Nutcracker Nuisance Trap","NVMRC Forcefield Trap","Oasis Water Node Trap","Obelisk of Incineration","Obelisk of Slumber","Obvious Ambush Trap","Onyx Mallet","PartyBot","Phantasmic Oasis Trap","Pneumatic Tube Trap","Pumpkin Pummeler","Reaper's Perch","Rewers Riposte","RhinoBot","Rune Shark Trap","S.A.M. F.E.D. DN-5","S.L.A.C.","S.L.A.C. II","S.U.P.E.R. Scum Scrubber","Sandstorm MonstroBot","Sandtail Sentinel","School of Sharks","Scum Scrubber","Shrink Ray Trap","Sinister Portal","Snow Barrage","Snowglobe Trap","Soul Catcher","Soul Harvester","Sphynx Wrath","Stale Cupcake Golem Trap","Steam Laser Mk. I","Steam Laser Mk. II","Steam Laser Mk. II (Broken!)","Steam Laser Mk. III","Supply Grabber","Swiss Army Mouse Trap","Tacky Glue Trap","Tarannosaurus Rex Trap","Technic Pawn Pincher","Temporal Turbine","Terrifying Spider Trap","Thorned Venus Mouse Trap","Ultra MegaMouser MechaBot Trap","Veiled Vine Trap","Venus Mouse Trap","Warden Slayer Trap","Warpath Thrasher","Wrapped Gift Trap","Zugzwang's First Move","Zugzwang's Last Move","Zurreal's Folly"],
+	base: ["Sprinkly Sweet Cupcake Birthday Base","Rooster Jade Base","2017 New Year's Base","Aqua Base","Attuned Enerchi Induction Base","Bacon Base","Bamboozler Base","Birthday Cake Base","Birthday Dragée Cake Base","Bronze Tournament Base","Candy Cane Base","Carrot Birthday Cake Base","Cheesecake Base","Chocolate Birthday Cake Base","Claw Shot Base","Crushed Birthday Cake Base","Cupcake Birthday Base","Deep Freeze Base","Dehydration Base","Depth Charge Base","Dragon Jade Base","Eerie Base","Eerier Base","Enerchi Induction Base","Explosive Base","Extra Sweet Cupcake Birthday Base","Fan Base","Firecracker Base","Fissure Base","Fracture Base","Gingerbread Base","Golden Tournament Base","Hearthstone Base","Horse Jade Base","Hothouse Base","Jade Base","Labyrinth Base","Living Base","Magma Base","Magnet Base","Minotaur Base","Molten Shrapnel Base","Monkey Jade Base","Monolith Base","Papyrus Base","Physical Brace Base","Polar Base","Polluted Base","Refined Pollutinum Base","Remote Detonator Base","Rift Base","Runic Base","Seasonal Base","Sheep Jade Base","Silver Tournament Base","Skello-ton Base","Snake Jade Base","Soiled Base","Spellbook Base","Spiked Base","Stone Base","Tidal Base","Tiki Base","Tribal Base","Tribal Kaboom Base","Washboard Base","Wooden Base","Wooden Base with Target"],
+	bait: ["Sunrise Cheese","Dumpling Cheese","Crescent Cheese","Ancient Cheese","Arctic Asiago Cheese","Ascended Cheese","Brie Cheese","Brie String Cheese","Candy Corn Cheese","Checkmate Cheese","Cheddar Cheese","Cherry Cheese","Combat Cheese","Creamy Havarti Cheese","Crunchy Cheese","Crunchy Havarti Cheese","Cupcake Colby","Dewthief Camembert","Diamond Cheese","Duskshade Camembert","Extra Sweet Cupcake Colby","Festive Feta","Fishy Fromage","Fusion Fondue","Galleon Gouda","Gauntlet Cheese Tier 2","Gauntlet Cheese Tier 3","Gauntlet Cheese Tier 4","Gauntlet Cheese Tier 5","Gauntlet Cheese Tier 6","Gauntlet Cheese Tier 7","Gauntlet Cheese Tier 8","Gemstone Cheese","Ghoulgonzola Cheese","Gilded Cheese","Gingerbread Cheese","Glowing Gruyere Cheese","Glutter Cheese","Gnarled Cheese","Gouda Cheese","Graveblossom Camembert","Grilled Cheese","Gumbo Cheese","Inferno Havarti Cheese","Lactrodectus Lancashire Cheese","Limelight Cheese","Lunaria Camembert","Magical Havarti Cheese","Magical String Cheese","Maki Cheese","Maki String Cheese","Marble Cheese","Marble String Cheese","Marshmallow Monterey","Master Fusion Cheese","Mineral Cheese","Moon Cheese","Mozzarella Cheese","Null Onyx Gorgonzola","Nutmeg Cheese","Onyx Gorgonzola","Polluted Parmesan Cheese","Pungent Havarti Cheese","Radioactive Blue Cheese","Rancid Radioactive Blue Cheese","Rift Combat Cheese","Rift Glutter Cheese","Rift Rumble Cheese","Rift Susheese Cheese","Riftiago Cheese","Resonator Cheese","Rockforth Cheese","Rumble Cheese","Runic Cheese","Runny Cheese","Seasoned Gouda","Shell Cheese","Snowball Bocconcini","Spicy Havarti Cheese","SUPER|brie+","Susheese Cheese","Sweet Havarti Cheese","Swiss Cheese","Swiss String Cheese","Terre Ricotta Cheese","Toxic Brie","Toxic SUPER|brie+","Undead Emmental","Vanilla Stilton Cheese","Vengeful Vanilla Stilton Cheese","White Cheddar Cheese","Wicked Gnarly Cheese"],
+	trinket: ["Lucky Valentine Charm","Festive Anchor Charm","2014 Charm","2015 Charm","2016 Charm","2017 Charm","Airship Charm","Amplifier Charm","Ancient Charm","Antiskele Charm","Artisan Charm","Athlete Charm","Attraction Charm","Baitkeep Charm","Black Powder Charm","Blue Double Sponge Charm","Brain Charm","Bravery Charm","Cackle Charm","Cactus Charm","Candy Charm","Champion Charm","Cherry Charm","Chrome Charm","Clarity Charm","Compass Magnet Charm","Crucible Cloning Charm","Cupcake Charm","Dark Chocolate Charm","Derr Power Charm","Diamond Boost Charm","Door Guard Charm","Dragonbane Charm","Dragonbreath Charm","Dreaded Charm","Dusty Coal Charm","Eggscavator Charge Charm","Eggstra Charge Charm","Eggstra Charm","Elub Power Charm","EMP400 Charm","Empowered Anchor Charm","Enerchi Charm","Extra Spooky Charm","Extra Sweet Cupcake Charm","Extreme Ancient Charm","Extreme Attraction Charm","Extreme Luck Charm","Extreme Polluted Charm","Extreme Power Charm","Extreme Wealth Charm","Festive Ultimate Luck Charm","Festive Ultimate Power Charm","Firecracker Charm","First Ever Charm","Flamebane Charm","Forgotten Charm","Freshness Charm","Gargantua Guarantee Charm","Gemstone Boost Charm","Gilded Charm","Glowing Gourd Charm","Gnarled Charm","Golden Anchor Charm","Greasy Glob Charm","Growth Charm","Grub Salt Charm","Grub Scent Charm","Grubling Bonanza Charm","Grubling Chow Charm","Haunted Ultimate Luck Charm","Horsepower Charm","Hydro Charm","Lantern Oil Charm","Luck Charm","Lucky Power Charm","Lucky Rabbit Charm","Magmatic Crystal Charm","Mining Charm","Mobile Charm","Monger Charm","Monkey Fling Charm","Nanny Charm","Nerg Power Charm","Nightshade Farming Charm","Nitropop Charm","Oxygen Burst Charm","Party Charm","Polluted Charm","Power Charm","Prospector's Charm","Rainbow Luck Charm","Ramming Speed Charm","Red Double Sponge Charm","Red Sponge Charm","Regal Charm","Rift Power Charm","Rift Ultimate Luck Charm","Rift Ultimate Lucky Power Charm","Rift Ultimate Power Charm","Rift Vacuum Charm","Roof Rack Charm","Rook Crumble Charm","Rotten Charm","Safeguard Charm","Scholar Charm","Scientist's Charm","Searcher Charm","Shadow Charm","Shamrock Charm","Shattering Charm","Sheriff's Badge Charm","Shielding Charm","Shine Charm","Shortcut Charm","Smart Water Jet Charm","Snakebite Charm","Snowball Charm","Soap Charm","Softserve Charm","Spellbook Charm","Spiked Anchor Charm","Sponge Charm","Spooky Charm","Spore Charm","Stagnant Charm","Sticky Charm","Striker Charm","Super Ancient Charm","Super Attraction Charm","Super Brain Charm","Super Cactus Charm","Super Luck Charm","Super Nightshade Farming Charm","Super Polluted Charm","Super Power Charm","Super Regal Charm","Super Rift Vacuum Charm","Super Rotten Charm","Super Salt Charm","Super Soap Charm","Super Spore Charm","Super Warpath Archer Charm","Super Warpath Cavalry Charm","Super Warpath Commander's Charm","Super Warpath Mage Charm","Super Warpath Scout Charm","Super Warpath Warrior Charm","Super Wealth Charm","Supply Schedule Charm","Tarnished Charm","Taunting Charm","Treasure Trawling Charm","Ultimate Anchor Charm","Ultimate Ancient Charm","Ultimate Attraction Charm","Ultimate Charm","Ultimate Luck Charm","Ultimate Lucky Power Charm","Ultimate Polluted Charm","Ultimate Power Charm","Ultimate Spore Charm","Uncharged Scholar Charm","Unstable Charm","Valentine Charm","Warpath Archer Charm","Warpath Cavalry Charm","Warpath Commander's Charm","Warpath Mage Charm","Warpath Scout Charm","Warpath Warrior Charm","Water Jet Charm","Wax Charm","Wealth Charm","Wild Growth Charm","Winter Builder Charm","Winter Charm","Winter Hoarder Charm","Winter Miser Charm","Winter Screw Charm","Winter Spring Charm","Winter Wood Charm","Yellow Double Sponge Charm","Yellow Sponge Charm"]
 };
 
 // // Best weapon/base/charm/bait pre-determined by user. Edit ur best weapon/base/charm/bait in ascending order. e.g. [best, better, good]
@@ -151,7 +151,7 @@ var objBestTrap = {
 		draconic : ['Dragon Lance','Ice Maiden'],
 		forgotten : ['Infinite Labyrinth Trap','Endless Labyrinth Trap','Crystal Crucible Trap','Stale Cupcake Golem Trap','Tarannosaurus Rex Trap','Crystal Mineral Crusher Trap','The Forgotten Art of Dance'],
 		hydro : ['School of Sharks','Rune Shark Trap','Chrome Phantasmic Oasis Trap','Phantasmic Oasis Trap','Oasis Water Node Trap','Steam Laser Mk. III','Steam Laser Mk. II','Steam Laser Mk. I','Ancient Spear Gun'],
-		law : ['The Law Draw','Law Laser Trap','Engine Doubler','Bandit Deflector','Supply Grabber','S.L.A.C. II','S.L.A.C.'],
+		law : ['Meteor Prison Core Trap','The Law Draw','Law Laser Trap','Engine Doubler','Bandit Deflector','Supply Grabber','S.L.A.C. II','S.L.A.C.'],
 		physical : ['Chrome MonstroBot','Sandstorm MonstroBot','Sandtail Sentinel','Enraged RhinoBot'],
 		rift : ['Mysteriously unYielding','Multi-Crystal Laser','Focused Crystal Laser','Biomolecular Re-atomizer Trap','Crystal Tower'],
 		shadow : ['Temporal Turbine','Clockwork Portal Trap','Reaper\'s Perch','Dreaded Totem Trap','Candy Crusher Trap','Clockapult of Time','Clockapult of Winter Past'],
@@ -181,9 +181,9 @@ var objDefaultFW = {
 	base : 'Physical Brace',
 	focusType : 'NORMAL',
 	priorities : 'HIGHEST',
-	cheese : new Array(g_fwStreakLength),
-	charmType : new Array(g_fwStreakLength),
-	special : new Array(g_fwStreakLength),
+	cheese : new Array(g_fwStreakLength).fill('Gouda'),
+	charmType : new Array(g_fwStreakLength).fill('Warpath'),
+	special : new Array(g_fwStreakLength).fill('None'),
 	lastSoldierConfig : 'CONFIG_GOUDA',
 	includeArtillery : true,
 	disarmAfterSupportRetreat : false,
@@ -224,7 +224,7 @@ var objSCZone = {
 	ZONE_OXYGEN : 8,
 	ZONE_BONUS : 9
 };
-var bestSCBase = ['Minotaur Base', 'Depth Charge Base'];
+var bestSCBase = ['Minotaur Base','Fissure Base','Depth Charge Base'];
 
 // // Spring Egg Hunt
 var chargeCharm = ['Eggstra Charge', 'Eggscavator'];
@@ -261,7 +261,8 @@ var objDefaultLaby = {
 	lastHunt : 0,
 	armOtherBase : 'false',
 	disarmCompass : true,
-	nDeadEndClue : 0
+	nDeadEndClue : 0,
+	weaponFarming : 'Forgotten'
 };
 var objLength = {
 	SHORT : 0,
@@ -334,6 +335,7 @@ var g_objConstTrap = {
 
 // All global variable declaration and default value
 var g_strVersion = "";
+var g_strScriptHandler = "";
 var fbPlatform = false;
 var hiFivePlatform = false;
 var mhPlatform = false;
@@ -532,6 +534,7 @@ if (debugKR)
 var getMapPort;
 try{
 	if(!isNullOrUndefined(chrome.runtime.id)){
+		g_strScriptHandler = "Extensions";
 		g_strVersion = chrome.runtime.getManifest().version;
 		getMapPort = chrome.runtime.connect({name: 'map'});
 		getMapPort.onMessage.addListener(function(msg) {
@@ -540,20 +543,30 @@ try{
 				checkCaughtMouse(msg.obj, msg.array);
 		});
 	}
-	else
+	else{
+		g_strScriptHandler = GM_info.scriptHandler + " " + GM_info.version;
 		g_strVersion = GM_info.script.version;
+	}
 }
 catch (e){
+	console.perror('Before exeScript',e.message);
 	getMapPort = undefined;
 	g_strVersion = undefined;
+	g_strScriptHandler = undefined;
 }
 
 exeScript();
 
 function exeScript() {
-	setStorage('MHAB', g_strVersion);
 	console.pdebug("exeScript() Start");
 	browser = browserDetection();
+	if (!(browser == 'opera' || browser == 'chrome')){
+		console.plog(browser + " not supported.");
+		console.pdebug("exeScript() End");
+		return;
+	}
+	setStorage('MHAB', g_strVersion);
+	setStorage('ScriptHandler', g_strScriptHandler);
     // check the trap check setting first
 	trapCheckTimeDiff = GetTrapCheckTime();
 
@@ -650,9 +663,9 @@ function exeScript() {
                 action();
             }
             else {
-                // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
+				// fail to retrieve data, display error msg and reload the page
+				document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+				window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
         }
         else {
@@ -687,11 +700,11 @@ function exeScript() {
                 action();
             }
             else {
-                // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
+				// fail to retrieve data, display error msg and reload the page
+				document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+				window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
             }
-        }
+		}
         else {
             // not in huntcamp, just show the title of autobot version
             embedTimer(false);
@@ -731,18 +744,17 @@ function exeScript() {
                 action();
             }
             else {
-                // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
-            }
-        }
+				// fail to retrieve data, display error msg and reload the page
+				document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+				window.setTimeout(function () { reloadPage(false); }, errorReloadTime * 1000);
+			}
+		}
         else {
             // not in huntcamp, just show the title of autobot version
             embedTimer(false);
         }
     }
 	console.pdebug("exeScript() End");
-	return;
 }
 
 function GetTrapCheckTime(){
@@ -924,6 +936,18 @@ function getJournalDetailFRift(){
 		}
 	}
 	setStorage('LastRecordedJournalFRift', classJournal[0].parentNode.textContent);
+}
+
+function specialFeature(caller){
+	return;
+	var strSpecial = getStorageToVariableStr("SpecialFeature", "None");
+	console.pdebug('Special Selected:', strSpecial, 'Call From:', caller);
+    switch (strSpecial) {
+        case 'PILLOWCASE':
+            magicalPillowcase(); break;
+        default:
+            break;
+    }
 }
 
 function eventLocationCheck(caller) {
@@ -1120,7 +1144,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 	else{
 		bChangeTrap = (countArrayElement(-1, arrIndex) > 0 || bHasReward);
 	}
-	
+
 	bCanLeave = !bHasReward && bChangeTrap;
 	if(bChangeTrap){
 		for(i=arrIndex.length-1;i>=0;i--){
@@ -1210,6 +1234,10 @@ function fortRox(){
 	checkThenArm(null, 'trinket', objFRox.trinket[nIndex]);
 	if(objFRox.bait[nIndex] == 'ANY_LUNAR')
 		checkThenArm('any', 'bait', ['Moon Cheese', 'Crescent Cheese']);
+	else if(objFRox.bait[nIndex].indexOf('=>') > -1){
+		var arr = objFRox.bait[nIndex].split('=>');
+		checkThenArm('best', 'bait', arr);
+	}
 	else
 		checkThenArm(null, 'bait', objFRox.bait[nIndex]);
 	
@@ -1305,151 +1333,180 @@ function ges(){
 	var charmArmed = getPageVariable("user.trinket_name");
 	var arrCharm;
 	var nCharmQuantity;
-	if (!bOnTrain){
-		checkThenArm('best', 'weapon', objBestTrap.weapon.law);
-		checkThenArm('best', 'base', objBestTrap.base.luck);
-		arrCharm = ['Supply Schedule', 'Roof Rack', 'Door Guard', 'Greasy Blob', 'Magmatic Crystal', 'Black Powder', 'Dusty Coal'];
-		for(i=0;i<arrCharm.length;i++){
-			if(charmArmed.indexOf(arrCharm) > -1){
-				disarmTrap('trinket');
-				break;
-			}
-		}
-		return;
-	}
-
 	var objDefaultGES = {
-		SD : {
+		bLoadCrate : false,
+		nMinCrate : 11,
+		bUseRepellent : false,
+		nMinRepellent : 11,
+		bStokeEngine : false,
+		nMinFuelNugget : 20,
+		SD_BEFORE : {
 			weapon : '',
 			base : '',
-			trinket : {
-				before : '',
-				after : ''
-			},
-			bait : '',
-			bLoadCrate : false,
-			nMinCrate : 11
+			trinket : '',
+			bait : ''
+		},
+		SD_AFTER : {
+			weapon : '',
+			base : '',
+			trinket : '',
+			bait : ''
 		},
 		RR : {
 			weapon : '',
 			base : '',
 			trinket : '',
-			bait : '',
-			bUseRepellent : false,
-			nMinRepellent : 11
+			bait : ''
 		},
 		DC : {
 			weapon : '',
 			base : '',
 			trinket : '',
-			bait : '',
-			bStokeEngine : false,
-			nMinFuelNugget : 20
+			bait : ''
 		},
+		WAITING : {
+			weapon : '',
+			base : '',
+			trinket : '',
+			bait : ''
+		}
 	};
 	var objGES = getStorageToObject('GES', objDefaultGES);
+	var nPhaseSecLeft = parseInt(getPageVariable('user.quests.QuestTrainStation.phase_seconds_remaining'));
 	var strCurrentPhase = '';
-	var classPhase = document.getElementsByClassName('box phaseName');
-	if(classPhase.length > 0 && classPhase[0].children.length > 1)
-		strCurrentPhase = classPhase[0].children[1].textContent;
-	console.plog('Current Phase:', strCurrentPhase);
+	if(!bOnTrain){
+		strCurrentPhase = 'WAITING';
+	}
+	else{
+		var classPhase = document.getElementsByClassName('box phaseName');
+		if(classPhase.length > 0 && classPhase[0].children.length > 1)
+			strCurrentPhase = classPhase[0].children[1].textContent;
+	}
+	console.plog('Current Phase:', strCurrentPhase, 'Time Left (s):', nPhaseSecLeft);
 	if(strCurrentPhase === '')
 		return;
 	
 	var strStage = '';
 	if(strCurrentPhase.indexOf('Supply Depot') > -1 ){
-		strStage = 'SD';
-		var nTurn = parseInt(document.getElementsByClassName('supplyHoarderTab')[0].textContent.substr(0, 1));
-		console.plog("Supply Hoarder Turn:", nTurn);
-		if(nTurn <= 0){
-			if(objGES.SD.trinket.before.indexOf('Supply Schedule') > -1 && charmArmed.indexOf('Supply Schedule') < 0){
-				var classCharm = document.getElementsByClassName('charms');
-				var linkCharm = classCharm[0].children[0];
-				nCharmQuantity = parseInt(document.getElementsByClassName('charms')[0].getElementsByClassName('quantity')[0].textContent);
-				console.plog('Supply Schedule Charm Quantity:', nCharmQuantity);
-				if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0)
-					fireEvent(linkCharm, 'click');
-			}
-			else
-				checkThenArm(null, 'trinket', objGES.SD.trinket.before);
+		if(nPhaseSecLeft <= nextActiveTime || (enableTrapCheck && trapCheckTimeDiff===0 && nPhaseSecLeft <= 900)){ // total seconds left to next phase less than next active time or next trap check time
+			strStage = 'RR';
+			checkThenArm(null, 'trinket', objGES[strStage].trinket);
 		}
 		else{
-			if(objGES.SD.trinket.after.indexOf('Supply Schedule') > -1)
-				disarmTrap('trinket');
-			else
-				checkThenArm(null, 'trinket', objGES.SD.trinket.after);
+			var nTurn = parseInt(document.getElementsByClassName('supplyHoarderTab')[0].textContent.substr(0, 1));
+			console.plog("Supply Hoarder Turn:", nTurn);
+			if(nTurn <= 0){ // before
+				strStage = 'SD_BEFORE';
+				if(objGES.SD_BEFORE.trinket.indexOf('Supply Schedule') > -1 && charmArmed.indexOf('Supply Schedule') < 0){
+					var classCharm = document.getElementsByClassName('charms');
+					var linkCharm = classCharm[0].children[0];
+					nCharmQuantity = parseInt(document.getElementsByClassName('charms')[0].getElementsByClassName('quantity')[0].textContent);
+					console.plog('Supply Schedule Charm Quantity:', nCharmQuantity);
+					if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0)
+						fireEvent(linkCharm, 'click');
+				}
+				else
+					checkThenArm(null, 'trinket', objGES.SD_BEFORE.trinket);
+			}
+			else{
+				strStage = 'SD_AFTER';
+				if(objGES.SD_AFTER.trinket.indexOf('Supply Schedule') > -1)
+					disarmTrap('trinket');
+				else
+					checkThenArm(null, 'trinket', objGES.SD_AFTER.trinket);
+			}
 		}
 		
-		if(objGES.SD.bLoadCrate){
+		if(objGES.bLoadCrate){
 			var nCrateQuantity = parseInt(document.getElementsByClassName('supplyCrates')[0].getElementsByClassName('quantity')[0].textContent);
 			console.plog('Crate Quantity:', nCrateQuantity);
-			if(Number.isInteger(nCrateQuantity) && nCrateQuantity >= objGES.SD.nMinCrate)
+			if(Number.isInteger(nCrateQuantity) && nCrateQuantity >= objGES.nMinCrate)
 				fireEvent(document.getElementsByClassName('phaseButton')[0], 'click');
 		}
 	}
 	else if(strCurrentPhase.indexOf('Raider River') > -1 ){
-		strStage = 'RR';
-		if(objGES.RR.trinket == 'AUTO'){
-			// get raider status and arm respective charm
-			arrCharm = ['Roof Rack', 'Door Guard', 'Greasy Glob'];
-			var classTrainCarArea = document.getElementsByClassName('trainCarArea');
-			nCharmQuantity = 0;
-			var strAttack = '';
-			for (i=0;i<classTrainCarArea.length;i++) {
-				if(classTrainCarArea[i].className.indexOf('attacked') > -1){
-					strAttack = classTrainCarArea[i].className.substr(0, classTrainCarArea[i].className.indexOf(' '));
-					nCharmQuantity = parseInt(classTrainCarArea[i].getElementsByClassName('quantity')[0].textContent);
-					console.plog('Raiders Attack:', capitalizeFirstLetter(strAttack), ',', arrCharm[i], 'Charm Quantity:', nCharmQuantity);
-					if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(arrCharm[i]) < 0)
-						fireEvent(classTrainCarArea[i].firstChild, 'click');
-					else{
-						for(j=0;j<arrCharm.length;j++){
-							if(j!=i && charmArmed.indexOf(arrCharm[j]) > -1){
-								disarmTrap('trinket');
-								break;
+		if(nPhaseSecLeft <= nextActiveTime || (enableTrapCheck && trapCheckTimeDiff===0 && nPhaseSecLeft <= 900)){ // total seconds left to next phase less than next active time or next trap check time
+			strStage = 'DC';
+			checkThenArm(null, 'trinket', objGES[strStage].trinket);
+		}
+		else{
+			strStage = 'RR';
+			if(objGES.RR.trinket == 'AUTO'){
+				// get raider status and arm respective charm
+				arrCharm = ['Roof Rack', 'Door Guard', 'Greasy Glob'];
+				var classTrainCarArea = document.getElementsByClassName('trainCarArea');
+				nCharmQuantity = 0;
+				var strAttack = '';
+				for (i=0;i<classTrainCarArea.length;i++) {
+					if(classTrainCarArea[i].className.indexOf('attacked') > -1){
+						strAttack = classTrainCarArea[i].className.substr(0, classTrainCarArea[i].className.indexOf(' '));
+						nCharmQuantity = parseInt(classTrainCarArea[i].getElementsByClassName('quantity')[0].textContent);
+						console.plog('Raiders Attack:', capitalizeFirstLetter(strAttack), ',', arrCharm[i], 'Charm Quantity:', nCharmQuantity);
+						if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(arrCharm[i]) < 0)
+							fireEvent(classTrainCarArea[i].firstChild, 'click');
+						else{
+							for(j=0;j<arrCharm.length;j++){
+								if(j!=i && charmArmed.indexOf(arrCharm[j]) > -1){
+									disarmTrap('trinket');
+									break;
+								}
 							}
 						}
+						break;
 					}
-					break;
 				}
 			}
+			else
+				checkThenArm(null, 'trinket', objGES.RR.trinket);
 		}
-		else
-			checkThenArm(null, 'trinket', objGES.RR.trinket);
 		
-		if(objGES.RR.bUseRepellent){
+		if(objGES.bUseRepellent){
 			var nRepellentQuantity = parseInt(document.getElementsByClassName('mouseRepellent')[0].getElementsByClassName('quantity')[0].textContent);
 			console.plog('Repellent Quantity:', nRepellentQuantity);
-			if(Number.isInteger(nRepellentQuantity) && nRepellentQuantity >= objGES.RR.nMinRepellent)
+			if(Number.isInteger(nRepellentQuantity) && nRepellentQuantity >= objGES.nMinRepellent)
 				fireEvent(document.getElementsByClassName('phaseButton')[0], 'click');
 		}
 	}
-	if(strCurrentPhase.indexOf('Daredevil Canyon') > -1 ){
-		strStage = 'DC';
-		arrCharm = ['Magmatic Crystal Charm', 'Black Powder Charm', 'Dusty Coal Charm'];
-		if(objGES.DC.trinket == 'AUTO')
-			checkThenArm('best', 'trinket', arrCharm);
+	else if(strCurrentPhase.indexOf('Daredevil Canyon') > -1 ){
+		if(nPhaseSecLeft <= nextActiveTime || (enableTrapCheck && trapCheckTimeDiff===0 && nPhaseSecLeft <= 900)){ // total seconds left to next phase less than next active time or next trap check time
+			strStage = 'WAITING';
+			checkThenArm(null, 'trinket', objGES[strStage].trinket);
+		}
 		else{
-			arrCharm.reverse();
-			var nIndex = arrCharm.indexOf(objGES.DC.trinket);
-			if(arrCharm.indexOf(objGES.DC.trinket) > -1){
-				var classCharms = document.getElementsByClassName('charms');
-				nCharmQuantity = parseInt(classCharms[0].children[nIndex].getElementsByClassName('quantity')[0].textContent);
-				console.plog(objGES.DC.trinket, 'Quantity:', nCharmQuantity);
-				if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(objGES.DC.trinket) < 0)
-					fireEvent(classCharms[0].children[nIndex], 'click');
+			strStage = 'DC';
+			arrCharm = ['Magmatic Crystal Charm', 'Black Powder Charm', 'Dusty Coal Charm'];
+			if(objGES.DC.trinket == 'AUTO')
+				checkThenArm('best', 'trinket', arrCharm);
+			else{
+				arrCharm.reverse();
+				var nIndex = arrCharm.indexOf(objGES.DC.trinket);
+				if(arrCharm.indexOf(objGES.DC.trinket) > -1){
+					var classCharms = document.getElementsByClassName('charms');
+					nCharmQuantity = parseInt(classCharms[0].children[nIndex].getElementsByClassName('quantity')[0].textContent);
+					console.plog(objGES.DC.trinket, 'Quantity:', nCharmQuantity);
+					if(Number.isInteger(nCharmQuantity) && nCharmQuantity > 0 && charmArmed.indexOf(objGES.DC.trinket) < 0)
+						fireEvent(classCharms[0].children[nIndex], 'click');
+				}
+				else
+					checkThenArm(null, 'trinket', objGES.DC.trinket);
 			}
-			else
-				checkThenArm(null, 'trinket', objGES.DC.trinket);
 		}
 		
-		if(objGES.DC.bStokeEngine){
+		if(objGES.bStokeEngine){
 			// get fuel nugget quantity
 			var nFuelQuantity = parseInt(document.getElementsByClassName('fuelNugget')[0].getElementsByClassName('quantity')[0].textContent);
 			console.plog('Fuel Nugget Quantity:', nFuelQuantity);
-			if(Number.isInteger(nFuelQuantity) && nFuelQuantity >= objGES.DC.nMinFuelNugget)
+			if(Number.isInteger(nFuelQuantity) && nFuelQuantity >= objGES.nMinFuelNugget)
 				fireEvent(document.getElementsByClassName('phaseButton')[0], 'click');
 		}
+	}
+	else{
+		strStage = 'WAITING';
+		arrCharm = ['Supply Schedule', 'Roof Rack', 'Door Guard', 'Greasy Blob', 'Magmatic Crystal', 'Black Powder', 'Dusty Coal'];
+		if(objGES.WAITING.trinket.indexOf(arrCharm) > -1)
+			disarmTrap('trinket');
+		else
+			checkThenArm(null, 'trinket', objGES.WAITING.trinket);
 	}
 	checkThenArm(null, 'weapon', objGES[strStage].weapon);
 	checkThenArm(null, 'base', objGES[strStage].base);
@@ -1511,10 +1568,14 @@ function wwrift(){
 	var bResave = false;
 	if(objWWRift.factionFocus == 'MBW_40_44'){
 		for(i=0;i<objWWRift.rage.length;i++){
-			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
-				nBarMinRage++;
 			if(objWWRift.rage[i] >= 25)
 				nBar25++;
+		}
+		if(nBar25 >= 3){
+			for(i=0;i<objWWRift.rage.length;i++){
+				if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
+					nBarMinRage++;
+			}
 		}
 		nIndex = nBarMinRage + nBar25;
 		checkThenArm(null, 'weapon', objWWRift.MBW.rage4044.weapon[nIndex]);
@@ -1542,12 +1603,20 @@ function wwrift(){
 	}
 	else if(objWWRift.factionFocus == 'MBW_45_48'){
 		for(i=0;i<objWWRift.rage.length;i++){
-			if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
-				nBarMinRage++;
-			if(objWWRift.rage[i] >= 44)
-				nBar44++;
 			if(objWWRift.rage[i] >= 25)
 				nBar25++;
+		}
+		if(nBar25 >= 3){
+			for(i=0;i<objWWRift.rage.length;i++){
+				if(objWWRift.rage[i] >= 44)
+					nBar44++;
+			}
+		}
+		if(nBar44 >= 3){
+			for(i=0;i<objWWRift.rage.length;i++){
+				if(objWWRift.rage[i] >= objWWRift.MBW.minRageLLC)
+					nBarMinRage++;
+			}
 		}
 		nIndex = nBar25 + nBar44 + nBarMinRage;
 		checkThenArm(null, 'weapon', objWWRift.MBW.rage4548.weapon[nIndex]);
@@ -1609,14 +1678,15 @@ function wwrift(){
 
 function iceberg(){
 	var loc = GetCurrentLocation();
+	var arrOrder = ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP', 'SLUSHY'];
+	var objDefaultIceberg = {
+		base : new Array(9).fill(''),
+		trinket : new Array(9).fill('None'),
+		bait : new Array(9).fill('Gouda')
+	};
+	var objIceberg = getStorageToObject('Iceberg', objDefaultIceberg);
+	var nIndex = -1;
     if (loc.indexOf('Iceberg') > -1) {
-        var objDefaultIceberg = {
-			order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
-			base : new Array(8).fill(''),
-			trinket : new Array(8).fill('None'),
-			bait : new Array(8).fill('Gouda')
-		};
-		var objIceberg = getStorageToObject('Iceberg', objDefaultIceberg);
 		var phase;
 		var nProgress = -1;
 		var classCurrentPhase = document.getElementsByClassName('currentPhase');
@@ -1629,32 +1699,28 @@ function iceberg(){
 			nProgress = parseInt(classProgress[0].textContent.replace(',', ''));
 		else
 			nProgress = parseInt(getPageVariable('user.quests.QuestIceberg.user_progress'));
-		checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
         console.plog('In', phase, 'at', nProgress, 'feets');
 
-        var nIndex = -1;
 		if (nProgress == 300 || nProgress == 600 || nProgress == 1600 || nProgress == 1800)
 			nIndex = 0;
 		else{
 			phase = phase.toUpperCase();
-			for(var i=1;i<objIceberg.order.length;i++){
-				if(phase.indexOf(objIceberg.order[i]) > -1){
+			for(var i=1;i<arrOrder.length;i++){
+				if(phase.indexOf(arrOrder[i]) > -1){
 					nIndex = i;
 					break;
 				}	
 			}
 		}
-
-		if(nIndex < 0)
-			return;
-		checkThenArm(null, 'base', objIceberg.base[nIndex]);
-		checkThenArm(null, 'trinket', objIceberg.trinket[nIndex]);
-		checkThenArm(null, 'bait', objIceberg.bait[nIndex]);
     }
-	else if (loc.indexOf('Slushy Shoreline') > -1) {
-        checkThenArm(null, 'bait', 'Gouda');
-		disarmTrap('trinket');
-    }
+	else if (loc.indexOf('Slushy Shoreline') > -1)
+        nIndex = arrOrder.indexOf('SLUSHY');
+	if(nIndex < 0)
+		return;
+	checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
+	checkThenArm(null, 'base', objIceberg.base[nIndex]);
+	checkThenArm(null, 'trinket', objIceberg.trinket[nIndex]);
+	checkThenArm(null, 'bait', objIceberg.bait[nIndex]);
 }
 
 function BurroughRift(bCheckLoc, minMist, maxMist, nToggle)
@@ -1881,10 +1947,14 @@ function zugzwangTower(){
 	if(objZT.weapon[nIndex] == 'MPP/TPP'){
 		if(objZT.focus.indexOf('MYSTIC') === 0)
 			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Technic Pawn Pincher' : 'Mystic Pawn Pincher';
+		else
+			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Mystic Pawn Pincher' : 'Technic Pawn Pincher';
 	}
 	else if(objZT.weapon[nIndex] == 'BPT/OAT'){
 		if(objZT.focus.indexOf('MYSTIC') === 0)
 			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Obvious Ambush Trap' : 'Blackstone Pass Trap';
+		else
+			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Blackstone Pass Trap' : 'Obvious Ambush Trap';
 	}
 	
 	for (var prop in objZT) {
@@ -2429,8 +2499,12 @@ function labyrinth() {
 
 	if(isAtHallway){
 		var strCurHallwayFullname = document.getElementsByClassName('labyrinthHUD-hallwayName')[0].textContent.toUpperCase();
-		if(strCurHallwayFullname.indexOf('FARMING') > -1)
-			checkThenArm('best', 'weapon', ['New Horizon Trap','Event Horizon'].concat(objBestTrap.weapon.forgotten));
+		if(strCurHallwayFullname.indexOf('FARMING') > -1){
+			if(objLaby.weaponFarming == 'Arcane')
+				checkThenArm('best', 'weapon', objBestTrap.weapon.arcane.concat(objBestTrap.weapon.forgotten));
+			else
+				checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
+		}
 		else
 			checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 		if(objLaby.securityDisarm){
@@ -2590,8 +2664,12 @@ function labyrinth() {
 				}
 				for(var i=0;i<arrTemp.length;i++){
 					if(objDoors.name[arrTemp[i]].indexOf("BROKEN") < 0){
-						if(objDoors.name[arrTemp[i]].indexOf('FARMING') > -1)
-							checkThenArm('best', 'weapon', ['New Horizon Trap','Event Horizon'].concat(objBestTrap.weapon.forgotten));
+						if(objDoors.name[arrTemp[i]].indexOf('FARMING') > -1){
+							if(objLaby.weaponFarming == 'Arcane')
+								checkThenArm('best', 'weapon', objBestTrap.weapon.arcane.concat(objBestTrap.weapon.forgotten));
+							else
+								checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
+						}
 						else
 							checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 						checkThenArm(null, 'bait', 'Gouda');
@@ -2648,8 +2726,12 @@ function labyrinth() {
 		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
 		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
 		window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
-		if(objLaby.districtFocus.indexOf('FARMING') > -1)
-			checkThenArm('best', 'weapon', ['New Horizon Trap','Event Horizon'].concat(objBestTrap.weapon.forgotten));
+		if(objLaby.districtFocus.indexOf('FARMING') > -1){
+			if(objLaby.weaponFarming == 'Arcane')
+				checkThenArm('best', 'weapon', objBestTrap.weapon.arcane.concat(objBestTrap.weapon.forgotten));
+			else
+				checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
+		}
 		else
 			checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
 	}
@@ -2822,12 +2904,12 @@ function fw(){
 		else
 			charmName = "Warpath Commander's Charm";
 	}
-	else if(objFW.special[objFW.streak] == 'GARGANTUA'){
+	else if(objFW.special[objFW.streak].indexOf('GARGANTUA') === 0){
 		checkThenArm('best', 'weapon', objBestTrap.weapon.draconic);
-		if(charmArmed.indexOf('Warpath') > -1)
-			charmName = 'None';
+		if(objFW.special[objFW.streak] == 'GARGANTUA_GGC' && objFW.streak >= 7)
+			charmName = 'Gargantua Guarantee Charm';
 		else
-			charmName = undefined;
+			charmName = (charmArmed.indexOf('Warpath') > -1) ? 'None' : undefined;
 	}
 	else{
 		var bCurrentStreakZeroPopulation = false;
@@ -2945,8 +3027,8 @@ function fRift(){
 	objFR.enter = parseInt(objFR.enter);
 	objFR.retreat = parseInt(objFR.retreat);
 	var objUserFRift = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftFuroma)'));
-	console.pdebug(objUserFRift);
-	var bInPagoda = (objUserFRift.view_state == 'pagoda');
+	console.pdebug(objUserFRift.view_state);
+	var bInPagoda = (objUserFRift.view_state == 'pagoda' || objUserFRift.view_state == 'pagoda knows_all');
 	var i;
 	if(bInPagoda){
 		var nCurBatteryLevel = 0;
@@ -3383,6 +3465,10 @@ function checkMouse(mouseName) {
     }
 }
 
+function magicalPillowcase(){
+	
+}
+
 function checkCharge2016(stopDischargeAt){
 	try {
 		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
@@ -3737,20 +3823,20 @@ function armTrapClassicUI(sort, trap, name){
 }
 
 function armTrapNewUI(sort, trap, name){
-	var passedFiltersEle = document.getElementsByClassName('passedFilters')[0].children;
+	var itemEle = document.getElementsByClassName('campPage-trap-itemBrowser-item');
     var nameElement;
 	var arrName = (Array.isArray(name)) ? name.slice() : [name];
 	
     if (sort == 'best' || sort == 'any')
         name = name[0];
 	
-	if (passedFiltersEle.length > 0) {
+	if (itemEle.length > 0) {
 		console.pdebug('Trying to arm ' + name);
-		for (var i = 0; i < passedFiltersEle.length; i++) {
-			nameElement = passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
+		for (var i = 0; i < itemEle.length; i++) {
+			nameElement = itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
 			if (nameElement.indexOf(name) === 0) {
-				if(passedFiltersEle[i].getAttribute('class').indexOf('canArm') > -1)
-					fireEvent(passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-armButton')[0], 'click');
+				if(itemEle[i].getAttribute('class').indexOf('canArm') > -1)
+					fireEvent(itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-armButton')[0], 'click');
 				else
 					closeTrapSelector(trap);
 				if(objTrapList[trap].indexOf(nameElement) < 0){
@@ -3855,7 +3941,7 @@ function retrieveDataFirst() {
 					nextActiveTime = parseInt(hornTimerString);
 
 					hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
-					console.plog('Horn Time:', nextActiveTime, 'Delay:', hornTimeDelay);
+					//console.plog('Horn Time:', nextActiveTime, 'Delay:', hornTimeDelay);
 					if (!aggressiveMode) {
 						// calculation base on the js in Mousehunt
 						var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
@@ -3907,6 +3993,7 @@ function retrieveDataFirst() {
 					hasPuzzleStartIndex += 12;
 					var hasPuzzleEndIndex = scriptString.indexOf(",", hasPuzzleStartIndex);
 					var hasPuzzleString = scriptString.substring(hasPuzzleStartIndex, hasPuzzleEndIndex);
+					console.plog('hasPuzzleString:', hasPuzzleString);
 					isKingReward = (hasPuzzleString != 'false');
 
 					gotPuzzle = true;
@@ -4021,21 +4108,19 @@ function GetHornTime() {
 }
 
 function getKingRewardStatus() {
-	return (getPageVariable('user.has_puzzle') == 'true');
+	var strValue = getPageVariable('user.has_puzzle');
+	console.plog('user.has_puzzle:', strValue);
+	return (strValue == 'true');
 	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
 	if (headerOrHud !== null) {
 		var textContentLowerCase = headerOrHud.textContent.toLowerCase();
-		if(bLog === true){
-			console.plog('user.has_puzzle:', getPageVariable('user.has_puzzle'));
-			console.plog('textContentLowerCase:', textContentLowerCase);
-		}
 		if (textContentLowerCase.indexOf("king reward") > -1 ||
 			textContentLowerCase.indexOf("king's reward") > -1 ||
 			textContentLowerCase.indexOf("kings reward") > -1) {
 			return true;
 		}
 		else
-			return (getPageVariable('user.has_puzzle') == 'true');
+			return (strValue == 'true');
 	}
 	else
 		return false;
@@ -4072,16 +4157,10 @@ function getCurrentLocation() {
 function retrieveData() {
 	try {
 		// get next horn time
-		browser = browserDetection();
-		if (!(browser == 'firefox' || browser == 'opera' || browser == 'chrome')) {
-			window.setTimeout(function () { reloadWithMessage("Browser not supported. Reloading...", false); }, 60000);
-		}
-		
 		currentLocation = getCurrentLocation();
 		isKingReward = getKingRewardStatus();
 		g_nBaitQuantity = getBaitQuantity();
 		nextActiveTime = GetHornTime();
-
 		if (nextActiveTime === "" || isNaN(nextActiveTime)) {
 			// fail to retrieve data, might be due to slow network
 
@@ -4090,42 +4169,29 @@ function retrieveData() {
 		}
 		else {
 			// got the timer right!
-
 			if(nextActiveTime === 0)
 				hornTimeDelay = 0;
 			else{
 				// calculate the delay
 				hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
 			}
-
 			console.plog('Horn Time:', nextActiveTime, 'Delay:', hornTimeDelay);
 			if (!aggressiveMode) {
-				// calculation base on the js in Mousehunt
-				var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
-				if (timerInterval !== "" && !isNaN(timerInterval) && timerInterval == 1) {
-					additionalDelayTime = 2;
-				}
-
 				// safety mode, include extra delay like time in horn image appear
-				//hornTime = nextActiveTime + additionalDelayTime + hornTimeDelay;
 				hornTime = nextActiveTime + hornTimeDelay;
-				lastDateRecorded = undefined;
-				lastDateRecorded = new Date();
-
-				additionalDelayTime = undefined;
 			}
 			else {
 				// aggressive mode, no extra delay like time in horn image appear
 				hornTime = nextActiveTime;
-				lastDateRecorded = undefined;
-				lastDateRecorded = new Date();
 			}
+			lastDateRecorded = new Date();
 		}
 
 		// get trap check time
 		CalculateNextTrapCheckInMinute();
 		getJournalDetail();
 		eventLocationCheck('retrieveData()');
+		specialFeature('retrieveData()');
 		mapHunting();
 	}
 	catch (e) {
@@ -4240,6 +4306,7 @@ function action() {
 		try{
 			getJournalDetail();
 			eventLocationCheck('action()');
+			specialFeature('action()');
 			mapHunting();
 		}
 		catch (e){
@@ -4443,7 +4510,7 @@ function embedTimer(targetPage) {
             titleElement.setAttribute('id', 'titleElement');
             if (targetPage && aggressiveMode)
 				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a> - <font color='red'>Aggressive Mode</font>";
-			else if (targetPage && browser != 'chrome')
+			else if (targetPage && browser != 'chrome' && browser != 'opera')
 				titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a> - <font color='red'><b>Pls use Chrome browser for fully working features</b></font>";
             else
                 titleElement.innerHTML = "<a href=\"http://devcnn.wordpress.com\" target=\"_blank\"><b>MouseHunt AutoBot (version " + g_strVersion + " Enhanced Edition)</b></a>";
@@ -4746,7 +4813,7 @@ function embedTimer(targetPage) {
 			
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Weapon for </b></a>';
-			preferenceHTMLStr += '<select id="selectBestTrapPowerType" onchange="initControlsBestTrap();">';
+			preferenceHTMLStr += '<select id="selectBestTrapPowerType" style="width:75px;" onchange="initControlsBestTrap();">';
 			preferenceHTMLStr += '<option value="arcane">Arcane</option>';
 			preferenceHTMLStr += '<option value="draconic">Draconic</option>';
 			preferenceHTMLStr += '<option value="forgotten">Forgotten</option>';
@@ -4766,7 +4833,7 @@ function embedTimer(targetPage) {
 
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Base for </b></a>';
-			preferenceHTMLStr += '<select id="selectBestTrapBaseType" onchange="initControlsBestTrap();">';
+			preferenceHTMLStr += '<select id="selectBestTrapBaseType" style="width:75px;" onchange="initControlsBestTrap();">';
 			preferenceHTMLStr += '<option value="luck">Luck</option>';
 			preferenceHTMLStr += '<option value="power">Power</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -4819,6 +4886,16 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<td style="height:24px" colspan="2">';
             preferenceHTMLStr += '<div style="width: 100%; height: 1px; background: #000000; overflow: hidden;">';
             preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trSpecialFeature" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select special feature"><b>Special Feature</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectSpecialFeature" onchange="onSelectSpecialFeature();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="PILLOWCASE">Open Magical Pillowcase</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr>';
@@ -4964,6 +5041,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Crescent">Crescent</option>';
 			preferenceHTMLStr += '<option value="Moon">Moon</option>';
 			preferenceHTMLStr += '<option value="ANY_LUNAR">Moon/Crescent</option>';
+			preferenceHTMLStr += '<option value="Moon=>Crescent">Moon=>Crescent</option>';
+			preferenceHTMLStr += '<option value="Crescent=>Moon">Crescent=>Moon</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectFRoxActivateTower" style="width: 75px;" onchange="saveFRox();">';
 			preferenceHTMLStr += '<option value="false">Deactivate Tower</option>';
@@ -4984,14 +5063,16 @@ function embedTimer(targetPage) {
 
 			preferenceHTMLStr += '<tr id="trGESTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Trap Setup at </b></a>';
-			preferenceHTMLStr += '<select id="selectGESStage" onchange="initControlsGES();">';
-			preferenceHTMLStr += '<option value="SD">Supply Depot</option>';
+			preferenceHTMLStr += '<select id="selectGESStage" style="width: 75px;" onchange="initControlsGES();">';
+			preferenceHTMLStr += '<option value="SD_BEFORE">Supply Depot (No Supply Rush)</option>';
+			preferenceHTMLStr += '<option value="SD_AFTER">Supply Depot (Supply Rush)</option>';
 			preferenceHTMLStr += '<option value="RR">Raider River</option>';
 			preferenceHTMLStr += '<option value="DC">Daredevil Canyon</option>';
+			preferenceHTMLStr += '<option value="WAITING">Waiting</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<select id="selectGESTrapWeapon" onchange="saveGES();">';
+			preferenceHTMLStr += '<select id="selectGESTrapWeapon" style="width: 75px;" onchange="saveGES();">';
 			preferenceHTMLStr += '<option value="S.L.A.C.">S.L.A.C.</option>';
 			preferenceHTMLStr += '<option value="S.L.A.C. II">S.L.A.C. II</option>';
 			preferenceHTMLStr += '<option value="Supply Grabber">Supply Grabber</option>';
@@ -4999,15 +5080,11 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Engine Doubler">Engine Doubler</option>';
 			preferenceHTMLStr += '<option value="The Law Draw">The Law Draw</option>';
 			preferenceHTMLStr += '<option value="Law Laser Trap">Law Laser Trap</option>';
+			preferenceHTMLStr += '<option value="Meteor Prison Core Trap">Meteor Prison Core Trap</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGESTrapBase" style="width: 75px" onchange="saveGES();">';
 			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectGESSDTrapTrinketBefore" style="width: 75px;" onchange="saveGES();">';
-			preferenceHTMLStr += '<option value="NSR" disabled="disabled">===No Supply Rush===</option>';
-			preferenceHTMLStr += '<option value="None">None</option>';
-			preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectGESSDTrapTrinketAfter" style="width: 75px;" onchange="saveGES();">';
-			preferenceHTMLStr += '<option value="DSR" disabled="disabled">===During Supply Rush===</option>';
+			preferenceHTMLStr += '<select id="selectGESTrapTrinket" style="width: 75px;" onchange="saveGES();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectGESRRTrapTrinket" style="width: 75px;display:none" onchange="saveGES();">';
@@ -5263,6 +5340,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="ICEWING">Icewing\'s Lair</option>';
 			preferenceHTMLStr += '<option value="HIDDEN">Hidden Depths</option>';
 			preferenceHTMLStr += '<option value="DEEP">The Deep Lair</option>';
+			preferenceHTMLStr += '<option value="SLUSHY">Slushy Shoreline</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5725,6 +5803,16 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
+			preferenceHTMLStr += '<tr id="trLabyrinthWeaponFarming" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select weapon type in farming hallways"><b>Weapon Type in Farming</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectLabyrinthWeaponType" onchange="saveLaby();">';
+			preferenceHTMLStr += '<option value="Forgotten">Forgotten</option>';
+			preferenceHTMLStr += '<option value="Arcane">Arcane</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
 			preferenceHTMLStr += '<tr id="trZokorTrapSetup" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select trap setup under different boss status"><b>Trap Setup When</b></a>';
@@ -5869,6 +5957,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="COMMANDER">Commander</option>';
 			preferenceHTMLStr += '<option value="GARGANTUA">Gargantua</option>';
+			preferenceHTMLStr += '<option value="GARGANTUA_GGC" disabled="disabled">Gargantua GGC</option>';
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
@@ -6013,7 +6102,7 @@ function embedTimer(targetPage) {
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon'],
 				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase','selectBRTrapBase','selectWWRiftTrapBase','selectWWRiftMBWTrapBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESSDTrapTrinketAfter','selectGESSDTrapTrinketBefore','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESTrapTrinket','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket','selectGESTrapTrinket'],
 				bait : ['selectBait','selectGWHBait']
 			};
 			var temp;
@@ -6324,6 +6413,54 @@ function loadPreferenceSettingFromStorage() {
 		// Disable GWH2016
 		if(getStorageToVariableStr("eventLocation", "None").indexOf('GWH2016') > -1)
 			setStorage("eventLocation", "None");
+		
+		// Backward compatibility of GES
+		keyValue = getStorage('GES');
+		if(!isNullOrUndefined(keyValue)){
+			obj = JSON.parse(keyValue);
+			if(isNullOrUndefined(obj.SD_BEFORE)){
+				var objNew = {
+					bLoadCrate : obj.SD.bLoadCrate,
+					nMinCrate : obj.SD.nMinCrate,
+					bUseRepellent : obj.RR.bUseRepellent,
+					nMinRepellent : obj.RR.nMinRepellent,
+					bStokeEngine : obj.DC.bStokeEngine,
+					nMinFuelNugget : obj.DC.nMinFuelNugget,
+					SD_BEFORE : {
+						weapon : obj.SD.weapon,
+						base : obj.SD.base,
+						trinket : obj.SD.trinket.before,
+						bait : obj.SD.bait,
+					},
+					SD_AFTER : {
+						weapon : obj.SD.weapon,
+						base : obj.SD.base,
+						trinket : obj.SD.trinket.after,
+						bait : obj.SD.bait,
+					},
+					RR : {
+						weapon : obj.RR.weapon,
+						base : obj.RR.base,
+						trinket : obj.RR.trinket,
+						bait : obj.RR.bait,
+					},
+					DC : {
+						weapon : obj.DC.weapon,
+						base : obj.DC.base,
+						trinket : obj.DC.trinket,
+						bait : obj.DC.bait,
+					},
+					WAITING : {
+						weapon : '',
+						base : '',
+						trinket : '',
+						bait : ''
+					}
+				};
+				setStorage('GES', JSON.stringify(objNew));
+				setSessionStorage('GES', JSON.stringify(objNew));
+			}
+		}
 	}
 	catch (e){
 		console.perror('loadPreferenceSettingFromStorage',e.message);
@@ -6380,17 +6517,17 @@ function getTrapListFromTrapSelector(sort, category, name, isForcedRetry){
 	objTrapList[category] = [];
 	var sec = secWait;
 	var retry = armTrapRetry;
-	var i, j, tagGroupElement, tagElement, nameElement, passedFiltersEle;
+	var i, j, tagGroupElement, tagElement, nameElement, itemEle;
     var intervalGTLFTS = setInterval(
         function (){
 			if(isNewUI)
-				passedFiltersEle = document.getElementsByClassName('passedFilters')[0].children;
+				itemEle = document.getElementsByClassName('campPage-trap-itemBrowser-item');
 			else
 				tagGroupElement = document.getElementsByClassName('tagGroup');
 
-			if(isNewUI && passedFiltersEle.length > 0){
-				for (i = 0; i < passedFiltersEle.length; i++) {
-					nameElement = passedFiltersEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
+			if(isNewUI && itemEle.length > 0){
+				for (i = 0; i < itemEle.length; i++) {
+					nameElement = itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
 					objTrapList[category].push(nameElement);
 				}
 				setStorage("TrapList" + capitalizeFirstLetter(category), objTrapList[category].join(","));
@@ -7390,26 +7527,16 @@ function replaceAll(str, find, replace) {
 
 function browserDetection() {
     var browserName = "unknown";
-
     var userAgentStr = navigator.userAgent.toString().toLowerCase();
-    if (userAgentStr.indexOf("firefox") >= 0) {
+    if (userAgentStr.indexOf("firefox") >= 0)
         browserName = "firefox";
-    }
-    else if (userAgentStr.indexOf("opera") >= 0) {
+    else if (userAgentStr.indexOf("opera") >= 0 || userAgentStr.indexOf("opr/") >= 0)
         browserName = "opera";
-    }
-    else if (userAgentStr.indexOf("chrome") >= 0) {
+    else if (userAgentStr.indexOf("chrome") >= 0)
         browserName = "chrome";
-    }
+	setStorage('Browser', browserName);
 	setStorage('UserAgent', userAgentStr);
-    userAgentStr = null;
-
-    try {
-        return (browserName);
-    }
-    finally {
-        browserName = null;
-    }
+	return browserName;
 }
 
 function setSessionStorage(name, value) {
@@ -7597,10 +7724,10 @@ function fireEvent(element, event) {
 }
 
 function getPageVariable(variableName) {
-    var value;
+    var value = "";
 	try {
-		if (browser == 'chrome') {
-			// google chrome only
+		if (browser == 'chrome' || browser == 'opera') {
+			// google chrome & opera only
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('id', "scriptElement");
 			scriptElement.setAttribute('type', "text/javascript");
@@ -7612,15 +7739,11 @@ function getPageVariable(variableName) {
 			scriptElement = null;
 			variableName = null;
 		}
-		else {
-			value = eval(variableName + ';');
-		}
-		return value;
 	}
 	catch (e) {
 		console.perror('getPageVariable',e.message);
-		return "";
 	}
+	return value;
 }
 
 function timeElapsed(dateA, dateB) {
@@ -7910,6 +8033,24 @@ function bodyJS(){
 		}
 	}
 	
+	function onSelectSpecialFeature(){
+		saveSpecialFeature();
+	}
+	
+	function saveSpecialFeature(){
+		var selectSpecialFeature = document.getElementById('selectSpecialFeature');
+		window.sessionStorage.setItem('SpecialFeature', selectSpecialFeature.value);
+	}
+	
+	function initControlsSpecialFeature(){
+		var selectSpecialFeature = document.getElementById('selectSpecialFeature');
+		var storageValue = window.sessionStorage.getItem('SpecialFeature');
+		if(storageValue === null || storageValue === undefined){
+			storageValue = 'None';
+		}
+		selectSpecialFeature.value = storageValue;
+	}
+	
 	function onSelectMapHuntingChanged(){
 		saveMapHunting();
 		initControlsMapHunting();
@@ -8087,7 +8228,7 @@ function bodyJS(){
 		saveMapHunting();
 	}
 
-	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R'];
+	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R','SpecialFeature'];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -8409,6 +8550,7 @@ function bodyJS(){
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 		var inputLabyrinthDEC = document.getElementById('inputLabyrinthDEC');
 		var selectLabyrinthDisarmCompass = document.getElementById('selectLabyrinthDisarmCompass');
+		var selectLabyrinthWeaponType = document.getElementById('selectLabyrinthWeaponType');
 		var storageValue = window.sessionStorage.getItem('Labyrinth');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultLaby = {
@@ -8422,7 +8564,8 @@ function bodyJS(){
 				lastHunt : 0,
 				armOtherBase : 'false',
 				disarmCompass : true,
-				nDeadEndClue : 0
+				nDeadEndClue : 0,
+				weaponFarming : 'Forgotten'
 			};
 			storageValue = JSON.stringify(objDefaultLaby);
 		}
@@ -8439,6 +8582,7 @@ function bodyJS(){
 		storageValue.armOtherBase = selectLabyrinthOtherBase.value;
 		storageValue.disarmCompass = (selectLabyrinthDisarmCompass.value == 'true');
 		storageValue.nDeadEndClue = parseInt(inputLabyrinthDEC.value);
+		storageValue.weaponFarming = selectLabyrinthWeaponType.value;
 		window.sessionStorage.setItem('Labyrinth', JSON.stringify(storageValue));
 	}
 
@@ -8457,6 +8601,7 @@ function bodyJS(){
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
 		var selectLabyrinthDisarmCompass = document.getElementById('selectLabyrinthDisarmCompass');
 		var inputLabyrinthDEC = document.getElementById('inputLabyrinthDEC');
+		var selectLabyrinthWeaponType = document.getElementById('selectLabyrinthWeaponType');
 		var storageValue = window.sessionStorage.getItem('Labyrinth');
 		if(isNullOrUndefined(storageValue)){
 			selectLabyrinthDistrict.selectedIndex = -1;
@@ -8473,6 +8618,7 @@ function bodyJS(){
 			selectLabyrinthOtherBase.selectedIndex = -1;
 			selectLabyrinthDisarmCompass.selectedIndex = -1;
 			inputLabyrinthDEC.value = 0;
+			selectLabyrinthWeaponType.selectedIndex = 0;
 		}
 		else{
 			storageValue = JSON.parse(storageValue);
@@ -8490,6 +8636,7 @@ function bodyJS(){
 			selectLabyrinthOtherBase.value = storageValue.armOtherBase;
 			selectLabyrinthDisarmCompass.value = (storageValue.disarmCompass) ? 'true' : 'false';
 			inputLabyrinthDEC.value = storageValue.nDeadEndClue;
+			selectLabyrinthWeaponType.value = storageValue.weaponFarming;
 		}
 		inputLabyrinthLastHunt.disabled = (storageValue.securityDisarm) ? '' : 'disabled';
 		document.getElementById('trPriorities15').style.display = (selectLabyrinthDistrict.value == 'None') ? 'none' : 'table-row';
@@ -8696,6 +8843,15 @@ function bodyJS(){
 			selectFWLastTypeConfig.value = storageValue[strWave].lastSoldierConfig;
 			selectFWLastTypeConfigIncludeArtillery.value = (storageValue[strWave].includeArtillery) ? 'true' : 'false';
 			selectFWSupportConfig.value = (storageValue[strWave].disarmAfterSupportRetreat) ? 'true' : 'false';
+		}
+		for(var i=0;i<selectFWSpecial.options.length;i++){
+			if(selectFWSpecial.options[i].value == 'GARGANTUA_GGC'){
+				if(selectFWStreak.selectedIndex >= 7)
+					selectFWSpecial.options[i].removeAttribute('disabled');
+				else
+					selectFWSpecial.options[i].setAttribute('disabled','disabled');
+				break;
+			}
 		}
 		var nWave = parseInt(selectFWWave.value);
 		var option = selectFWFocusType.children;
@@ -9173,7 +9329,7 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = 0;
-			if(bAutoChangeBatteryLevel && !isNullOrUndefined(user) && user.location.indexOf('Furoma Rift') > -1 && user.quests.QuestRiftFuroma.view_state == 'pagoda'){
+			if(bAutoChangeBatteryLevel && !isNullOrUndefined(user) && user.location.indexOf('Furoma Rift') > -1 && (user.quests.QuestRiftFuroma.view_state == 'pagoda' || user.quests.QuestRiftFuroma.view_state == 'pagoda knows_all')){
 				var classCharge = document.getElementsByClassName('riftFuromaHUD-droid-charge');
 				if(classCharge.length > 0){
 					var nRemainingEnergy = parseInt(classCharge[0].innerText.replace(/,/g, ''));
@@ -9209,17 +9365,17 @@ function bodyJS(){
 		var selectIcebergBait = document.getElementById('selectIcebergBait');
 		var selectIcebergTrinket = document.getElementById('selectIcebergTrinket');
 		var storageValue = window.sessionStorage.getItem('Iceberg');
+		var arrOrder = ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP', 'SLUSHY'];
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultIceberg = {
-				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
-				base : new Array(8).fill(''),
-				trinket : new Array(8).fill('None'),
-				bait : new Array(8).fill('Gouda')
+				base : new Array(9).fill(''),
+				trinket : new Array(9).fill('None'),
+				bait : new Array(9).fill('Gouda')
 			};
 			storageValue = JSON.stringify(objDefaultIceberg);
 		}
 		storageValue = JSON.parse(storageValue);
-		var nIndex = storageValue.order.indexOf(selectIcebergPhase.value);
+		var nIndex = arrOrder.indexOf(selectIcebergPhase.value);
 		if(nIndex < 0)
 			nIndex = 0;
 		storageValue.base[nIndex] = selectIcebergBase.value;
@@ -9244,24 +9400,29 @@ function bodyJS(){
 		else{
 			storageValue = JSON.parse(storageValue);
 			var nIndex = -1;
-			if(bAutoChangePhase && !isNullOrUndefined(user) && user.location.indexOf('Iceberg') > -1){
-				var classCurrentPhase = document.getElementsByClassName('currentPhase');
-				var phase = (classCurrentPhase.length > 0) ? classCurrentPhase[0].textContent : user.quests.QuestIceberg.current_phase;
-				var classProgress = document.getElementsByClassName('user_progress');
-				var nProgress = (classProgress.length > 0) ? parseInt(classProgress[0].textContent.replace(',', '')) : parseInt(user.quests.QuestIceberg.user_progress);
-				if (nProgress == 300 || nProgress == 600 || nProgress == 1600 || nProgress == 1800)
-					nIndex = 0;
-				else{
-					phase = phase.toUpperCase();
-					for(var i=1;i<storageValue.order.length;i++){
-						if(phase.indexOf(storageValue.order[i]) > -1){
-							selectIcebergPhase.value = storageValue.order[i];
-							break;
-						}	
+			var arrOrder = ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP', 'SLUSHY'];
+			if(bAutoChangePhase && !isNullOrUndefined(user)){
+				if(user.location.indexOf('Iceberg') > -1){
+					var classCurrentPhase = document.getElementsByClassName('currentPhase');
+					var phase = (classCurrentPhase.length > 0) ? classCurrentPhase[0].textContent : user.quests.QuestIceberg.current_phase;
+					var classProgress = document.getElementsByClassName('user_progress');
+					var nProgress = (classProgress.length > 0) ? parseInt(classProgress[0].textContent.replace(',', '')) : parseInt(user.quests.QuestIceberg.user_progress);
+					if (nProgress == 300 || nProgress == 600 || nProgress == 1600 || nProgress == 1800)
+						nIndex = 0;
+					else{
+						phase = phase.toUpperCase();
+						for(var i=1;i<arrOrder.length;i++){
+							if(phase.indexOf(arrOrder[i]) > -1){
+								selectIcebergPhase.value = arrOrder[i];
+								break;
+							}	
+						}
 					}
 				}
+				else if(user.location.indexOf('Slushy Shoreline') > -1)
+					selectIcebergPhase.value = 'SLUSHY';
 			}
-			nIndex = storageValue.order.indexOf(selectIcebergPhase.value);
+			nIndex = arrOrder.indexOf(selectIcebergPhase.value);
 			selectIcebergBase.value = storageValue.base[nIndex];
 			selectIcebergTrinket.value = storageValue.trinket[nIndex];
 			selectIcebergBait.value = storageValue.bait[nIndex];
@@ -9543,8 +9704,7 @@ function bodyJS(){
 		var selectGESStage = document.getElementById('selectGESStage');
 		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
 		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
-		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
-		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESSDTrapTrinket = document.getElementById('selectGESSDTrapTrinket');
 		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
 		var selectGESDCTrapTrinket = document.getElementById('selectGESDCTrapTrinket');
 		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
@@ -9557,33 +9717,42 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('GES');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGES = {
-				SD : {
+				bLoadCrate : false,
+				nMinCrate : 11,
+				bUseRepellent : false,
+				nMinRepellent : 11,
+				bStokeEngine : false,
+				nMinFuelNugget : 20,
+				SD_BEFORE : {
 					weapon : '',
 					base : '',
-					trinket : {
-						before : '',
-						after : ''
-					},
-					bait : '',
-					bLoadCrate : false,
-					nMinCrate : 11
+					trinket : '',
+					bait : ''
+				},
+				SD_AFTER : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : ''
 				},
 				RR : {
 					weapon : '',
 					base : '',
 					trinket : '',
-					bait : '',
-					bUseRepellent : false,
-					nMinRepellent : 11
+					bait : ''
 				},
 				DC : {
 					weapon : '',
 					base : '',
 					trinket : '',
-					bait : '',
-					bStokeEngine : false,
-					nMinFuelNugget : 20
+					bait : ''
 				},
+				WAITING : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : ''
+				}
 			};
 			storageValue = JSON.stringify(objDefaultGES);
 		}
@@ -9592,22 +9761,18 @@ function bodyJS(){
 		storageValue[strStage].weapon = selectGESTrapWeapon.value;
 		storageValue[strStage].base = selectGESTrapBase.value;
 		storageValue[strStage].bait = selectGESTrapBait.value;
-		if(strStage == 'SD'){
-			storageValue.SD.trinket.before = selectGESSDTrapTrinketBefore.value;
-			storageValue.SD.trinket.after = selectGESSDTrapTrinketAfter.value;
-		}
-		else if (strStage == 'RR'){
-			storageValue.RR.trinket = selectGESRRTrapTrinket.value;
-		}
-		else if (strStage == 'DC'){
-			storageValue.DC.trinket = selectGESDCTrapTrinket.value;
-		}
-		storageValue.SD.bLoadCrate = (selectGESSDLoadCrate.value == 'true');
-		storageValue.SD.nMinCrate = parseInt(inputMinCrate.value);
-		storageValue.RR.bUseRepellent = (selectGESRRRepellent.value == 'true');
-		storageValue.RR.nMinRepellent = parseInt(inputMinRepellent.value);
-		storageValue.DC.bStokeEngine = (selectGESDCStokeEngine.value == 'true');
-		storageValue.DC.nMinFuelNugget = parseInt(inputMinFuelNugget.value);
+		if (strStage == 'RR')
+			storageValue[strStage].trinket = selectGESRRTrapTrinket.value;
+		else if (strStage == 'DC')
+			storageValue[strStage].trinket = selectGESDCTrapTrinket.value;
+		else
+			storageValue[strStage].trinket = selectGESTrapTrinket.value;
+		storageValue.bLoadCrate = (selectGESSDLoadCrate.value == 'true');
+		storageValue.nMinCrate = parseInt(inputMinCrate.value);
+		storageValue.bUseRepellent = (selectGESRRRepellent.value == 'true');
+		storageValue.nMinRepellent = parseInt(inputMinRepellent.value);
+		storageValue.bStokeEngine = (selectGESDCStokeEngine.value == 'true');
+		storageValue.nMinFuelNugget = parseInt(inputMinFuelNugget.value);
 		window.sessionStorage.setItem('GES', JSON.stringify(storageValue));
 	}
 	
@@ -9617,8 +9782,7 @@ function bodyJS(){
 		var selectGESStage = document.getElementById('selectGESStage');
 		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
 		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
-		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
-		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESTrapTrinket = document.getElementById('selectGESTrapTrinket');
 		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
 		var selectGESDCTrapTrinket = document.getElementById('selectGESDCTrapTrinket');
 		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
@@ -9635,20 +9799,24 @@ function bodyJS(){
 				var classPhase = document.getElementsByClassName('box phaseName');
 				if(classPhase.length > 0 && classPhase[0].children.length > 1)
 					strCurrentPhase = classPhase[0].children[1].textContent;
-				if(strCurrentPhase == 'Supply Depot')
+				if(strCurrentPhase == 'Supply Depot'){
 					selectGESStage.value = 'SD';
+					var nTurn = parseInt(document.getElementsByClassName('supplyHoarderTab')[0].textContent.substr(0, 1));
+					selectGESStage.value = (nTurn <= 0) ? 'SD_BEFORE' : 'SD_AFTER';
+				}
 				else if(strCurrentPhase == 'Raider River')
 					selectGESStage.value = 'RR';
 				else if(strCurrentPhase == 'Daredevil Canyon')
 					selectGESStage.value = 'DC';
 			}
+			else
+				selectGESStage.value = 'WAITING';
 		}
 		var strStage = selectGESStage.value;
 		if(isNullOrUndefined(storageValue)){
 			selectGESTrapWeapon.selectedIndex = -1;
 			selectGESTrapBase.selectedIndex = -1;
-			selectGESSDTrapTrinketBefore.selectedIndex = -1;
-			selectGESSDTrapTrinketAfter.selectedIndex = -1;
+			selectGESTrapTrinket.selectedIndex = -1;
 			selectGESRRTrapTrinket.selectedIndex = -1;
 			selectGESDCTrapTrinket.selectedIndex = -1;
 			selectGESTrapBait.selectedIndex = -1;
@@ -9664,39 +9832,33 @@ function bodyJS(){
 			selectGESTrapWeapon.value = storageValue[strStage].weapon;
 			selectGESTrapBase.value = storageValue[strStage].base;
 			selectGESTrapBait.value = storageValue[strStage].bait;
-			if(strStage == 'SD'){
-				selectGESSDTrapTrinketBefore.value = storageValue.SD.trinket.before;
-				selectGESSDTrapTrinketAfter.value = storageValue.SD.trinket.after;
-			}
-			else if(strStage == 'RR')
+			if(strStage == 'RR')
 				selectGESRRTrapTrinket.value = storageValue.RR.trinket;
 			else if(strStage == 'DC')
 				selectGESDCTrapTrinket.value = storageValue.DC.trinket;
-
-			selectGESSDLoadCrate.value = (storageValue.SD.bLoadCrate === true) ? 'true' : 'false';
-			inputMinCrate.value = storageValue.SD.nMinCrate;
-			selectGESRRRepellent.value = (storageValue.RR.bUseRepellent === true) ? 'true' : 'false';
-			inputMinRepellent.value = storageValue.RR.nMinRepellent;
-			selectGESDCStokeEngine.value = (storageValue.DC.bStokeEngine === true) ? 'true' : 'false';
-			inputMinFuelNugget.value = storageValue.DC.nMinFuelNugget;
+			else
+				selectGESTrapTrinket.value = storageValue[strStage].trinket;
+			selectGESSDLoadCrate.value = (storageValue.bLoadCrate === true) ? 'true' : 'false';
+			inputMinCrate.value = storageValue.nMinCrate;
+			selectGESRRRepellent.value = (storageValue.bUseRepellent === true) ? 'true' : 'false';
+			inputMinRepellent.value = storageValue.nMinRepellent;
+			selectGESDCStokeEngine.value = (storageValue.bStokeEngine === true) ? 'true' : 'false';
+			inputMinFuelNugget.value = storageValue.nMinFuelNugget;
 		}
-		if(strStage == 'SD'){
-			selectGESSDTrapTrinketBefore.style.display = '';
-			selectGESSDTrapTrinketAfter.style.display = '';
-			selectGESRRTrapTrinket.style.display = 'none';
-			selectGESDCTrapTrinket.style.display = 'none';
-		}
-		else if(strStage == 'RR'){
-			selectGESSDTrapTrinketBefore.style.display = 'none';
-			selectGESSDTrapTrinketAfter.style.display = 'none';
+		if(strStage == 'RR'){
+			selectGESTrapTrinket.style.display = 'none';
 			selectGESRRTrapTrinket.style.display = '';
 			selectGESDCTrapTrinket.style.display = 'none';
 		}
 		else if(strStage == 'DC'){
-			selectGESSDTrapTrinketBefore.style.display = 'none';
-			selectGESSDTrapTrinketAfter.style.display = 'none';
+			selectGESTrapTrinket.style.display = 'none';
 			selectGESRRTrapTrinket.style.display = 'none';
 			selectGESDCTrapTrinket.style.display = '';
+		}
+		else{
+			selectGESTrapTrinket.style.display = '';
+			selectGESRRTrapTrinket.style.display = 'none';
+			selectGESDCTrapTrinket.style.display = 'none';
 		}
 		inputMinCrate.disabled = (selectGESSDLoadCrate.value == 'true') ? '' : 'disabled';
 		inputMinRepellent.disabled = (selectGESRRRepellent.value == 'true') ? '' : 'disabled';
@@ -9714,7 +9876,7 @@ function bodyJS(){
 				init : function(data){initControlsSCCustom(data);}
 			},
 			'Labyrinth' : {
-				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass'],
+				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass','trLabyrinthWeaponFarming'],
 				init : function(data){initControlsLaby(data);}
 			},
 			'Fiery Warpath' : {
@@ -9774,6 +9936,7 @@ function bodyJS(){
 			objTableRow[algo].init(true);
 
 		initControlsMapHunting();
+		initControlsSpecialFeature();
 	}
 }
 // ################################################################################################

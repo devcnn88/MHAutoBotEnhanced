@@ -129,7 +129,7 @@
 				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><b>Best Weapon for </b>
-						<select id="selectBestTrapPowerType" onchange="onSelectBestTrapPowerType();">
+						<select id="selectBestTrapPowerType" style="width:75px;" onchange="onSelectBestTrapPowerType();">
 							<option value="arcane">Arcane</option>
 							<option value="draconic">Draconic</option>
 							<option value="forgotten">Forgotten</option>
@@ -154,7 +154,7 @@
 				</tr>
 				<tr>
 					<td style="height:24px; text-align:right;"><b>Best Base for </b>
-						<select id="selectBestTrapBaseType" onchange="onSelectBestTrapBaseType();">
+						<select id="selectBestTrapBaseType" style="width:75px;" onchange="onSelectBestTrapBaseType();">
 							<option value="luck">Luck</option>
 							<option value="power">Power</option>
 						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
@@ -195,6 +195,15 @@
 				<tr>
 					<td style="height:24px" colspan="2">
 						<div style="width: 100%; height: 1px; background: #000000; overflow: hidden;">
+					</td>
+				</tr>
+				<tr>
+					<td style="height:24px; text-align:right;"><a title="Select special feature"><b>Special Feature</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectSpecialFeature" onchange="onSelectSpecialFeature();">
+							<option value="None">None</option>
+							<option value="PILLOWCASE">Open Magical Pillowcase</option>
+						</select>
 					</td>
 				</tr>
 				<tr>
@@ -353,10 +362,12 @@
 				</tr>
 				<tr id="trGESTrapSetup" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select"><b>Trap Setup at </b></a>
-						<select id="selectGESStage" onchange="onSelectGESStage();">
-							<option value="SD">Supply Depot</option>
+						<select id="selectGESStage" style="width: 75px;" onchange="onSelectGESStage();">
+							<option value="SD_BEFORE">Supply Depot (No Supply Rush)</option>
+							<option value="SD_AFTER">Supply Depot (Supply Rush)</option>
 							<option value="RR">Raider River</option>
 							<option value="DC">Daredevil Canyon</option>
+							<option value="WAITING">Waiting</option>
 						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
 					</td>
 					<td style="height:24px">
@@ -377,19 +388,14 @@
 							<option value="Attuned Enerchi Induction Base">A. Enerchi</option>
 							<option value="Minotaur Base">Minotaur</option>
 						</select>
-						<select id="selectGESSDTrapTrinketBefore" style="width: 75px;" onchange="onSelectGESSDTrapTrinketBefore();">
-							<option value="NSR" disabled="disabled">===No Supply Rush===</option>
-							<option value="None">None</option>
-						</select>
-						<select id="selectGESSDTrapTrinketAfter" style="width: 75px;" onchange="onSelectGESSDTrapTrinketAfter();">
-							<option value="DSR" disabled="disabled">===During Supply Rush===</option>
+						<select id="selectGESTrapTrinket" style="width: 75px;" onchange="onSelectGESTrapTrinket();">
 							<option value="None">None</option>
 						</select>
 						<select id="selectGESRRTrapTrinket" style="width: 75px;display:none" onchange="onSelectGESRRTrapTrinket();">
 							<option value="None">None</option>
 							<option value="AUTO">Roof Rack/Door Guard/Greasy Glob</option>
 						</select>
-						<select id="selectGESDDTrapTrinket" style="width: 75px;display:none" onchange="onSelectGESDDTrapTrinket();">
+						<select id="selectGESDCTrapTrinket" style="width: 75px;display:none" onchange="onSelectGESDCTrapTrinket();">
 							<option value="None">None</option>
 							<option value="AUTO">Black Powder/Dusty Coal</option>
 						</select>
@@ -421,10 +427,10 @@
 						<input type="number" id="inputMinRepellent" min="1" max="50" size="5" value="11" onchange="onInputMinRepellentChanged(this);">
 					</td>
 				</tr>
-				<tr id="trGESDDStokeEngine" style="display:none;">
+				<tr id="trGESDCStokeEngine" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select"><b>Stoke Engine</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="selectGESDDStokeEngine" onchange="onSelectGESDDStokeEngine();">
+						<select id="selectGESDCStokeEngine" onchange="onSelectGESDCStokeEngine();">
 							<option value="false">False</option>
 							<option value="true">True</option>
 						</select>&nbsp;&nbsp;<a title=""><b>At Fuel Nuggests Batch Size:</b></a>&nbsp;
@@ -560,6 +566,7 @@
 							<option value="ICEWING">Icewing's Lair</option>
 							<option value="HIDDEN">Hidden Depths</option>
 							<option value="DEEP">The Deep Lair</option>
+							<option value="SLUSHY">Slushy Shoreline</option>
 						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
 					</td>
 					<td style="height:24px">
@@ -997,14 +1004,12 @@
 						</select>
 					</td>
 				</tr>
-				<tr id="trLabyrinthGG" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select when/how GG is armed"><b>Arm GG At</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+				<tr id="trLabyrinthWeaponFarming" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select weapon type in farming hallways"><b>Weapon Type in Farming</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="selectGGType" onchange="onSelectGGTypeChanged();">
-							<option value="CLUE_RANGE">Clue Range</option>
-							<option value="HALLWAY_TYPE">Hallway Type</option>
-							<option value="FOCUSING_DISTRICT">Focusing District</option>
-							<option value="None">None</option>
+						<select id="selectLabyrinthWeaponType" onchange="onSelectLabyrinthWeaponType();">
+							<option value="Forgotten">Forgotten</option>
+							<option value="Arcane">Arcane</option>
 						</select>
 					</td>
 				</tr>
@@ -1127,6 +1132,7 @@
 							<option value="None">None</option>
 							<option value="COMMANDER">Commander</option>
 							<option value="GARGANTUA">Gargantua</option>
+							<option value="GARGANTUA_GGC" disabled="disabled">Gargantua - GGC</option>
 						</select>
 					</td>
 				</tr>
@@ -1306,6 +1312,24 @@
 		a.click();
 	}
 	
+	function onSelectSpecialFeature(){
+		saveSpecialFeature();
+	}
+	
+	function saveSpecialFeature(){
+		var selectSpecialFeature = document.getElementById('selectSpecialFeature');
+		window.sessionStorage.setItem('SpecialFeature', selectSpecialFeature.value);
+	}
+	
+	function initControlsSpecialFeature(){
+		var selectSpecialFeature = document.getElementById('selectSpecialFeature');
+		var storageValue = window.sessionStorage.getItem('SpecialFeature');
+		if(storageValue === null || storageValue === undefined){
+			storageValue = 'None';
+		}
+		selectSpecialFeature.value = storageValue;
+	}
+	
 	function onSelectMapHuntingChanged(){
 		saveMapHunting();
 		initControlsMapHunting();
@@ -1470,7 +1494,7 @@
 		saveMapHunting();
 	}
 	
-	var arrKey = ['SCCustom','Labyrinth_','LGArea','eventLocation','FW_','BRCustom','SGZT','Zokor','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016'];
+	var arrKey = ['SCCustom','Labyrinth_','LGArea','eventLocation','FW_','BRCustom','SGZT','Zokor','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016','SpecialFeature'];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -1825,6 +1849,10 @@
 		saveLabyrinthHallway();
 	}
 	
+	function onSelectLabyrinthWeaponType(){
+		saveLabyrinthHallway();
+	}
+	
 	function saveLabyrinthHallway(){
 		var selectHallway15Plain = document.getElementById('selectHallway15Plain');
 		var selectHallway1560Plain = document.getElementById('selectHallway1560Plain');
@@ -1833,6 +1861,7 @@
 		var selectHallway60Superior = document.getElementById('selectHallway60Superior');
 		var selectHallway60Epic = document.getElementById('selectHallway60Epic');
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
+		var selectLabyrinthWeaponType = document.getElementById('selectLabyrinthWeaponType');
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
 			between15and59  : ['SP','LS'],
@@ -1841,7 +1870,8 @@
 			typeOtherDoors : "SHORTEST_ONLY",
 			securityDisarm : false,
 			lastHunt : 0,
-			armOtherBase : 'None'
+			armOtherBase : 'None',
+			weaponFarming : 'Forgotten'
 		};
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		if(storageValue === null)
@@ -1855,6 +1885,7 @@
 		storageValue.securityDisarm = (document.getElementById('selectLabyrinthDisarm').value == 'true');
 		storageValue.lastHunt = parseInt(document.getElementById('inputLabyrinthLastHunt').value);
 		storageValue.armOtherBase = selectLabyrinthOtherBase.value;
+		storageValue.weaponFarming = selectLabyrinthWeaponType.value;
 		window.sessionStorage.setItem('Labyrinth_HallwayPriorities', JSON.stringify(storageValue));
 	}
 	
@@ -1883,6 +1914,7 @@
 		var selectChooseOtherDoors = document.getElementById('chooseOtherDoors');
 		var typeOtherDoors = document.getElementById('typeOtherDoors');
 		var selectLabyrinthOtherBase = document.getElementById('selectLabyrinthOtherBase');
+		var selectLabyrinthWeaponType = document.getElementById('selectLabyrinthWeaponType');
 		var storageValue = JSON.parse(window.sessionStorage.getItem('Labyrinth_HallwayPriorities'));
 		var objDefaultHallwayPriorities = {
 			between0and14 : ['LP'],
@@ -1892,7 +1924,8 @@
 			typeOtherDoors : "SHORTEST_ONLY",
 			securityDisarm : false,
 			lastHunt : 0,
-			armOtherBase : 'None'
+			armOtherBase : 'None',
+			weaponFarming : 'Forgotten'
 		};
 		if(storageValue === null){
 			storageValue = JSON.stringify(objDefaultHallwayPriorities);
@@ -1917,6 +1950,7 @@
 		typeOtherDoors.value = storageValue.typeOtherDoors;
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 		selectLabyrinthOtherBase.value = storageValue.armOtherBase;
+		selectLabyrinthWeaponType.value = storageValue.weaponFarming;
 	}
 
 	function onSelectLGTGAutoPourSide(){
@@ -2237,6 +2271,15 @@
 				selectFWLastTypeConfigIncludeArtillery.disabled = '';
 			else
 				selectFWLastTypeConfigIncludeArtillery.disabled = 'disabled';
+		}
+		for(var i=0;i<selectFWSpecial.options.length;i++){
+			if(selectFWSpecial.options[i].value == 'GARGANTUA_GGC'){
+				if(selectFWStreak.selectedIndex >= 7)
+					selectFWSpecial.options[i].removeAttribute('disabled');
+				else
+					selectFWSpecial.options[i].setAttribute('disabled','disabled');
+				break;
+			}
 		}
 	}
 	
@@ -2674,10 +2717,10 @@
 		var storageValue = window.sessionStorage.getItem('Iceberg');
 		if(storageValue === null || storageValue === undefined){
 			var objDefaultIceberg = {
-				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP'],
-				base : new Array(8).fill(''),
-				trinket : new Array(8).fill('None'),
-				bait : new Array(8).fill('Gouda')
+				order : ['GENERAL', 'TREACHEROUS', 'BRUTAL', 'BOMBING', 'MAD', 'ICEWING', 'HIDDEN', 'DEEP', 'SLUSHY'],
+				base : new Array(9).fill(''),
+				trinket : new Array(9).fill('None'),
+				bait : new Array(9).fill('Gouda')
 			};
 			storageValue = JSON.stringify(objDefaultIceberg);
 		}
@@ -3024,11 +3067,7 @@
 		saveGES();
 	}
 	
-	function onSelectGESSDTrapTrinketBefore(){
-		saveGES();
-	}
-	
-	function onSelectGESSDTrapTrinketAfter(){
+	function onSelectGESTrapTrinket(){
 		saveGES();
 	}
 	
@@ -3036,7 +3075,7 @@
 		saveGES();
 	}
 	
-	function onSelectGESDDTrapTrinket(){
+	function onSelectGESDCTrapTrinket(){
 		saveGES();
 	}
 	
@@ -3062,7 +3101,7 @@
 		saveGES();
 	}
 	
-	function onSelectGESDDStokeEngine(){
+	function onSelectGESDCStokeEngine(){
 		saveGES();
 		initControlsGES();
 	}
@@ -3075,47 +3114,55 @@
 		var selectGESStage = document.getElementById('selectGESStage');
 		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
 		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
-		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
-		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESTrapTrinket = document.getElementById('selectGESTrapTrinket');
 		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
-		var selectGESDDTrapTrinket = document.getElementById('selectGESDDTrapTrinket');
+		var selectGESDCTrapTrinket = document.getElementById('selectGESDCTrapTrinket');
 		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
 		var selectGESSDLoadCrate = document.getElementById('selectGESSDLoadCrate');
 		var inputMinCrate = document.getElementById('inputMinCrate');
 		var selectGESRRRepellent = document.getElementById('selectGESRRRepellent');
 		var inputMinRepellent = document.getElementById('inputMinRepellent');
-		var selectGESDDStokeEngine = document.getElementById('selectGESDDStokeEngine');
+		var selectGESDCStokeEngine = document.getElementById('selectGESDCStokeEngine');
 		var inputMinFuelNugget = document.getElementById('inputMinFuelNugget');
 		var storageValue = window.sessionStorage.getItem('GES');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultGES = {
-				SD : {
+				bLoadCrate : false,
+				nMinCrate : 11,
+				bUseRepellent : false,
+				nMinRepellent : 11,
+				bStokeEngine : false,
+				nMinFuelNugget : 20,
+				SD_BEFORE : {
 					weapon : '',
 					base : '',
-					trinket : {
-						before : '',
-						after : ''
-					},
-					bait : '',
-					bLoadCrate : false,
-					nMinCrate : 11
+					trinket : '',
+					bait : ''
+				},
+				SD_AFTER : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : ''
 				},
 				RR : {
 					weapon : '',
 					base : '',
 					trinket : '',
-					bait : '',
-					bUseRepellent : false,
-					nMinRepellent : 11
+					bait : ''
 				},
 				DC : {
 					weapon : '',
 					base : '',
 					trinket : '',
-					bait : '',
-					bStokeEngine : false,
-					nFuelNuggetBatchSize : 20
+					bait : ''
 				},
+				WAITING : {
+					weapon : '',
+					base : '',
+					trinket : '',
+					bait : ''
+				}
 			};
 			storageValue = JSON.stringify(objDefaultGES);
 		}
@@ -3124,22 +3171,18 @@
 		storageValue[strStage].weapon = selectGESTrapWeapon.value;
 		storageValue[strStage].base = selectGESTrapBase.value;
 		storageValue[strStage].bait = selectGESTrapBait.value;
-		if(strStage == 'SD'){
-			storageValue.SD.trinket.before = selectGESSDTrapTrinketBefore.value;
-			storageValue.SD.trinket.after = selectGESSDTrapTrinketAfter.value;
-		}
-		else if (strStage == 'RR'){
-			storageValue.RR.trinket = selectGESRRTrapTrinket.value;
-		}
-		else if (strStage == 'DC'){
-			storageValue.DC.trinket = selectGESDDTrapTrinket.value;
-		}
-		storageValue.SD.bLoadCrate = (selectGESSDLoadCrate.value == 'true');
-		storageValue.SD.nMinCrate = parseInt(inputMinCrate.value);
-		storageValue.RR.bUseRepellent = (selectGESRRRepellent.value == 'true');
-		storageValue.RR.nMinRepellent = parseInt(inputMinRepellent.value);
-		storageValue.DC.bStokeEngine = (selectGESDDStokeEngine.value == 'true');
-		storageValue.DC.nFuelNuggetBatchSize = parseInt(inputMinFuelNugget.value);
+		if (strStage == 'RR')
+			storageValue[strStage].trinket = selectGESRRTrapTrinket.value;
+		else if (strStage == 'DC')
+			storageValue[strStage].trinket = selectGESDCTrapTrinket.value;
+		else
+			storageValue[strStage].trinket = selectGESTrapTrinket.value;
+		storageValue.bLoadCrate = (selectGESSDLoadCrate.value == 'true');
+		storageValue.nMinCrate = parseInt(inputMinCrate.value);
+		storageValue.bUseRepellent = (selectGESRRRepellent.value == 'true');
+		storageValue.nMinRepellent = parseInt(inputMinRepellent.value);
+		storageValue.bStokeEngine = (selectGESDCStokeEngine.value == 'true');
+		storageValue.nMinFuelNugget = parseInt(inputMinFuelNugget.value);
 		window.sessionStorage.setItem('GES', JSON.stringify(storageValue));
 	}
 	
@@ -3147,32 +3190,30 @@
 		var selectGESStage = document.getElementById('selectGESStage');
 		var selectGESTrapWeapon = document.getElementById('selectGESTrapWeapon');
 		var selectGESTrapBase = document.getElementById('selectGESTrapBase');
-		var selectGESSDTrapTrinketBefore = document.getElementById('selectGESSDTrapTrinketBefore');
-		var selectGESSDTrapTrinketAfter = document.getElementById('selectGESSDTrapTrinketAfter');
+		var selectGESTrapTrinket = document.getElementById('selectGESTrapTrinket');
 		var selectGESRRTrapTrinket = document.getElementById('selectGESRRTrapTrinket');
-		var selectGESDDTrapTrinket = document.getElementById('selectGESDDTrapTrinket');
+		var selectGESDCTrapTrinket = document.getElementById('selectGESDCTrapTrinket');
 		var selectGESTrapBait = document.getElementById('selectGESTrapBait');
 		var selectGESSDLoadCrate = document.getElementById('selectGESSDLoadCrate');
 		var inputMinCrate = document.getElementById('inputMinCrate');
 		var selectGESRRRepellent = document.getElementById('selectGESRRRepellent');
 		var inputMinRepellent = document.getElementById('inputMinRepellent');
-		var selectGESDDStokeEngine = document.getElementById('selectGESDDStokeEngine');
+		var selectGESDCStokeEngine = document.getElementById('selectGESDCStokeEngine');
 		var inputMinFuelNugget = document.getElementById('inputMinFuelNugget');
 		var storageValue = window.sessionStorage.getItem('GES');
 		var strStage = selectGESStage.value;
 		if(isNullOrUndefined(storageValue)){
 			selectGESTrapWeapon.selectedIndex = -1;
 			selectGESTrapBase.selectedIndex = -1;
-			selectGESSDTrapTrinketBefore.selectedIndex = -1;
-			selectGESSDTrapTrinketAfter.selectedIndex = -1;
+			selectGESTrapTrinket.selectedIndex = -1;
 			selectGESRRTrapTrinket.selectedIndex = -1;
-			selectGESDDTrapTrinket.selectedIndex = -1;
+			selectGESDCTrapTrinket.selectedIndex = -1;
 			selectGESTrapBait.selectedIndex = -1;
 			selectGESSDLoadCrate.selectedIndex = 0;
 			inputMinCrate.value = 11;
 			selectGESRRRepellent.selectedIndex = 0;
 			inputMinRepellent.value = 11;
-			selectGESDDStokeEngine.selectedIndex = 0;
+			selectGESDCStokeEngine.selectedIndex = 0;
 			inputMinFuelNugget.value = 20;
 		}
 		else{
@@ -3180,43 +3221,37 @@
 			selectGESTrapWeapon.value = storageValue[strStage].weapon;
 			selectGESTrapBase.value = storageValue[strStage].base;
 			selectGESTrapBait.value = storageValue[strStage].bait;
-			if(strStage == 'SD'){
-				selectGESSDTrapTrinketBefore.value = storageValue.SD.trinket.before;
-				selectGESSDTrapTrinketAfter.value = storageValue.SD.trinket.after;
-			}
-			else if(strStage == 'RR')
+			if(strStage == 'RR')
 				selectGESRRTrapTrinket.value = storageValue.RR.trinket;
 			else if(strStage == 'DC')
-				selectGESDDTrapTrinket.value = storageValue.DC.trinket;
-			
-			selectGESSDLoadCrate.value = (storageValue.SD.bLoadCrate === true) ? 'true' : 'false';
-			inputMinCrate.value = storageValue.SD.nMinCrate;
-			selectGESRRRepellent.value = (storageValue.RR.bUseRepellent === true) ? 'true' : 'false';
-			inputMinRepellent.value = storageValue.RR.nMinRepellent;
-			selectGESDDStokeEngine.value = (storageValue.DC.bStokeEngine === true) ? 'true' : 'false';
-			inputMinFuelNugget.value = storageValue.DC.nFuelNuggetBatchSize;
+				selectGESDCTrapTrinket.value = storageValue.DC.trinket;
+			else
+				selectGESTrapTrinket.value = storageValue[strStage].trinket;
+			selectGESSDLoadCrate.value = (storageValue.bLoadCrate === true) ? 'true' : 'false';
+			inputMinCrate.value = storageValue.nMinCrate;
+			selectGESRRRepellent.value = (storageValue.bUseRepellent === true) ? 'true' : 'false';
+			inputMinRepellent.value = storageValue.nMinRepellent;
+			selectGESDCStokeEngine.value = (storageValue.bStokeEngine === true) ? 'true' : 'false';
+			inputMinFuelNugget.value = storageValue.nMinFuelNugget;
 		}
-		if(strStage == 'SD'){
-			selectGESSDTrapTrinketBefore.style.display = '';
-			selectGESSDTrapTrinketAfter.style.display = '';
-			selectGESRRTrapTrinket.style.display = 'none';
-			selectGESDDTrapTrinket.style.display = 'none';
-		}
-		else if(strStage == 'RR'){
-			selectGESSDTrapTrinketBefore.style.display = 'none';
-			selectGESSDTrapTrinketAfter.style.display = 'none';
+		if(strStage == 'RR'){
+			selectGESTrapTrinket.style.display = 'none';
 			selectGESRRTrapTrinket.style.display = '';
-			selectGESDDTrapTrinket.style.display = 'none';
+			selectGESDCTrapTrinket.style.display = 'none';
 		}
 		else if(strStage == 'DC'){
-			selectGESSDTrapTrinketBefore.style.display = 'none';
-			selectGESSDTrapTrinketAfter.style.display = 'none';
+			selectGESTrapTrinket.style.display = 'none';
 			selectGESRRTrapTrinket.style.display = 'none';
-			selectGESDDTrapTrinket.style.display = '';
+			selectGESDCTrapTrinket.style.display = '';
+		}
+		else{
+			selectGESTrapTrinket.style.display = '';
+			selectGESRRTrapTrinket.style.display = 'none';
+			selectGESDCTrapTrinket.style.display = 'none';
 		}
 		inputMinCrate.disabled = (selectGESSDLoadCrate.value == 'true') ? '' : 'disabled';
 		inputMinRepellent.disabled = (selectGESRRRepellent.value == 'true') ? '' : 'disabled';
-		inputMinFuelNugget.disabled = (selectGESDDStokeEngine.value == 'true') ? '' : 'disabled';
+		inputMinFuelNugget.disabled = (selectGESDCStokeEngine.value == 'true') ? '' : 'disabled';
 	}
 	
 	function showOrHideTr(algo){
@@ -3230,7 +3265,7 @@
 				init : function(data){initControlsSCCustom(data);}
 			},
 			'Labyrinth' : {
-				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass'],
+				arr : ['trLabyrinth','trPriorities15','trPriorities1560','trPriorities60','trLabyrinthOtherHallway','trLabyrinthDisarm','trLabyrinthArmOtherBase', 'trLabyrinthDisarmCompass','trLabyrinthWeaponFarming'],
 				init : function(data){initControlsLaby(data);}
 			},
 			'Fiery Warpath' : {
@@ -3262,7 +3297,7 @@
 				init : function(data){initControlsWWRift(data);}
 			},
 			'GES' : {
-				arr : ['trGESTrapSetup', 'trGESSDLoadCrate', 'trGESRRRepellent', 'trGESDDStokeEngine'],
+				arr : ['trGESTrapSetup', 'trGESSDLoadCrate', 'trGESRRRepellent', 'trGESDCStokeEngine'],
 				init : function(data){initControlsGES(data);}
 			},
 			'Fort Rox' : {
@@ -3286,5 +3321,6 @@
 			objTableRow[algo].init(true);
 
 		initControlsMapHunting();
+		initControlsSpecialFeature();
 	}
 </script>
