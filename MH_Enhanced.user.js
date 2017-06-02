@@ -1002,6 +1002,8 @@ function eventLocationCheck(caller) {
 			balackCoveJOD(); break;
 		case 'FG/AR':
 			forbiddenGroveAR(); break;
+		case 'Bristle Woods Rift':
+			bwRift(); break;
 		case 'Fort Rox':
 			fortRox(); break;
 		case 'Test':
@@ -1163,6 +1165,42 @@ function GetCurrentLocation(){
 	var loc = getPageVariable('user.location');
     console.pdebug('Current Location:', loc);
 	return loc;
+}
+
+function bwRift(){
+	if (GetCurrentLocation().indexOf("Bristle Woods Rift") < 0)
+		return;
+
+	var objDefaultBWRift = {
+		chamber : ['Non-Chamber','Gearworks','Ancient Lab','Runic Laboratory','Timewarp Chamber','Guard Barracks','Silence Chamber','Frozen Alcove','Furnace Room','Ingress Chamber','Pursuer Mousoleum','Acolyte Chamber'],
+		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SILENCE','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE'],
+		weapon : new Array(12).fill(''),
+		base : new Array(12).fill(''),
+		trinket : new Array(12).fill('None'),
+		bait : new Array(12).fill('Brie String'),
+		activate : new Array(12).fill(false),
+	};
+
+	var objBWRift = getStorageToObject('BWRift', objDefaultBWRift);
+	var objUser = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftBristleWoods)'));
+	var nIndex = -1;
+	var nRemaining = objUser.progress_remaining;
+	if(nRemaining > 0)
+		nIndex = objBWRift.chamber.indexOf(objUser.chamber_name);
+	else
+		nIndex = 0;
+	console.plog('Status:', objUser.chamber_status, 'Name:', objUser.chamber_name, 'Index:', nIndex);
+	
+	if(nIndex < 0)
+		return;
+	checkThenArm(null, 'weapon', objBWRift.weapon[nIndex]);
+	checkThenArm(null, 'base', objBWRift.base[nIndex]);
+	checkThenArm(null, 'trinket', objBWRift.trinket[nIndex]);
+	checkThenArm(null, 'bait', objBWRift.bait[nIndex]);
+	var classLootBooster = document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment lootBooster mousehuntTooltipParent')[0];
+	var bPocketwatchActive = (classLootBooster.getAttribute('class').indexOf('selected') > -1);
+	if(objBWRift.activate[nIndex] ^ bPocketwatchActive)
+		fireEvent(document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment-action')[0],'click');
 }
 
 function fortRox(){
@@ -4883,6 +4921,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<option value="None" selected>None</option>';
 			preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
 			preferenceHTMLStr += '<option value="BC/JOD">BC => JOD</option>';
+			preferenceHTMLStr += '<option value="Bristle Woods Rift">Bristle Woods Rift</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>';
 			preferenceHTMLStr += '<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>';
@@ -4909,6 +4948,60 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();' + temp + '">';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trBWRiftTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Trap Setup at </b></a>';
+			preferenceHTMLStr += '<select id="selectBWRiftChamber" style="width: 75px;" onchange="initControlsBWRift();">';
+			preferenceHTMLStr += '<option value="NONE">Non-Chamber</option>';
+			preferenceHTMLStr += '<option value="GEARWORKS">Gearworks</option>';
+			preferenceHTMLStr += '<option value="ANCIENT">Ancient Lab</option>';
+			preferenceHTMLStr += '<option value="RUNIC">Runic Laboratory</option>';
+			preferenceHTMLStr += '<option value="TIMEWARP">Timewarp Chamber</option>';
+			preferenceHTMLStr += '<option value="GUARD">Guard Barracks</option>';
+			preferenceHTMLStr += '<option value="SILENCE">Silence Chamber</option>';
+			preferenceHTMLStr += '<option value="FROZEN">Frozen Alcove</option>';
+			preferenceHTMLStr += '<option value="FURNACE">Furnace Room</option>';
+			preferenceHTMLStr += '<option value="INGRESS">Ingress Chamber</option>';
+			preferenceHTMLStr += '<option value="PURSUER">Pursuer Mousoleum</option>';
+			preferenceHTMLStr += '<option value="ACOLYTE">Acolyte Chamber</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBWRiftWeapon" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="Timesplit Dissonance Weapon">TDW</option>';
+			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
+			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
+			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
+			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
+			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftBase" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="Clockwork Base">Clockwork</option>';
+			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
+			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
+			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
+			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
+			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
+			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftTrinket" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftBait" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Runic String">Runic</option>';
+			preferenceHTMLStr += '<option value="Ancient String">Ancient</option>';
+			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
+			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
+			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
+			preferenceHTMLStr += '<option value="Marble String">Marble</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftActivatePocketWatch" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="false">Deactivate Quantum Pocketwatch</option>';
+			preferenceHTMLStr += '<option value="true">Activate Quantum Pocketwatch</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr id="trFRoxTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current stage"><b>Trap Setup for </b></a>';
@@ -5074,6 +5167,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectWWRiftTrapWeapon" onchange="saveWWRift();">';
+			preferenceHTMLStr += '<option value="Timesplit Dissonance Weapon">TDW</option>';
 			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
 			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
 			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
@@ -5127,6 +5221,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectWWRiftMBWTrapWeapon" onchange="saveWWRift();">';
+			preferenceHTMLStr += '<option value="Timesplit Dissonance Weapon">TDW</option>';
 			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
 			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
 			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
@@ -5180,6 +5275,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectFRTrapWeapon" onchange="saveFR();">';
+			preferenceHTMLStr += '<option value="Timesplit Dissonance Weapon">TDW</option>';
 			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
 			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
 			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
@@ -5187,6 +5283,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectFRTrapBase" onchange="saveFR();">';
+			preferenceHTMLStr += '<option value="Clockwork Base">Clockwork</option>';
 			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
 			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
 			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
@@ -5919,6 +6016,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px;">';
 			preferenceHTMLStr += '<select id="selectBRTrapWeapon" onchange="saveBR();">';
+			preferenceHTMLStr += '<option value="Timesplit Dissonance Weapon">TDW</option>';
 			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
 			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
 			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
@@ -5998,7 +6096,7 @@ function embedTimer(targetPage) {
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon'],
 				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase','selectBRTrapBase','selectWWRiftTrapBase','selectWWRiftMBWTrapBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESTrapTrinket','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket','selectGESTrapTrinket'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESTrapTrinket','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket','selectGESTrapTrinket','selectBWRiftTrinket'],
 				bait : ['selectBait','selectGWHBait']
 			};
 			var temp;
@@ -8124,7 +8222,7 @@ function bodyJS(){
 		saveMapHunting();
 	}
 
-	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R','SpecialFeature'];
+	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R','SpecialFeature','BWRift'];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -8171,6 +8269,7 @@ function bodyJS(){
 		else if(eventAlgo.value == 'GES') keyName = 'GES';
 		else if(eventAlgo.value == 'Fort Rox') keyName = 'FRox';
 		else if(eventAlgo.value == 'GWH2016R') keyName = 'GWH2016R';
+		else if(eventAlgo.value == 'Bristle Woods Rift') keyName = 'BWRift';
 		
 		if(!isNullOrUndefined(keyName)){
 			window.sessionStorage.removeItem(keyName);
@@ -9325,6 +9424,66 @@ function bodyJS(){
 		}
 	}
 	
+	function saveBWRift(){
+		var selectBWRiftChamber = document.getElementById('selectBWRiftChamber');
+		var selectBWRiftWeapon = document.getElementById('selectBWRiftWeapon');
+		var selectBWRiftBase = document.getElementById('selectBWRiftBase');
+		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
+		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
+		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var storageValue = window.sessionStorage.getItem('BWRift');
+		if(isNullOrUndefined(storageValue)){			
+			var objDefaultBWRift = {
+				chamber : ['Non-Chamber','Gearworks','Ancient Lab','Runic Laboratory','Timewarp Chamber','Guard Barracks','Silence Chamber','Frozen Alcove','Furnace Room','Ingress Chamber','Pursuer Mousoleum','Acolyte Chamber'],
+				order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SILENCE','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE'],
+				weapon : new Array(12).fill(''),
+				base : new Array(12).fill(''),
+				trinket : new Array(12).fill('None'),
+				bait : new Array(12).fill('Brie String'),
+				activate : new Array(12).fill(false),
+			};
+			storageValue = JSON.stringify(objDefaultBWRift);
+		}
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.weapon[nIndex] = selectBWRiftWeapon.value;
+		storageValue.base[nIndex] = selectBWRiftBase.value;
+		storageValue.bait[nIndex] = selectBWRiftBait.value;
+		storageValue.trinket[nIndex] = selectBWRiftTrinket.value;
+		storageValue.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
+		window.sessionStorage.setItem('BWRift', JSON.stringify(storageValue));
+	}
+	
+	function initControlsBWRift(){
+		var selectBWRiftChamber = document.getElementById('selectBWRiftChamber');
+		var selectBWRiftWeapon = document.getElementById('selectBWRiftWeapon');
+		var selectBWRiftBase = document.getElementById('selectBWRiftBase');
+		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
+		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
+		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var storageValue = window.sessionStorage.getItem('BWRift');
+		if(isNullOrUndefined(storageValue)){
+			selectBWRiftWeapon.selectedIndex = -1;
+			selectBWRiftBase.selectedIndex = -1;
+			selectBWRiftBait.selectedIndex = -1;
+			selectBWRiftTrinket.selectedIndex = -1;
+			selectBWRiftActivatePocketWatch.selectedIndex = -1;
+		}
+		else{
+			storageValue = JSON.parse(storageValue);
+			var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
+			if(nIndex < 0)
+				nIndex = 0;
+			selectBWRiftWeapon.value = storageValue.weapon[nIndex];
+			selectBWRiftBase.value = storageValue.base[nIndex];
+			selectBWRiftTrinket.value = storageValue.trinket[nIndex];
+			selectBWRiftBait.value = storageValue.bait[nIndex];
+			selectBWRiftActivatePocketWatch.value = (storageValue.activate[nIndex] === true) ? 'true' : 'false';
+		}
+	}
+	
 	function saveFRox(){
 		var selectFRoxStage = document.getElementById('selectFRoxStage');
 		var selectFRoxWeapon = document.getElementById('selectFRoxWeapon');
@@ -9818,6 +9977,10 @@ function bodyJS(){
 			'GWH2016R' : {
 				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying','trGWHFlyingFirework','trGWHFlyingLand'],
 				init : function(data){initControlsGWH2016(data);}
+			},
+			'Bristle Woods Rift' : {
+				arr : ['trBWRiftTrapSetup'],
+				init : function(data){initControlsBWRift(data);}
 			},
 		};
 		var i, temp;
