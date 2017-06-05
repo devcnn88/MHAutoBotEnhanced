@@ -1196,7 +1196,6 @@ function bwRift(){
 	checkThenArm(null, 'weapon', objBWRift.weapon[nIndex]);
 	checkThenArm(null, 'base', objBWRift.base[nIndex]);
 	checkThenArm(null, 'trinket', objBWRift.trinket[nIndex]);
-	checkThenArm(null, 'bait', objBWRift.bait[nIndex]);
 	if(objBWRift.bait[nIndex] == 'Runic/Ancient')
 		checkThenArm('any', 'bait', ['Runic String Cheese', 'Ancient String Cheese']);
 	else if(objBWRift.bait[nIndex] == 'Runic=>Ancient')
