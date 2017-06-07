@@ -1171,7 +1171,6 @@ function bwRift(){
 	if (GetCurrentLocation().indexOf("Bristle Woods Rift") < 0)
 		return;
 
-	var arrChamber = ['Non-Chamber','Gearworks','Ancient Lab','Runic Laboratory','Timewarp','Guard Barracks','Security Chamber','Frozen Alcove','Furnace Room','Ingress','Pursuer Mousoleum','Acolyte Chamber Charging','Acolyte Chamber Draining','Acolyte Chamber Drained'];
 	var objDefaultBWRift = {
 		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
 		weapon : new Array(14).fill('Mysteriously unYielding'),
@@ -1193,7 +1192,15 @@ function bwRift(){
 	var nLootRemaining = objUser.progress_remaining;
 	var strChamberName = objUser.chamber_name.split(' ')[0].toUpperCase();
 	if(strChamberName == 'ACOLYTE'){ // in Acolyte Chamber
-
+		var strStatus;
+		if(objUser.minigame.acolyte_chamber.obelisk_charge < 100)
+			strStatus = 'ACOLYTE_CHARGING';
+		else if(objUser.minigame.acolyte_chamber.acolyte_sand > 0)
+			strStatus = 'ACOLYTE_DRAINING';
+		else
+			strStatus = 'ACOLYTE_DRAINED';
+		console.plog('Status:',strStatus,'Obelisk:',objUser.minigame.acolyte_chamber.obelisk_charge,'Acolyte Sand:',objUser.minigame.acolyte_chamber.acolyte_sand);
+		nIndex = objBWRift.order.indexOf(strStatus);
 	}
 	else{
 		if(nLootRemaining > 0)
@@ -1218,7 +1225,6 @@ function bwRift(){
 				if(objPortal.arrIndex[i] < 0)
 					objPortal.arrIndex[i] = Number.MAX_SAFE_INTEGER;
 			}
-			console.plog(objPortal);
 			if(objBWRift.choosePortal){
 				if(nIndex === 0 || (nIndex > 0 && objUser.chamber_status == 'open' && objBWRift.choosePortalAfterCC)){
 					var nIndexAcolyte = objPortal.arrName.indexOf('ACOLYTE');
@@ -1228,6 +1234,7 @@ function bwRift(){
 						if(nTimeSand < objBWRift.minTimeSand)
 							objPortal.arrIndex[nIndexAcolyte] = Number.MAX_SAFE_INTEGER;
 					}
+					console.plog(objPortal);
 					var nMinIndex = minIndex(objPortal.arrIndex);
 					if(objPortal.arrIndex[nMinIndex] == Number.MAX_SAFE_INTEGER || classPortalContainer[0].children[nMinIndex] == 'frozen')
 						nIndex = 0;
@@ -1236,7 +1243,11 @@ function bwRift(){
 						if(nIndex > -1){
 							console.plog('Chosen Portal:',objPortal.arrName[nMinIndex],'Index:', nIndex);
 							fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
-							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1500);
+							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
+							if(objPortal.arrName == 'ACOLYTE'){
+								window.setTimeout(function () { bwRift(); }, 2000);
+								return;
+							}
 						}
 					}
 				}
@@ -9656,7 +9667,17 @@ function bodyJS(){
 		if(bAutoChangeChamber && !isNullOrUndefined(user) && user.location.indexOf('Bristle Woods Rift') > -1){
 			var nRemaining = user.quests.QuestRiftBristleWoods.progress_remaining;
 			if(nRemaining > 0){
-				nIndex = storageValue.order.indexOf(user.quests.QuestRiftBristleWoods.chamber_name.split(' ')[0].toUpperCase());
+				var strName = user.quests.QuestRiftBristleWoods.chamber_name.split(' ')[0].toUpperCase();
+				if(strName == 'ACOLYTE'){
+					if(user.quests.QuestRiftBristleWoods.minigame.acolyte_chamber.obelisk_charge < 100)
+						nIndex = storageValue.order.indexOf('ACOLYTE_CHARGING');
+					else if(user.quests.QuestRiftBristleWoods.minigame.acolyte_chamber.acolyte_sand > 0)
+						nIndex = storageValue.order.indexOf('ACOLYTE_DRAINING');
+					else
+						nIndex = storageValue.order.indexOf('ACOLYTE_DRAINED');
+				}
+				else
+					nIndex = storageValue.order.indexOf(strName);
 				if(nIndex > -1)
 					selectBWRiftChamber.value = storageValue.order[nIndex];
 			}
