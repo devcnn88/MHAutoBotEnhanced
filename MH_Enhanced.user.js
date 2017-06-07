@@ -1163,7 +1163,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 
 function GetCurrentLocation(){
 	var loc = getPageVariable('user.location');
-    console.pdebug('Current Location:', loc);
+    console.plog('Current Location:', loc);
 	return loc;
 }
 
@@ -1171,28 +1171,78 @@ function bwRift(){
 	if (GetCurrentLocation().indexOf("Bristle Woods Rift") < 0)
 		return;
 
+	var arrChamber = ['Non-Chamber','Gearworks','Ancient Lab','Runic Laboratory','Timewarp','Guard Barracks','Security Chamber','Frozen Alcove','Furnace Room','Ingress','Pursuer Mousoleum','Acolyte Chamber Charging','Acolyte Chamber Draining','Acolyte Chamber Drained'];
 	var objDefaultBWRift = {
-		chamber : ['Non-Chamber','Gearworks','Ancient Lab','Runic Laboratory','Timewarp Chamber','Guard Barracks','Silence Chamber','Frozen Alcove','Furnace Room','Ingress Chamber','Pursuer Mousoleum','Acolyte Chamber'],
-		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SILENCE','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE'],
-		weapon : new Array(12).fill(''),
-		base : new Array(12).fill(''),
-		trinket : new Array(12).fill('None'),
-		bait : new Array(12).fill('Brie String'),
-		activate : new Array(12).fill(false),
+		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
+		weapon : new Array(14).fill('Mysteriously unYielding'),
+		base : new Array(14).fill('Fissure Base'),
+		trinket : new Array(14).fill('Rift Vacuum Charm'),
+		bait : new Array(14).fill('Brie String'),
+		activate : new Array(14).fill(false),
+		forceDeactivate : false,
+		remainingLootDeactivate : 1,
+		choosePortal : false,
+		choosePortalAfterCC : false,
+		priorities : ["SECURITY", "FURNACE", "PURSUER", "ACOLYTE", "TIMEWARP", "RUNIC", "ANCIENT", "GEARWORKS", "INGRESS", "GUARD", "FROZEN"],
+		minTimeSand : 50
 	};
 
 	var objBWRift = getStorageToObject('BWRift', objDefaultBWRift);
 	var objUser = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftBristleWoods)'));
 	var nIndex = -1;
-	var nRemaining = objUser.progress_remaining;
-	if(nRemaining > 0)
-		nIndex = objBWRift.chamber.indexOf(objUser.chamber_name);
-	else
-		nIndex = 0;
-	console.plog('Status:', objUser.chamber_status, 'Name:', objUser.chamber_name, 'Index:', nIndex);
-	
+	var nLootRemaining = objUser.progress_remaining;
+	var strChamberName = objUser.chamber_name.split(' ')[0].toUpperCase();
+	if(strChamberName == 'ACOLYTE'){ // in Acolyte Chamber
+
+	}
+	else{
+		if(nLootRemaining > 0)
+			nIndex = objBWRift.order.indexOf(strChamberName);
+		else
+			nIndex = 0;
+	}
+	console.plog('Status:', objUser.chamber_status, 'Name:', objUser.chamber_name, 'Shortname:', strChamberName, 'Index:', nIndex);
 	if(nIndex < 0)
 		return;
+	if(nIndex === 0 || objUser.chamber_status == 'open'){
+		var classPortalContainer = document.getElementsByClassName('riftBristleWoodsHUD-portalContainer');
+		if(classPortalContainer.length > 0){
+			var objPortal = {
+				arrName : new Array(classPortalContainer[0].children.length).fill(''),
+				arrIndex : new Array(classPortalContainer[0].children.length).fill(Number.MAX_SAFE_INTEGER)
+			};
+			for(var i=0;i<objPortal.arrName.length;i++){
+				objPortal.arrName[i] = classPortalContainer[0].children[i].getElementsByClassName('riftBristleWoodsHUD-portal-name')[0].textContent;
+				objPortal.arrName[i] = objPortal.arrName[i].split(' ')[0].toUpperCase();
+				objPortal.arrIndex[i] = objBWRift.priorities.indexOf(objPortal.arrName[i]);
+				if(objPortal.arrIndex[i] < 0)
+					objPortal.arrIndex[i] = Number.MAX_SAFE_INTEGER;
+			}
+			console.plog(objPortal);
+			if(objBWRift.choosePortal){
+				if(nIndex === 0 || (nIndex > 0 && objUser.chamber_status == 'open' && objBWRift.choosePortalAfterCC)){
+					var nIndexAcolyte = objPortal.arrName.indexOf('ACOLYTE');
+					if(nIndexAcolyte > -1){
+						var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
+						console.plog('Time Sand Qty:',nTimeSand);
+						if(nTimeSand < objBWRift.minTimeSand)
+							objPortal.arrIndex[nIndexAcolyte] = Number.MAX_SAFE_INTEGER;
+					}
+					var nMinIndex = minIndex(objPortal.arrIndex);
+					if(objPortal.arrIndex[nMinIndex] == Number.MAX_SAFE_INTEGER || classPortalContainer[0].children[nMinIndex] == 'frozen')
+						nIndex = 0;
+					else{
+						nIndex = objBWRift.order.indexOf(objPortal.arrName[nMinIndex]);
+						if(nIndex > -1){
+							console.plog('Chosen Portal:',objPortal.arrName[nMinIndex],'Index:', nIndex);
+							fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
+							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1500);
+						}
+					}
+				}
+			}
+		}
+	}
 	checkThenArm(null, 'weapon', objBWRift.weapon[nIndex]);
 	checkThenArm(null, 'base', objBWRift.base[nIndex]);
 	checkThenArm(null, 'trinket', objBWRift.trinket[nIndex]);
@@ -1204,8 +1254,15 @@ function bwRift(){
 		checkThenArm(null, 'bait', objBWRift.bait[nIndex]);
 	var classLootBooster = document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment lootBooster mousehuntTooltipParent')[0];
 	var bPocketwatchActive = (classLootBooster.getAttribute('class').indexOf('selected') > -1);
-	if(objBWRift.activate[nIndex] ^ bPocketwatchActive)
-		fireEvent(document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment-action')[0],'click');
+	var classButton = document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment-action')[0];
+	if(objBWRift.forceDeactivate && nLootRemaining <= objBWRift.remainingLootDeactivate){
+		if(bPocketwatchActive)
+			fireEvent(classButton, 'click');
+	}
+	else{
+		if(objBWRift.activate[nIndex] ^ bPocketwatchActive)
+			fireEvent(classButton, 'click');
+	}
 }
 
 function fortRox(){
@@ -4594,6 +4651,7 @@ function embedTimer(targetPage) {
             hr2Element = null;
 
 			var temp = "";
+			var i;
 			var preferenceHTMLStr = '<table border="0" width="100%">';
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -4708,7 +4766,7 @@ function embedTimer(targetPage) {
 			var nTimezoneOffset = -(new Date().getTimezoneOffset()) * 60000;
 			var count = 1;
 			var maxLen = keyKR.length.toString().length;
-			for(var i=0;i<keyKR.length;i++){
+			for(i=0;i<keyKR.length;i++){
 				if (keyKR[i].indexOf("KR" + separator) > -1){
 					temp = keyKR[i].split(separator);
 					temp.splice(0,1);
@@ -4922,7 +4980,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
-            preferenceHTMLStr += '<select id="eventAlgo" onChange="window.sessionStorage.setItem(\'eventLocation\', value); showOrHideTr(value);">';
+            preferenceHTMLStr += '<select id="eventAlgo" style="width:150px" onChange="window.sessionStorage.setItem(\'eventLocation\', value); showOrHideTr(value);">';
             preferenceHTMLStr += '<option value="None" selected>None</option>';
 			preferenceHTMLStr += '<option value="All LG Area">All LG Area</option>';
 			preferenceHTMLStr += '<option value="BC/JOD">BC => JOD</option>';
@@ -4963,12 +5021,14 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="RUNIC">Runic Laboratory</option>';
 			preferenceHTMLStr += '<option value="TIMEWARP">Timewarp Chamber</option>';
 			preferenceHTMLStr += '<option value="GUARD">Guard Barracks</option>';
-			preferenceHTMLStr += '<option value="SILENCE">Silence Chamber</option>';
+			preferenceHTMLStr += '<option value="SECURITY">Security Chamber</option>';
 			preferenceHTMLStr += '<option value="FROZEN">Frozen Alcove</option>';
 			preferenceHTMLStr += '<option value="FURNACE">Furnace Room</option>';
 			preferenceHTMLStr += '<option value="INGRESS">Ingress Chamber</option>';
 			preferenceHTMLStr += '<option value="PURSUER">Pursuer Mousoleum</option>';
-			preferenceHTMLStr += '<option value="ACOLYTE">Acolyte Chamber</option>';
+			preferenceHTMLStr += '<option value="ACOLYTE_CHARGING">Acolyte Chamber Charging</option>';
+			preferenceHTMLStr += '<option value="ACOLYTE_DRAINING">Acolyte Chamber Draining</option>';
+			preferenceHTMLStr += '<option value="ACOLYTE_DRAINED">Acolyte Chamber Drained</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5007,6 +5067,74 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="false">Deactivate Quantum Pocketwatch</option>';
 			preferenceHTMLStr += '<option value="true">Activate Quantum Pocketwatch</option>';
 			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trBWRiftDeactivatePocketWatch" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Deactivate Quantum Pocketwatch forcibly"><b>Force Deactivate Quantum</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBWRiftForceDeactiveQuantum" style="width: 75px;" onchange="onSelectBWRiftForceDeactiveQuantum();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;If Remaining Loot &le;&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '<input type="number" id="inputRemainingLoot" min="1" max="50" size="5" value="1" onchange="onInputRemaininigLootChanged(this);">';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trBWRiftAutoChoosePortal" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Choose portal automatically"><b>Auto Choose Portal</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBWRiftChoosePortal" style="width: 75px;" onchange="onSelectBWRiftChoosePortal();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trBWRiftChoosePortalAfterCC" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Choose portal after Chamber Cleaver has been caught"><b>Choose Portal</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBWRiftChoosePortalAfterCC" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="false">False</option>';
+			preferenceHTMLStr += '<option value="true">True</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;After Chamber Cleaver Caught';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trBWRiftPortalPriority" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select portal priority"><b>Portal Priority </b></a>';
+			preferenceHTMLStr += '<select id="selectBWRiftPriority" style="width: 75px;" onchange="initControlsBWRift();">';
+			for(i=1;i<=11;i++){
+				if(i==1)
+					preferenceHTMLStr += '<option value="' + i + '">' + i + ' (Highest)</option>';
+				else if(i==11)
+					preferenceHTMLStr += '<option value="' + i + '">' + i + ' (Lowest)</option>';
+				else
+					preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
+			}
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBWRiftPortal" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="GEARWORKS">Gearworks</option>';
+			preferenceHTMLStr += '<option value="ANCIENT">Ancient Lab</option>';
+			preferenceHTMLStr += '<option value="RUNIC">Runic Laboratory</option>';
+			preferenceHTMLStr += '<option value="TIMEWARP">Timewarp Chamber</option>';
+			preferenceHTMLStr += '<option value="GUARD">Guard Barracks</option>';
+			preferenceHTMLStr += '<option value="SECURITY">Security Chamber</option>';
+			preferenceHTMLStr += '<option value="FROZEN">Frozen Alcove</option>';
+			preferenceHTMLStr += '<option value="FURNACE">Furnace Room</option>';
+			preferenceHTMLStr += '<option value="INGRESS">Ingress Chamber</option>';
+			preferenceHTMLStr += '<option value="PURSUER">Pursuer Mousoleum</option>';
+			preferenceHTMLStr += '<option value="ACOLYTE">Acolyte Chamber</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trBWRiftMinTimeSand" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber"><b>Min Time Sand</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter Acolyte Chamber';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
@@ -5257,7 +5385,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectEnterAtBattery" onchange="saveFR();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
-			for(var i=1;i<=10;i++)
+			for(i=1;i<=10;i++)
 				preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
@@ -5267,7 +5395,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select which battery level to retreat from  Pagoda"><b>Retreat at Battery</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectRetreatAtBattery" onchange="saveFR();">';
-			for(var i=0;i<=10;i++)
+			for(i=0;i<=10;i++)
 				preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
@@ -5276,7 +5404,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<tr id="trFRTrapSetupAtBattery" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup for each battery"><b>Trap Setup at Battery</b></a>&nbsp;&nbsp;';
 			preferenceHTMLStr += '<select id="selectTrapSetupAtBattery" onchange="initControlsFR();">';
-			for(var i=0;i<=10;i++)
+			for(i=0;i<=10;i++)
 				preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
@@ -6086,7 +6214,7 @@ function embedTimer(targetPage) {
 			// set KR entries color
 			var nCurrent, nNext, strCurrent;
 			var selectViewKR = document.getElementById('viewKR');
-			for(var i=0;i<selectViewKR.children.length;i++){
+			for(i=0;i<selectViewKR.children.length;i++){
 				if(i < selectViewKR.children.length-1){
 					nCurrent = parseInt(selectViewKR.children[i].value.split('~')[1]);
 					nNext = parseInt(selectViewKR.children[i+1].value.split('~')[1]);
@@ -6111,7 +6239,7 @@ function embedTimer(targetPage) {
 			for (var prop in objTrapCollection) {
 				if(objTrapCollection.hasOwnProperty(prop)) {
 					objTrapCollection[prop] = objTrapCollection[prop].sort();
-					for(var i=0;i<objTrapCollection[prop].length;i++){
+					for(i=0;i<objTrapCollection[prop].length;i++){
 						optionEle = document.createElement("option");
 						optionEle.setAttribute('value', objTrapCollection[prop][i]);
 						optionEle.innerText = objTrapCollection[prop][i];
@@ -6632,6 +6760,7 @@ function getStorageToObject(keyName, objDefault){
 	var bCheckNewProp = true;
 	if(isNullOrUndefined(obj)){
 		obj = JSON.stringify(objDefault);
+		setStorage(keyName, JSON.stringify(obj));
 		bCheckNewProp = false;
 	}
 	obj = JSON.parse(obj);
@@ -7884,6 +8013,21 @@ function refreshTrapList() {
 }
 
 function bodyJS(){
+	var objDefaultBWRift = {
+		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
+		weapon : new Array(14).fill('Mysteriously unYielding'),
+		base : new Array(14).fill('Fissure Base'),
+		trinket : new Array(14).fill('Rift Vacuum Charm'),
+		bait : new Array(14).fill('Brie String'),
+		activate : new Array(14).fill(false),
+		forceDeactivate : false,
+		remainingLootDeactivate : 1,
+		choosePortal : false,
+		choosePortalAfterCC : false,
+		priorities : ["SECURITY", "FURNACE", "PURSUER", "ACOLYTE", "TIMEWARP", "RUNIC", "ANCIENT", "GEARWORKS", "INGRESS", "GUARD", "FROZEN"],
+		minTimeSand : 50
+	};
+	
 	function limitMinMax(value, min, max){
 		value = parseInt(value);
 		min = parseInt(min);
@@ -9431,6 +9575,26 @@ function bodyJS(){
 		}
 	}
 	
+	function onSelectBWRiftForceDeactiveQuantum(){
+		saveBWRift();
+		initControlsBWRift();
+	}
+	
+	function onInputRemaininigLootChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveBWRift();
+	}
+	
+	function onSelectBWRiftChoosePortal(){
+		saveBWRift();
+		initControlsBWRift();
+	}
+	
+	function onInputMinTimeSandChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveBWRift();
+	}
+	
 	function saveBWRift(){
 		var selectBWRiftChamber = document.getElementById('selectBWRiftChamber');
 		var selectBWRiftWeapon = document.getElementById('selectBWRiftWeapon');
@@ -9438,19 +9602,16 @@ function bodyJS(){
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftForceDeactiveQuantum = document.getElementById('selectBWRiftForceDeactiveQuantum');
+		var inputRemainingLoot = document.getElementById('inputRemainingLoot');
+		var selectBWRiftChoosePortal = document.getElementById('selectBWRiftChoosePortal');
+		var selectBWRiftChoosePortalAfterCC = document.getElementById('selectBWRiftChoosePortalAfterCC');
+		var selectBWRiftPriority = document.getElementById('selectBWRiftPriority');
+		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
+		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
 		var storageValue = window.sessionStorage.getItem('BWRift');
-		if(isNullOrUndefined(storageValue)){			
-			var objDefaultBWRift = {
-				chamber : ['Non-Chamber','Gearworks','Ancient Lab','Runic Laboratory','Timewarp Chamber','Guard Barracks','Silence Chamber','Frozen Alcove','Furnace Room','Ingress Chamber','Pursuer Mousoleum','Acolyte Chamber'],
-				order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SILENCE','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE'],
-				weapon : new Array(12).fill(''),
-				base : new Array(12).fill(''),
-				trinket : new Array(12).fill('None'),
-				bait : new Array(12).fill('Brie String'),
-				activate : new Array(12).fill(false),
-			};
+		if(isNullOrUndefined(storageValue))
 			storageValue = JSON.stringify(objDefaultBWRift);
-		}
 		storageValue = JSON.parse(storageValue);
 		var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
 		if(nIndex < 0)
@@ -9460,6 +9621,14 @@ function bodyJS(){
 		storageValue.bait[nIndex] = selectBWRiftBait.value;
 		storageValue.trinket[nIndex] = selectBWRiftTrinket.value;
 		storageValue.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
+		storageValue.forceDeactivate = (selectBWRiftForceDeactiveQuantum.value == 'true');
+		storageValue.remainingLootDeactivate = parseInt(inputRemainingLoot.value);
+		storageValue.choosePortal = (selectBWRiftChoosePortal.value == 'true');
+		if(storageValue.choosePortal){
+			storageValue.choosePortalAfterCC = (selectBWRiftChoosePortalAfterCC.value == 'true');
+			storageValue.priorities[selectBWRiftPriority.selectedIndex] = selectBWRiftPortal.value;
+			storageValue.minTimeSand = parseInt(inputMinTimeSand.value);
+		}
 		window.sessionStorage.setItem('BWRift', JSON.stringify(storageValue));
 	}
 	
@@ -9472,35 +9641,52 @@ function bodyJS(){
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftForceDeactiveQuantum = document.getElementById('selectBWRiftForceDeactiveQuantum');
+		var inputRemainingLoot = document.getElementById('inputRemainingLoot');
+		var selectBWRiftChoosePortal = document.getElementById('selectBWRiftChoosePortal');
+		var selectBWRiftChoosePortalAfterCC = document.getElementById('selectBWRiftChoosePortalAfterCC');
+		var selectBWRiftPriority = document.getElementById('selectBWRiftPriority');
+		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
+		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
 		var storageValue = window.sessionStorage.getItem('BWRift');
-		if(isNullOrUndefined(storageValue)){
-			selectBWRiftWeapon.selectedIndex = -1;
-			selectBWRiftBase.selectedIndex = -1;
-			selectBWRiftBait.selectedIndex = -1;
-			selectBWRiftTrinket.selectedIndex = -1;
-			selectBWRiftActivatePocketWatch.selectedIndex = -1;
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultBWRift);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = -1;
+		if(bAutoChangeChamber && !isNullOrUndefined(user) && user.location.indexOf('Bristle Woods Rift') > -1){
+			var nRemaining = user.quests.QuestRiftBristleWoods.progress_remaining;
+			if(nRemaining > 0){
+				nIndex = storageValue.order.indexOf(user.quests.QuestRiftBristleWoods.chamber_name.split(' ')[0].toUpperCase());
+				if(nIndex > -1)
+					selectBWRiftChamber.value = storageValue.order[nIndex];
+			}
+			else
+				selectBWRiftChamber.value = 'NONE';
+		}
+		nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		selectBWRiftWeapon.value = storageValue.weapon[nIndex];
+		selectBWRiftBase.value = storageValue.base[nIndex];
+		selectBWRiftTrinket.value = storageValue.trinket[nIndex];
+		selectBWRiftBait.value = storageValue.bait[nIndex];
+		selectBWRiftActivatePocketWatch.value = (storageValue.activate[nIndex] === true) ? 'true' : 'false';
+		selectBWRiftForceDeactiveQuantum.value = (storageValue.forceDeactivate === true) ? 'true' : 'false';
+		inputRemainingLoot.value = storageValue.remainingLootDeactivate;
+		selectBWRiftChoosePortal.value = (storageValue.choosePortal === true) ? 'true' : 'false';
+		selectBWRiftChoosePortalAfterCC.value = (storageValue.choosePortalAfterCC === true) ? 'true' : 'false';
+		selectBWRiftPortal.value = storageValue.priorities[selectBWRiftPriority.selectedIndex];
+		inputMinTimeSand.value = storageValue.minTimeSand;
+		inputRemainingLoot.disabled = (selectBWRiftForceDeactiveQuantum.value == 'true') ? '' : 'disabled';
+		if(selectBWRiftChoosePortal.value == 'true'){
+			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = '';
+			document.getElementById('trBWRiftPortalPriority').style.display = '';
+			document.getElementById('trBWRiftMinTimeSand').style.display = '';
 		}
 		else{
-			storageValue = JSON.parse(storageValue);
-			var nIndex = -1;
-			if(bAutoChangeChamber && !isNullOrUndefined(user) && user.location.indexOf('Bristle Woods Rift') > -1){
-				var nRemaining = user.quests.QuestRiftBristleWoods.progress_remaining;
-				if(nRemaining > 0){
-					nIndex = storageValue.chamber.indexOf(user.quests.QuestRiftBristleWoods.chamber_name);
-					if(nIndex > -1)
-						selectBWRiftChamber.value = storageValue.order[nIndex];
-				}
-				else
-					selectBWRiftChamber.value = 'NONE';
-			}
-			nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
-			if(nIndex < 0)
-				nIndex = 0;
-			selectBWRiftWeapon.value = storageValue.weapon[nIndex];
-			selectBWRiftBase.value = storageValue.base[nIndex];
-			selectBWRiftTrinket.value = storageValue.trinket[nIndex];
-			selectBWRiftBait.value = storageValue.bait[nIndex];
-			selectBWRiftActivatePocketWatch.value = (storageValue.activate[nIndex] === true) ? 'true' : 'false';
+			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = 'none';
+			document.getElementById('trBWRiftPortalPriority').style.display = 'none';
+			document.getElementById('trBWRiftMinTimeSand').style.display = 'none';
 		}
 	}
 	
@@ -9999,7 +10185,7 @@ function bodyJS(){
 				init : function(data){initControlsGWH2016(data);}
 			},
 			'Bristle Woods Rift' : {
-				arr : ['trBWRiftTrapSetup'],
+				arr : ['trBWRiftTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC'],
 				init : function(data){initControlsBWRift(data);}
 			},
 		};
