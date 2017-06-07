@@ -1239,14 +1239,19 @@ function bwRift(){
 					if(objPortal.arrIndex[nMinIndex] == Number.MAX_SAFE_INTEGER || classPortalContainer[0].children[nMinIndex] == 'frozen')
 						nIndex = 0;
 					else{
-						nIndex = objBWRift.order.indexOf(objPortal.arrName[nMinIndex]);
-						if(nIndex > -1){
-							console.plog('Chosen Portal:',objPortal.arrName[nMinIndex],'Index:', nIndex);
+						if(objPortal.arrName[nMinIndex] == 'ACOLYTE'){
+							console.plog('Chosen Portal:',objPortal.arrName[nMinIndex],'Index: Unknown');
 							fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
 							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
-							if(objPortal.arrName == 'ACOLYTE'){
-								window.setTimeout(function () { bwRift(); }, 2000);
-								return;
+							window.setTimeout(function () { bwRift(); }, 2000);
+							return;
+						}
+						else{
+							nIndex = objBWRift.order.indexOf(objPortal.arrName[nMinIndex]);
+							if(nIndex > -1){
+								console.plog('Chosen Portal:',objPortal.arrName[nMinIndex],'Index:', nIndex);
+								fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
+								window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
 							}
 						}
 					}
