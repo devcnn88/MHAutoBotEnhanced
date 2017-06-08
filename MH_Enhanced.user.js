@@ -1202,6 +1202,8 @@ function bwRift(){
 		console.plog('Status:',strStatus,'Obelisk:',objUser.minigame.acolyte_chamber.obelisk_charge,'Acolyte Sand:',objUser.minigame.acolyte_chamber.acolyte_sand);
 		nIndex = objBWRift.order.indexOf(strStatus);
 	}
+	else if(strChamberName == 'RIFT')
+		nIndex = 0;
 	else{
 		if(nLootRemaining > 0)
 			nIndex = objBWRift.order.indexOf(strChamberName);
@@ -1227,13 +1229,16 @@ function bwRift(){
 			}
 			if(objBWRift.choosePortal){
 				if(nIndex === 0 || (nIndex > 0 && objUser.chamber_status == 'open' && objBWRift.choosePortalAfterCC)){
-					var nIndexAcolyte = objPortal.arrName.indexOf('ACOLYTE');
-					if(nIndexAcolyte > -1){
+					var nIndexTemp = objPortal.arrName.indexOf('ACOLYTE');
+					if(nIndexTemp > -1){
 						var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
 						console.plog('Time Sand Qty:',nTimeSand);
 						if(nTimeSand < objBWRift.minTimeSand)
-							objPortal.arrIndex[nIndexAcolyte] = Number.MAX_SAFE_INTEGER;
+							objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
 					}
+					nIndexTemp = objPortal.arrName.indexOf('ENTER');
+					if(nIndexTemp > -1)
+						objPortal.arrIndex[nIndexTemp] = 1;
 					console.plog(objPortal);
 					var nMinIndex = minIndex(objPortal.arrIndex);
 					if(objPortal.arrIndex[nMinIndex] == Number.MAX_SAFE_INTEGER || classPortalContainer[0].children[nMinIndex] == 'frozen')
@@ -1246,13 +1251,14 @@ function bwRift(){
 							window.setTimeout(function () { bwRift(); }, 2000);
 							return;
 						}
-						else{
+						if(objPortal.arrName[nMinIndex] == 'ENTER')
+							nIndex = objBWRift.order.indexOf('GEARWORKS');
+						else
 							nIndex = objBWRift.order.indexOf(objPortal.arrName[nMinIndex]);
-							if(nIndex > -1){
-								console.plog('Chosen Portal:',objPortal.arrName[nMinIndex],'Index:', nIndex);
-								fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
-								window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
-							}
+						if(nIndex > -1){
+							console.plog('Chosen Portal:',objPortal.arrName[nMinIndex],'Index:', nIndex);
+							fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
+							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
 						}
 					}
 				}
