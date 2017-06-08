@@ -1270,7 +1270,7 @@ function bwRift(){
 		checkThenArm(null, 'bait', objBWRift.bait[nIndex]);
 	var classLootBooster = document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment lootBooster mousehuntTooltipParent')[0];
 	var bPocketwatchActive = (classLootBooster.getAttribute('class').indexOf('selected') > -1);
-	var classButton = document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment-action')[0];
+	var classButton = classLootBooster.getElementsByClassName('riftBristleWoodsHUD-portalEquipment-action')[0];
 	if(objBWRift.forceDeactivate && nLootRemaining <= objBWRift.remainingLootDeactivate){
 		if(bPocketwatchActive)
 			fireEvent(classButton, 'click');
