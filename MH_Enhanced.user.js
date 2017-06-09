@@ -1193,8 +1193,10 @@ function bwRift(){
 	var strChamberName = objUser.chamber_name.split(' ')[0].toUpperCase();
 	if(strChamberName == 'ACOLYTE'){ // in Acolyte Chamber
 		var strStatus;
-		if(objUser.minigame.acolyte_chamber.obelisk_charge < 100)
+		if(objUser.minigame.acolyte_chamber.obelisk_charge < 100){
 			strStatus = 'ACOLYTE_CHARGING';
+			nLootRemaining = 100 - objUser.minigame.acolyte_chamber.obelisk_charge;
+		}
 		else if(objUser.minigame.acolyte_chamber.acolyte_sand > 0)
 			strStatus = 'ACOLYTE_DRAINING';
 		else
@@ -5098,7 +5100,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<select id="selectBWRiftForceDeactiveQuantum" style="width: 75px;" onchange="onSelectBWRiftForceDeactiveQuantum();">';
 			preferenceHTMLStr += '<option value="false">False</option>';
 			preferenceHTMLStr += '<option value="true">True</option>';
-			preferenceHTMLStr += '</select>&nbsp;&nbsp;If Remaining Loot &le;&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;If Remaining Loot/Obelisk Charge &le;&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '<input type="number" id="inputRemainingLoot" min="1" max="50" size="5" value="1" onchange="onInputRemaininigLootChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
