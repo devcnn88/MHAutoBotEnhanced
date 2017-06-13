@@ -346,8 +346,8 @@
 						<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();">
 					</td>
 				</tr>
-				<tr id="trBWRiftTrapSetup" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Trap Setup at </b></a>
+				<tr id="trBWRiftMasterTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Master Trap Setup at </b></a>
 						<select id="selectBWRiftChamber" style="width: 75px;" onchange="initControlsBWRift();">
 							<option value="NONE">Non-Chamber</option>
 							<option value="GEARWORKS">Gearworks</option>
@@ -398,6 +398,83 @@
 							<option value="Marble String">Marble</option>
 						</select>
 						<select id="selectBWRiftActivatePocketWatch" style="width: 75px;" onchange="saveBWRift();">
+							<option value="false">Deactivate Quantum Pocketwatch</option>
+							<option value="true">Activate Quantum Pocketwatch</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trBWRiftTrapSetupSpecial" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Conditional Trap Setup </b></a>
+						<select id="selectBWRiftAlertLvl" style="width:75px;display:none" onchange="initControlsBWRift();">
+							<option value="0">Alert Lvl 0</option>
+							<option value="1">Alert Lvl 1</option>
+							<option value="2">Alert Lvl 2</option>
+							<option value="3">Alert Lvl 3</option>
+							<option value="4">Alert Lvl 4</option>
+							<option value="5">Alert Lvl 5</option>
+						</select>
+						<select id="selectBWRiftFTC" style="width:75px;display:none" onchange="initControlsBWRift();">
+							<option value="0">FTC 0</option>
+							<option value="1">FTC 1</option>
+							<option value="2">FTC 2</option>
+						</select>
+						<select id="selectBWRiftHunt" style="width:75px;display:none" onchange="initControlsBWRift();">
+							<option value="0">Hunt 0</option>
+							<option value="1">Hunt 1</option>
+							<option value="2">Hunt 2</option>
+							<option value="3">Hunt 3</option>
+							<option value="4">Hunt 4</option>
+							<option value="5">Hunt 5</option>
+							<option value="6">Hunt 6</option>
+							<option value="7">Hunt 7</option>
+							<option value="8">Hunt 8</option>
+							<option value="9">Hunt 9</option>
+							<option value="10">Hunt 10</option>
+							<option value="11">Hunt 11</option>
+							<option value="12">Hunt 12</option>
+							<option value="13">Hunt 13</option>
+							<option value="14">Hunt 14</option>
+						</select>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectBWRiftWeaponSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="Timesplit Dissonance Weapon">TDW</option>
+							<option value="Mysteriously unYielding">MYNORCA</option>
+							<option value="Focused Crystal Laser">FCL</option>
+							<option value="Multi-Crystal Laser">MCL</option>
+							<option value="Biomolecular Re-atomizer Trap">BRT</option>
+							<option value="Crystal Tower">CT</option>
+						</select>
+						<select id="selectBWRiftBaseSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="Clockwork Base">Clockwork</option>
+							<option value="Fissure Base">Fissure</option>
+							<option value="Rift Base">Rift</option>
+							<option value="Fracture Base">Fracture</option>
+							<option value="Enerchi Induction Base">Enerchi</option>
+							<option value="Attuned Enerchi Induction Base">A. Enerchi</option>
+							<option value="Minotaur Base">Minotaur</option>
+						</select>
+						<select id="selectBWRiftTrinketSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="None">None</option>
+							<option value="Trinket 1">Trinket 1</option>
+							<option value="Trinket 2">Trinket 2</option>
+						</select>
+						<select id="selectBWRiftBaitSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="None">None</option>
+							<option value="Runic String">Runic</option>
+							<option value="Ancient String">Ancient</option>
+							<option value="Magical String">Magical</option>
+							<option value="Brie String">Brie</option>
+							<option value="Swiss String">Swiss</option>
+							<option value="Marble String">Marble</option>
+						</select>
+						<select id="selectBWRiftActivatePocketWatchSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
 							<option value="false">Deactivate Quantum Pocketwatch</option>
 							<option value="true">Activate Quantum Pocketwatch</option>
 						</select>
@@ -1394,19 +1471,42 @@
 <script type="text/javascript">
 	var objDefaultBWRift = {
 		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
-		weapon : new Array(14).fill('Mysteriously unYielding'),
-		base : new Array(14).fill('Fissure Base'),
-		trinket : new Array(14).fill('Rift Vacuum Charm'),
-		bait : new Array(14).fill('Brie String'),
-		activate : new Array(14).fill(false),
+		master : {
+			weapon : new Array(14).fill('Mysteriously unYielding'),
+			base : new Array(14).fill('Fissure Base'),
+			trinket : new Array(14).fill('Rift Vacuum Charm'),
+			bait : new Array(14).fill('Brie String'),
+			activate : new Array(14).fill(false),
+		},
+		gb : {
+			weapon : new Array(6).fill('MASTER'),
+			base : new Array(6).fill('MASTER'),
+			trinket : new Array(6).fill('MASTER'),
+			bait : new Array(6).fill('MASTER'),
+			activate : new Array(6).fill('MASTER'),
+		},
+		ic : {
+			weapon : new Array(3).fill('MASTER'),
+			base : new Array(3).fill('MASTER'),
+			trinket : new Array(3).fill('MASTER'),
+			bait : new Array(3).fill('MASTER'),
+			activate : new Array(3).fill('MASTER'),
+		},
+		fa : {
+			weapon : new Array(15).fill('MASTER'),
+			base : new Array(15).fill('MASTER'),
+			trinket : new Array(15).fill('MASTER'),
+			bait : new Array(15).fill('MASTER'),
+			activate : new Array(15).fill('MASTER'),
+		},
 		forceDeactivate : false,
 		remainingLootDeactivate : 1,
 		choosePortal : false,
 		choosePortalAfterCC : false,
-		priorities : ["SECURITY", "FURNACE", "PURSUER", "ACOLYTE", "TIMEWARP", "RUNIC", "ANCIENT", "GEARWORKS", "INGRESS", "GUARD", "FROZEN"],
+		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : 50
 	};
-	
+
 	function limitMinMax(value, min, max){
 		value = parseInt(value);
 		min = parseInt(min);
@@ -2975,6 +3075,12 @@
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
+		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
+		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
+		var selectBWRiftBaitSpecial = document.getElementById('selectBWRiftBaitSpecial');
+		var selectBWRiftTrinketSpecial = document.getElementById('selectBWRiftTrinketSpecial');
+		var selectBWRiftActivatePocketWatchSpecial = document.getElementById('selectBWRiftActivatePocketWatchSpecial');
 		var selectBWRiftForceDeactiveQuantum = document.getElementById('selectBWRiftForceDeactiveQuantum');
 		var inputRemainingLoot = document.getElementById('inputRemainingLoot');
 		var selectBWRiftChoosePortal = document.getElementById('selectBWRiftChoosePortal');
@@ -2986,14 +3092,39 @@
 		if(isNullOrUndefined(storageValue))
 			storageValue = JSON.stringify(objDefaultBWRift);
 		storageValue = JSON.parse(storageValue);
+		var strTemp = '';
 		var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
 		if(nIndex < 0)
 			nIndex = 0;
-		storageValue.weapon[nIndex] = selectBWRiftWeapon.value;
-		storageValue.base[nIndex] = selectBWRiftBase.value;
-		storageValue.bait[nIndex] = selectBWRiftBait.value;
-		storageValue.trinket[nIndex] = selectBWRiftTrinket.value;
-		storageValue.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
+		storageValue.master.weapon[nIndex] = selectBWRiftWeapon.value;
+		storageValue.master.base[nIndex] = selectBWRiftBase.value;
+		storageValue.master.bait[nIndex] = selectBWRiftBait.value;
+		storageValue.master.trinket[nIndex] = selectBWRiftTrinket.value;
+		storageValue.master.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
+		if(selectBWRiftChamber.value == 'GUARD'){
+			nIndex = selectBWRiftAlertLvl.selectedIndex;
+			strTemp = 'gb';
+		}
+		/*else if(selectBWRiftChamber.value == 'INGRESS'){
+			nIndex = selectBWRiftFTC.selectedIndex;
+			strTemp = 'ic';
+		}
+		else if(selectBWRiftChamber.value == 'FROZEN'){
+			nIndex = selectBWRiftHunt.selectedIndex;
+			strTemp = 'fa';
+		}*/
+		else
+			strTemp = 'master';
+		if(strTemp !== 'master'){
+			storageValue[strTemp].weapon[nIndex] = selectBWRiftWeaponSpecial.value;
+			storageValue[strTemp].base[nIndex] = selectBWRiftBaseSpecial.value;
+			storageValue[strTemp].bait[nIndex] = selectBWRiftBaitSpecial.value;
+			storageValue[strTemp].trinket[nIndex] = selectBWRiftTrinketSpecial.value;
+			if(selectBWRiftActivatePocketWatchSpecial.value == 'MASTER')
+				storageValue[strTemp].activate[nIndex] = selectBWRiftActivatePocketWatchSpecial.value;
+			else
+				storageValue[strTemp].activate[nIndex] = (selectBWRiftActivatePocketWatchSpecial.value == 'true');
+		}
 		storageValue.forceDeactivate = (selectBWRiftForceDeactiveQuantum.value == 'true');
 		storageValue.remainingLootDeactivate = parseInt(inputRemainingLoot.value);
 		storageValue.choosePortal = (selectBWRiftChoosePortal.value == 'true');
@@ -3012,6 +3143,12 @@
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
+		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
+		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
+		var selectBWRiftBaitSpecial = document.getElementById('selectBWRiftBaitSpecial');
+		var selectBWRiftTrinketSpecial = document.getElementById('selectBWRiftTrinketSpecial');
+		var selectBWRiftActivatePocketWatchSpecial = document.getElementById('selectBWRiftActivatePocketWatchSpecial');
 		var selectBWRiftForceDeactiveQuantum = document.getElementById('selectBWRiftForceDeactiveQuantum');
 		var inputRemainingLoot = document.getElementById('inputRemainingLoot');
 		var selectBWRiftChoosePortal = document.getElementById('selectBWRiftChoosePortal');
@@ -3026,11 +3163,52 @@
 		var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
 		if(nIndex < 0)
 			nIndex = 0;
-		selectBWRiftWeapon.value = storageValue.weapon[nIndex];
-		selectBWRiftBase.value = storageValue.base[nIndex];
-		selectBWRiftTrinket.value = storageValue.trinket[nIndex];
-		selectBWRiftBait.value = storageValue.bait[nIndex];
-		selectBWRiftActivatePocketWatch.value = (storageValue.activate[nIndex] === true) ? 'true' : 'false';
+		selectBWRiftWeapon.value = storageValue.master.weapon[nIndex];
+		selectBWRiftBase.value = storageValue.master.base[nIndex];
+		selectBWRiftTrinket.value = storageValue.master.trinket[nIndex];
+		selectBWRiftBait.value = storageValue.master.bait[nIndex];
+		selectBWRiftActivatePocketWatch.value = (storageValue.master.activate[nIndex] === true) ? 'true' : 'false';
+		var strTemp = '';
+		if(selectBWRiftChamber.value == 'GUARD'){
+			nIndex = selectBWRiftAlertLvl.selectedIndex;
+			strTemp = 'gb';
+			selectBWRiftAlertLvl.style.display = '';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		/*else if(selectBWRiftChamber.value == 'INGRESS'){
+			nIndex = selectBWRiftFTC.selectedIndex;
+			strTemp = 'ic';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = '';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		else if(selectBWRiftChamber.value == 'FROZEN'){
+			nIndex = selectBWRiftHunt.selectedIndex;
+			strTemp = 'fa';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = '';
+		}*/
+		else{
+			strTemp = 'master';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		if(strTemp == 'master')
+			document.getElementById('trBWRiftTrapSetupSpecial').style.display = 'none';
+		else{
+			selectBWRiftWeaponSpecial.value = storageValue[strTemp].weapon[nIndex];
+			selectBWRiftBaseSpecial.value = storageValue[strTemp].base[nIndex];
+			selectBWRiftTrinketSpecial.value = storageValue[strTemp].trinket[nIndex];
+			selectBWRiftBaitSpecial.value = storageValue[strTemp].bait[nIndex];
+			if(storageValue[strTemp].activate[nIndex] == 'MASTER')
+				selectBWRiftActivatePocketWatchSpecial.value = storageValue[strTemp].activate[nIndex];
+			else
+				selectBWRiftActivatePocketWatchSpecial.value = (storageValue[strTemp].activate[nIndex] === true) ? 'true' : 'false';
+			document.getElementById('trBWRiftTrapSetupSpecial').style.display = '';
+		}
 		selectBWRiftForceDeactiveQuantum.value = (storageValue.forceDeactivate === true) ? 'true' : 'false';
 		inputRemainingLoot.value = storageValue.remainingLootDeactivate;
 		selectBWRiftChoosePortal.value = (storageValue.choosePortal === true) ? 'true' : 'false';
@@ -3603,7 +3781,7 @@
 				init : function(data){initControlsGWH2016(data);}
 			},
 			'Bristle Woods Rift' : {
-				arr : ['trBWRiftTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC'],
+				arr : ['trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial'],
 				init : function(data){initControlsBWRift(data);}
 			},
 		};

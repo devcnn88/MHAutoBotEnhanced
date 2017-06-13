@@ -465,7 +465,7 @@ function FinalizePuzzleImageAnswer(answer){
         var puzzleAns = document.getElementById("puzzle_answer");
 		if (isNewUI) puzzleAns = document.getElementsByClassName("mousehuntPage-puzzle-form-code")[0];
 		if (!puzzleAns){
-			console.pdebug("puzzleAns:", puzzleAns);
+			console.plog("puzzleAns:", puzzleAns);
 			return;
 		}
 		puzzleAns.value = "";
@@ -473,7 +473,7 @@ function FinalizePuzzleImageAnswer(answer){
         var puzzleSubmit = document.getElementById("puzzle_submit");
 		if (isNewUI) puzzleSubmit = document.getElementsByClassName("mousehuntPage-puzzle-form-code-button")[0];
 		if (!puzzleSubmit){
-			console.pdebug("puzzleSubmit:", puzzleSubmit);
+			console.plog("puzzleSubmit:", puzzleSubmit);
 			return;
 		}
 
@@ -492,7 +492,7 @@ function receiveMessage(event)
 	if(!debugKR && !isAutoSolve)
 		return;
 
-	console.pdebug("Event origin:", event.origin);
+	console.plog("Event origin:", event.origin);
 	if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1){
 		if (event.data.indexOf("~") > -1){
 			var result = event.data.substring(0, event.data.indexOf("~"));
@@ -556,11 +556,11 @@ catch (e){
 exeScript();
 
 function exeScript() {
-	console.pdebug("exeScript() Start");
+	console.plog("exeScript() Start");
 	browser = browserDetection();
 	if (!(browser == 'opera' || browser == 'chrome')){
 		console.plog(browser + " not supported.");
-		console.pdebug("exeScript() End");
+		console.plog("exeScript() End");
 		return;
 	}
 	setStorage('MHAB', g_strVersion);
@@ -752,7 +752,7 @@ function exeScript() {
             embedTimer(false);
         }
     }
-	console.pdebug("exeScript() End");
+	console.plog("exeScript() End");
 }
 
 function GetTrapCheckTime(){
@@ -910,7 +910,7 @@ function getJournalDetail(){
 function specialFeature(caller){
 	return;
 	var strSpecial = getStorageToVariableStr("SpecialFeature", "None");
-	console.pdebug('Special Selected:', strSpecial, 'Call From:', caller);
+	console.plog('Special Selected:', strSpecial, 'Call From:', caller);
     switch (strSpecial) {
         case 'PILLOWCASE':
             magicalPillowcase(); break;
@@ -921,7 +921,7 @@ function specialFeature(caller){
 
 function eventLocationCheck(caller) {
     var selAlgo = getStorageToVariableStr("eventLocation", "None");
-	console.pdebug('Algorithm Selected:', selAlgo, 'Call From:', caller);
+	console.plog('Algorithm Selected:', selAlgo, 'Call From:', caller);
 	var temp = "";
     switch (selAlgo)
     {
@@ -1101,7 +1101,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 		arrUncaughtMouse = arrUpdatedUncaught.slice();
 	}
 	
-	console.pdebug('Uncaught:', arrUncaughtMouse);
+	console.plog('Uncaught:', arrUncaughtMouse);
 	var i;
 	var bChangeTrap = false;
 	var bCanLeave = false;
@@ -1173,16 +1173,39 @@ function bwRift(){
 
 	var objDefaultBWRift = {
 		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
-		weapon : new Array(14).fill('Mysteriously unYielding'),
-		base : new Array(14).fill('Fissure Base'),
-		trinket : new Array(14).fill('Rift Vacuum Charm'),
-		bait : new Array(14).fill('Brie String'),
-		activate : new Array(14).fill(false),
+		master : {
+			weapon : new Array(14).fill('Mysteriously unYielding'),
+			base : new Array(14).fill('Fissure Base'),
+			trinket : new Array(14).fill('Rift Vacuum Charm'),
+			bait : new Array(14).fill('Brie String'),
+			activate : new Array(14).fill(false),
+		},
+		gb : {
+			weapon : new Array(6).fill('MASTER'),
+			base : new Array(6).fill('MASTER'),
+			trinket : new Array(6).fill('MASTER'),
+			bait : new Array(6).fill('MASTER'),
+			activate : new Array(6).fill('MASTER'),
+		},
+		ic : {
+			weapon : new Array(3).fill('MASTER'),
+			base : new Array(3).fill('MASTER'),
+			trinket : new Array(3).fill('MASTER'),
+			bait : new Array(3).fill('MASTER'),
+			activate : new Array(3).fill('MASTER'),
+		},
+		fa : {
+			weapon : new Array(15).fill('MASTER'),
+			base : new Array(15).fill('MASTER'),
+			trinket : new Array(15).fill('MASTER'),
+			bait : new Array(15).fill('MASTER'),
+			activate : new Array(15).fill('MASTER'),
+		},
 		forceDeactivate : false,
 		remainingLootDeactivate : 1,
 		choosePortal : false,
 		choosePortalAfterCC : false,
-		priorities : ["SECURITY", "FURNACE", "PURSUER", "ACOLYTE", "TIMEWARP", "RUNIC", "ANCIENT", "GEARWORKS", "INGRESS", "GUARD", "FROZEN"],
+		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : 50
 	};
 
@@ -1267,15 +1290,49 @@ function bwRift(){
 			}
 		}
 	}
-	checkThenArm(null, 'weapon', objBWRift.weapon[nIndex]);
-	checkThenArm(null, 'base', objBWRift.base[nIndex]);
-	checkThenArm(null, 'trinket', objBWRift.trinket[nIndex]);
-	if(objBWRift.bait[nIndex] == 'Runic/Ancient')
+	var objTemp = {
+		weapon : '',
+		base : '',
+		trinket : '',
+		bait : '',
+		activate : false
+	};
+	if(strChamberName == 'GUARD'){
+		var nAlertLvl = parseInt(objUser.minigame.guard_chamber.status.split("_")[1]);
+		console.plog('Guard Barracks Alert Lvl:',nAlertLvl);
+		if(Number.isNaN(nAlertLvl)){
+			for (var prop in objTemp) {
+				if(objTemp.hasOwnProperty(prop))
+					objTemp[prop] = objBWRift.master[prop][nIndex];
+			}
+		}
+		else{
+			for (var prop in objTemp) {
+				if(objTemp.hasOwnProperty(prop))
+					objTemp[prop] = (objBWRift.gb[prop][nAlertLvl] == 'MASTER') ? objBWRift.master[prop][nIndex] : objBWRift.gb[prop][nAlertLvl];
+			}
+		}
+	}
+	/*else if(strChamberName == 'INGRESS'){
+	}
+	else if(strChamberName == 'FROZEN'){
+	}*/
+	else{
+		for (var prop in objTemp) {
+			if(objTemp.hasOwnProperty(prop))
+				objTemp[prop] = objBWRift.master[prop][nIndex];
+		}
+	}
+		
+	checkThenArm(null, 'weapon', objTemp.weapon);
+	checkThenArm(null, 'base', objTemp.base);
+	checkThenArm(null, 'trinket', objTemp.trinket);
+	if(objTemp.bait == 'Runic/Ancient')
 		checkThenArm('any', 'bait', ['Runic String Cheese', 'Ancient String Cheese']);
-	else if(objBWRift.bait[nIndex] == 'Runic=>Ancient')
+	else if(objTemp.bait == 'Runic=>Ancient')
 		checkThenArm('best', 'bait', ['Runic String Cheese', 'Ancient String Cheese']);
 	else
-		checkThenArm(null, 'bait', objBWRift.bait[nIndex]);
+		checkThenArm(null, 'bait', objTemp.bait);
 	var classLootBooster = document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment lootBooster mousehuntTooltipParent')[0];
 	var bPocketwatchActive = (classLootBooster.getAttribute('class').indexOf('selected') > -1);
 	var classButton = classLootBooster.getElementsByClassName('riftBristleWoodsHUD-portalEquipment-action')[0];
@@ -1284,7 +1341,7 @@ function bwRift(){
 			fireEvent(classButton, 'click');
 	}
 	else{
-		if(objBWRift.activate[nIndex] ^ bPocketwatchActive)
+		if(objTemp.activate ^ bPocketwatchActive)
 			fireEvent(classButton, 'click');
 	}
 }
@@ -1371,7 +1428,7 @@ function Halloween2016(){
 	var treatContainer = document.getElementsByClassName('halloweenHud-bait treat_cheese clear-block')[0];
 	var bTricking = (trickContainer.children[2].getAttribute('class') == 'armNow active');
 	var bTreating = (treatContainer.children[2].getAttribute('class') == 'armNow active');
-	console.pdebug('Current Area Name:', areaName, 'Warning:', isWarning, 'Tricking:', bTricking, 'Treating:', bTreating);
+	console.plog('Current Area Name:', areaName, 'Warning:', isWarning, 'Tricking:', bTricking, 'Treating:', bTreating);
 	if(!(bTricking || bTreating))
 		return;
 	if (isWarning){
@@ -1406,7 +1463,7 @@ function Halloween2016(){
 		var stageContainer = document.getElementsByClassName('halloweenHud-progress-stage-row-container')[i];
 		i = (bTricking) ? 0 : 1 ;
 		var nSquareLeft = stageContainer.children[i].getElementsByTagName('i').length;
-		console.pdebug('Min Square:', nSquareMin, 'Square Left:', nSquareLeft);
+		console.plog('Min Square:', nSquareMin, 'Square Left:', nSquareLeft);
 		if(nSquareLeft <= nSquareMin){
 			for(i=0;i<classContent.length;i+=3){
 				if(classContent[i].children[3].getAttribute('class').indexOf('armNow active') > -1)
@@ -1828,10 +1885,10 @@ function BurroughRift(bCheckLoc, minMist, maxMist, nToggle)
 	var currentMistQuantity = parseInt(document.getElementsByClassName('mistQuantity')[0].innerText);
 	var isMisting = (getPageVariable('user.quests.QuestRiftBurroughs.is_misting') == 'true');
 	var mistButton = document.getElementsByClassName('mistButton')[0];
-	console.pdebug('Current Mist Quantity:', currentMistQuantity, 'Is Misting:', isMisting);
+	console.plog('Current Mist Quantity:', currentMistQuantity, 'Is Misting:', isMisting);
 	if(minMist === 0 && maxMist === 0){
 		if(isMisting){
-			console.pdebug('Stop mist...');
+			console.plog('Stop mist...');
 			fireEvent(mistButton, 'click');
 		}
 	}
@@ -1839,7 +1896,7 @@ function BurroughRift(bCheckLoc, minMist, maxMist, nToggle)
 	{
 		if(maxMist == 20 && Number.isInteger(nToggle)){
 			if(nToggle == 1){
-				console.pdebug('Stop mist...');
+				console.plog('Stop mist...');
 				fireEvent(mistButton, 'click');
 			}
 			else{
@@ -1847,20 +1904,20 @@ function BurroughRift(bCheckLoc, minMist, maxMist, nToggle)
 				nCount20++;
 				if(nCount20 >= nToggle){
 					nCount20 = 0;
-					console.pdebug('Stop mist...');
+					console.plog('Stop mist...');
 					fireEvent(mistButton, 'click');
 				}
 				setStorage('BR20_Count', nCount20);
 			}
 		}
 		else{
-			console.pdebug('Stop mist...');
+			console.plog('Stop mist...');
 			fireEvent(mistButton, 'click');
 		}
 	}
 	else if(currentMistQuantity <= minMist && !isMisting)
 	{
-		console.pdebug('Start mist...');
+		console.plog('Start mist...');
 		fireEvent(mistButton, 'click');
 	}
 	return currentMistQuantity;
@@ -2136,7 +2193,7 @@ function SunkenCity(isAggro) {
 		return;
 	
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
-	console.pdebug('Current Zone:', zone);
+	console.plog('Current Zone:', zone);
 	var currentZone = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 	if (currentZone == objSCZone.ZONE_NOT_DIVE){
@@ -2148,7 +2205,7 @@ function SunkenCity(isAggro) {
 
 	checkThenArm('best', 'base', bestSCBase);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
-	console.pdebug('Dive Distance(m):', distance);
+	console.plog('Dive Distance(m):', distance);
 	var charmArmed = getPageVariable("user.trinket_name");
 	var charmElement = document.getElementsByClassName('charm');
 	var isEACArmed = (charmArmed.indexOf('Empowered Anchor') > -1);
@@ -2185,7 +2242,7 @@ function SunkenCity(isAggro) {
 			var nextZoneLeft = parseInt(getPageVariable('user.quests.QuestSunkenCity.zones[2].left'));
 			var nextZone = GetSunkenCityZone(nextZoneName);
 			var distanceToNextZone = parseInt((nextZoneLeft - 80) / 0.6);
-			console.pdebug('Distance to next zone(m):', distanceToNextZone);
+			console.plog('Distance to next zone(m):', distanceToNextZone);
 			if (distanceToNextZone >= 480 || (distanceToNextZone >= 230 && nextZone == objSCZone.ZONE_DEFAULT)){
 				// arm Water Jet Charm
 				checkThenArm('best', 'trinket', ['Smart Water Jet', 'Water Jet']);
@@ -2564,9 +2621,9 @@ function labyrinth() {
 	var isAtExit = (labyStatus=="exit");
 	var lastHunt = document.getElementsByClassName('labyrinthHUD-hallway-tile locked').length + 1;
 	var totalClue = parseInt(document.getElementsByClassName('labyrinthHUD-clueBar-totalClues')[0].innerText);
-	console.pdebug("Entrance:", isAtEntrance, "Intersection:", isAtIntersection, "Exit:", isAtExit);
+	console.plog("Entrance:", isAtEntrance, "Intersection:", isAtIntersection, "Exit:", isAtExit);
 	var objLaby = getStorageToObject('Labyrinth', objDefaultLaby);
-	console.pdebug('District to focus:', objLaby.districtFocus);
+	console.plog('District to focus:', objLaby.districtFocus);
 	bestLabyBase = bestLabyBase.concat(objBestTrap.base.luck).concat(objBestTrap.base.power);
 	var charmArmed = getPageVariable('user.trinket_name');
 	if(objLaby.armOtherBase != 'false'){
@@ -2694,7 +2751,7 @@ function labyrinth() {
 		index = objDoors.name.indexOf(objLaby.districtFocus);
 		if(index<0){
 			if(objLaby.chooseOtherDoors){
-				console.pdebug(objDoors);
+				console.plog(objDoors);
 				temp = min(objDoors.clue);
 				var objFewestClue = {
 					num : temp,
@@ -2714,8 +2771,8 @@ function labyrinth() {
 					objShortestLength.type = "LONG";
 				objShortestLength.indices = getAllIndices(objDoors.length, objShortestLength.type);
 				objShortestLength.count = objShortestLength.indices.length;
-				console.pdebug(JSON.stringify(objShortestLength));
-				console.pdebug(JSON.stringify(objFewestClue));
+				console.plog(JSON.stringify(objShortestLength));
+				console.plog(JSON.stringify(objFewestClue));
 				if(objShortestLength.indices.length < 1 || objFewestClue.indices.length < 1){
 					checkThenArm(null, 'bait', 'Gouda');
 					disarmTrap('trinket');
@@ -2815,7 +2872,7 @@ function labyrinth() {
 			}
 		}
 
-		console.pdebug(objDoors);
+		console.plog(objDoors);
 		var sortedDoorPriorities = sortWithIndices(objDoors.priorities, "ascend");
 		fireEvent(doorsIntersect[sortedDoorPriorities.index[0]], 'click');
 		window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton confirm')[0], 'click'); }, 1500);
@@ -2896,7 +2953,7 @@ function fw(){
 	var objFW = objFWAll['wave'+wave];
     if (wave == 4){
 		var nWardenLeft = parseInt(document.getElementsByClassName('population')[0].textContent);
-		console.pdebug('Wave:', wave, 'Warden Left:', nWardenLeft);
+		console.plog('Wave:', wave, 'Warden Left:', nWardenLeft);
 		if(Number.isNaN(nWardenLeft))
 			nWardenLeft = 12;
 		temp = (nWardenLeft <= 0) ? "after" : "before";
@@ -2909,7 +2966,7 @@ function fw(){
 
 	checkThenArm(null, 'base', objFW.base);
 	objFW.streak = parseInt(document.getElementsByClassName('streak_quantity')[0].innerText);
-    console.pdebug('Wave:', wave, 'Streak:', objFW.streak);
+    console.plog('Wave:', wave, 'Streak:', objFW.streak);
 	if(Number.isNaN(objFW.streak) || objFW.streak < 0 || objFW.streak >= g_fwStreakLength)
 		return;
 
@@ -2924,7 +2981,7 @@ function fw(){
 	if(objFW.streakMouse.indexOf('desert_') > -1)
 		objFW.streakMouse = capitalizeFirstLetter(objFW.streakMouse.split('_')[1]);
 
-    console.pdebug('Current streak mouse type:', objFW.streakMouse);
+    console.plog('Current streak mouse type:', objFW.streakMouse);
 	var population = document.getElementsByClassName('population');
 	objFW.population = {
 		all : [],
@@ -2955,7 +3012,7 @@ function fw(){
 	if(!objFW.soldierActive && objFW.focusType == 'NORMAL')
 		objFW.focusType = 'SPECIAL';
 
-	console.pdebug(objFW);
+	console.plog(objFW);
 	var index = -1;
 	var charmArmed = getPageVariable('user.trinket_name');
 	var nSum;
@@ -3120,7 +3177,7 @@ function fRift(){
 	objFR.enter = parseInt(objFR.enter);
 	objFR.retreat = parseInt(objFR.retreat);
 	var objUserFRift = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftFuroma)'));
-	console.pdebug(objUserFRift.view_state);
+	console.plog(objUserFRift.view_state);
 	var bInPagoda = (objUserFRift.view_state == 'pagoda' || objUserFRift.view_state == 'pagoda knows_all');
 	var i;
 	if(bInPagoda){
@@ -3202,7 +3259,7 @@ function livingGarden(obj) {
 		strStatus = 'Filled';
 	else
 		strStatus = 'Filling';
-	console.pdebug('Estimate Hunt:', estimateHunt, 'Status:', strStatus);
+	console.plog('Estimate Hunt:', estimateHunt, 'Status:', strStatus);
 	if (obj.LG.trinket.after.indexOf('Sponge') > -1)
 		obj.LG.trinket.after = 'None';
 	if(strStatus == 'Poured'){
@@ -3258,7 +3315,7 @@ function lostCity(obj) {
 	checkThenArm('best', 'weapon', objBestTrap.weapon.arcane);
 	checkThenArm(null, 'bait', 'Dewthief');
 	var isCursed = (document.getElementsByClassName('stateBlessed hidden').length > 0);
-    console.pdebug('Cursed:', isCursed);
+    console.plog('Cursed:', isCursed);
     
 	//disarm searcher charm when cursed is lifted
     if (!isCursed) {
@@ -3275,7 +3332,7 @@ function lostCity(obj) {
 
 function sandDunes() {
 	var hasStampede = getPageVariable('user.quests.QuestSandDunes.minigame.has_stampede');
-    console.pdebug('Has Stampede:', hasStampede);
+    console.plog('Has Stampede:', hasStampede);
 
     //disarm grubling chow charm when there is no stampede
     if (hasStampede == 'false'){
@@ -3304,7 +3361,7 @@ function twistedGarden(obj) {
 		strStatus = 'Filled';
 	else
 		strStatus = 'Filling';
-    console.pdebug('Red:', red, 'Yellow:', yellow, 'Estimate Hunt:', nEstimateHunt, 'Status:', strStatus);
+    console.plog('Red:', red, 'Yellow:', yellow, 'Estimate Hunt:', nEstimateHunt, 'Status:', strStatus);
 	var redPlusYellow = redSpongeCharm.concat(yellowSpongeCharm);
 	if (obj.TG.trinket.after.indexOf('Red') > -1 || obj.TG.trinket.after.indexOf('Yellow') > -1)
 		obj.TG.trinket.after = 'None';
@@ -3384,15 +3441,15 @@ function cursedCity(obj) {
 			if(objCC.curses[i].active){
 				switch (i){
                     case 0:
-                        console.pdebug("Fear Active");
+                        console.plog("Fear Active");
 						cursedCityCharm.push('Bravery');
 						break;
                     case 1:
-                        console.pdebug("Darkness Active");
+                        console.plog("Darkness Active");
 						cursedCityCharm.push('Shine');
 						break;
                     case 2:
-						console.pdebug("Mist Active");
+						console.plog("Mist Active");
 						cursedCityCharm.push('Clarity');
 						break;
                 }
@@ -3407,7 +3464,7 @@ function sandCrypts(obj) {
     checkThenArm('best', 'weapon', objBestTrap.weapon.shadow);
 	checkThenArm(null, 'bait', 'Graveblossom');
 	var salt = parseInt(document.getElementsByClassName('salt_charms')[0].innerText);
-    console.pdebug('Salted:', salt);
+    console.plog('Salted:', salt);
     if (salt >= obj.SC.maxSaltCharged){
 		checkThenArm(null, 'base', obj.SC.base.after);
         checkThenArm(null, 'trinket', 'Grub Scent');
@@ -3494,7 +3551,7 @@ function checkCharge2016(stopDischargeAt){
 	try {
 		var charge = parseInt(document.getElementsByClassName('springHuntHUD-charge-quantity')[0].innerText);
 		var isDischarge = (getStorage("discharge") == "true");
-		console.pdebug('Current Charge:', charge, 'Discharging:', isDischarge, 'Stop Discharge At:', stopDischargeAt);
+		console.plog('Current Charge:', charge, 'Discharging:', isDischarge, 'Stop Discharge At:', stopDischargeAt);
 		var charmContainer = document.getElementsByClassName('springHuntHUD-charmContainer')[0];
 		var eggstra = {};
 		eggstra.quantity = parseInt(charmContainer.children[0].children[0].innerText);
@@ -3556,7 +3613,7 @@ function checkCharge2016(stopDischargeAt){
 function checkCharge(stopDischargeAt) {
     try {
         var charge = parseInt(document.getElementsByClassName("chargeQuantity")[0].innerText);
-		console.pdebug('Current Charge:', charge);
+		console.plog('Current Charge:', charge);
         if (charge == 20) {
             setStorage("discharge", true.toString());
             checkThenArm(null, "trinket", "Eggstra Charm");
@@ -3798,7 +3855,7 @@ function armTrapClassicUI(sort, trap, name){
         name = name[0];
     
     if (tagGroupElement.length > 0){
-        console.pdebug('Try to arm', name);
+        console.plog('Try to arm', name);
         for (var i = 0; i < tagGroupElement.length; ++i){
             tagElement = tagGroupElement[i].getElementsByTagName('a');
             for (var j = 0; j < tagElement.length; ++j){
@@ -3816,12 +3873,12 @@ function armTrapClassicUI(sort, trap, name){
 						objTrapList[trap].unshift(nameElement);
 						setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
 					}
-					console.pdebug(name, 'armed');
+					console.plog(name, 'armed');
 					return ARMED;
                 }
             }
         }
-		console.pdebug(name, 'not found');
+		console.plog(name, 'not found');
 		for(var i=0;i<objTrapList[trap].length;i++){
 			if(objTrapList[trap][i].indexOf(name) === 0){
 				objTrapList[trap].splice(i,1);
@@ -3852,7 +3909,7 @@ function armTrapNewUI(sort, trap, name){
         name = name[0];
 	
 	if (itemEle.length > 0) {
-		console.pdebug('Trying to arm ' + name);
+		console.plog('Trying to arm ' + name);
 		for (var i = 0; i < itemEle.length; i++) {
 			nameElement = itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
 			if (nameElement.indexOf(name) === 0) {
@@ -3864,12 +3921,12 @@ function armTrapNewUI(sort, trap, name){
 					objTrapList[trap].unshift(nameElement);
 					setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
 				}	
-				console.pdebug(name + ' armed');
+				console.plog(name + ' armed');
 				return ARMED;
 			}
 		}
 
-		console.pdebug(name, 'not found');
+		console.plog(name, 'not found');
 		for(var i=0;i<objTrapList[trap].length;i++){
 			if(objTrapList[trap][i].indexOf(name) === 0){
 				objTrapList[trap].splice(i,1);
@@ -3899,14 +3956,14 @@ function clickTrapSelector(strSelect, bForceClick){ //strSelect = weapon/base/ch
 		var arrTemp = armedItem.getAttribute('class').split(" ");
 		if(bForceClick !== true && arrTemp[arrTemp.length-1] == 'active'){ // trap selector opened
 			arming = true;
-			return (console.pdebug('Trap selector', strSelect, 'opened'));
+			return (console.plog('Trap selector', strSelect, 'opened'));
 		}
 		fireEvent(armedItem, 'click');
 	}
 	else{
 		if(bForceClick !== true && document.getElementsByClassName("showComponents " + strSelect).length > 0){ // trap selector opened
 			arming = true;
-			return (console.pdebug('Trap selector', strSelect, 'opened'));
+			return (console.plog('Trap selector', strSelect, 'opened'));
 		}
 		if (strSelect == "base")
 			fireEvent(document.getElementsByClassName('trapControlThumb')[0], 'click');
@@ -3917,10 +3974,10 @@ function clickTrapSelector(strSelect, bForceClick){ //strSelect = weapon/base/ch
 		else if (strSelect == "bait")
 			fireEvent(document.getElementsByClassName('trapControlThumb')[3], 'click');
 		else
-			return (console.pdebug("Invalid trapSelector"));
+			return (console.plog("Invalid trapSelector"));
 	}
     arming = true;
-	console.pdebug("Trap selector", strSelect, "clicked");
+	console.plog("Trap selector", strSelect, "clicked");
 }
 
 function closeTrapSelector(category){
@@ -3928,13 +3985,13 @@ function closeTrapSelector(category){
 		var armedItem = document.getElementsByClassName('campPage-trap-armedItem ' + category)[0];
 		if(!isNullOrUndefined(armedItem) && armedItem.getAttribute('class').indexOf('active') > -1){ // trap selector opened
 			fireEvent(armedItem, 'click');
-			console.pdebug("Trap selector", category, "closed");
+			console.plog("Trap selector", category, "closed");
 		}
 	}
 	else{
 		if(document.getElementsByClassName("showComponents " + category).length > 0){
 			fireEvent(document.getElementById('trapSelectorBrowserClose'), 'click');
-			console.pdebug("Trap selector", category, "closed");
+			console.plog("Trap selector", category, "closed");
 		}
 	}
 }
@@ -5036,8 +5093,8 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 			
-			preferenceHTMLStr += '<tr id="trBWRiftTrapSetup" style="display:none;">';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Trap Setup at </b></a>';
+			preferenceHTMLStr += '<tr id="trBWRiftMasterTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Master Trap Setup </b></a>';
 			preferenceHTMLStr += '<select id="selectBWRiftChamber" style="width: 75px;" onchange="initControlsBWRift();">';
 			preferenceHTMLStr += '<option value="NONE">Non-Chamber</option>';
 			preferenceHTMLStr += '<option value="GEARWORKS">Gearworks</option>';
@@ -5088,6 +5145,63 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Marble String">Marble</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBWRiftActivatePocketWatch" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="false">Deactivate Quantum Pocketwatch</option>';
+			preferenceHTMLStr += '<option value="true">Activate Quantum Pocketwatch</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+			
+			preferenceHTMLStr += '<tr id="trBWRiftTrapSetupSpecial" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Conditional Trap Setup </b></a>';
+			preferenceHTMLStr += '<select id="selectBWRiftAlertLvl" style="width:75px;display:none" onchange="initControlsBWRift();">';
+			for(i=0;i<=5;i++)
+				preferenceHTMLStr += '<option value="' + i + '">Alert Lvl ' + i + '</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftFTC" style="width:75px;display:none" onchange="initControlsBWRift();">';
+			for(i=0;i<=2;i++)
+				preferenceHTMLStr += '<option value="' + i + '">FTC ' + i + '</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftHunt" style="width:75px;display:none" onchange="initControlsBWRift();">';
+			for(i=0;i<=14;i++)
+				preferenceHTMLStr += '<option value="' + i + '">Hunt ' + i + '</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBWRiftWeaponSpecial" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="MASTER">Master</option>';
+			preferenceHTMLStr += '<option value="Timesplit Dissonance Weapon">TDW</option>';
+			preferenceHTMLStr += '<option value="Mysteriously unYielding">MYNORCA</option>';
+			preferenceHTMLStr += '<option value="Focused Crystal Laser">FCL</option>';
+			preferenceHTMLStr += '<option value="Multi-Crystal Laser">MCL</option>';
+			preferenceHTMLStr += '<option value="Biomolecular Re-atomizer Trap">BRT</option>';
+			preferenceHTMLStr += '<option value="Crystal Tower">CT</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftBaseSpecial" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="MASTER">Master</option>';
+			preferenceHTMLStr += '<option value="Clockwork Base">Clockwork</option>';
+			preferenceHTMLStr += '<option value="Fissure Base">Fissure</option>';
+			preferenceHTMLStr += '<option value="Rift Base">Rift</option>';
+			preferenceHTMLStr += '<option value="Fracture Base">Fracture</option>';
+			preferenceHTMLStr += '<option value="Enerchi Induction Base">Enerchi</option>';
+			preferenceHTMLStr += '<option value="Attuned Enerchi Induction Base">A. Enerchi</option>';
+			preferenceHTMLStr += '<option value="Minotaur Base">Minotaur</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftTrinketSpecial" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="MASTER">Master</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftBaitSpecial" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="MASTER">Master</option>';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Runic String">Runic</option>';
+			preferenceHTMLStr += '<option value="Ancient String">Ancient</option>';
+			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
+			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
+			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
+			preferenceHTMLStr += '<option value="Marble String">Marble</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBWRiftActivatePocketWatchSpecial" style="width: 75px;" onchange="saveBWRift();">';
+			preferenceHTMLStr += '<option value="MASTER">Master</option>';
 			preferenceHTMLStr += '<option value="false">Deactivate Quantum Pocketwatch</option>';
 			preferenceHTMLStr += '<option value="true">Activate Quantum Pocketwatch</option>';
 			preferenceHTMLStr += '</select>';
@@ -6256,7 +6370,7 @@ function embedTimer(targetPage) {
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon'],
 				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase','selectBRTrapBase','selectWWRiftTrapBase','selectWWRiftMBWTrapBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESTrapTrinket','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket','selectGESTrapTrinket','selectBWRiftTrinket'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESTrapTrinket','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket','selectGESTrapTrinket','selectBWRiftTrinket','selectBWRiftTrinketSpecial'],
 				bait : ['selectBait','selectGWHBait']
 			};
 			var temp;
@@ -7807,7 +7921,7 @@ function disarmTrap(trapSelector) {
 							x = document.getElementsByClassName('campPage-trap-itemBrowser-item-disarmButton');
 							if(x.length > 0){
 								fireEvent(x[0], 'click');
-								console.pdebug('Disarmed');
+								console.plog('Disarmed');
 								deleteArmingFromList(trapSelector);
 								if(isNewUI && !isArmingInList())
 									closeTrapSelector(trapSelector);
@@ -7825,7 +7939,7 @@ function disarmTrap(trapSelector) {
 									strTemp = x[i].getAttribute('title');
 									if (strTemp.indexOf('Click to disarm') > -1) {
 										fireEvent(x[i], 'click');
-										console.pdebug('Disarmed');
+										console.plog('Disarmed');
 										deleteArmingFromList(trapSelector);
 										arming = false;
 										clearInterval(intervalDT);
@@ -8040,16 +8154,39 @@ function refreshTrapList() {
 function bodyJS(){
 	var objDefaultBWRift = {
 		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
-		weapon : new Array(14).fill('Mysteriously unYielding'),
-		base : new Array(14).fill('Fissure Base'),
-		trinket : new Array(14).fill('Rift Vacuum Charm'),
-		bait : new Array(14).fill('Brie String'),
-		activate : new Array(14).fill(false),
+		master : {
+			weapon : new Array(14).fill('Mysteriously unYielding'),
+			base : new Array(14).fill('Fissure Base'),
+			trinket : new Array(14).fill('Rift Vacuum Charm'),
+			bait : new Array(14).fill('Brie String'),
+			activate : new Array(14).fill(false),
+		},
+		gb : {
+			weapon : new Array(6).fill('MASTER'),
+			base : new Array(6).fill('MASTER'),
+			trinket : new Array(6).fill('MASTER'),
+			bait : new Array(6).fill('MASTER'),
+			activate : new Array(6).fill('MASTER'),
+		},
+		ic : {
+			weapon : new Array(3).fill('MASTER'),
+			base : new Array(3).fill('MASTER'),
+			trinket : new Array(3).fill('MASTER'),
+			bait : new Array(3).fill('MASTER'),
+			activate : new Array(3).fill('MASTER'),
+		},
+		fa : {
+			weapon : new Array(15).fill('MASTER'),
+			base : new Array(15).fill('MASTER'),
+			trinket : new Array(15).fill('MASTER'),
+			bait : new Array(15).fill('MASTER'),
+			activate : new Array(15).fill('MASTER'),
+		},
 		forceDeactivate : false,
 		remainingLootDeactivate : 1,
 		choosePortal : false,
 		choosePortalAfterCC : false,
-		priorities : ["SECURITY", "FURNACE", "PURSUER", "ACOLYTE", "TIMEWARP", "RUNIC", "ANCIENT", "GEARWORKS", "INGRESS", "GUARD", "FROZEN"],
+		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : 50
 	};
 	
@@ -9627,6 +9764,12 @@ function bodyJS(){
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
+		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
+		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
+		var selectBWRiftBaitSpecial = document.getElementById('selectBWRiftBaitSpecial');
+		var selectBWRiftTrinketSpecial = document.getElementById('selectBWRiftTrinketSpecial');
+		var selectBWRiftActivatePocketWatchSpecial = document.getElementById('selectBWRiftActivatePocketWatchSpecial');
 		var selectBWRiftForceDeactiveQuantum = document.getElementById('selectBWRiftForceDeactiveQuantum');
 		var inputRemainingLoot = document.getElementById('inputRemainingLoot');
 		var selectBWRiftChoosePortal = document.getElementById('selectBWRiftChoosePortal');
@@ -9638,14 +9781,39 @@ function bodyJS(){
 		if(isNullOrUndefined(storageValue))
 			storageValue = JSON.stringify(objDefaultBWRift);
 		storageValue = JSON.parse(storageValue);
+		var strTemp = '';
 		var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
 		if(nIndex < 0)
 			nIndex = 0;
-		storageValue.weapon[nIndex] = selectBWRiftWeapon.value;
-		storageValue.base[nIndex] = selectBWRiftBase.value;
-		storageValue.bait[nIndex] = selectBWRiftBait.value;
-		storageValue.trinket[nIndex] = selectBWRiftTrinket.value;
-		storageValue.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
+		storageValue.master.weapon[nIndex] = selectBWRiftWeapon.value;
+		storageValue.master.base[nIndex] = selectBWRiftBase.value;
+		storageValue.master.bait[nIndex] = selectBWRiftBait.value;
+		storageValue.master.trinket[nIndex] = selectBWRiftTrinket.value;
+		storageValue.master.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
+		if(selectBWRiftChamber.value == 'GUARD'){
+			nIndex = selectBWRiftAlertLvl.selectedIndex;
+			strTemp = 'gb';
+		}
+		/*else if(selectBWRiftChamber.value == 'INGRESS'){
+			nIndex = selectBWRiftFTC.selectedIndex;
+			strTemp = 'ic';
+		}
+		else if(selectBWRiftChamber.value == 'FROZEN'){
+			nIndex = selectBWRiftHunt.selectedIndex;
+			strTemp = 'fa';
+		}*/
+		else
+			strTemp = 'master';
+		if(strTemp !== 'master'){
+			storageValue[strTemp].weapon[nIndex] = selectBWRiftWeaponSpecial.value;
+			storageValue[strTemp].base[nIndex] = selectBWRiftBaseSpecial.value;
+			storageValue[strTemp].bait[nIndex] = selectBWRiftBaitSpecial.value;
+			storageValue[strTemp].trinket[nIndex] = selectBWRiftTrinketSpecial.value;
+			if(selectBWRiftActivatePocketWatchSpecial.value == 'MASTER')
+				storageValue[strTemp].activate[nIndex] = selectBWRiftActivatePocketWatchSpecial.value;
+			else
+				storageValue[strTemp].activate[nIndex] = (selectBWRiftActivatePocketWatchSpecial.value == 'true');
+		}
 		storageValue.forceDeactivate = (selectBWRiftForceDeactiveQuantum.value == 'true');
 		storageValue.remainingLootDeactivate = parseInt(inputRemainingLoot.value);
 		storageValue.choosePortal = (selectBWRiftChoosePortal.value == 'true');
@@ -9666,6 +9834,12 @@ function bodyJS(){
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
+		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
+		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
+		var selectBWRiftBaitSpecial = document.getElementById('selectBWRiftBaitSpecial');
+		var selectBWRiftTrinketSpecial = document.getElementById('selectBWRiftTrinketSpecial');
+		var selectBWRiftActivatePocketWatchSpecial = document.getElementById('selectBWRiftActivatePocketWatchSpecial');
 		var selectBWRiftForceDeactiveQuantum = document.getElementById('selectBWRiftForceDeactiveQuantum');
 		var inputRemainingLoot = document.getElementById('inputRemainingLoot');
 		var selectBWRiftChoosePortal = document.getElementById('selectBWRiftChoosePortal');
@@ -9701,11 +9875,52 @@ function bodyJS(){
 		nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
 		if(nIndex < 0)
 			nIndex = 0;
-		selectBWRiftWeapon.value = storageValue.weapon[nIndex];
-		selectBWRiftBase.value = storageValue.base[nIndex];
-		selectBWRiftTrinket.value = storageValue.trinket[nIndex];
-		selectBWRiftBait.value = storageValue.bait[nIndex];
-		selectBWRiftActivatePocketWatch.value = (storageValue.activate[nIndex] === true) ? 'true' : 'false';
+		selectBWRiftWeapon.value = storageValue.master.weapon[nIndex];
+		selectBWRiftBase.value = storageValue.master.base[nIndex];
+		selectBWRiftTrinket.value = storageValue.master.trinket[nIndex];
+		selectBWRiftBait.value = storageValue.master.bait[nIndex];
+		selectBWRiftActivatePocketWatch.value = (storageValue.master.activate[nIndex] === true) ? 'true' : 'false';
+		var strTemp = '';
+		if(selectBWRiftChamber.value == 'GUARD'){
+			nIndex = selectBWRiftAlertLvl.selectedIndex;
+			strTemp = 'gb';
+			selectBWRiftAlertLvl.style.display = '';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		/*else if(selectBWRiftChamber.value == 'INGRESS'){
+			nIndex = selectBWRiftFTC.selectedIndex;
+			strTemp = 'ic';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = '';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		else if(selectBWRiftChamber.value == 'FROZEN'){
+			nIndex = selectBWRiftHunt.selectedIndex;
+			strTemp = 'fa';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = '';
+		}*/
+		else{
+			strTemp = 'master';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		if(strTemp == 'master')
+			document.getElementById('trBWRiftTrapSetupSpecial').style.display = 'none';
+		else{
+			selectBWRiftWeaponSpecial.value = storageValue[strTemp].weapon[nIndex];
+			selectBWRiftBaseSpecial.value = storageValue[strTemp].base[nIndex];
+			selectBWRiftTrinketSpecial.value = storageValue[strTemp].trinket[nIndex];
+			selectBWRiftBaitSpecial.value = storageValue[strTemp].bait[nIndex];
+			if(storageValue[strTemp].activate[nIndex] == 'MASTER')
+				selectBWRiftActivatePocketWatchSpecial.value = storageValue[strTemp].activate[nIndex];
+			else
+				selectBWRiftActivatePocketWatchSpecial.value = (storageValue[strTemp].activate[nIndex] === true) ? 'true' : 'false';
+			document.getElementById('trBWRiftTrapSetupSpecial').style.display = '';
+		}
 		selectBWRiftForceDeactiveQuantum.value = (storageValue.forceDeactivate === true) ? 'true' : 'false';
 		inputRemainingLoot.value = storageValue.remainingLootDeactivate;
 		selectBWRiftChoosePortal.value = (storageValue.choosePortal === true) ? 'true' : 'false';
@@ -10220,7 +10435,7 @@ function bodyJS(){
 				init : function(data){initControlsGWH2016(data);}
 			},
 			'Bristle Woods Rift' : {
-				arr : ['trBWRiftTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC'],
+				arr : ['trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial'],
 				init : function(data){initControlsBWRift(data);}
 			},
 		};
