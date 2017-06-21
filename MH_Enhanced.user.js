@@ -1252,6 +1252,7 @@ function bwRift(){
 				if(objPortal.arrIndex[i] < 0)
 					objPortal.arrIndex[i] = Number.MAX_SAFE_INTEGER;
 			}
+			console.plog(objPortal);
 			if(objBWRift.choosePortal){
 				if(nIndex === 0 || (nIndex > 0 && objUser.chamber_status == 'open' && objBWRift.choosePortalAfterCC)){
 					var nIndexTemp = objPortal.arrName.indexOf('ACOLYTE');
@@ -1264,7 +1265,6 @@ function bwRift(){
 					nIndexTemp = objPortal.arrName.indexOf('ENTER');
 					if(nIndexTemp > -1)
 						objPortal.arrIndex[nIndexTemp] = 1;
-					console.plog(objPortal);
 					var nMinIndex = minIndex(objPortal.arrIndex);
 					if(objPortal.arrIndex[nMinIndex] == Number.MAX_SAFE_INTEGER || classPortalContainer[0].children[nMinIndex] == 'frozen')
 						nIndex = 0;
@@ -1300,7 +1300,7 @@ function bwRift(){
 	if(strChamberName == 'GUARD'){
 		var nAlertLvl = parseInt(objUser.minigame.guard_chamber.status.split("_")[1]);
 		console.plog('Guard Barracks Alert Lvl:',nAlertLvl);
-		if(Number.isNaN(nAlertLvl)){
+		if(Number.isNaN(nAlertLvl) || nAlertLvl < 0 || nAlertLvl > 5){
 			for (var prop in objTemp) {
 				if(objTemp.hasOwnProperty(prop))
 					objTemp[prop] = objBWRift.master[prop][nIndex];
