@@ -5195,6 +5195,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Runic String">Runic</option>';
 			preferenceHTMLStr += '<option value="Ancient String">Ancient</option>';
+			preferenceHTMLStr += '<option value="Runic/Ancient">Runic/Ancient</option>';
+			preferenceHTMLStr += '<option value="Runic=>Ancient">Runic=>Ancient</option>';
 			preferenceHTMLStr += '<option value="Magical String">Magical</option>';
 			preferenceHTMLStr += '<option value="Brie String">Brie</option>';
 			preferenceHTMLStr += '<option value="Swiss String">Swiss</option>';
