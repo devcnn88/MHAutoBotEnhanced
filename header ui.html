@@ -226,11 +226,47 @@
 						<input type="button" id="inputGetMouse" title="Click to Get all uncaught mouse from treasure map" value="Get Uncaught Mouse List" onclick="onInputGetMouse();">
 					</td>
 				</tr>
-				<tr id="trSelectedUncaughtMouse" style="display:none;">
+				<!-- <tr id="trSelectedUncaughtMouse" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select desired uncaught mouse"><b>Selected Mouse</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
 						<input type="text" id="inputUncaughtMouse" value="" disabled>&nbsp;&nbsp;
 						<input type="button" id="inputClearUncaughtMouse" title="Click to clear the selected mouse" value="Clear" onclick="onInputClearUncaughtMouse();">
+					</td>
+				</tr> -->
+				<tr id="trSelectedUncaughtMouse" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select desired uncaught mouse"><b>Selected Mouse</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<div class="chosen-container chosen-container-multi" style="width: 100%;" title="" id="factor_exchanges_chosen">
+							<ul class="chosen-choices">
+								<li class="search-choice">
+									<span>BTC-e</span>
+									<a class="search-choice-close" data-option-array-index="2"></a>
+								</li>
+								<li class="search-choice">
+									<span>Bter</span>
+									<a class="search-choice-close" data-option-array-index="3"></a>
+								</li>
+								<li class="search-choice">
+									<span>C-Cex</span>
+									<a class="search-choice-close" data-option-array-index="4"></a>
+								</li>
+								<li class="search-choice">
+									<span>Cryptopia</span>
+									<a class="search-choice-close" data-option-array-index="5"></a>
+								</li>
+								<li class="search-choice">
+									<span>Poloniex</span>
+									<a class="search-choice-close" data-option-array-index="6"></a>
+								</li>
+								<li class="search-choice">
+									<span>Bittrex</span>
+									<a class="search-choice-close" data-option-array-index="0"></a>
+								</li>
+								<li class="search-field">
+									<input type="text" value="Select Some Options" class="" autocomplete="off" style="width: 25px;">
+								</li>
+							</ul>
+						</div>
 					</td>
 				</tr>
 				<tr id="trCatchLogic" style="display:none;">
@@ -286,6 +322,7 @@
 							<option value="BC/JOD">BC => JOD</option>
 							<option value="Charge Egg 2015">Charge Egg 2015</option>
 							<option value="Charge Egg 2015(17)">Charge Egg 2015(17)</option>
+							<option value="Bristle Woods Rift">Bristle Woods Rift</option>
 							<option value="Burroughs Rift(Red)">Burroughs Rift(Red)</option>
 							<option value="Burroughs Rift(Green)">Burroughs Rift(Green)</option>
 							<option value="Burroughs Rift(Yellow)">Burroughs Rift(Yellow)</option>
@@ -307,6 +344,206 @@
 							<option value="ZT">Zugzwang's Tower</option>
 						</select>
 						<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();">
+					</td>
+				</tr>
+				<tr id="trBWRiftMasterTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Master Trap Setup at </b></a>
+						<select id="selectBWRiftChamber" style="width: 75px;" onchange="initControlsBWRift();">
+							<option value="NONE">Non-Chamber</option>
+							<option value="GEARWORKS">Gearworks</option>
+							<option value="ANCIENT">Ancient Lab</option>
+							<option value="RUNIC">Runic Laboratory</option>
+							<option value="TIMEWARP">Timewarp Chamber</option>
+							<option value="GUARD">Guard Barracks</option>
+							<option value="SECURITY">Security Chamber</option>
+							<option value="FROZEN">Frozen Alcove</option>
+							<option value="FURNACE">Furnace Room</option>
+							<option value="INGRESS">Ingress Chamber</option>
+							<option value="PURSUER">Pursuer Mousoleum</option>
+							<option value="ACOLYTE_CHARGING">Acolyte Chamber Charging</option>
+							<option value="ACOLYTE_DRAINING">Acolyte Chamber Draining</option>
+							<option value="ACOLYTE_DRAINED">Acolyte Chamber Drained</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectBWRiftWeapon" style="width: 75px;" onchange="saveBWRift();">
+							<option value="Timesplit Dissonance Weapon">TDW</option>
+							<option value="Mysteriously unYielding">MYNORCA</option>
+							<option value="Focused Crystal Laser">FCL</option>
+							<option value="Multi-Crystal Laser">MCL</option>
+							<option value="Biomolecular Re-atomizer Trap">BRT</option>
+							<option value="Crystal Tower">CT</option>
+						</select>
+						<select id="selectBWRiftBase" style="width: 75px;" onchange="saveBWRift();">
+							<option value="Clockwork Base">Clockwork</option>
+							<option value="Fissure Base">Fissure</option>
+							<option value="Rift Base">Rift</option>
+							<option value="Fracture Base">Fracture</option>
+							<option value="Enerchi Induction Base">Enerchi</option>
+							<option value="Attuned Enerchi Induction Base">A. Enerchi</option>
+							<option value="Minotaur Base">Minotaur</option>
+						</select>
+						<select id="selectBWRiftTrinket" style="width: 75px;" onchange="saveBWRift();">
+							<option value="None">None</option>
+							<option value="Trinket 1">Trinket 1</option>
+							<option value="Trinket 2">Trinket 2</option>
+						</select>
+						<select id="selectBWRiftBait" style="width: 75px;" onchange="saveBWRift();">
+							<option value="None">None</option>
+							<option value="Runic String">Runic</option>
+							<option value="Ancient String">Ancient</option>
+							<option value="Magical String">Magical</option>
+							<option value="Brie String">Brie</option>
+							<option value="Swiss String">Swiss</option>
+							<option value="Marble String">Marble</option>
+						</select>
+						<select id="selectBWRiftActivatePocketWatch" style="width: 75px;" onchange="saveBWRift();">
+							<option value="false">Deactivate Quantum Pocketwatch</option>
+							<option value="true">Activate Quantum Pocketwatch</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trBWRiftTrapSetupSpecial" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Conditional Trap Setup </b></a>
+						<select id="selectBWRiftAlertLvl" style="width:75px;display:none" onchange="initControlsBWRift();">
+							<option value="0">Alert Lvl 0</option>
+							<option value="1">Alert Lvl 1</option>
+							<option value="2">Alert Lvl 2</option>
+							<option value="3">Alert Lvl 3</option>
+							<option value="4">Alert Lvl 4</option>
+							<option value="5">Alert Lvl 5</option>
+						</select>
+						<select id="selectBWRiftFTC" style="width:75px;display:none" onchange="initControlsBWRift();">
+							<option value="0">FTC 0</option>
+							<option value="1">FTC 1</option>
+							<option value="2">FTC 2</option>
+						</select>
+						<select id="selectBWRiftHunt" style="width:75px;display:none" onchange="initControlsBWRift();">
+							<option value="0">Hunt 0</option>
+							<option value="1">Hunt 1</option>
+							<option value="2">Hunt 2</option>
+							<option value="3">Hunt 3</option>
+							<option value="4">Hunt 4</option>
+							<option value="5">Hunt 5</option>
+							<option value="6">Hunt 6</option>
+							<option value="7">Hunt 7</option>
+							<option value="8">Hunt 8</option>
+							<option value="9">Hunt 9</option>
+							<option value="10">Hunt 10</option>
+							<option value="11">Hunt 11</option>
+							<option value="12">Hunt 12</option>
+							<option value="13">Hunt 13</option>
+							<option value="14">Hunt 14</option>
+						</select>
+						&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectBWRiftWeaponSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="Timesplit Dissonance Weapon">TDW</option>
+							<option value="Mysteriously unYielding">MYNORCA</option>
+							<option value="Focused Crystal Laser">FCL</option>
+							<option value="Multi-Crystal Laser">MCL</option>
+							<option value="Biomolecular Re-atomizer Trap">BRT</option>
+							<option value="Crystal Tower">CT</option>
+						</select>
+						<select id="selectBWRiftBaseSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="Clockwork Base">Clockwork</option>
+							<option value="Fissure Base">Fissure</option>
+							<option value="Rift Base">Rift</option>
+							<option value="Fracture Base">Fracture</option>
+							<option value="Enerchi Induction Base">Enerchi</option>
+							<option value="Attuned Enerchi Induction Base">A. Enerchi</option>
+							<option value="Minotaur Base">Minotaur</option>
+						</select>
+						<select id="selectBWRiftTrinketSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="None">None</option>
+							<option value="Trinket 1">Trinket 1</option>
+							<option value="Trinket 2">Trinket 2</option>
+						</select>
+						<select id="selectBWRiftBaitSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="None">None</option>
+							<option value="Runic String">Runic</option>
+							<option value="Ancient String">Ancient</option>
+							<option value="Magical String">Magical</option>
+							<option value="Brie String">Brie</option>
+							<option value="Swiss String">Swiss</option>
+							<option value="Marble String">Marble</option>
+						</select>
+						<select id="selectBWRiftActivatePocketWatchSpecial" style="width: 75px;" onchange="saveBWRift();">
+							<option value="MASTER">Master</option>
+							<option value="false">Deactivate Quantum Pocketwatch</option>
+							<option value="true">Activate Quantum Pocketwatch</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trBWRiftDeactivatePocketWatch" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Deactivate Quantum Pocketwatch forcibly"><b>Force Deactivate Quantum</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectBWRiftForceDeactiveQuantum" style="width: 75px;" onchange="onSelectBWRiftForceDeactiveQuantum();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;If Remaining Loot/Obelisk Charge &le;&nbsp;&nbsp;:&nbsp;&nbsp;
+						<input type="number" id="inputRemainingLoot" min="1" max="50" size="5" value="1" onchange="onInputRemaininigLootChanged(this);">
+					</td>
+				</tr>
+				<tr id="trBWRiftAutoChoosePortal" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Choose portal automatically"><b>Auto Choose Portal</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectBWRiftChoosePortal" style="width: 75px;" onchange="onSelectBWRiftChoosePortal();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trBWRiftChoosePortalAfterCC" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Choose portal after Chamber Cleaver has been caught"><b>Choose Portal</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectBWRiftChoosePortalAfterCC" style="width: 75px;" onchange="saveBWRift();">
+							<option value="false">False</option>
+							<option value="true">True</option>
+						</select>&nbsp;&nbsp;After Chamber Cleaver Caught
+					</td>
+				</tr>
+				<tr id="trBWRiftPortalPriority" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select portal priority"><b>Portal Priority </b></a>
+						<select id="selectBWRiftPriority" style="width: 75px;" onchange="initControlsBWRift();">
+							<option value="1">1 (Highest)</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option value="7">7</option>
+							<option value="8">8</option>
+							<option value="9">9</option>
+							<option value="10">10</option>
+							<option value="11">11 (Lowest)</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
+					</td>
+					<td style="height:24px">
+						<select id="selectBWRiftPortal" onchange="saveBWRift();">
+							<option value="GEARWORKS">Gearworks</option>
+							<option value="ANCIENT">Ancient Lab</option>
+							<option value="RUNIC">Runic Laboratory</option>
+							<option value="TIMEWARP">Timewarp Chamber</option>
+							<option value="GUARD">Guard Barracks</option>
+							<option value="SECURITY">Security Chamber</option>
+							<option value="FROZEN">Frozen Alcove</option>
+							<option value="FURNACE">Furnace Room</option>
+							<option value="INGRESS">Ingress Chamber</option>
+							<option value="PURSUER">Pursuer Mousoleum</option>
+							<option value="ACOLYTE">Acolyte Chamber</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trBWRiftMinTimeSand" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber"><b>Min Time Sand</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter Acolyte Chamber
 					</td>
 				</tr>
 				<tr id="trFRoxTrapSetup" style="display:none;">
@@ -381,6 +618,7 @@
 							<option value="Law Laser Trap">Law Laser Trap</option>
 						</select>
 						<select id="selectGESTrapBase" onchange="onSelectGESTrapBase();">
+							<option value="Clockwork Base">Clockwork</option>
 							<option value="Fissure Base">Fissure</option>
 							<option value="Rift Base">Rift</option>
 							<option value="Fracture Base">Fracture</option>
@@ -477,6 +715,7 @@
 							<option value="Crystal Tower">CT</option>
 						</select>
 						<select id="selectWWRiftTrapBase" onchange="onSelectWWRiftTrapBaseChanged();">
+							<option value="Clockwork Base">Clockwork</option>
 							<option value="Fissure Base">Fissure</option>
 							<option value="Rift Base">Rift</option>
 							<option value="Fracture Base">Fracture</option>
@@ -534,6 +773,7 @@
 							<option value="Crystal Tower">CT</option>
 						</select>
 						<select id="selectWWRiftMBWTrapBase" onchange="onSelectWWRiftMBWTrapBase();">
+							<option value="Clockwork Base">Clockwork</option>
 							<option value="Fissure Base">Fissure</option>
 							<option value="Rift Base">Rift</option>
 							<option value="Fracture Base">Fracture</option>
@@ -1187,6 +1427,7 @@
 							<option value="Crystal Tower">CT</option>
 						</select>
 						<select id="selectBRTrapBase" onchange="onSelectBRTrapBaseChanged();">
+							<option value="Clockwork Base">Clockwork</option>
 							<option value="Fissure Base">Fissure</option>
 							<option value="Rift Base">Rift</option>
 							<option value="Fracture Base">Fracture</option>
@@ -1228,6 +1469,55 @@
 	</div>
 </div>
 <script type="text/javascript">
+	var objDefaultBWRift = {
+		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
+		master : {
+			weapon : new Array(14).fill('Mysteriously unYielding'),
+			base : new Array(14).fill('Fissure Base'),
+			trinket : new Array(14).fill('Rift Vacuum Charm'),
+			bait : new Array(14).fill('Brie String'),
+			activate : new Array(14).fill(false),
+		},
+		gb : {
+			weapon : new Array(6).fill('MASTER'),
+			base : new Array(6).fill('MASTER'),
+			trinket : new Array(6).fill('MASTER'),
+			bait : new Array(6).fill('MASTER'),
+			activate : new Array(6).fill('MASTER'),
+		},
+		ic : {
+			weapon : new Array(3).fill('MASTER'),
+			base : new Array(3).fill('MASTER'),
+			trinket : new Array(3).fill('MASTER'),
+			bait : new Array(3).fill('MASTER'),
+			activate : new Array(3).fill('MASTER'),
+		},
+		fa : {
+			weapon : new Array(15).fill('MASTER'),
+			base : new Array(15).fill('MASTER'),
+			trinket : new Array(15).fill('MASTER'),
+			bait : new Array(15).fill('MASTER'),
+			activate : new Array(15).fill('MASTER'),
+		},
+		forceDeactivate : false,
+		remainingLootDeactivate : 1,
+		choosePortal : false,
+		choosePortalAfterCC : false,
+		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
+		minTimeSand : 50
+	};
+
+	function limitMinMax(value, min, max){
+		value = parseInt(value);
+		min = parseInt(min);
+		max = parseInt(max);
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
 	function isNullOrUndefined(obj){
 		return (obj === null || obj === undefined);
 	}
@@ -1360,10 +1650,10 @@
 			storageValue = objDefaultMapHunting;
 		
 		storageValue.status = (selectMapHunting.value == 'true');
-		if(inputUncaughtMouse.value === '')
+		/*if(inputUncaughtMouse.value === '')
 			storageValue.selectedMouse = [];
 		else
-			storageValue.selectedMouse = inputUncaughtMouse.value.split(',');
+			storageValue.selectedMouse = inputUncaughtMouse.value.split(',');*/
 		storageValue.logic = selectCatchLogic.value;
 		storageValue.weapon = selectWeapon.value;
 		storageValue.base = selectBase.value;
@@ -1393,7 +1683,7 @@
 			trUncaughtMouse.style.display = 'none';
 			trMapHuntingTrapSetup.style.display = 'none';
 			trMapHuntingLeave.style.display = 'none';
-			inputUncaughtMouse.value = '';
+			//inputUncaughtMouse.value = '';
 			selectCatchLogic.selectedIndex = -1;
 			selectWeapon.selectedIndex = -1;
 			selectBase.selectedIndex = -1;
@@ -1409,7 +1699,7 @@
 			trCatchLogic.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trMapHuntingTrapSetup.style.display = (storageValue.status) ? 'table-row' : 'none';
 			trMapHuntingLeave.style.display = (storageValue.status) ? 'table-row' : 'none';
-			inputUncaughtMouse.value = storageValue.selectedMouse.join(',');
+			//inputUncaughtMouse.value = storageValue.selectedMouse.join(',');
 			selectCatchLogic.value = storageValue.logic;
 			selectWeapon.value = storageValue.weapon;
 			selectBase.value = storageValue.base;
@@ -1494,7 +1784,7 @@
 		saveMapHunting();
 	}
 	
-	var arrKey = ['SCCustom','Labyrinth_','LGArea','eventLocation','FW_','BRCustom','SGZT','Zokor','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016','SpecialFeature'];
+	var arrKey = ['SCCustom','Labyrinth_','LGArea','eventLocation','FW_','BRCustom','SGZT','Zokor','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016','SpecialFeature','BWRift'];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -1528,6 +1818,8 @@
 		var eventAlgo = document.getElementById('eventAlgo');
 		var keyName;
 		switch (eventAlgo.value) {
+			case 'Bristle Woods Rift':
+				keyName = 'BWRift'; break;
 			case 'Burroughs Rift Custom':
 				keyName = 'BRCustom'; break;
 			case 'All LG Area':
@@ -2756,6 +3048,186 @@
 		}
 	}
 
+	function onSelectBWRiftForceDeactiveQuantum(){
+		saveBWRift();
+		initControlsBWRift();
+	}
+	
+	function onInputRemaininigLootChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveBWRift();
+	}
+	
+	function onSelectBWRiftChoosePortal(){
+		saveBWRift();
+		initControlsBWRift();
+	}
+	
+	function onInputMinTimeSandChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveBWRift();
+	}
+	
+	function saveBWRift(){
+		var selectBWRiftChamber = document.getElementById('selectBWRiftChamber');
+		var selectBWRiftWeapon = document.getElementById('selectBWRiftWeapon');
+		var selectBWRiftBase = document.getElementById('selectBWRiftBase');
+		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
+		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
+		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
+		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
+		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
+		var selectBWRiftBaitSpecial = document.getElementById('selectBWRiftBaitSpecial');
+		var selectBWRiftTrinketSpecial = document.getElementById('selectBWRiftTrinketSpecial');
+		var selectBWRiftActivatePocketWatchSpecial = document.getElementById('selectBWRiftActivatePocketWatchSpecial');
+		var selectBWRiftForceDeactiveQuantum = document.getElementById('selectBWRiftForceDeactiveQuantum');
+		var inputRemainingLoot = document.getElementById('inputRemainingLoot');
+		var selectBWRiftChoosePortal = document.getElementById('selectBWRiftChoosePortal');
+		var selectBWRiftChoosePortalAfterCC = document.getElementById('selectBWRiftChoosePortalAfterCC');
+		var selectBWRiftPriority = document.getElementById('selectBWRiftPriority');
+		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
+		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
+		var storageValue = window.sessionStorage.getItem('BWRift');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultBWRift);
+		storageValue = JSON.parse(storageValue);
+		var strTemp = '';
+		var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		storageValue.master.weapon[nIndex] = selectBWRiftWeapon.value;
+		storageValue.master.base[nIndex] = selectBWRiftBase.value;
+		storageValue.master.bait[nIndex] = selectBWRiftBait.value;
+		storageValue.master.trinket[nIndex] = selectBWRiftTrinket.value;
+		storageValue.master.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
+		if(selectBWRiftChamber.value == 'GUARD'){
+			nIndex = selectBWRiftAlertLvl.selectedIndex;
+			strTemp = 'gb';
+		}
+		/*else if(selectBWRiftChamber.value == 'INGRESS'){
+			nIndex = selectBWRiftFTC.selectedIndex;
+			strTemp = 'ic';
+		}
+		else if(selectBWRiftChamber.value == 'FROZEN'){
+			nIndex = selectBWRiftHunt.selectedIndex;
+			strTemp = 'fa';
+		}*/
+		else
+			strTemp = 'master';
+		if(strTemp !== 'master'){
+			storageValue[strTemp].weapon[nIndex] = selectBWRiftWeaponSpecial.value;
+			storageValue[strTemp].base[nIndex] = selectBWRiftBaseSpecial.value;
+			storageValue[strTemp].bait[nIndex] = selectBWRiftBaitSpecial.value;
+			storageValue[strTemp].trinket[nIndex] = selectBWRiftTrinketSpecial.value;
+			if(selectBWRiftActivatePocketWatchSpecial.value == 'MASTER')
+				storageValue[strTemp].activate[nIndex] = selectBWRiftActivatePocketWatchSpecial.value;
+			else
+				storageValue[strTemp].activate[nIndex] = (selectBWRiftActivatePocketWatchSpecial.value == 'true');
+		}
+		storageValue.forceDeactivate = (selectBWRiftForceDeactiveQuantum.value == 'true');
+		storageValue.remainingLootDeactivate = parseInt(inputRemainingLoot.value);
+		storageValue.choosePortal = (selectBWRiftChoosePortal.value == 'true');
+		if(storageValue.choosePortal){
+			storageValue.choosePortalAfterCC = (selectBWRiftChoosePortalAfterCC.value == 'true');
+			storageValue.priorities[selectBWRiftPriority.selectedIndex] = selectBWRiftPortal.value;
+			storageValue.minTimeSand = parseInt(inputMinTimeSand.value);
+		}
+		window.sessionStorage.setItem('BWRift', JSON.stringify(storageValue));
+	}
+	
+	function initControlsBWRift(){
+		var selectBWRiftChamber = document.getElementById('selectBWRiftChamber');
+		var selectBWRiftWeapon = document.getElementById('selectBWRiftWeapon');
+		var selectBWRiftBase = document.getElementById('selectBWRiftBase');
+		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
+		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
+		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
+		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
+		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
+		var selectBWRiftBaitSpecial = document.getElementById('selectBWRiftBaitSpecial');
+		var selectBWRiftTrinketSpecial = document.getElementById('selectBWRiftTrinketSpecial');
+		var selectBWRiftActivatePocketWatchSpecial = document.getElementById('selectBWRiftActivatePocketWatchSpecial');
+		var selectBWRiftForceDeactiveQuantum = document.getElementById('selectBWRiftForceDeactiveQuantum');
+		var inputRemainingLoot = document.getElementById('inputRemainingLoot');
+		var selectBWRiftChoosePortal = document.getElementById('selectBWRiftChoosePortal');
+		var selectBWRiftChoosePortalAfterCC = document.getElementById('selectBWRiftChoosePortalAfterCC');
+		var selectBWRiftPriority = document.getElementById('selectBWRiftPriority');
+		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
+		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
+		var storageValue = window.sessionStorage.getItem('BWRift');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultBWRift);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectBWRiftChamber.value);
+		if(nIndex < 0)
+			nIndex = 0;
+		selectBWRiftWeapon.value = storageValue.master.weapon[nIndex];
+		selectBWRiftBase.value = storageValue.master.base[nIndex];
+		selectBWRiftTrinket.value = storageValue.master.trinket[nIndex];
+		selectBWRiftBait.value = storageValue.master.bait[nIndex];
+		selectBWRiftActivatePocketWatch.value = (storageValue.master.activate[nIndex] === true) ? 'true' : 'false';
+		var strTemp = '';
+		if(selectBWRiftChamber.value == 'GUARD'){
+			nIndex = selectBWRiftAlertLvl.selectedIndex;
+			strTemp = 'gb';
+			selectBWRiftAlertLvl.style.display = '';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		/*else if(selectBWRiftChamber.value == 'INGRESS'){
+			nIndex = selectBWRiftFTC.selectedIndex;
+			strTemp = 'ic';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = '';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		else if(selectBWRiftChamber.value == 'FROZEN'){
+			nIndex = selectBWRiftHunt.selectedIndex;
+			strTemp = 'fa';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = '';
+		}*/
+		else{
+			strTemp = 'master';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		if(strTemp == 'master')
+			document.getElementById('trBWRiftTrapSetupSpecial').style.display = 'none';
+		else{
+			selectBWRiftWeaponSpecial.value = storageValue[strTemp].weapon[nIndex];
+			selectBWRiftBaseSpecial.value = storageValue[strTemp].base[nIndex];
+			selectBWRiftTrinketSpecial.value = storageValue[strTemp].trinket[nIndex];
+			selectBWRiftBaitSpecial.value = storageValue[strTemp].bait[nIndex];
+			if(storageValue[strTemp].activate[nIndex] == 'MASTER')
+				selectBWRiftActivatePocketWatchSpecial.value = storageValue[strTemp].activate[nIndex];
+			else
+				selectBWRiftActivatePocketWatchSpecial.value = (storageValue[strTemp].activate[nIndex] === true) ? 'true' : 'false';
+			document.getElementById('trBWRiftTrapSetupSpecial').style.display = '';
+		}
+		selectBWRiftForceDeactiveQuantum.value = (storageValue.forceDeactivate === true) ? 'true' : 'false';
+		inputRemainingLoot.value = storageValue.remainingLootDeactivate;
+		selectBWRiftChoosePortal.value = (storageValue.choosePortal === true) ? 'true' : 'false';
+		selectBWRiftChoosePortalAfterCC.value = (storageValue.choosePortalAfterCC === true) ? 'true' : 'false';
+		selectBWRiftPortal.value = storageValue.priorities[selectBWRiftPriority.selectedIndex];
+		inputMinTimeSand.value = storageValue.minTimeSand;
+		inputRemainingLoot.disabled = (storageValue.forceDeactivate) ? '' : 'disabled';
+		if(selectBWRiftChoosePortal.value == 'true'){
+			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = '';
+			document.getElementById('trBWRiftPortalPriority').style.display = '';
+			document.getElementById('trBWRiftMinTimeSand').style.display = '';
+		}
+		else{
+			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = 'none';
+			document.getElementById('trBWRiftPortalPriority').style.display = 'none';
+			document.getElementById('trBWRiftMinTimeSand').style.display = 'none';
+		}
+	}
+	
 	function saveFRox(){
 		var selectFRoxStage = document.getElementById('selectFRoxStage');
 		var selectFRoxWeapon = document.getElementById('selectFRoxWeapon');
@@ -3307,6 +3779,10 @@
 			'GWH2016' : {
 				arr : ['trGWHTrapSetup','trGWHTurboBoost','trGWHFlying','trGWHFlyingFirework','trGWHFlyingLand'],
 				init : function(data){initControlsGWH2016(data);}
+			},
+			'Bristle Woods Rift' : {
+				arr : ['trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial'],
+				init : function(data){initControlsBWRift(data);}
 			},
 		};
 		var i, temp;
