@@ -405,6 +405,10 @@
 				</tr>
 				<tr id="trBWRiftTrapSetupSpecial" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Conditional Trap Setup </b></a>
+						<select id="selectBWRiftCleaverStatus" style="width:75px;display:none" onchange="initControlsBWRift();">
+							<option value="0">Cleaver Not Available</option>
+							<option value="1">Cleaver Available</option>
+						</select>
 						<select id="selectBWRiftAlertLvl" style="width:75px;display:none" onchange="initControlsBWRift();">
 							<option value="0">Alert Lvl 0</option>
 							<option value="1">Alert Lvl 1</option>
@@ -1477,6 +1481,27 @@
 			trinket : new Array(14).fill('Rift Vacuum Charm'),
 			bait : new Array(14).fill('Brie String'),
 			activate : new Array(14).fill(false),
+		},
+		gw : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
+		},
+		al : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
+		},
+		rl : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
 		},
 		gb : {
 			weapon : new Array(6).fill('MASTER'),
@@ -3075,6 +3100,7 @@
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftCleaverStatus = document.getElementById('selectBWRiftCleaverStatus');
 		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
 		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
 		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
@@ -3101,7 +3127,16 @@
 		storageValue.master.bait[nIndex] = selectBWRiftBait.value;
 		storageValue.master.trinket[nIndex] = selectBWRiftTrinket.value;
 		storageValue.master.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
-		if(selectBWRiftChamber.value == 'GUARD'){
+		if(selectBWRiftChamber.value == 'GEARWORKS' || selectBWRiftChamber.value == 'ANCIENT' || selectBWRiftChamber.value == 'RUNIC'){
+			nIndex = selectBWRiftCleaverStatus.selectedIndex;
+			if(selectBWRiftChamber.value == 'GEARWORKS')
+				strTemp = 'gw';
+			else if(selectBWRiftChamber.value == 'ANCIENT')
+				strTemp = 'al';
+			else
+				strTemp = 'rl';
+		}
+		else if(selectBWRiftChamber.value == 'GUARD'){
 			nIndex = selectBWRiftAlertLvl.selectedIndex;
 			strTemp = 'gb';
 		}
@@ -3143,6 +3178,7 @@
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftCleaverStatus = document.getElementById('selectBWRiftCleaverStatus');
 		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
 		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
 		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
@@ -3169,9 +3205,23 @@
 		selectBWRiftBait.value = storageValue.master.bait[nIndex];
 		selectBWRiftActivatePocketWatch.value = (storageValue.master.activate[nIndex] === true) ? 'true' : 'false';
 		var strTemp = '';
-		if(selectBWRiftChamber.value == 'GUARD'){
+		if(selectBWRiftChamber.value == 'GEARWORKS' || selectBWRiftChamber.value == 'ANCIENT' || selectBWRiftChamber.value == 'RUNIC'){
+			nIndex = selectBWRiftCleaverStatus.selectedIndex;
+			if(selectBWRiftChamber.value == 'GEARWORKS')
+				strTemp = 'gw';
+			else if(selectBWRiftChamber.value == 'ANCIENT')
+				strTemp = 'al';
+			else
+				strTemp = 'rl';
+			selectBWRiftCleaverStatus.style.display = '';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		else if(selectBWRiftChamber.value == 'GUARD'){
 			nIndex = selectBWRiftAlertLvl.selectedIndex;
 			strTemp = 'gb';
+			selectBWRiftCleaverStatus.style.display = 'none';
 			selectBWRiftAlertLvl.style.display = '';
 			selectBWRiftFTC.style.display = 'none';
 			selectBWRiftHunt.style.display = 'none';
@@ -3179,6 +3229,7 @@
 		/*else if(selectBWRiftChamber.value == 'INGRESS'){
 			nIndex = selectBWRiftFTC.selectedIndex;
 			strTemp = 'ic';
+			selectBWRiftCleaverStatus.style.display = 'none';
 			selectBWRiftAlertLvl.style.display = 'none';
 			selectBWRiftFTC.style.display = '';
 			selectBWRiftHunt.style.display = 'none';
@@ -3186,12 +3237,14 @@
 		else if(selectBWRiftChamber.value == 'FROZEN'){
 			nIndex = selectBWRiftHunt.selectedIndex;
 			strTemp = 'fa';
+			selectBWRiftCleaverStatus.style.display = 'none';
 			selectBWRiftAlertLvl.style.display = 'none';
 			selectBWRiftFTC.style.display = 'none';
 			selectBWRiftHunt.style.display = '';
 		}*/
 		else{
 			strTemp = 'master';
+			selectBWRiftCleaverStatus.style.display = 'none';
 			selectBWRiftAlertLvl.style.display = 'none';
 			selectBWRiftFTC.style.display = 'none';
 			selectBWRiftHunt.style.display = 'none';

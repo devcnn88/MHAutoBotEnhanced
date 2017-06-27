@@ -1180,6 +1180,27 @@ function bwRift(){
 			bait : new Array(14).fill('Brie String'),
 			activate : new Array(14).fill(false),
 		},
+		gw : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
+		},
+		al : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
+		},
+		rl : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
+		},
 		gb : {
 			weapon : new Array(6).fill('MASTER'),
 			base : new Array(6).fill('MASTER'),
@@ -1297,7 +1318,22 @@ function bwRift(){
 		bait : '',
 		activate : false
 	};
-	if(strChamberName == 'GUARD'){
+	if(strChamberName == 'GEARWORKS' || strChamberName == 'ANCIENT' || strChamberName == 'RUNIC'){
+		var nCleaverAvailable = (objUser.cleaver_status == 'available') ? 1 : 0;
+		console.plog('Cleaver Available Status:',nCleaverAvailable);
+		var strTemp = '';
+		if(strChamberName == 'GEARWORKS')
+			strTemp = 'gw';
+		else if(strChamberName == 'ANCIENT')
+			strTemp = 'al';
+		else
+			strTemp = 'rl';
+		for (var prop in objTemp) {
+			if(objTemp.hasOwnProperty(prop))
+				objTemp[prop] = (objBWRift[strTemp][prop][nCleaverAvailable] == 'MASTER') ? objBWRift.master[prop][nIndex] : objBWRift[strTemp][prop][nCleaverAvailable];
+		}
+	}
+	else if(strChamberName == 'GUARD'){
 		var nAlertLvl = parseInt(objUser.minigame.guard_chamber.status.split("_")[1]);
 		console.plog('Guard Barracks Alert Lvl:',nAlertLvl);
 		if(Number.isNaN(nAlertLvl) || nAlertLvl < 0 || nAlertLvl > 5){
@@ -5153,6 +5189,10 @@ function embedTimer(targetPage) {
 			
 			preferenceHTMLStr += '<tr id="trBWRiftTrapSetupSpecial" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Conditional Trap Setup </b></a>';
+			preferenceHTMLStr += '<select id="selectBWRiftCleaverStatus" style="width:75px;display:none" onchange="initControlsBWRift();">';
+			preferenceHTMLStr += '<option value="0">Cleaver Not Available</option>';
+			preferenceHTMLStr += '<option value="1">Cleaver Available</option>';
+			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBWRiftAlertLvl" style="width:75px;display:none" onchange="initControlsBWRift();">';
 			for(i=0;i<=5;i++)
 				preferenceHTMLStr += '<option value="' + i + '">Alert Lvl ' + i + '</option>';
@@ -8163,6 +8203,27 @@ function bodyJS(){
 			bait : new Array(14).fill('Brie String'),
 			activate : new Array(14).fill(false),
 		},
+		gw : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
+		},
+		al : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
+		},
+		rl : {
+			weapon : new Array(2).fill('MASTER'),
+			base : new Array(2).fill('MASTER'),
+			trinket : new Array(2).fill('MASTER'),
+			bait : new Array(2).fill('MASTER'),
+			activate : new Array(2).fill('MASTER'),
+		},
 		gb : {
 			weapon : new Array(6).fill('MASTER'),
 			base : new Array(6).fill('MASTER'),
@@ -9766,6 +9827,7 @@ function bodyJS(){
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftCleaverStatus = document.getElementById('selectBWRiftCleaverStatus');
 		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
 		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
 		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
@@ -9792,7 +9854,16 @@ function bodyJS(){
 		storageValue.master.bait[nIndex] = selectBWRiftBait.value;
 		storageValue.master.trinket[nIndex] = selectBWRiftTrinket.value;
 		storageValue.master.activate[nIndex] = (selectBWRiftActivatePocketWatch.value == 'true');
-		if(selectBWRiftChamber.value == 'GUARD'){
+		if(selectBWRiftChamber.value == 'GEARWORKS' || selectBWRiftChamber.value == 'ANCIENT' || selectBWRiftChamber.value == 'RUNIC'){
+			nIndex = selectBWRiftCleaverStatus.selectedIndex;
+			if(selectBWRiftChamber.value == 'GEARWORKS')
+				strTemp = 'gw';
+			else if(selectBWRiftChamber.value == 'ANCIENT')
+				strTemp = 'al';
+			else
+				strTemp = 'rl';
+		}
+		else if(selectBWRiftChamber.value == 'GUARD'){
 			nIndex = selectBWRiftAlertLvl.selectedIndex;
 			strTemp = 'gb';
 		}
@@ -9836,6 +9907,7 @@ function bodyJS(){
 		var selectBWRiftBait = document.getElementById('selectBWRiftBait');
 		var selectBWRiftTrinket = document.getElementById('selectBWRiftTrinket');
 		var selectBWRiftActivatePocketWatch = document.getElementById('selectBWRiftActivatePocketWatch');
+		var selectBWRiftCleaverStatus = document.getElementById('selectBWRiftCleaverStatus');
 		var selectBWRiftAlertLvl = document.getElementById('selectBWRiftAlertLvl');
 		var selectBWRiftWeaponSpecial = document.getElementById('selectBWRiftWeaponSpecial');
 		var selectBWRiftBaseSpecial = document.getElementById('selectBWRiftBaseSpecial');
@@ -9883,9 +9955,23 @@ function bodyJS(){
 		selectBWRiftBait.value = storageValue.master.bait[nIndex];
 		selectBWRiftActivatePocketWatch.value = (storageValue.master.activate[nIndex] === true) ? 'true' : 'false';
 		var strTemp = '';
-		if(selectBWRiftChamber.value == 'GUARD'){
+		if(selectBWRiftChamber.value == 'GEARWORKS' || selectBWRiftChamber.value == 'ANCIENT' || selectBWRiftChamber.value == 'RUNIC'){
+			nIndex = selectBWRiftCleaverStatus.selectedIndex;
+			if(selectBWRiftChamber.value == 'GEARWORKS')
+				strTemp = 'gw';
+			else if(selectBWRiftChamber.value == 'ANCIENT')
+				strTemp = 'al';
+			else
+				strTemp = 'rl';
+			selectBWRiftCleaverStatus.style.display = '';
+			selectBWRiftAlertLvl.style.display = 'none';
+			selectBWRiftFTC.style.display = 'none';
+			selectBWRiftHunt.style.display = 'none';
+		}
+		else if(selectBWRiftChamber.value == 'GUARD'){
 			nIndex = selectBWRiftAlertLvl.selectedIndex;
 			strTemp = 'gb';
+			selectBWRiftCleaverStatus.style.display = 'none';
 			selectBWRiftAlertLvl.style.display = '';
 			selectBWRiftFTC.style.display = 'none';
 			selectBWRiftHunt.style.display = 'none';
