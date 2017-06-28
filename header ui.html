@@ -545,9 +545,14 @@
 					</td>
 				</tr>
 				<tr id="trBWRiftMinTimeSand" style="display:none;">
-					<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber"><b>Min Time Sand</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Min Time Sand When</b></a>
+						<select id="selectBWRiftBuffCurse" style="width: 75px;" onchange="initControlsBWRift();">
+							<option value="0">No Buff & No Curse</option>
+							<option value="1">Buff & No Curse</option>
+							<option value="2">Buff & Curse</option>
+						</select>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter Acolyte Chamber
+						<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter AC
 					</td>
 				</tr>
 				<tr id="trFRoxTrapSetup" style="display:none;">
@@ -1529,7 +1534,7 @@
 		choosePortal : false,
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
-		minTimeSand : 50
+		minTimeSand : [60,40,999]
 	};
 
 	function limitMinMax(value, min, max){
@@ -3113,6 +3118,7 @@
 		var selectBWRiftChoosePortalAfterCC = document.getElementById('selectBWRiftChoosePortalAfterCC');
 		var selectBWRiftPriority = document.getElementById('selectBWRiftPriority');
 		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
+		var selectBWRiftBuffCurse = document.getElementById('selectBWRiftBuffCurse');
 		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
 		var storageValue = window.sessionStorage.getItem('BWRift');
 		if(isNullOrUndefined(storageValue))
@@ -3166,7 +3172,8 @@
 		if(storageValue.choosePortal){
 			storageValue.choosePortalAfterCC = (selectBWRiftChoosePortalAfterCC.value == 'true');
 			storageValue.priorities[selectBWRiftPriority.selectedIndex] = selectBWRiftPortal.value;
-			storageValue.minTimeSand = parseInt(inputMinTimeSand.value);
+			nIndex = parseInt(selectBWRiftBuffCurse.value);
+			storageValue.minTimeSand[nIndex] = parseInt(inputMinTimeSand.value);
 		}
 		window.sessionStorage.setItem('BWRift', JSON.stringify(storageValue));
 	}
@@ -3191,6 +3198,7 @@
 		var selectBWRiftChoosePortalAfterCC = document.getElementById('selectBWRiftChoosePortalAfterCC');
 		var selectBWRiftPriority = document.getElementById('selectBWRiftPriority');
 		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
+		var selectBWRiftBuffCurse = document.getElementById('selectBWRiftBuffCurse');
 		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
 		var storageValue = window.sessionStorage.getItem('BWRift');
 		if(isNullOrUndefined(storageValue))
@@ -3267,7 +3275,8 @@
 		selectBWRiftChoosePortal.value = (storageValue.choosePortal === true) ? 'true' : 'false';
 		selectBWRiftChoosePortalAfterCC.value = (storageValue.choosePortalAfterCC === true) ? 'true' : 'false';
 		selectBWRiftPortal.value = storageValue.priorities[selectBWRiftPriority.selectedIndex];
-		inputMinTimeSand.value = storageValue.minTimeSand;
+		nIndex = parseInt(selectBWRiftBuffCurse.value);
+		inputMinTimeSand.value = storageValue.minTimeSand[nIndex];
 		inputRemainingLoot.disabled = (storageValue.forceDeactivate) ? '' : 'disabled';
 		if(selectBWRiftChoosePortal.value == 'true'){
 			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = '';

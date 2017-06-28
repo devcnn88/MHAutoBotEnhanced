@@ -1227,7 +1227,7 @@ function bwRift(){
 		choosePortal : false,
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
-		minTimeSand : 50
+		minTimeSand : [60,40,999]
 	};
 
 	var objBWRift = getStorageToObject('BWRift', objDefaultBWRift);
@@ -1276,13 +1276,22 @@ function bwRift(){
 			console.plog(objPortal);
 			if(objBWRift.choosePortal){
 				if(nIndex === 0 || (nIndex > 0 && objUser.chamber_status == 'open' && objBWRift.choosePortalAfterCC)){
+					var nIndexBuffCurse = 0;
+					if(objUser.status_effects.un != 'default' || objUser.status_effects.fr != 'default' || objUser.status_effects.st != 'default')
+						nIndexBuffCurse = 2;
+					else if(objUser.status_effects.ng != 'default' || objUser.status_effects.ac != 'default' || objUser.status_effects.ex != 'default')
+						nIndexBuffCurse = 1;
+					var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
+					console.plog('Time Sand Qty:',nTimeSand);
 					var nIndexTemp = objPortal.arrName.indexOf('ACOLYTE');
-					if(nIndexTemp > -1){
-						var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
-						console.plog('Time Sand Qty:',nTimeSand);
-						if(nTimeSand < objBWRift.minTimeSand)
-							objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
-					}
+					if(nIndexTemp > -1 && nTimeSand < objBWRift.minTimeSand[nIndexBuffCurse])
+						objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
+					nIndexTemp = objPortal.arrName.indexOf('TIMEWARP');
+					if(nIndexTemp > -1 && nTimeSand >= objBWRift.minTimeSand[nIndexBuffCurse])
+						objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
+					nIndexTemp = objPortal.arrName.indexOf('GUARD');
+					if(nIndexTemp > -1 && nTimeSand >= objBWRift.minTimeSand[nIndexBuffCurse])
+						objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
 					nIndexTemp = objPortal.arrName.indexOf('ENTER');
 					if(nIndexTemp > -1)
 						objPortal.arrIndex[nIndexTemp] = 1;
@@ -5312,9 +5321,14 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr id="trBWRiftMinTimeSand" style="display:none;">';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber"><b>Min Time Sand</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Min Time Sand</b></a>';
+			preferenceHTMLStr += '<select id="selectBWRiftBuffCurse" style="width: 75px;" onchange="initControlsBWRift();">';
+			preferenceHTMLStr += '<option value="0">No Buff & No Curse</option>';
+			preferenceHTMLStr += '<option value="1">Buff & No Curse</option>';
+			preferenceHTMLStr += '<option value="2">Buff & Curse</option>';
+			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter Acolyte Chamber';
+			preferenceHTMLStr += '<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter AC';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 			
@@ -8250,7 +8264,7 @@ function bodyJS(){
 		choosePortal : false,
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
-		minTimeSand : 50
+		minTimeSand : [60,40,999]
 	};
 	
 	function limitMinMax(value, min, max){
@@ -9840,6 +9854,7 @@ function bodyJS(){
 		var selectBWRiftChoosePortalAfterCC = document.getElementById('selectBWRiftChoosePortalAfterCC');
 		var selectBWRiftPriority = document.getElementById('selectBWRiftPriority');
 		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
+		var selectBWRiftBuffCurse = document.getElementById('selectBWRiftBuffCurse');
 		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
 		var storageValue = window.sessionStorage.getItem('BWRift');
 		if(isNullOrUndefined(storageValue))
@@ -9893,7 +9908,8 @@ function bodyJS(){
 		if(storageValue.choosePortal){
 			storageValue.choosePortalAfterCC = (selectBWRiftChoosePortalAfterCC.value == 'true');
 			storageValue.priorities[selectBWRiftPriority.selectedIndex] = selectBWRiftPortal.value;
-			storageValue.minTimeSand = parseInt(inputMinTimeSand.value);
+			nIndex = parseInt(selectBWRiftBuffCurse.value);
+			storageValue.minTimeSand[nIndex] = parseInt(inputMinTimeSand.value);
 		}
 		window.sessionStorage.setItem('BWRift', JSON.stringify(storageValue));
 	}
@@ -9920,6 +9936,7 @@ function bodyJS(){
 		var selectBWRiftChoosePortalAfterCC = document.getElementById('selectBWRiftChoosePortalAfterCC');
 		var selectBWRiftPriority = document.getElementById('selectBWRiftPriority');
 		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
+		var selectBWRiftBuffCurse = document.getElementById('selectBWRiftBuffCurse');
 		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
 		var storageValue = window.sessionStorage.getItem('BWRift');
 		if(isNullOrUndefined(storageValue))
@@ -10014,7 +10031,8 @@ function bodyJS(){
 		selectBWRiftChoosePortal.value = (storageValue.choosePortal === true) ? 'true' : 'false';
 		selectBWRiftChoosePortalAfterCC.value = (storageValue.choosePortalAfterCC === true) ? 'true' : 'false';
 		selectBWRiftPortal.value = storageValue.priorities[selectBWRiftPriority.selectedIndex];
-		inputMinTimeSand.value = storageValue.minTimeSand;
+		nIndex = parseInt(selectBWRiftBuffCurse.value);
+		inputMinTimeSand.value = storageValue.minTimeSand[nIndex];
 		inputRemainingLoot.disabled = (selectBWRiftForceDeactiveQuantum.value == 'true') ? '' : 'disabled';
 		if(selectBWRiftChoosePortal.value == 'true'){
 			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = '';
