@@ -1312,6 +1312,7 @@ function bwRift(){
 							nIndex = objBWRift.order.indexOf(objPortal.arrName[nMinIndex]);
 						if(nIndex > -1){
 							console.plog('Chosen Portal:',objPortal.arrName[nMinIndex],'Index:', nIndex);
+							strChamberName = objBWRift.order[nIndex];
 							fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
 							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
 						}
