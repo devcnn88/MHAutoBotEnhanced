@@ -278,6 +278,8 @@ var objFRBattery = {
 	cumulative : [20,65,140,260,460,770,1220,1835,2625,3600]
 };
 
+var g_arrHeirloom = []; // to be refresh once page reload
+
 var g_objConstTrap = {
 	bait : {
 		ANY_HALLOWEEN : {
@@ -905,6 +907,35 @@ function getJournalDetail(){
 			setStorage("TrapList" + capitalizeFirstLetter(prop), objTrapList[prop].join(","));
 	}
 	setStorage('LastRecordedJournal', classJournal[0].parentNode.textContent);
+}
+
+function getJournalDetailFRift(){
+	if(g_arrHeirloom.length != 3)
+		return;
+	var strLastRecordedJournal = getStorageToVariableStr('LastRecordedJournalFRift', '');
+	var classJournal = document.getElementsByClassName('journaltext');
+	var i, j, eleA, temp, nIndex;
+	for(i=0;i<classJournal.length;i++){
+		if(classJournal[i].parentNode.textContent == strLastRecordedJournal)
+			break;
+		eleA = classJournal[i].getElementsByTagName('a');
+		if(eleA.length > 0){ // has loot(s)
+			for(j=0;j<eleA.length;j++){
+				temp = eleA[j].textContent;
+				if(temp.indexOf('Chi Belt Heirloom') > -1)
+					nIndex = 0;
+				else if(temp.indexOf('Chi Fang Heirloom') > -1)
+					nIndex = 1;
+				else if(temp.indexOf('Chi Claw Heirloom') > -1)
+					nIndex = 2;
+				else
+					nIndex = -1;
+				if(nIndex > -1)
+					g_arrHeirloom[nIndex]++;
+			}
+		}
+	}
+	setStorage('LastRecordedJournalFRift', classJournal[0].parentNode.textContent);
 }
 
 function specialFeature(caller){
@@ -3279,14 +3310,86 @@ function fRift(){
 	}
 }
 
-function fRiftArmTrap(obj, nIndex){
+function fRiftArmTrap(obj, nIndex, bReadJournal){
+	if(isNullOrUndefined(bReadJournal))
+		bReadJournal = true;
 	checkThenArm(null, 'weapon', obj.weapon[nIndex]);
 	checkThenArm(null, 'base', obj.base[nIndex]);
 	checkThenArm(null, 'trinket', obj.trinket[nIndex]);
-	if(obj.bait[nIndex] == 'ORDER_MASTER'){
+	if(obj.bait[nIndex] == 'ANY_MASTER')
+		checkThenArm('any', 'bait', 'ANY_MASTER');
+	else if(obj.bait[nIndex] == 'ORDER_MASTER'){
 		var arr = obj.masterOrder[nIndex].split("=>");
 		arr = arr.map(function(e) {return 'Rift ' + e;});
 		checkThenArm('best', 'bait', arr);
+	}
+	else if(obj.bait[nIndex] == 'BALANCE_MASTER'){
+		if(g_arrHeirloom.length === 0){
+			var nRetry = 4;
+			var bFirst = true;
+			var intervalFRAT = setInterval( function () {
+				if (document.getElementsByClassName('riftFuromaHUD-craftingPopup-tabContent pinnacle').length > 0){
+					fireEvent(document.getElementsByClassName('riftFuromaHUD-craftingPopup-tabHeader')[3],'click'); // close
+					var classPinnacle = document.getElementsByClassName('riftFuromaHUD-craftingPopup-tabContent pinnacle');
+					var i,temp;
+					for(i=0;i<3;i++){
+						temp = classPinnacle[0].getElementsByClassName('riftFuromaHUD-craftingPopup-recipe-part')[i];
+						g_arrHeirloom.push(parseInt(temp.getAttribute('data-part-owned')));
+						if(Number.isNaN(g_arrHeirloom[i])){
+							console.plog('Invalid Heirloom:', g_arrHeirloom);
+							checkThenArm('any', 'bait', 'ANY_MASTER');
+							return;
+						}
+					}
+					if(g_arrHeirloom.length != 3){
+						console.plog('Invalid length:', g_arrHeirloom);
+						checkThenArm('any', 'bait', 'ANY_MASTER');
+						return;
+					}
+					setStorage('LastRecordedJournalFRift', document.getElementsByClassName('journaltext')[0].parentNode.textContent);
+					fRiftArmTrap(obj, nIndex, false);
+					clearInterval(intervalFRAT);
+					intervalFRAT = null;
+				}
+				else{
+					fireEvent(document.getElementsByClassName('riftFuromaHUD-itemGroup-craftButton')[3],'click');
+					--nRetry;
+					if(nRetry <= 0){
+						console.plog('Max Retry, arm any Rift Master Cheese');
+						checkThenArm('any', 'bait', 'ANY_MASTER');
+						clearInterval(intervalFRAT);
+						intervalFRAT = null;
+					}
+				}
+			}, 1000);
+		}
+		else{
+			if(bReadJournal === true)
+				getJournalDetailFRift();
+			console.plog('Heirloom:', g_arrHeirloom);
+			var arrBait = g_objConstTrap.bait.ANY_MASTER.name;
+			var nMin = min(g_arrHeirloom);
+			var fAvg = average(g_arrHeirloom);
+			if(fAvg == nMin){
+				checkThenArm('any', 'bait', 'ANY_MASTER');
+			}
+			else{
+				temp = minIndex(g_arrHeirloom);
+				if(temp > -1){
+					var arrBaitNew = [];
+					var objSort = sortWithIndices(g_arrHeirloom);
+					for(i=0;i<objSort.index.length;i++){
+						arrBaitNew[i] = arrBait[objSort.index[i]];
+					}
+					console.plog('New Bait List:', arrBaitNew);
+					checkThenArm('best', 'bait', arrBaitNew);
+				}
+				else{
+					console.plog('Invalid index:', temp);
+					checkThenArm('any', 'bait', 'ANY_MASTER');
+				}
+			}
+		}
 	}
 	else
 		checkThenArm(null, 'bait', obj.bait[nIndex]);
@@ -5633,6 +5736,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Rift Susheese">Rift Susheese</option>';
 			preferenceHTMLStr += '<option value="Rift Combat">Rift Combat</option>';
 			preferenceHTMLStr += '<option value="ANY_MASTER">Glutter/Combat/Susheese</option>';
+			preferenceHTMLStr += '<option value="BALANCE_MASTER">Balance Heirloom</option>';
 			preferenceHTMLStr += '<option value="ORDER_MASTER">Master Cheese in Order</option>';
 			preferenceHTMLStr += '<option value="Master Fusion">Master Fusion</option>';
 			preferenceHTMLStr += '<option value="Maki String">Maki</option>';
