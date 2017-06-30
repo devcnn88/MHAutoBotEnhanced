@@ -1377,7 +1377,7 @@ function bwRift(){
 	else if(strChamberName == 'GUARD'){
 		var nAlertLvl = parseInt(objUser.minigame.guard_chamber.status.split("_")[1]);
 		console.plog('Guard Barracks Alert Lvl:',nAlertLvl);
-		if(Number.isNaN(nAlertLvl) || nAlertLvl < 0 || nAlertLvl > 5){
+		if(Number.isNaN(nAlertLvl) || nAlertLvl < 0 || nAlertLvl > 6){
 			for (var prop in objTemp) {
 				if(objTemp.hasOwnProperty(prop))
 					objTemp[prop] = objBWRift.master[prop][nIndex];
@@ -5307,7 +5307,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="1">Cleaver Available</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBWRiftAlertLvl" style="width:75px;display:none" onchange="initControlsBWRift();">';
-			for(i=0;i<=5;i++)
+			for(i=0;i<=6;i++)
 				preferenceHTMLStr += '<option value="' + i + '">Alert Lvl ' + i + '</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBWRiftFTC" style="width:75px;display:none" onchange="initControlsBWRift();">';
