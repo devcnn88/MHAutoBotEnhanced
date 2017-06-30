@@ -4991,31 +4991,6 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="viewKR">';
-			var replaced = "";
-			temp = [];
-			var nTimezoneOffset = -(new Date().getTimezoneOffset()) * 60000;
-			var count = 1;
-			var maxLen = keyKR.length.toString().length;
-			for(i=0;i<keyKR.length;i++){
-				if (keyKR[i].indexOf("KR" + separator) > -1){
-					temp = keyKR[i].split(separator);
-					temp.splice(0,1);
-					temp[0] = parseInt(temp[0]);
-					if (Number.isNaN(temp[0]))
-						temp[0] = 0;
-					
-					temp[0] += nTimezoneOffset;
-					temp[0] = (new Date(temp[0])).toISOString();
-					replaced = temp.join("&nbsp;&nbsp;");
-					temp = count.toString();
-					while(temp.length < maxLen){
-						temp = '0' + temp;
-					}
-					replaced = temp + '. ' + replaced;
-					preferenceHTMLStr += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + replaced +'</option>';
-					count++;
-				}
-			}
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1 || value.indexOf(\'i.imgur.com\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
 			preferenceHTMLStr += '</td>';
@@ -6511,22 +6486,9 @@ function embedTimer(targetPage) {
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);
 			scriptElement = null;
 			
-			// set KR entries color
-			var nCurrent, nNext, strCurrent;
-			var selectViewKR = document.getElementById('viewKR');
-			for(i=0;i<selectViewKR.children.length;i++){
-				if(i < selectViewKR.children.length-1){
-					nCurrent = parseInt(selectViewKR.children[i].value.split('~')[1]);
-					nNext = parseInt(selectViewKR.children[i+1].value.split('~')[1]);
-					if(Math.round((nNext-nCurrent)/60000) < 2)
-						selectViewKR.children[i].style = 'color:red';
-				}
-				strCurrent = selectViewKR.children[i].value.split('~')[2];
-				if(strCurrent == strCurrent.toUpperCase() && selectViewKR.children[i].style.color != 'red'){
-					selectViewKR.children[i].style = 'color:magenta';
-				}
-			}
-			
+			addKREntries();
+			setKREntriesColor();
+
 			// insert trap list
 			var objSelectStr = {
 				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon'],
@@ -6556,9 +6518,65 @@ function embedTimer(targetPage) {
         }
         headerElement = null;
     }
-
     targetPage = null;
+}
 
+function addKREntries(){
+	var i,temp,maxLen,keyName;
+	var replaced = "";
+	var nTimezoneOffset = -(new Date().getTimezoneOffset()) * 60000;
+	var count = 1;
+	var strInnerHTML = '';
+	var selectViewKR = document.getElementById('viewKR');
+	if(selectViewKR.options.length > 0){
+		// append keyKR for new KR entries under new UI
+		for(i = 0; i<window.localStorage.length;i++){
+			keyName = window.localStorage.key(i);
+			if(keyName.indexOf("KR" + separator) > -1 && keyKR.indexOf(keyName) < 0)
+				keyKR.push(keyName);
+		}
+	}
+	maxLen = keyKR.length.toString().length;
+	for(i=0;i<keyKR.length;i++){
+		if (keyKR[i].indexOf("KR" + separator) > -1){
+			temp = keyKR[i].split(separator);
+			temp.splice(0,1);
+			temp[0] = parseInt(temp[0]);
+			if (Number.isNaN(temp[0]))
+				temp[0] = 0;
+			
+			temp[0] += nTimezoneOffset;
+			temp[0] = (new Date(temp[0])).toISOString();
+			replaced = temp.join("&nbsp;&nbsp;");
+			temp = count.toString();
+			while(temp.length < maxLen){
+				temp = '0' + temp;
+			}
+			replaced = temp + '. ' + replaced;
+			strInnerHTML += '<option value="' + keyKR[i] +'"' + ((i == keyKR.length - 1) ? ' selected':'') + '>' + replaced +'</option>';
+			count++;
+		}
+	}
+	if(strInnerHTML !== '')
+		selectViewKR.innerHTML = strInnerHTML;
+}
+
+function setKREntriesColor(){
+	// set KR entries color
+	var i, nCurrent, nNext, strCurrent;
+	var selectViewKR = document.getElementById('viewKR');
+	for(i=0;i<selectViewKR.children.length;i++){
+		if(i < selectViewKR.children.length-1){
+			nCurrent = parseInt(selectViewKR.children[i].value.split('~')[1]);
+			nNext = parseInt(selectViewKR.children[i+1].value.split('~')[1]);
+			if(Math.round((nNext-nCurrent)/60000) < 2)
+				selectViewKR.children[i].style = 'color:red';
+		}
+		strCurrent = selectViewKR.children[i].value.split('~')[2];
+		if(strCurrent == strCurrent.toUpperCase() && selectViewKR.children[i].style.color != 'red'){
+			selectViewKR.children[i].style = 'color:magenta';
+		}
+	}
 }
 
 function loadPreferenceSettingFromStorage() {
@@ -7572,8 +7590,22 @@ function checkResumeButton() {
 					}
 				}
 				else{
+					var lastKingRewardDate = getStorage("lastKingRewardDate");
+					var lastDateStr;
+					if (isNullOrUndefined(lastKingRewardDate)) {
+						lastDateStr = "-";
+						lastKingRewardSumTime = -1;
+					}
+					else {
+						var lastDate = new Date(lastKingRewardDate);
+						lastDateStr = lastDate.toDateString() + " " + lastDate.toTimeString().substring(0, 8);
+						lastKingRewardSumTime = parseInt((new Date() - lastDate) / 1000);
+					}
+					document.getElementById('kingTimeElement').innerHTML = "<b>Last King's Reward:</b> " + lastDateStr + " ";
 					retrieveData(true);
 					countdownTimer();
+					addKREntries();
+					setKREntriesColor();
 					clearInterval(intervalCRB1);
 				}
 			}, 1000);
