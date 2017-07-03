@@ -7078,7 +7078,7 @@ function getStorageToObject(keyName, objDefault){
 	var bCheckNewProp = true;
 	if(isNullOrUndefined(obj)){
 		obj = JSON.stringify(objDefault);
-		setStorage(keyName, JSON.stringify(obj));
+		setStorage(keyName, obj);
 		bCheckNewProp = false;
 	}
 	obj = JSON.parse(obj);
