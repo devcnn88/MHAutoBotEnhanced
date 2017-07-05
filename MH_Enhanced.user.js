@@ -7601,7 +7601,8 @@ function checkResumeButton() {
 						lastDateStr = lastDate.toDateString() + " " + lastDate.toTimeString().substring(0, 8);
 						lastKingRewardSumTime = parseInt((new Date() - lastDate) / 1000);
 					}
-					document.getElementById('kingTimeElement').innerHTML = "<b>Last King's Reward:</b> " + lastDateStr + " ";
+					kingTimeElement.innerHTML = "<b>Last King's Reward:</b> " + lastDateStr + " ";
+					kingTimeElement.appendChild(lastKingRewardSumTimeElement);
 					retrieveData(true);
 					countdownTimer();
 					addKREntries();
