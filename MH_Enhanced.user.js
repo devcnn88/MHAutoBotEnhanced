@@ -1203,13 +1203,13 @@ function bwRift(){
 		return;
 
 	var objDefaultBWRift = {
-		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
+		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED','LUCKY','HIDDEN'],
 		master : {
-			weapon : new Array(14).fill('Mysteriously unYielding'),
-			base : new Array(14).fill('Fissure Base'),
-			trinket : new Array(14).fill('Rift Vacuum Charm'),
-			bait : new Array(14).fill('Brie String'),
-			activate : new Array(14).fill(false),
+			weapon : new Array(16).fill('Mysteriously unYielding'),
+			base : new Array(16).fill('Fissure Base'),
+			trinket : new Array(16).fill('Rift Vacuum Charm'),
+			bait : new Array(16).fill('Brie String'),
+			activate : new Array(16).fill(false),
 		},
 		gw : {
 			weapon : new Array(2).fill('MASTER'),
@@ -1233,31 +1233,31 @@ function bwRift(){
 			activate : new Array(2).fill('MASTER'),
 		},
 		gb : {
-			weapon : new Array(6).fill('MASTER'),
-			base : new Array(6).fill('MASTER'),
-			trinket : new Array(6).fill('MASTER'),
-			bait : new Array(6).fill('MASTER'),
-			activate : new Array(6).fill('MASTER'),
+			weapon : new Array(7).fill('MASTER'),
+			base : new Array(7).fill('MASTER'),
+			trinket : new Array(7).fill('MASTER'),
+			bait : new Array(7).fill('MASTER'),
+			activate : new Array(7).fill('MASTER'),
 		},
 		ic : {
-			weapon : new Array(3).fill('MASTER'),
-			base : new Array(3).fill('MASTER'),
-			trinket : new Array(3).fill('MASTER'),
-			bait : new Array(3).fill('MASTER'),
-			activate : new Array(3).fill('MASTER'),
+			weapon : new Array(4).fill('MASTER'),
+			base : new Array(4).fill('MASTER'),
+			trinket : new Array(4).fill('MASTER'),
+			bait : new Array(4).fill('MASTER'),
+			activate : new Array(4).fill('MASTER'),
 		},
 		fa : {
-			weapon : new Array(15).fill('MASTER'),
-			base : new Array(15).fill('MASTER'),
-			trinket : new Array(15).fill('MASTER'),
-			bait : new Array(15).fill('MASTER'),
-			activate : new Array(15).fill('MASTER'),
+			weapon : new Array(16).fill('MASTER'),
+			base : new Array(16).fill('MASTER'),
+			trinket : new Array(16).fill('MASTER'),
+			bait : new Array(16).fill('MASTER'),
+			activate : new Array(16).fill('MASTER'),
 		},
 		forceDeactivate : false,
 		remainingLootDeactivate : 1,
 		choosePortal : false,
 		choosePortalAfterCC : false,
-		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
+		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : [60,40,999]
 	};
 
@@ -1266,6 +1266,11 @@ function bwRift(){
 	var nIndex = -1;
 	var nLootRemaining = objUser.progress_remaining;
 	var strChamberName = objUser.chamber_name.split(' ')[0].toUpperCase();
+	var strTestName = objUser.chamber_name.toUpperCase();
+	if(strTestName.indexOf('LUCK') > -1 || strTestName.indexOf('TOWER') > -1)
+		strChamberName = 'LUCKY';
+	else if(strTestName.indexOf('HIDDEN') > -1 || strTestName.indexOf('TREASUR') > -1)
+		strChamberName = 'HIDDEN';
 	if(strChamberName == 'ACOLYTE'){ // in Acolyte Chamber
 		var strStatus;
 		if(objUser.minigame.acolyte_chamber.obelisk_charge < 100){
@@ -1299,6 +1304,11 @@ function bwRift(){
 			};
 			for(var i=0;i<objPortal.arrName.length;i++){
 				objPortal.arrName[i] = classPortalContainer[0].children[i].getElementsByClassName('riftBristleWoodsHUD-portal-name')[0].textContent;
+				strTestName = objPortal.arrName[i].toUpperCase();
+				if(strTestName.indexOf('LUCK') > -1 || strTestName.indexOf('TOWER') > -1)
+					objPortal.arrName[i] = 'LUCKY';
+				else if(strTestName.indexOf('HIDDEN') > -1 || strTestName.indexOf('TREASUR') > -1)
+					objPortal.arrName[i] = 'HIDDEN';
 				objPortal.arrName[i] = objPortal.arrName[i].split(' ')[0].toUpperCase();
 				objPortal.arrIndex[i] = objBWRift.priorities.indexOf(objPortal.arrName[i]);
 				if(objPortal.arrIndex[i] < 0)
@@ -5225,6 +5235,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="ANCIENT">Ancient Lab</option>';
 			preferenceHTMLStr += '<option value="RUNIC">Runic Laboratory</option>';
 			preferenceHTMLStr += '<option value="TIMEWARP">Timewarp Chamber</option>';
+			preferenceHTMLStr += '<option value="LUCKY">Lucky Tower</option>';
+			preferenceHTMLStr += '<option value="HIDDEN">Hidden Treasury</option>';
 			preferenceHTMLStr += '<option value="GUARD">Guard Barracks</option>';
 			preferenceHTMLStr += '<option value="SECURITY">Security Chamber</option>';
 			preferenceHTMLStr += '<option value="FROZEN">Frozen Alcove</option>';
@@ -5286,11 +5298,11 @@ function embedTimer(targetPage) {
 				preferenceHTMLStr += '<option value="' + i + '">Alert Lvl ' + i + '</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBWRiftFTC" style="width:75px;display:none" onchange="initControlsBWRift();">';
-			for(i=0;i<=2;i++)
+			for(i=0;i<=3;i++)
 				preferenceHTMLStr += '<option value="' + i + '">FTC ' + i + '</option>';
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectBWRiftHunt" style="width:75px;display:none" onchange="initControlsBWRift();">';
-			for(i=0;i<=14;i++)
+			for(i=0;i<=15;i++)
 				preferenceHTMLStr += '<option value="' + i + '">Hunt ' + i + '</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;';
 			preferenceHTMLStr += '</td>';
@@ -5372,10 +5384,10 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<tr id="trBWRiftPortalPriority" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select portal priority"><b>Portal Priority </b></a>';
 			preferenceHTMLStr += '<select id="selectBWRiftPriority" style="width: 75px;" onchange="initControlsBWRift();">';
-			for(i=1;i<=11;i++){
+			for(i=1;i<=13;i++){
 				if(i==1)
 					preferenceHTMLStr += '<option value="' + i + '">' + i + ' (Highest)</option>';
-				else if(i==11)
+				else if(i==13)
 					preferenceHTMLStr += '<option value="' + i + '">' + i + ' (Lowest)</option>';
 				else
 					preferenceHTMLStr += '<option value="' + i + '">' + i + '</option>';
@@ -5388,6 +5400,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="ANCIENT">Ancient Lab</option>';
 			preferenceHTMLStr += '<option value="RUNIC">Runic Laboratory</option>';
 			preferenceHTMLStr += '<option value="TIMEWARP">Timewarp Chamber</option>';
+			preferenceHTMLStr += '<option value="LUCKY">Lucky Tower</option>';
+			preferenceHTMLStr += '<option value="HIDDEN">Hidden Treasury</option>';
 			preferenceHTMLStr += '<option value="GUARD">Guard Barracks</option>';
 			preferenceHTMLStr += '<option value="SECURITY">Security Chamber</option>';
 			preferenceHTMLStr += '<option value="FROZEN">Frozen Alcove</option>';
@@ -5400,7 +5414,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</tr>';
 			
 			preferenceHTMLStr += '<tr id="trBWRiftMinTimeSand" style="display:none;">';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Min Time Sand</b></a>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Min Time Sand </b></a>';
 			preferenceHTMLStr += '<select id="selectBWRiftBuffCurse" style="width: 75px;" onchange="initControlsBWRift();">';
 			preferenceHTMLStr += '<option value="0">No Buff & No Curse</option>';
 			preferenceHTMLStr += '<option value="1">Buff & No Curse</option>';
@@ -6599,7 +6613,7 @@ function loadPreferenceSettingFromStorage() {
 		keyKR = [];
 		var keyName = "";
 		var keyRemove = [];
-		var i, j;
+		var i, j, value, objTest;
 		for(i = 0; i<window.localStorage.length;i++){
 			keyName = window.localStorage.key(i);
 			if(keyName.indexOf("KR-") > -1){ // remove old KR entries
@@ -6608,8 +6622,21 @@ function loadPreferenceSettingFromStorage() {
 			else if(keyName.indexOf("KR" + separator) > -1){
 				keyKR.push(keyName);
 			}
+			value = getStorage(keyName); // remove entries of duplicate JSON.stringify
+			if(value.indexOf("{") > -1){
+				try{
+					objTest = JSON.parse(value);
+					if(typeof objTest == 'string'){
+						setStorage(keyName, objTest);
+						setSessionStorage(keyName, objTest);
+					}
+				}
+				catch(e){
+					console.perror(keyName, e.message);
+				}
+			}
 		}
-
+		
 		for(i = 0; i<keyRemove.length;i++){
 			removeStorage(keyRemove[i]);
 		}
@@ -6906,6 +6933,30 @@ function loadPreferenceSettingFromStorage() {
 				};
 				setStorage('GES', JSON.stringify(objNew));
 				setSessionStorage('GES', JSON.stringify(objNew));
+			}
+		}
+		
+		// Backward compatibility of BWRift
+		keyValue = getStorage('BWRift');
+		if(!isNullOrUndefined(keyValue)){
+			obj = JSON.parse(keyValue);
+			bResave = false;
+			if(obj.order.length != 16){
+				obj.order = ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED','LUCKY','HIDDEN'];
+				bResave = true;
+			}
+			if(obj.priorities.length != 13){
+				if(obj.priorities.length == 11){
+					obj.priorities.push('LUCKY');
+					obj.priorities.push('HIDDEN');
+				}
+				else
+					obj.priorities = ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'];
+				bResave = true;
+			}
+			if(bResave){
+				setStorage('BWRift', JSON.stringify(obj));
+				setSessionStorage('BWRift', JSON.stringify(obj));
 			}
 		}
 	}
@@ -8347,13 +8398,13 @@ function refreshTrapList() {
 
 function bodyJS(){
 	var objDefaultBWRift = {
-		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
+		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED','LUCKY','HIDDEN'],
 		master : {
-			weapon : new Array(14).fill('Mysteriously unYielding'),
-			base : new Array(14).fill('Fissure Base'),
-			trinket : new Array(14).fill('Rift Vacuum Charm'),
-			bait : new Array(14).fill('Brie String'),
-			activate : new Array(14).fill(false),
+			weapon : new Array(16).fill('Mysteriously unYielding'),
+			base : new Array(16).fill('Fissure Base'),
+			trinket : new Array(16).fill('Rift Vacuum Charm'),
+			bait : new Array(16).fill('Brie String'),
+			activate : new Array(16).fill(false),
 		},
 		gw : {
 			weapon : new Array(2).fill('MASTER'),
@@ -8377,31 +8428,31 @@ function bodyJS(){
 			activate : new Array(2).fill('MASTER'),
 		},
 		gb : {
-			weapon : new Array(6).fill('MASTER'),
-			base : new Array(6).fill('MASTER'),
-			trinket : new Array(6).fill('MASTER'),
-			bait : new Array(6).fill('MASTER'),
-			activate : new Array(6).fill('MASTER'),
+			weapon : new Array(7).fill('MASTER'),
+			base : new Array(7).fill('MASTER'),
+			trinket : new Array(7).fill('MASTER'),
+			bait : new Array(7).fill('MASTER'),
+			activate : new Array(7).fill('MASTER'),
 		},
 		ic : {
-			weapon : new Array(3).fill('MASTER'),
-			base : new Array(3).fill('MASTER'),
-			trinket : new Array(3).fill('MASTER'),
-			bait : new Array(3).fill('MASTER'),
-			activate : new Array(3).fill('MASTER'),
+			weapon : new Array(4).fill('MASTER'),
+			base : new Array(4).fill('MASTER'),
+			trinket : new Array(4).fill('MASTER'),
+			bait : new Array(4).fill('MASTER'),
+			activate : new Array(4).fill('MASTER'),
 		},
 		fa : {
-			weapon : new Array(15).fill('MASTER'),
-			base : new Array(15).fill('MASTER'),
-			trinket : new Array(15).fill('MASTER'),
-			bait : new Array(15).fill('MASTER'),
-			activate : new Array(15).fill('MASTER'),
+			weapon : new Array(16).fill('MASTER'),
+			base : new Array(16).fill('MASTER'),
+			trinket : new Array(16).fill('MASTER'),
+			bait : new Array(16).fill('MASTER'),
+			activate : new Array(16).fill('MASTER'),
 		},
 		forceDeactivate : false,
 		remainingLootDeactivate : 1,
 		choosePortal : false,
 		choosePortalAfterCC : false,
-		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
+		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : [60,40,999]
 	};
 	

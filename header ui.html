@@ -354,6 +354,8 @@
 							<option value="ANCIENT">Ancient Lab</option>
 							<option value="RUNIC">Runic Laboratory</option>
 							<option value="TIMEWARP">Timewarp Chamber</option>
+							<option value="LUCKY">Lucky Tower</option>
+							<option value="HIDDEN">Hidden Treasury</option>
 							<option value="GUARD">Guard Barracks</option>
 							<option value="SECURITY">Security Chamber</option>
 							<option value="FROZEN">Frozen Alcove</option>
@@ -416,11 +418,13 @@
 							<option value="3">Alert Lvl 3</option>
 							<option value="4">Alert Lvl 4</option>
 							<option value="5">Alert Lvl 5</option>
+							<option value="6">Alert Lvl 6</option>
 						</select>
 						<select id="selectBWRiftFTC" style="width:75px;display:none" onchange="initControlsBWRift();">
 							<option value="0">FTC 0</option>
 							<option value="1">FTC 1</option>
 							<option value="2">FTC 2</option>
+							<option value="3">FTC 3</option>
 						</select>
 						<select id="selectBWRiftHunt" style="width:75px;display:none" onchange="initControlsBWRift();">
 							<option value="0">Hunt 0</option>
@@ -438,6 +442,7 @@
 							<option value="12">Hunt 12</option>
 							<option value="13">Hunt 13</option>
 							<option value="14">Hunt 14</option>
+							<option value="15">Hunt 15</option>
 						</select>
 						&nbsp;&nbsp;:&nbsp;&nbsp;
 					</td>
@@ -525,7 +530,9 @@
 							<option value="8">8</option>
 							<option value="9">9</option>
 							<option value="10">10</option>
-							<option value="11">11 (Lowest)</option>
+							<option value="11">11</option>
+							<option value="12">12</option>
+							<option value="13">13 (Lowest)</option>
 						</select>&nbsp;&nbsp;:&nbsp;&nbsp;
 					</td>
 					<td style="height:24px">
@@ -534,6 +541,8 @@
 							<option value="ANCIENT">Ancient Lab</option>
 							<option value="RUNIC">Runic Laboratory</option>
 							<option value="TIMEWARP">Timewarp Chamber</option>
+							<option value="LUCKY">Lucky Tower</option>
+							<option value="HIDDEN">Hidden Treasury</option>
 							<option value="GUARD">Guard Barracks</option>
 							<option value="SECURITY">Security Chamber</option>
 							<option value="FROZEN">Frozen Alcove</option>
@@ -1479,13 +1488,13 @@
 </div>
 <script type="text/javascript">
 	var objDefaultBWRift = {
-		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED'],
+		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED','LUCKY','HIDDEN'],
 		master : {
-			weapon : new Array(14).fill('Mysteriously unYielding'),
-			base : new Array(14).fill('Fissure Base'),
-			trinket : new Array(14).fill('Rift Vacuum Charm'),
-			bait : new Array(14).fill('Brie String'),
-			activate : new Array(14).fill(false),
+			weapon : new Array(16).fill('Mysteriously unYielding'),
+			base : new Array(16).fill('Fissure Base'),
+			trinket : new Array(16).fill('Rift Vacuum Charm'),
+			bait : new Array(16).fill('Brie String'),
+			activate : new Array(16).fill(false),
 		},
 		gw : {
 			weapon : new Array(2).fill('MASTER'),
@@ -1509,31 +1518,31 @@
 			activate : new Array(2).fill('MASTER'),
 		},
 		gb : {
-			weapon : new Array(6).fill('MASTER'),
-			base : new Array(6).fill('MASTER'),
-			trinket : new Array(6).fill('MASTER'),
-			bait : new Array(6).fill('MASTER'),
-			activate : new Array(6).fill('MASTER'),
+			weapon : new Array(7).fill('MASTER'),
+			base : new Array(7).fill('MASTER'),
+			trinket : new Array(7).fill('MASTER'),
+			bait : new Array(7).fill('MASTER'),
+			activate : new Array(7).fill('MASTER'),
 		},
 		ic : {
-			weapon : new Array(3).fill('MASTER'),
-			base : new Array(3).fill('MASTER'),
-			trinket : new Array(3).fill('MASTER'),
-			bait : new Array(3).fill('MASTER'),
-			activate : new Array(3).fill('MASTER'),
+			weapon : new Array(4).fill('MASTER'),
+			base : new Array(4).fill('MASTER'),
+			trinket : new Array(4).fill('MASTER'),
+			bait : new Array(4).fill('MASTER'),
+			activate : new Array(4).fill('MASTER'),
 		},
 		fa : {
-			weapon : new Array(15).fill('MASTER'),
-			base : new Array(15).fill('MASTER'),
-			trinket : new Array(15).fill('MASTER'),
-			bait : new Array(15).fill('MASTER'),
-			activate : new Array(15).fill('MASTER'),
+			weapon : new Array(16).fill('MASTER'),
+			base : new Array(16).fill('MASTER'),
+			trinket : new Array(16).fill('MASTER'),
+			bait : new Array(16).fill('MASTER'),
+			activate : new Array(16).fill('MASTER'),
 		},
 		forceDeactivate : false,
 		remainingLootDeactivate : 1,
 		choosePortal : false,
 		choosePortalAfterCC : false,
-		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
+		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : [60,40,999]
 	};
 
