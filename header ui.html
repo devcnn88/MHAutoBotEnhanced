@@ -1120,7 +1120,8 @@
 				<tr id="trSCCustom" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select custom algorithm"><b>SC Custom Algorithm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
-						<select id="selectSCHuntZone" onchange="initControlsSCCustom();">
+						<select id="selectSCHuntZone" style="width:75px" onchange="initControlsSCCustom();">
+							<option value="ZONE_NOT_DIVE">Surface</option>
 							<option value="ZONE_DEFAULT">Default</option>
 							<option value="ZONE_CORAL">Coral</option>
 							<option value="ZONE_SCALE">Scale</option>
@@ -1131,16 +1132,16 @@
 							<option value="ZONE_OXYGEN">Oxygen</option>
 							<option value="ZONE_BONUS">Bonus</option>
 						</select>
-						<select id="selectSCHuntZoneEnable" onchange="onSelectSCHuntZoneEnable();">
+						<select id="selectSCHuntZoneEnable" style="width:75px;display:none" onchange="onSelectSCHuntZoneEnable();">
 							<option value="true">Hunt</option>
 							<option value="false">Jet Through</option>
 						</select>
-						<select id="selectSCHuntBait" onchange="onSelectSCHuntBait();">
+						<select id="selectSCHuntBait" style="width:75px;" onchange="onSelectSCHuntBait();">
 							<option value="Brie">Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SUPER|brie+</option>
 						</select>
-						<select id="selectSCHuntTrinket" onchange="onSelectSCHuntTrinket();">
+						<select id="selectSCHuntTrinket" style="width:75px;" onchange="onSelectSCHuntTrinket();">
 							<option value="None">None</option>
 							<option value="EAC">EAC</option>
 							<option value="scAnchorTreasure">GAC, EAC</option>
@@ -2114,6 +2115,7 @@
 		selectSCHuntBait.value = storageValue.bait[nIndex];
 		selectSCHuntTrinket.value = storageValue.trinket[nIndex];
 		selectSCUseSmartJet.value = storageValue.useSmartJet;
+		selectSCHuntZoneEnable.style.display = (selectSCHuntZone.value == 'ZONE_NOT_DIVE') ? 'none' : '';
 	}
 	
 	function saveSCCustomAlgo(){	

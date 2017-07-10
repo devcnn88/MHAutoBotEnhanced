@@ -2553,25 +2553,24 @@ function SCCustom() {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
 	
+	var objDefaultSCCustom = {
+		zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
+		zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+		isHunt : new Array(10).fill(true),
+		bait : new Array(10).fill('Gouda'),
+		trinket : new Array(10).fill('None'),
+		useSmartJet : false
+	};
+	var objSCCustom = getStorageToObject('SCCustom', objDefaultSCCustom);
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
 	var zoneID = GetSunkenCityZone(zone);
 	checkThenArm('best', 'weapon', objBestTrap.weapon.hydro);
 	if (zoneID == objSCZone.ZONE_NOT_DIVE){
 		checkThenArm('best', 'base', objBestTrap.base.luck);
-		checkThenArm(null, 'trinket', 'Oxygen Burst');
-		checkThenArm('best', 'bait', ['Fishy Fromage', 'Gouda']);
+		checkThenArm(null, 'trinket', objSCCustom.trinket[zoneID]);
+		checkThenArm(null, 'bait', objSCCustom.bait[zoneID]);
 		return;
 	}
-
-	var objDefaultSCCustom = {
-		zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
-		zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-		isHunt : new Array(9).fill(true),
-		bait : new Array(9).fill('Gouda'),
-		trinket : new Array(9).fill('None'),
-		useSmartJet : false
-	};
-	var objSCCustom = getStorageToObject('SCCustom', objDefaultSCCustom);
 	var distance = parseInt(getPageVariable('user.quests.QuestSunkenCity.distance'));
 	console.plog('Current Zone:', zone, 'ID', zoneID, 'at meter', distance);
 	checkThenArm('best', 'base', bestSCBase);
@@ -2607,32 +2606,15 @@ function SCCustom() {
 		var isWJCArmed = (charmArmed.indexOf('Water Jet') > -1);
 		if (distanceToNextZone[0] >= 480 || (distanceToNextZone[1] >= 480 && (!isNextZoneInHuntZone[0])) || (!(isNextZoneInHuntZone[0]||isNextZoneInHuntZone[1]))) {
 			// arm Water Jet Charm
-			var bSmartJet = false;
-			var bNormalJet = (parseInt(charmElement[1].innerText) > 0);
-			if(objSCCustom.useSmartJet){
-				getTrapList('trinket');
-				for(i=0;i<objTrapList.trinket.length;i++){
-					if(!bSmartJet)
-						bSmartJet = (objTrapList.trinket[i].indexOf('Smart Water Jet') === 0);
-					if(!bNormalJet)
-						bSmartJet = (objTrapList.trinket[i].indexOf('Water Jet') === 0);
-				}
-				canJet = (bSmartJet || bNormalJet);
-				checkThenArm('best', 'trinket', ['Smart Water Jet', 'Water Jet']);
-			}
-			else{
-				canJet = bNormalJet;
-				if (charmArmed.indexOf('Water Jet') !== 0 && canJet)
-					fireEvent(charmElement[1], 'click');
-			}
+			if(objSCCustom.useSmartJet)
+				checkThenArm('best', 'trinket', ['Smart Water Jet', 'Water Jet', objSCCustom.trinket[zoneID]]);
+			else
+				checkThenArm('best', 'trinket', ['Water Jet', objSCCustom.trinket[zoneID]]);
 		}
 	}
-	
-	checkThenArm(null, 'bait', objSCCustom.bait[zoneID]);
-	if (objSCCustom.isHunt[zoneID] || !canJet){
-		// hunt here
+	else
 		checkThenArm(null, 'trinket', objSCCustom.trinket[zoneID]);
-	}
+	checkThenArm(null, 'bait', objSCCustom.bait[zoneID]);
 }
 
 function DisarmSCSpecialCharm(charmArmedName)
@@ -6058,7 +6040,8 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '&nbsp;&nbsp;:&nbsp;&nbsp;';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '<td style="height:24px">';
-			preferenceHTMLStr += '<select id="selectSCHuntZone" onChange="initControlsSCCustom();">';
+			preferenceHTMLStr += '<select id="selectSCHuntZone" style="width:75px" onChange="initControlsSCCustom();">';
+			preferenceHTMLStr += '<option value="ZONE_NOT_DIVE">Surface</option>';
 			preferenceHTMLStr += '<option value="ZONE_DEFAULT">Default</option>';
 			preferenceHTMLStr += '<option value="ZONE_CORAL">Coral</option>';
 			preferenceHTMLStr += '<option value="ZONE_SCALE">Scale</option>';
@@ -6069,7 +6052,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="ZONE_OXYGEN">Oxygen</option>';
 			preferenceHTMLStr += '<option value="ZONE_BONUS">Bonus</option>';
             preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectSCHuntZoneEnable" onChange="saveSCCustomAlgo();">';
+			preferenceHTMLStr += '<select id="selectSCHuntZoneEnable" style="width:75px;display:none" onChange="saveSCCustomAlgo();">';
 			preferenceHTMLStr += '<option value="true">Hunt</option>';
 			preferenceHTMLStr += '<option value="false">Jet Through</option>';
             preferenceHTMLStr += '</select>';
@@ -6083,6 +6066,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
 			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
+			preferenceHTMLStr += '<option value="Fishy Fromage">Fishy Fromage</option>';
             preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectSCHuntTrinket" style="width: 75px" onchange="saveSCCustomAlgo();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
@@ -9041,6 +9025,7 @@ function bodyJS(){
 				'ZONE_BARNACLE' : ['Rocky Outcrop', 'Shipwreck', 'Haunted Shipwreck'],
 				'ZONE_DEFAULT' : ['Shallow Shoals', 'Sea Floor', 'Murky Depths'],
 			};
+			selectSCHuntZone.selectedIndex = 0;
 			for(var prop in objZone){
 				if(objZone.hasOwnProperty(prop)){
 					if(objZone[prop].indexOf(zone) > -1){
@@ -9057,6 +9042,7 @@ function bodyJS(){
 		selectSCHuntBait.value = storageValue.bait[nIndex];
 		selectSCHuntTrinket.value = storageValue.trinket[nIndex];
 		selectSCUseSmartJet.value = storageValue.useSmartJet;
+		selectSCHuntZoneEnable.style.display = (selectSCHuntZone.value == 'ZONE_NOT_DIVE') ? 'none' : '';
 	}
 	
 	function saveSCCustomAlgo(){	
