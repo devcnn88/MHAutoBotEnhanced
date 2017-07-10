@@ -1369,6 +1369,8 @@ function bwRift(){
 		bait : '',
 		activate : false
 	};
+	if(nIndex === 0)
+		strChamberName = 'NONE';
 	if(strChamberName == 'GEARWORKS' || strChamberName == 'ANCIENT' || strChamberName == 'RUNIC'){
 		var nCleaverAvailable = (objUser.cleaver_status == 'available') ? 1 : 0;
 		console.plog('Cleaver Available Status:',nCleaverAvailable);
