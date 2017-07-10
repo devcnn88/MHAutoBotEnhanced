@@ -1318,10 +1318,11 @@ function bwRift(){
 			if(objBWRift.choosePortal){
 				if(nIndex === 0 || (nIndex > 0 && objUser.chamber_status == 'open' && objBWRift.choosePortalAfterCC)){
 					var nIndexBuffCurse = 0;
-					if(objUser.status_effects.un != 'default' || objUser.status_effects.fr != 'default' || objUser.status_effects.st != 'default')
+					if(objUser.status_effects.un != 'default' || !(objUser.status_effects.fr == 'default' || objUser.status_effects.fr == 'removed') || objUser.status_effects.st != 'default')
 						nIndexBuffCurse = 2;
 					else if(objUser.status_effects.ng != 'default' || objUser.status_effects.ac != 'default' || objUser.status_effects.ex != 'default')
 						nIndexBuffCurse = 1;
+					console.plog('Buff & Curse Index:', nIndexBuffCurse, 'Obj:', objUser.status_effects);
 					var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
 					console.plog('Time Sand Qty:',nTimeSand);
 					var nIndexTemp = objPortal.arrName.indexOf('ACOLYTE');
