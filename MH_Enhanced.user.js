@@ -1266,7 +1266,7 @@ function bwRift(){
 
 	var objBWRift = getStorageToObject('BWRift', objDefaultBWRift);
 	var objUser = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftBristleWoods)'));
-	var nIndex = -1;
+	var nIndex = -1, nDelayQQ = 0;
 	var nLootRemaining = objUser.progress_remaining;
 	var strChamberName = objUser.chamber_name.split(' ')[0].toUpperCase();
 	var strTestName = objUser.chamber_name.toUpperCase();
@@ -1370,6 +1370,7 @@ function bwRift(){
 							strChamberName = objBWRift.order[nIndex];
 							fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
 							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
+							nDelayQQ = 1500;
 						}
 					}
 				}
@@ -1439,27 +1440,18 @@ function bwRift(){
 	var classLootBooster = document.getElementsByClassName('riftBristleWoodsHUD-portalEquipment lootBooster mousehuntTooltipParent')[0];
 	var bPocketwatchActive = (classLootBooster.getAttribute('class').indexOf('selected') > -1);
 	var classButton = classLootBooster.getElementsByClassName('riftBristleWoodsHUD-portalEquipment-action')[0];
-	console.plog('QQ Activated:', bPocketwatchActive, 'Activate?:', objTemp.activate);
+	var bForce = false;
 	if(objTemp.activate){
-		if(objBWRift.specialActivate.forceDeactivate[nIndex] && nLootRemaining <= objBWRift.specialActivate.remainingLootDeactivate[nIndex]){
-			if(bPocketwatchActive)
-				fireEvent(classButton, 'click');
-		}
-		else{
-			if(!bPocketwatchActive)
-				fireEvent(classButton, 'click');
-		}
+		bForce = (objBWRift.specialActivate.forceDeactivate[nIndex] && nLootRemaining <= objBWRift.specialActivate.remainingLootDeactivate[nIndex]);
+		console.plog('QQ Activated:', bPocketwatchActive, 'Activate?:', objTemp.activate, 'Force:', bForce, 'Delay:', nDelayQQ);
+		if(bForce === bPocketwatchActive)
+			window.setTimeout(function () { fireEvent(classButton, 'click'); }, nDelayQQ);
 	}
 	else{
-		if(objBWRift.specialActivate.forceActivate[nIndex] && nLootRemaining <= objBWRift.specialActivate.remainingLootActivate[nIndex]){
-			if(!bPocketwatchActive)
-				fireEvent(classButton, 'click');
-		}
-		else{
-			if(bPocketwatchActive)
-				fireEvent(classButton, 'click');
-		}
-		
+		bForce = (objBWRift.specialActivate.forceActivate[nIndex] && nLootRemaining <= objBWRift.specialActivate.remainingLootActivate[nIndex]);
+		console.plog('QQ Activated:', bPocketwatchActive, 'Activate?:', objTemp.activate, 'Force:', bForce, 'Delay:', nDelayQQ);
+		if(bForce !== bPocketwatchActive)
+			window.setTimeout(function () { fireEvent(classButton, 'click'); }, nDelayQQ);
 	}
 }
 
