@@ -94,7 +94,7 @@ var secWait = 7;
 var armTrapRetry = 3;
 
 // // Maximum number of log to be saved into sessionStorage
-var maxSaveLog = 500;
+var maxSaveLog = 750;
 
 // == Basic User Preference Setting (End) ==
 
