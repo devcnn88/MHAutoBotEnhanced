@@ -1278,10 +1278,14 @@ function bwRift(){
 			strStatus = 'ACOLYTE_CHARGING';
 			nLootRemaining = 100 - objUser.minigame.acolyte_chamber.obelisk_charge;
 		}
-		else if(objUser.minigame.acolyte_chamber.acolyte_sand > 0)
+		else if(objUser.minigame.acolyte_chamber.acolyte_sand > 0){
 			strStatus = 'ACOLYTE_DRAINING';
-		else
+			nLootRemaining = Number.MAX_SAFE_INTEGER;
+		}
+		else{
 			strStatus = 'ACOLYTE_DRAINED';
+			nLootRemaining = Number.MAX_SAFE_INTEGER;
+		}
 		console.plog('Status:',strStatus,'Obelisk:',objUser.minigame.acolyte_chamber.obelisk_charge,'Acolyte Sand:',objUser.minigame.acolyte_chamber.acolyte_sand);
 		nIndex = objBWRift.order.indexOf(strStatus);
 	}
