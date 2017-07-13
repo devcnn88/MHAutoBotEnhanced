@@ -952,10 +952,8 @@ function specialFeature(caller){
 
 function eventLocationCheck(caller) {
     var selAlgo = getStorageToVariableStr("eventLocation", "None");
-	console.plog('Algorithm Selected:', selAlgo, 'Call From:', caller);
 	var temp = "";
-    switch (selAlgo)
-    {
+    switch (selAlgo){
         case 'Charge Egg 2015':
             checkCharge(12); break;
         case 'Charge Egg 2015(17)':
