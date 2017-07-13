@@ -1371,6 +1371,7 @@ function bwRift(){
 							fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
 							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
 							nDelayQQ = 1500;
+							nLootRemaining = Number.MAX_SAFE_INTEGER;
 						}
 					}
 				}
