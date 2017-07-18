@@ -3985,7 +3985,9 @@ function clickThenArmTrapInterval(sort, trap, name){ //sort = power/luck/attract
             else{
                 --sec;
                 if (sec <= 0){
-                    clickTrapSelector(trap, true);
+                    if(isNewUI)
+						closeTrapSelector(trap);
+					clickTrapSelector(trap, true);
                     sec = secWait;
 					--retry;
 					if (retry <= 0){
