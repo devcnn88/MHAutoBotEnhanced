@@ -2631,6 +2631,8 @@ function SCCustom() {
 			else
 				checkThenArm('best', 'trinket', ['Water Jet', objSCCustom.trinket[zoneID]]);
 		}
+		else
+			checkThenArm(null, 'trinket', objSCCustom.trinket[zoneID]);
 	}
 	else
 		checkThenArm(null, 'trinket', objSCCustom.trinket[zoneID]);
