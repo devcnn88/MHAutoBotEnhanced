@@ -411,6 +411,12 @@
 						<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter AC
 					</td>
 				</tr>
+				<tr id="trBWRiftMinRSC" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select minimum Runic String Cheese before entering Acolyte Chamber (AC)"><b>Min Runic String Cheese</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<input type="number" id="inputMinRSC" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinRSCChanged(this);">&nbsp;&nbsp;Before Enter AC
+					</td>
+				</tr>
 				<tr id="trBWRiftEnterMinigame" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Enter Minigame with Curse(s)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -1572,6 +1578,7 @@
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : [60,40,999],
+		minRSC : 0,
 		enterMinigameWCurse : false
 	};
 
@@ -3147,6 +3154,11 @@
 		saveBWRift();
 	}
 	
+	function onInputMinRSCChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveBWRift();
+	}
+	
 	function saveBWRift(){
 		var selectBWRiftChamber = document.getElementById('selectBWRiftChamber');
 		var selectBWRiftWeapon = document.getElementById('selectBWRiftWeapon');
@@ -3171,6 +3183,7 @@
 		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
 		var selectBWRiftBuffCurse = document.getElementById('selectBWRiftBuffCurse');
 		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
+		var inputMinRSC = document.getElementById('inputMinRSC');
 		var selectBWRiftEnterWCurse = document.getElementById('selectBWRiftEnterWCurse');
 		var storageValue = window.sessionStorage.getItem('BWRift');
 		if(isNullOrUndefined(storageValue))
@@ -3222,6 +3235,7 @@
 			else
 				storageValue[strTemp].activate[nIndex] = (selectBWRiftActivatePocketWatchSpecial.value == 'true');
 		}
+		storageValue.minRSC = parseInt(inputMinRSC.value);
 		storageValue.choosePortal = (selectBWRiftChoosePortal.value == 'true');
 		if(storageValue.choosePortal){
 			storageValue.choosePortalAfterCC = (selectBWRiftChoosePortalAfterCC.value == 'true');
@@ -3257,6 +3271,7 @@
 		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
 		var selectBWRiftBuffCurse = document.getElementById('selectBWRiftBuffCurse');
 		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
+		var inputMinRSC = document.getElementById('inputMinRSC');
 		var selectBWRiftEnterWCurse = document.getElementById('selectBWRiftEnterWCurse');
 		var storageValue = window.sessionStorage.getItem('BWRift');
 		if(isNullOrUndefined(storageValue))
@@ -3339,6 +3354,7 @@
 		selectBWRiftPortal.value = storageValue.priorities[selectBWRiftPriority.selectedIndex];
 		nIndex = parseInt(selectBWRiftBuffCurse.value);
 		inputMinTimeSand.value = storageValue.minTimeSand[nIndex];
+		inputMinRSC.value = storageValue.minRSC;
 		selectBWRiftEnterWCurse.value = (storageValue.enterMinigameWCurse === true) ? 'true' : 'false';
 		if(selectBWRiftChoosePortal.value == 'true'){
 			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = '';
@@ -3907,7 +3923,7 @@
 				init : function(data){initControlsGWH2016(data);}
 			},
 			'Bristle Woods Rift' : {
-				arr : ['trBWRiftSubLocation','trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial','trBWRiftEnterMinigame','trBWRiftActivatePocketWatch'],
+				arr : ['trBWRiftSubLocation','trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftMinRSC','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial','trBWRiftEnterMinigame','trBWRiftActivatePocketWatch'],
 				init : function(data){initControlsBWRift(data);}
 			},
 		};

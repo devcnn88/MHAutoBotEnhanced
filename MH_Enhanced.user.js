@@ -1074,14 +1074,14 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 		var classTreasureMap = document.getElementsByClassName('mousehuntHud-userStat treasureMap')[0];
 		if(classTreasureMap.children[2].textContent.toLowerCase().indexOf('remaining') > -1)
 			nRemaining = parseInt(classTreasureMap.children[2].textContent);
-		
+
 		if(Number.isNaN(nRemaining) || nRemaining == -1)
 			return;
 
 		var temp = getStorageToVariableStr('Last Record Uncaught', null);
 		if(!isNullOrUndefined(temp))
-			arrUncaughtMouse = temp.split(",");	
-		
+			arrUncaughtMouse = temp.split(",");
+
 		if(arrUncaughtMouse.length != nRemaining){
 			// get updated uncaught mouse list
 			arrUncaughtMouse = [];
@@ -1129,7 +1129,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 			setStorage('Last Record Uncaught', arrUpdatedUncaught.join(","));
 		arrUncaughtMouse = arrUpdatedUncaught.slice();
 	}
-	
+
 	console.plog('Uncaught:', arrUncaughtMouse);
 	var i;
 	var bChangeTrap = false;
@@ -1164,7 +1164,7 @@ function checkCaughtMouse(obj, arrUpdatedUncaught){
 			}
 		}
 	}
-	
+
 	if(bCanLeave && obj.leave){
 		var objData = {
 			sn : 'Hitgrab',
@@ -1261,6 +1261,7 @@ function bwRift(){
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : [60,40,999],
+		minRSC : 0,
 		enterMinigameWCurse : false
 	};
 
@@ -1334,8 +1335,16 @@ function bwRift(){
 					var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
 					console.plog('Time Sand Qty:',nTimeSand);
 					var nIndexTemp = objPortal.arrName.indexOf('ACOLYTE');
-					if(nIndexTemp > -1 && nTimeSand < objBWRift.minTimeSand[nIndexBuffCurse])
-						objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
+					if(nIndexTemp > -1){
+						var nRSCPot = objUser.items.runic_string_cheese_potion.quantity;
+						var nRSC = objUser.items.runic_string_cheese.quantity;
+						var nTotalRSC = nRSC+nRSCPot*2;
+						if(!Number.isInteger(nTotalRSC))
+							nTotalRSC = Number.MAX_SAFE_INTEGER;
+						console.plog('RSC Pot:', nRSCPot, 'RSC:', nRSC, 'Total RSC:', nTotalRSC);
+						if(nTotalRSC < objBWRift.minRSC || nTimeSand < objBWRift.minTimeSand[nIndexBuffCurse])
+							objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
+					}
 					var arrTemp = ['TIMEWARP', 'GUARD'];
 					for(i=0;i<arrTemp.length;i++){
 						nIndexTemp = objPortal.arrName.indexOf(arrTemp[i]);
@@ -1430,7 +1439,7 @@ function bwRift(){
 				objTemp[prop] = objBWRift.master[prop][nIndex];
 		}
 	}
-		
+
 	checkThenArm(null, 'weapon', objTemp.weapon);
 	checkThenArm(null, 'base', objTemp.base);
 	checkThenArm(null, 'trinket', objTemp.trinket);
@@ -1502,7 +1511,7 @@ function fortRox(){
 	}
 	else
 		checkThenArm(null, 'bait', objFRox.bait[nIndex]);
-	
+
 	var bTowerActive = !(objUser.tower_status.indexOf('inactive') > -1);
 	var nMana = parseInt(document.getElementsByClassName('fortRoxHUD-mana quantity')[0].textContent);
 	console.plog('Tower Active:', bTowerActive, 'Mana:', nMana, 'Current HP:', objUser.hp, 'Max HP:', objUser.max_hp);
@@ -1582,14 +1591,14 @@ function Halloween2016(){
 					fireEvent(classContent[i].children[3], 'click');
 			}
 		}
-		
+
 	}
 }
 
 function ges(){
 	if(GetCurrentLocation().indexOf('Gnawnian Express Station') < 0)
 		return;
-	
+
 	var i, j;
 	var bOnTrain = (getPageVariable('user.quests.QuestTrainStation.on_train') == 'true');
 	var charmArmed = getPageVariable("user.trinket_name");
@@ -1647,7 +1656,7 @@ function ges(){
 	console.plog('Current Phase:', strCurrentPhase, 'Time Left (s):', nPhaseSecLeft);
 	if(strCurrentPhase === '')
 		return;
-	
+
 	var strStage = '';
 	if(strCurrentPhase.indexOf('Supply Depot') > -1 ){
 		if(nPhaseSecLeft <= nextActiveTime || (enableTrapCheck && trapCheckTimeDiff===0 && nPhaseSecLeft <= 900)){ // total seconds left to next phase less than next active time or next trap check time
@@ -1678,7 +1687,7 @@ function ges(){
 					checkThenArm(null, 'trinket', objGES.SD_AFTER.trinket);
 			}
 		}
-		
+
 		if(objGES.bLoadCrate){
 			var nCrateQuantity = parseInt(document.getElementsByClassName('supplyCrates')[0].getElementsByClassName('quantity')[0].textContent);
 			console.plog('Crate Quantity:', nCrateQuantity);
@@ -1721,7 +1730,7 @@ function ges(){
 			else
 				checkThenArm(null, 'trinket', objGES.RR.trinket);
 		}
-		
+
 		if(objGES.bUseRepellent){
 			var nRepellentQuantity = parseInt(document.getElementsByClassName('mouseRepellent')[0].getElementsByClassName('quantity')[0].textContent);
 			console.plog('Repellent Quantity:', nRepellentQuantity);
@@ -1753,7 +1762,7 @@ function ges(){
 					checkThenArm(null, 'trinket', objGES.DC.trinket);
 			}
 		}
-		
+
 		if(objGES.bStokeEngine){
 			// get fuel nugget quantity
 			var nFuelQuantity = parseInt(document.getElementsByClassName('fuelNugget')[0].getElementsByClassName('quantity')[0].textContent);
@@ -1778,7 +1787,7 @@ function ges(){
 function wwrift(){
 	if(GetCurrentLocation().indexOf('Whisker Woods Rift') < 0)
 		return;
-	
+
 	var objDefaultWWRift = {
 		factionFocus : "CC",
 		factionFocusNext : "Remain",
@@ -1971,7 +1980,7 @@ function iceberg(){
 				if(phase.indexOf(arrOrder[i]) > -1){
 					nIndex = i;
 					break;
-				}	
+				}
 			}
 		}
     }
@@ -2111,7 +2120,7 @@ function seasonalGarden(){
 	var cheeseArmed = getPageVariable('user.bait_name');
 	if(cheeseArmed.indexOf('Checkmate') > -1)
 		checkThenArm(null, 'bait', 'Gouda');
-	
+
 	var objDefaultSG = {
 		weapon : new Array(4).fill(''),
 		base : new Array(4).fill(''),
@@ -2202,7 +2211,7 @@ function zugzwangTower(){
 			nIndex = objZT.order.indexOf(strUnlockTechnic);
 		}
 	}
-	
+
 	if(nIndex == -1)
 		return;
 
@@ -2218,7 +2227,7 @@ function zugzwangTower(){
 		else
 			objZT.weapon[nIndex] = (nIndex >= 7) ? 'Blackstone Pass Trap' : 'Obvious Ambush Trap';
 	}
-	
+
 	for (var prop in objZT) {
 		if(objZT.hasOwnProperty(prop) && 
 			(prop == 'weapon' || prop == 'base' || prop == 'trinket' || prop == 'bait')) {
@@ -2281,7 +2290,7 @@ function balackCoveJOD(){
 			tideNameNext = 'High Rising';
 		else if(tideNameCurrent == 'Mid Ebbing')
 			tideNameNext = 'Low Ebbing';
-		
+
 		var nTideDist = objBC.arrAll.indexOf(tideNameNext) + nTideTotalLength - nIndexCurrentTide;
 		nTideDist = nTideDist % nTideTotalLength;
 		var nNextTideTime = nTideDist*nTideLength - nDiff%nTideLength;
@@ -2303,7 +2312,7 @@ function forbiddenGroveAR(){
 function SunkenCity(isAggro) {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
-	
+
 	var zone = document.getElementsByClassName('zoneName')[0].innerText;
 	console.plog('Current Zone:', zone);
 	var currentZone = GetSunkenCityZone(zone);
@@ -2332,7 +2341,7 @@ function SunkenCity(isAggro) {
 					fireEvent(charmElement[0], 'click');
 			}
 		}
-		
+
 		checkThenArm(null, 'bait', 'SUPER');
 	}
 	else if (currentZone == objSCZone.ZONE_DANGER_PP){
@@ -2364,7 +2373,7 @@ function SunkenCity(isAggro) {
 		}
 		else
 			DisarmSCSpecialCharm(charmArmed);
-		
+
 		checkThenArm(null, 'bait', 'Gouda');
 	}
 	else{
@@ -2466,7 +2475,7 @@ function gwh(){
 		}
 	}
 	console.plog(arrOrder);
-	
+
 	var objZoneTemplate = {
 		name : "",
 		depth : 0,
@@ -2574,7 +2583,7 @@ function gwh(){
 function SCCustom() {
 	if (GetCurrentLocation().indexOf("Sunken City") < 0)
 		return;
-	
+
 	var objDefaultSCCustom = {
 		zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
 		zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -2643,7 +2652,7 @@ function SCCustom() {
 
 function DisarmSCSpecialCharm(charmArmedName)
 {
-	var specialCharms = ['Golden Anchor', 'Spiked Anchor', 'Ultimate Anchor', 'Oxygen Burst', 'Empowered Anchor', 'Water Jet'];	
+	var specialCharms = ['Golden Anchor', 'Spiked Anchor', 'Ultimate Anchor', 'Oxygen Burst', 'Empowered Anchor', 'Water Jet'];
 	for (var i = 0; i < specialCharms.length; i++)
 	{
 		if (charmArmedName.indexOf(specialCharms[i]) > -1)
@@ -2730,7 +2739,7 @@ function labyrinth() {
 	}
 	else
 		checkThenArm('best', 'base', bestLabyBase);
-	
+
 	var userVariable = undefined;
 	if(objLaby.disarmCompass && charmArmed.indexOf('Compass Magnet') > -1){
 		userVariable = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestLabyrinth)'));
@@ -2803,7 +2812,7 @@ function labyrinth() {
 			isAtIntersection = false;
 			return;
 		}
-		
+
 		if (doorsIntersect[i].getAttribute('class').indexOf('broken') > -1 || doorsIntersect[i].children.length<2){
 			objDoors.length.push("LONG");
 			objDoors.tier.push("PLAIN");
@@ -2949,7 +2958,7 @@ function labyrinth() {
 			arr = [];
 			for (var j=0;j<3;j++)
 				arr.push(j+1 + (objLaby[range].length-1-i)*3);
-			
+
 			if(objLaby[range][i].indexOf(objCodename.LONG) === 0)
 				arrAll = arrAll.concat(arr.reverse());
 			else
@@ -3259,7 +3268,7 @@ function fw(){
 function fRift(){
 	if(GetCurrentLocation().indexOf('Furoma Rift') < 0)
 		return;
-	
+
 	var objDefaultFR = {
 		enter : 0,
 		retreat : 0,
@@ -3484,7 +3493,7 @@ function lostCity(obj) {
 	checkThenArm(null, 'bait', 'Dewthief');
 	var isCursed = (document.getElementsByClassName('stateBlessed hidden').length > 0);
     console.plog('Cursed:', isCursed);
-    
+
 	//disarm searcher charm when cursed is lifted
     if (!isCursed) {
 		checkThenArm(null, 'base', obj.LG.base.after);
@@ -3712,7 +3721,7 @@ function checkMouse(mouseName) {
 }
 
 function magicalPillowcase(){
-	
+
 }
 
 function checkCharge2016(stopDischargeAt){
@@ -4020,11 +4029,11 @@ function armTrapClassicUI(sort, trap, name){
     var nameElement;
 	var nIndex = -1;
 	var arrName = (Array.isArray(name)) ? name.slice() : [name];
-	
+
     if (sort == 'best' || sort == 'any')
         name = name[0];
-    
-    if (tagGroupElement.length > 0){
+
+	if (tagGroupElement.length > 0){
         console.plog('Try to arm', name);
         for (var i = 0; i < tagGroupElement.length; ++i){
             tagElement = tagGroupElement[i].getElementsByTagName('a');
@@ -4038,7 +4047,7 @@ function armTrapClassicUI(sort, trap, name){
 						fireEvent(tagElement[j], 'click');
 					else
 						closeTrapSelector(trap);
-					
+
 					if(objTrapList[trap].indexOf(nameElement) < 0){
 						objTrapList[trap].unshift(nameElement);
 						setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
@@ -4074,10 +4083,10 @@ function armTrapNewUI(sort, trap, name){
 	var itemEle = document.getElementsByClassName('campPage-trap-itemBrowser-item');
     var nameElement;
 	var arrName = (Array.isArray(name)) ? name.slice() : [name];
-	
+
     if (sort == 'best' || sort == 'any')
         name = name[0];
-	
+
 	if (itemEle.length > 0) {
 		console.plog('Trying to arm ' + name);
 		for (var i = 0; i < itemEle.length; i++) {
@@ -4090,7 +4099,7 @@ function armTrapNewUI(sort, trap, name){
 				if(objTrapList[trap].indexOf(nameElement) < 0){
 					objTrapList[trap].unshift(nameElement);
 					setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
-				}	
+				}
 				console.plog(name + ' armed');
 				return ARMED;
 			}
@@ -4174,7 +4183,7 @@ function retrieveDataFirst() {
 		var retrieveSuccess = false;
 
 		var scriptElementList = document.getElementsByTagName('script');
-		
+
 		if (scriptElementList) {
 			var i;
 			for (i = 0; i < scriptElementList.length; ++i) {
@@ -4578,7 +4587,7 @@ function countdownTimer() {
 				// simulate mouse click on the camp button
 				fireEvent(document.getElementsByClassName(strCampButton)[0].firstChild, 'click');
 			}
-			
+
 			// reload the page if click on the camp button fail
 			window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
 		}
@@ -4603,13 +4612,13 @@ function countdownTimer() {
 			dateNow = undefined;
 
 			if (enableTrapCheck) checkTime -= intervalTime;
-			
+
 			// update time
 			hornTime -= intervalTime;
 			if (lastKingRewardSumTime != -1) {
 				lastKingRewardSumTime += intervalTime;
 			}
-			
+
 			intervalTime = undefined;
 
 			if (hornTime <= 0) {
@@ -4925,7 +4934,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="HornTimeDelayMaxInput" min="1" max="361" size="5" value="' + hornTimeDelayMax.toString() + '" ' + temp + '> seconds';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Enable trap check once an hour"><b>Trap Check</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -4947,7 +4956,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="TrapCheckTimeDelayMaxInput" min="1" max="361" size="5" value="' + checkTimeDelayMax.toString() + '" ' + temp + '> seconds';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Play sound when encounter king\'s reward"><b>Play King Reward Sound</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -4965,7 +4974,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
             preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Solve King Reward automatically"><b>Auto Solve King Reward</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -4987,7 +4996,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="AutoSolveKRDelayMaxInput" min="1" max="361" size="5" value="' + krDelayMax.toString() + '" ' + temp + '> seconds';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Save King Reward image into localStorage"><b>Save King Reward Image</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5005,7 +5014,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="View Saved King Reward Image from localStorage"><b>View King Reward Image</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5016,7 +5025,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1 || value.indexOf(\'i.imgur.com\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="The script will pause if player at different location that hunt location set before"><b>Remember Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5034,7 +5043,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr>';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Weapon for </b></a>';
 			preferenceHTMLStr += '<select id="selectBestTrapPowerType" style="width:75px;" onchange="initControlsBestTrap();">';
@@ -5111,7 +5120,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<div style="width: 100%; height: 1px; background: #000000; overflow: hidden;">';
             preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trSpecialFeature" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select special feature"><b>Special Feature</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5121,7 +5130,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Turn on/off Map Hunting feature"><b>Season 4 Map Hunting</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5133,7 +5142,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trUncaughtMouse" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Click button Get to retrieve all uncaught mouse"><b>Uncaught Mouse</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5144,7 +5153,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="button" id="inputGetMouse" title="Click to Get all uncaught mouse from treasure map" value="Refresh Uncaught Mouse List" onclick="onInputGetMouse();">';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trSelectedUncaughtMouse" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select desired uncaught mouse"><b>Selected Mouse</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5152,7 +5161,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="button" id="inputClearUncaughtMouse" title="Click to clear the selected mouse" value="Clear" onclick="onInputClearUncaughtMouse();">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trCatchLogic" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select desired catch logic"><b>Catch Logic</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5162,7 +5171,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trMapHuntingTrapSetup" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select trap setup after catch logic is fulfilled"><b>After Caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5184,7 +5193,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trMapHuntingLeave" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to leave map after catch logic is fulfilled"><b>Leave Map After Caught</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5200,7 +5209,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<div style="width: 100%; height: 1px; background: #FFFFFF; overflow: hidden;">';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr>';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select the script algorithm based on certain event / location"><b>Event or Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -5237,7 +5246,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();' + temp + '">';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftAutoChoosePortal" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Choose portal automatically"><b>Auto Choose Portal</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5257,7 +5266,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;After Chamber Cleaver Caught';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftPortalPriority" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select portal priority"><b>Portal Priority </b></a>';
 			preferenceHTMLStr += '<select id="selectBWRiftPriority" style="width: 75px;" onchange="initControlsBWRift();">';
@@ -5289,7 +5298,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftMinTimeSand" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Min Time Sand </b></a>';
 			preferenceHTMLStr += '<select id="selectBWRiftBuffCurse" style="width: 75px;" onchange="initControlsBWRift();">';
@@ -5301,7 +5310,14 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter AC';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
+			preferenceHTMLStr += '<tr id="trBWRiftMinRSC" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum Runic String Cheese before entering Acolyte Chamber (AC)"><b>Min Runic String Cheese</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<input type="number" id="inputMinRSC" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinRSCChanged(this);">&nbsp;&nbsp;Before Enter AC';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="trBWRiftEnterMinigame" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Enter Minigame with Curse(s)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5311,7 +5327,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftSubLocation" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Chamber in Bristle Woods Rift"><b>Sub-Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5335,7 +5351,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftMasterTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Master Trap Setup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5376,7 +5392,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftTrapSetupSpecial" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current chamber"><b>Conditional Trap Setup </b></a>';
 			preferenceHTMLStr += '<select id="selectBWRiftCleaverStatus" style="width:75px;display:none" onchange="initControlsBWRift();">';
@@ -5439,7 +5455,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftActivatePocketWatch" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Activate Quantum Pocketwatch forcibly"><b>Force Activate Quantum</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5450,7 +5466,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="inputRemainingLootA" min="1" max="100" size="5" value="1" onchange="onInputRemaininigLootAChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftDeactivatePocketWatch" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Deactivate Quantum Pocketwatch forcibly"><b>Force Deactivate Quantum</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5461,7 +5477,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="inputRemainingLootD" min="1" max="100" size="5" value="1" onchange="onInputRemaininigLootDChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFRoxTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current stage"><b>Trap Setup for </b></a>';
 			preferenceHTMLStr += '<select id="selectFRoxStage" onchange="initControlsFRox();">';
@@ -5655,7 +5671,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="inputMinRage" min="40" max="48" size="5" value="40" onchange="onInputMinRageChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trWWRiftMBWTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Trap Setup When </b></a>';
 			preferenceHTMLStr += '<select id="selectWWRiftMBWBar4044" style="width: 75px; display:none" onchange="initControlsWWRift();">';
@@ -5714,7 +5730,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFRRetreatBattery" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select which battery level to retreat from  Pagoda"><b>Retreat at Battery</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5724,7 +5740,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFRTrapSetupAtBattery" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup for each battery"><b>Trap Setup at Battery</b></a>&nbsp;&nbsp;';
 			preferenceHTMLStr += '<select id="selectTrapSetupAtBattery" onchange="initControlsFR();">';
@@ -5781,7 +5797,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trIceberg" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to trap setup based on current phase"><b>Trap Setup for</b></a>';
 			preferenceHTMLStr += '<select id="selectIcebergPhase" onchange="initControlsIceberg();">';
@@ -5815,7 +5831,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trZTFocus" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to chesspiece side to focus"><b>Side to Focus</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -6129,7 +6145,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trSCCustomUseSmartJet" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to always use Smart Water Jet Charm"><b>Use Smart Jet</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -6139,7 +6155,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trLabyrinth" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select a district to focus on"><b>District to Focus</b></a>';
@@ -6156,7 +6172,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trLabyrinthDisarm" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select to disarm cheese at X last hunt in hallway when total clues near 100"><b>Security Disarm</b></a>';
@@ -6170,7 +6186,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="inputLabyrinthLastHunt" min="2" max="10" style="width:40px" value="2" onchange="onInputLabyrinthLastHuntChanged(this);">&nbsp;Hunt(s) in Hallway Near 100 Total Clues';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trLabyrinthArmOtherBase" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to arm other base if Compass Magnet Charm is currently armed"><b>Arm Other Base</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -6179,7 +6195,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;If Compass Magnet Charm is armed';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trLabyrinthDisarmCompass" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Disarm Compass Magnet</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -6190,7 +6206,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<input type="number" id="inputLabyrinthDEC" min="0" max="20" style="width:40px" value="0" onchange="onInputLabyrinthDECChanged(this);">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trPriorities15" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues less than 15"><b>Priorities (Focus-District Clues < 15)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
@@ -6217,7 +6233,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-				
+
 			preferenceHTMLStr += '<tr id="trPriorities60" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
 			preferenceHTMLStr += '<a title="Select hallway priorities when focus-district clues more than 60"><b>Priorities (Focus-District Clues > 60)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
@@ -6257,7 +6273,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trLabyrinthWeaponFarming" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select weapon type in farming hallways"><b>Weapon Type in Farming</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -6267,7 +6283,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trZokorTrapSetup" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select trap setup under different boss status"><b>Trap Setup When</b></a>';
@@ -6296,7 +6312,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFWWave" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select FW wave"><b>Wave</b></a>';
@@ -6311,7 +6327,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFWTrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on certain FW wave"><b>Physical Trap Setup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -6321,7 +6337,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFW4TrapSetup" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on warden status"><b>Trap Setup </b></a>';
 			preferenceHTMLStr += '<select id="selectFW4WardenStatus" onchange="initControlsFW();">';
@@ -6350,7 +6366,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFWFocusType" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select either Normal (Warrior, Scout, Archer) or Special (Cavalry, Mage)"><b>Soldier Type to Focus</b></a>';
@@ -6367,7 +6383,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFWStreak" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select streak"><b>Streak</b></a>';
@@ -6435,7 +6451,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trFWSupportConfig" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select whether to disarm any Warpath Charm when supports are gone"><b>Disarm Warpath Charm</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -6460,7 +6476,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</select>&nbsp;&nbsp;Mist Tier';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBRToggle" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select the amount of hunt to toggle canister"><b>Toggle Canister Every</b></a>';
@@ -6470,7 +6486,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '<input type="number" id="inputToggleCanister" min="1" max="999" value="1" onchange="onInputToggleCanisterChanged(this);">&nbsp;&nbsp;Hunt(s)';
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBRTrapSetup" style="display:none;">';
             preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
             preferenceHTMLStr += '<a title="Select trap setup combination for respective mist tier"><b>Trap Setup</b></a>';
@@ -6510,7 +6526,7 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
             preferenceHTMLStr += '</table>';
-			
+
 			var preferenceDiv = document.createElement('div');
             preferenceDiv.setAttribute('id', 'preferenceDiv');
             if (showPreference === true)
@@ -6531,14 +6547,14 @@ function embedTimer(targetPage) {
             headerElement.parentNode.insertBefore(timerDivElement, headerElement);
 
             timerDivElement = null;
-			
+
 			var scriptElement = document.createElement("script");
 			scriptElement.setAttribute('type', "text/javascript");
 			scriptElement.setAttribute('id', "scriptUIFunction");
 			scriptElement.innerHTML = functionToHTMLString(bodyJS);
 			headerElement.parentNode.insertBefore(scriptElement, headerElement);
 			scriptElement = null;
-			
+
 			addKREntries();
 			setKREntriesColor();
 
@@ -6597,7 +6613,7 @@ function addKREntries(){
 			temp[0] = parseInt(temp[0]);
 			if (Number.isNaN(temp[0]))
 				temp[0] = 0;
-			
+
 			temp[0] += nTimezoneOffset;
 			temp[0] = (new Date(temp[0])).toISOString();
 			replaced = temp.join("&nbsp;&nbsp;");
@@ -6675,7 +6691,7 @@ function loadPreferenceSettingFromStorage() {
 				}
 			}
 		}
-		
+
 		for(i = 0; i<keyRemove.length;i++){
 			removeStorage(keyRemove[i]);
 		}
@@ -6719,7 +6735,7 @@ function loadPreferenceSettingFromStorage() {
 			setStorage('SCCustom', JSON.stringify(objSCCustomBackward));
 			setSessionStorage('SCCustom', JSON.stringify(objSCCustomBackward));
 		}
-		
+
 		keyValue = getStorage("SCCustom");
 		if(!isNullOrUndefined(keyValue)){
 			obj = JSON.parse(keyValue);
@@ -6752,7 +6768,7 @@ function loadPreferenceSettingFromStorage() {
 			removeStorage("SGZT");
 			removeSessionStorage("SGZT");
 		}
-		
+
 		// Backward compatibility of ZTower
 		keyValue = getStorage("ZTower");
 		if(!isNullOrUndefined(keyValue)){
@@ -6781,7 +6797,7 @@ function loadPreferenceSettingFromStorage() {
 				setSessionStorage("ZTower", JSON.stringify(obj));
 			}
 		}
-		
+
 		// Backward compatibility of BRCustom
 		keyValue = getStorage("BRCustom");
 		if(!isNullOrUndefined(keyValue)){
@@ -6800,7 +6816,7 @@ function loadPreferenceSettingFromStorage() {
 				setSessionStorage("BRCustom", JSON.stringify(obj));
 			}
 		}
-		
+
 		// Backward compatibility of FRift
 		keyValue = getStorage("FRift");
 		if(!isNullOrUndefined(keyValue)){
@@ -6819,14 +6835,14 @@ function loadPreferenceSettingFromStorage() {
 				setSessionStorage("FRift", JSON.stringify(obj));
 			}
 		}
-		
+
 		// Remove old LG
 		keyValue = getStorage("LGArea");
 		if(!isNullOrUndefined(keyValue) && keyValue.split(",").length == 2){
 			removeStorage("LGArea");
 			removeSessionStorage("LGArea");
 		}
-		
+
 		// Backward compatibility of FW
 		keyValue = getStorage('FW');
 		if(isNullOrUndefined(keyValue)){
@@ -6862,7 +6878,7 @@ function loadPreferenceSettingFromStorage() {
 				setSessionStorage("FW", JSON.stringify(obj));
 			}
 		}
-		
+
 		// Backward compatibility of Labyrinth
 		keyValue = getStorage('Labyrinth');
 		if(isNullOrUndefined(keyValue)){
@@ -6885,7 +6901,7 @@ function loadPreferenceSettingFromStorage() {
 				removeSessionStorage(temp[i]);
 			}
 		}
-		
+
 		// Backward compatibility of Zokor
 		keyValue = getStorage('Zokor');
 		if(!isNullOrUndefined(keyValue)){
@@ -6902,7 +6918,7 @@ function loadPreferenceSettingFromStorage() {
 				setSessionStorage('Zokor', JSON.stringify(obj));
 			}
 		}
-		
+
 		// Backward compatibility of GWH2016R
 		keyValue = getStorage('GWH2016R');
 		if(!isNullOrUndefined(keyValue)){
@@ -6922,11 +6938,11 @@ function loadPreferenceSettingFromStorage() {
 				setSessionStorage('GWH2016R', JSON.stringify(obj));
 			}
 		}
-		
+
 		// Disable GWH2016
 		if(getStorageToVariableStr("eventLocation", "None").indexOf('GWH2016') > -1)
 			setStorage("eventLocation", "None");
-		
+
 		// Backward compatibility of GES
 		keyValue = getStorage('GES');
 		if(!isNullOrUndefined(keyValue)){
@@ -6974,7 +6990,7 @@ function loadPreferenceSettingFromStorage() {
 				setSessionStorage('GES', JSON.stringify(objNew));
 			}
 		}
-		
+
 		// Backward compatibility of BWRift
 		keyValue = getStorage('BWRift');
 		if(!isNullOrUndefined(keyValue)){
@@ -7200,7 +7216,7 @@ function assignMissingDefault(obj, objDefault){
 			bResave = true;
 		}
 	}
-	
+
 	return bResave;
 }
 
@@ -7556,7 +7572,7 @@ function kingRewardAction() {
     // retrieve last king's reward time
     var lastDate = getStorage("lastKingRewardDate");
 	lastDate = (isNullOrUndefined(lastDate)) ? new Date(0) : new Date(lastDate);
-	
+
 	// record last king's reward time
     var nowDate = new Date();
     setStorage("lastKingRewardDate", nowDate.toString());
@@ -7733,13 +7749,13 @@ function checkResumeButton() {
 					resumeElement = null;
 
 					// reload url if click fail
-					window.setTimeout(function () { 
+					window.setTimeout(function () {
 						console.perror('Fail to click on resume button:', new Date());
-						reloadWithMessage("Fail to click on resume button. Reloading...", false); 
+						reloadWithMessage("Fail to click on resume button. Reloading...", false);
 					}, 6000);
 
 					// recheck if the resume button is click because some time even the url reload also fail
-					
+
 					window.setTimeout(function () {
 						console.perror('Recheck resume button:', new Date());
 						checkResumeButton();
@@ -7919,7 +7935,7 @@ function range(value, min, max){
 		value = min;
 	else if(Number.isNaN(value))
 		value = min + Math.floor(Math.random() * (max - min));
-	
+
 	return value;
 }
 
@@ -8040,7 +8056,7 @@ function sortWithIndices(toSort, sortType) {
 			return left[0] < right[0] ? -1 : 1;
 		});
 	}
-	
+
 	for (var j = 0; j < arr.length; j++) {
 		objSorted.value.push(arr[j][0]);
 		objSorted.index.push(arr[j][1]);
@@ -8406,7 +8422,7 @@ function refreshTrapList() {
 		var objUserHash = {
 			uh : user.unique_hash
 		};
-		
+
 		jQuery.ajax({
 			type: 'POST',
 			url: '/managers/ajax/users/gettrapcomponents.php',
@@ -8508,9 +8524,10 @@ function bodyJS(){
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
 		minTimeSand : [60,40,999],
+		minRSC : 0,
 		enterMinigameWCurse : false
 	};
-	
+
 	function limitMinMax(value, min, max){
 		value = parseInt(value);
 		min = parseInt(min);
@@ -8521,7 +8538,7 @@ function bodyJS(){
 			value = max;
 		return value;
 	}
-	
+
 	function isNullOrUndefined(obj){
 		return (obj === null || obj === undefined || obj === 'null' || obj === 'undefined' || (Array.isArray(obj) && obj.length === 0));
 	}
@@ -8538,7 +8555,7 @@ function bodyJS(){
 			alert('The File APIs are not fully supported in this browser.');
 		}
 	}
-	
+
 	function handleFiles(files) {
 		if(files.length < 1)
 			return;
@@ -8584,7 +8601,7 @@ function bodyJS(){
 		document.getElementById('inputShowAds').value = 'Loading Ads...';
 		document.getElementById('inputShowAds').disabled = 'disabled';
 		var xmlHttp = new XMLHttpRequest();
-		xmlHttp.onreadystatechange = function() { 
+		xmlHttp.onreadystatechange = function() {
 			if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
 				document.getElementById('inputShowAds').value = 'Click to Show Ads';
 				document.getElementById('inputShowAds').disabled = '';
@@ -8602,7 +8619,7 @@ function bodyJS(){
 				}
 			}
 		};
-		xmlHttp.open("GET", "https://dl.dropboxusercontent.com/s/3cbo6en86lrpas1/Test.txt", true); // true for asynchronous 
+		xmlHttp.open("GET", "https://dl.dropboxusercontent.com/s/3cbo6en86lrpas1/Test.txt", true); // true for asynchronous
 		xmlHttp.send(null);
 		window.setTimeout(function () {
 			document.getElementById('inputShowAds').value = 'Click to Show Ads';
@@ -8660,16 +8677,16 @@ function bodyJS(){
 			pom.click();
 		}
 	}
-	
+
 	function onSelectSpecialFeature(){
 		saveSpecialFeature();
 	}
-	
+
 	function saveSpecialFeature(){
 		var selectSpecialFeature = document.getElementById('selectSpecialFeature');
 		window.sessionStorage.setItem('SpecialFeature', selectSpecialFeature.value);
 	}
-	
+
 	function initControlsSpecialFeature(){
 		var selectSpecialFeature = document.getElementById('selectSpecialFeature');
 		var storageValue = window.sessionStorage.getItem('SpecialFeature');
@@ -8678,12 +8695,12 @@ function bodyJS(){
 		}
 		selectSpecialFeature.value = storageValue;
 	}
-	
+
 	function onSelectMapHuntingChanged(){
 		saveMapHunting();
 		initControlsMapHunting();
 	}
-	
+
 	function saveMapHunting(){
 		var selectMapHunting = document.getElementById('selectMapHunting');
 		var selectMouseList = document.getElementById('selectMouseList');
@@ -8720,7 +8737,7 @@ function bodyJS(){
 		storageValue.leave = (selectLeaveMap.value == 'true');
 		window.sessionStorage.setItem('MapHunting', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsMapHunting(){
 		var trUncaughtMouse = document.getElementById('trUncaughtMouse');
 		var trSelectedUncaughtMouse = document.getElementById('trSelectedUncaughtMouse');
@@ -8783,7 +8800,7 @@ function bodyJS(){
 		}
 		document.getElementById('inputSelectMouse').disabled = (selectMouseList.options.length > 0) ? '' : 'disabled';
 	}
-	
+
 	function onInputSelectMouse(){
 		var inputUncaughtMouse = document.getElementById('inputUncaughtMouse');
 		var selectMouseList = document.getElementById('selectMouseList');
@@ -8795,7 +8812,7 @@ function bodyJS(){
 		}
 		saveMapHunting();
 	}
-	
+
 	function onInputGetMouse(){
 		var classTreasureMap = document.getElementsByClassName('mousehuntHud-userStat treasureMap')[0];
 		if(classTreasureMap.children[2].textContent.toLowerCase().indexOf('remaining') < 0)
@@ -8810,7 +8827,7 @@ function bodyJS(){
 				action : 'info',
 				uh : user.unique_hash
 			};
-			
+
 			jQuery.ajax({
 				type: 'POST',
 				url: '/managers/ajax/users/relichunter.php',
@@ -8850,7 +8867,7 @@ function bodyJS(){
 			console.error('onInputGetMouse',e.message);
 		}
 	}
-	
+
 	function onInputClearUncaughtMouse(){
 		document.getElementById('inputUncaughtMouse').value = "";
 		saveMapHunting();
@@ -8885,7 +8902,7 @@ function bodyJS(){
 			}
 		}
 	}
-	
+
 	function onInputResetReload(){
 		var eventAlgo = document.getElementById('eventAlgo');
 		var keyName;
@@ -8904,7 +8921,7 @@ function bodyJS(){
 		else if(eventAlgo.value == 'Fort Rox') keyName = 'FRox';
 		else if(eventAlgo.value == 'GWH2016R') keyName = 'GWH2016R';
 		else if(eventAlgo.value == 'Bristle Woods Rift') keyName = 'BWRift';
-		
+
 		if(!isNullOrUndefined(keyName)){
 			window.sessionStorage.removeItem(keyName);
 			window.localStorage.removeItem(keyName);
@@ -8927,7 +8944,7 @@ function bodyJS(){
 			selectBestTrapBase.value = storageValue.base[selectBestTrapBaseType.value];
 		}
 	}
-	
+
 	function saveBestTrap(){
 		var selectBestTrapPowerType = document.getElementById('selectBestTrapPowerType');
 		var selectBestTrapWeapon = document.getElementById('selectBestTrapWeapon');
@@ -8960,7 +8977,7 @@ function bodyJS(){
 		storageValue.base[selectBestTrapBaseType.value] = selectBestTrapBase.value;
 		window.sessionStorage.setItem('BestTrap', JSON.stringify(storageValue));
 	}
-	
+
 	function onInputMinAAChanged(input){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveGWH2016();
@@ -8970,12 +8987,12 @@ function bodyJS(){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveGWH2016();
 	}
-	
+
 	function onSelectGWHTrinketChanged(){
 		saveGWH2016();
 		initControlsGWH2016();
 	}
-	
+
 	function initControlsGWH2016(bAutoChangeZone){
 		if(isNullOrUndefined(bAutoChangeZone))
 			bAutoChangeZone = false;
@@ -9016,7 +9033,7 @@ function bodyJS(){
 			selectGWHLandAfterRunOutFirework.value = (storageValue.landAfterFireworkRunOut === true) ? 'true' : 'false';
 		}
 	}
-	
+
 	function saveGWH2016(){
 		var selectGWHZone = document.getElementById('selectGWHZone');
 		var selectGWHWeapon = document.getElementById('selectGWHWeapon');
@@ -9057,7 +9074,7 @@ function bodyJS(){
 		storageValue.landAfterFireworkRunOut = (selectGWHLandAfterRunOutFirework.value == 'true');
 		window.sessionStorage.setItem('GWH2016R', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsSCCustom(bAutoChangeZone){
 		if(isNullOrUndefined(bAutoChangeZone))
 			bAutoChangeZone = false;
@@ -9078,7 +9095,7 @@ function bodyJS(){
 			};
 			storageValue = JSON.stringify(objDefaultSCCustom);
 		}
-		
+
 		storageValue = JSON.parse(storageValue);
 		if(bAutoChangeZone && !isNullOrUndefined(user) && user.location.indexOf('Sunken City') > -1){
 			var zone = document.getElementsByClassName('zoneName')[0].innerText;
@@ -9112,8 +9129,8 @@ function bodyJS(){
 		selectSCUseSmartJet.value = storageValue.useSmartJet;
 		selectSCHuntZoneEnable.style.display = (selectSCHuntZone.value == 'ZONE_NOT_DIVE') ? 'none' : '';
 	}
-	
-	function saveSCCustomAlgo(){	
+
+	function saveSCCustomAlgo(){
 		var selectSCHuntZone = document.getElementById('selectSCHuntZone');
 		var selectSCHuntZoneEnable = document.getElementById('selectSCHuntZoneEnable');
 		var selectSCHuntBait = document.getElementById('selectSCHuntBait');
@@ -9131,7 +9148,7 @@ function bodyJS(){
 			};
 			storageValue = JSON.stringify(objDefaultSCCustom);
 		}
-		
+
 		storageValue = JSON.parse(storageValue);
 		var nIndex = storageValue.zone.indexOf(selectSCHuntZone.value);
 		if(nIndex < 0)
@@ -9147,24 +9164,24 @@ function bodyJS(){
 		saveLaby();
 		initControlsLaby();
 	}
-	
+
 	function onSelectLabyrinthDisarm(){
 		var inputLabyrinthLastHunt = document.getElementById('inputLabyrinthLastHunt');
 		var selectLabyrinthDisarm = document.getElementById('selectLabyrinthDisarm');
 		inputLabyrinthLastHunt.disabled = (selectLabyrinthDisarm.value == 'true') ? '' : 'disabled';
 		saveLaby();
 	}
-	
+
 	function onInputLabyrinthLastHuntChanged(input){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveLaby();
 	}
-	
+
 	function onSelectLabyrinthDisarmCompass(){
 		saveLaby();
 		initControlsLaby();
 	}
-	
+
 	function onInputLabyrinthDECChanged(input){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveLaby();
@@ -9200,7 +9217,7 @@ function bodyJS(){
 			};
 			storageValue = JSON.stringify(objDefaultLaby);
 		}
-		
+
 		storageValue = JSON.parse(storageValue);
 		storageValue.districtFocus = selectLabyrinthDistrict.value;
 		storageValue.between0and14 = [selectHallway15Plain.value];
@@ -9278,7 +9295,7 @@ function bodyJS(){
 		selectHallway60Epic.style = (selectLabyrinthDistrict.value == 'TREASURY' || selectLabyrinthDistrict.value == 'FARMING') ? 'display:none' : 'display:inline';
 		document.getElementById('typeOtherDoors').disabled = (storageValue.chooseOtherDoors)? '' : 'disabled';
 	}
-	
+
 	function saveLG(){
 		var selectLGTGAutoFillSide = document.getElementById('selectLGTGAutoFillSide');
 		var selectLGTGAutoFillState = document.getElementById('selectLGTGAutoFillState');
@@ -9336,7 +9353,7 @@ function bodyJS(){
 		storageValue.SC.maxSaltCharged = inputKGSalt.value;
 		window.sessionStorage.setItem('LGArea', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsLG(bAutoChangeLocation){
 		if(isNullOrUndefined(bAutoChangeLocation))
 			bAutoChangeLocation = false;
@@ -9397,7 +9414,7 @@ function bodyJS(){
 			inputKGSalt.value = storageValue.SC.maxSaltCharged;
 		}
 	}
-	
+
 	function initControlsFW(bAutoChangeWave){
 		if(isNullOrUndefined(bAutoChangeWave))
 			bAutoChangeWave = false;
@@ -9444,7 +9461,7 @@ function bodyJS(){
 					selectFWWave.value = 4;
 				else
 					selectFWWave.value = user.viewing_atts.desert_warpath.wave;
-				
+
 				var nStreak = parseInt(user.viewing_atts.desert_warpath.streak.quantity);
 				if(Number.isInteger(nStreak)){
 					if(nStreak !== 0)
@@ -9616,7 +9633,7 @@ function bodyJS(){
 		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 		initControlsBR();
 	}
-	
+
 	function onInputToggleCanisterChanged(input){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveBR();
@@ -9650,7 +9667,7 @@ function bodyJS(){
 		}
 		document.getElementById('trBRToggle').style.display = (hunt.value == 'Red')? 'table-row' : 'none';
 	}
-	
+
 	function saveBR(){
 		var hunt = document.getElementById('selectBRHuntMistTier').value;
 		var nToggle = parseInt(document.getElementById('inputToggleCanister').value);
@@ -9683,7 +9700,7 @@ function bodyJS(){
 		storageValue.bait[nIndex] = bait;
 		window.sessionStorage.setItem('BRCustom', JSON.stringify(storageValue));
 	}
-	
+
 	function saveSG(){
 		var selectSGSeason = document.getElementById('selectSGSeason');
 		var selectSGTrapWeapon = document.getElementById('selectSGTrapWeapon');
@@ -9711,7 +9728,7 @@ function bodyJS(){
 		storageValue.disarmBaitAfterCharged = (selectSGDisarmBait.value == 'true');
 		window.sessionStorage.setItem('SGarden', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsSG(bAutoChangeSeason){
 		if(isNullOrUndefined(bAutoChangeSeason))
 			bAutoChangeSeason = false;
@@ -9747,7 +9764,7 @@ function bodyJS(){
 			selectSGDisarmBait.value = (storageValue.disarmBaitAfterCharged) ? 'true' : 'false';
 		}
 	}
-	
+
 	function initControlsZT(bAutoChangeMouseOrder){
 		if(isNullOrUndefined(bAutoChangeMouseOrder))
 			bAutoChangeMouseOrder = false;
@@ -9820,7 +9837,7 @@ function bodyJS(){
 			}
 		}
 	}
-	
+
 	function saveZT(){
 		var selectZTFocus = document.getElementById('selectZTFocus');
 		var arrSelectZTMouseOrder = [document.getElementById('selectZTMouseOrder1st'),document.getElementById('selectZTMouseOrder2nd')];
@@ -9877,7 +9894,7 @@ function bodyJS(){
 		storageValue.trinket[nIndex] = selectZokorTrinket.value;
 		window.sessionStorage.setItem('Zokor', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsZokor(){
 		var selectZokorBossStatus = document.getElementById('selectZokorBossStatus');
 		var selectZokorBait = document.getElementById('selectZokorBait');
@@ -9901,7 +9918,7 @@ function bodyJS(){
 		saveFR();
 		initControlsFR();
 	}
-	
+
 	function saveFR(){
 		var selectEnterAtBattery = document.getElementById('selectEnterAtBattery');
 		var selectRetreatAtBattery = document.getElementById('selectRetreatAtBattery');
@@ -9934,7 +9951,7 @@ function bodyJS(){
 		storageValue.masterOrder[nIndex] = selectFRTrapBaitMasterOrder.value;
 		window.sessionStorage.setItem('FRift', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsFR(bAutoChangeBatteryLevel){
 		if(isNullOrUndefined(bAutoChangeBatteryLevel))
 			bAutoChangeBatteryLevel = false;
@@ -10014,7 +10031,7 @@ function bodyJS(){
 		storageValue.trinket[nIndex] = selectIcebergTrinket.value;
 		window.sessionStorage.setItem('Iceberg', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsIceberg(bAutoChangePhase){
 		if(isNullOrUndefined(bAutoChangePhase))
 			bAutoChangePhase = false;
@@ -10046,7 +10063,7 @@ function bodyJS(){
 							if(phase.indexOf(arrOrder[i]) > -1){
 								selectIcebergPhase.value = arrOrder[i];
 								break;
-							}	
+							}
 						}
 					}
 				}
@@ -10059,17 +10076,17 @@ function bodyJS(){
 			selectIcebergBait.value = storageValue.bait[nIndex];
 		}
 	}
-	
+
 	function onSelectBWRiftForceActiveQuantum(){
 		saveBWRift();
 		initControlsBWRift();
 	}
-	
+
 	function onSelectBWRiftForceDeactiveQuantum(){
 		saveBWRift();
 		initControlsBWRift();
 	}
-	
+
 	function onInputRemaininigLootAChanged(input){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveBWRift();
@@ -10079,17 +10096,22 @@ function bodyJS(){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveBWRift();
 	}
-	
+
 	function onSelectBWRiftChoosePortal(){
 		saveBWRift();
 		initControlsBWRift();
 	}
-	
+
 	function onInputMinTimeSandChanged(input){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveBWRift();
 	}
-	
+
+	function onInputMinRSCChanged(input){
+		input.value = limitMinMax(input.value, input.min, input.max);
+		saveBWRift();
+	}
+
 	function saveBWRift(){
 		var selectBWRiftChamber = document.getElementById('selectBWRiftChamber');
 		var selectBWRiftWeapon = document.getElementById('selectBWRiftWeapon');
@@ -10114,6 +10136,7 @@ function bodyJS(){
 		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
 		var selectBWRiftBuffCurse = document.getElementById('selectBWRiftBuffCurse');
 		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
+		var inputMinRSC = document.getElementById('inputMinRSC');
 		var selectBWRiftEnterWCurse = document.getElementById('selectBWRiftEnterWCurse');
 		var storageValue = window.sessionStorage.getItem('BWRift');
 		if(isNullOrUndefined(storageValue))
@@ -10165,6 +10188,7 @@ function bodyJS(){
 			else
 				storageValue[strTemp].activate[nIndex] = (selectBWRiftActivatePocketWatchSpecial.value == 'true');
 		}
+		storageValue.minRSC = parseInt(inputMinRSC.value);
 		storageValue.choosePortal = (selectBWRiftChoosePortal.value == 'true');
 		if(storageValue.choosePortal){
 			storageValue.choosePortalAfterCC = (selectBWRiftChoosePortalAfterCC.value == 'true');
@@ -10175,7 +10199,7 @@ function bodyJS(){
 		}
 		window.sessionStorage.setItem('BWRift', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsBWRift(bAutoChangeChamber){
 		if(isNullOrUndefined(bAutoChangeChamber))
 			bAutoChangeChamber = false;
@@ -10202,6 +10226,7 @@ function bodyJS(){
 		var selectBWRiftPortal = document.getElementById('selectBWRiftPortal');
 		var selectBWRiftBuffCurse = document.getElementById('selectBWRiftBuffCurse');
 		var inputMinTimeSand = document.getElementById('inputMinTimeSand');
+		var inputMinRSC = document.getElementById('inputMinRSC');
 		var selectBWRiftEnterWCurse = document.getElementById('selectBWRiftEnterWCurse');
 		var storageValue = window.sessionStorage.getItem('BWRift');
 		if(isNullOrUndefined(storageValue))
@@ -10302,6 +10327,7 @@ function bodyJS(){
 		selectBWRiftPortal.value = storageValue.priorities[selectBWRiftPriority.selectedIndex];
 		nIndex = parseInt(selectBWRiftBuffCurse.value);
 		inputMinTimeSand.value = storageValue.minTimeSand[nIndex];
+		inputMinRSC.value = storageValue.minRSC;
 		selectBWRiftEnterWCurse.value = (storageValue.enterMinigameWCurse === true) ? 'true' : 'false';
 		if(selectBWRiftChoosePortal.value == 'true'){
 			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = '';
@@ -10316,7 +10342,7 @@ function bodyJS(){
 			document.getElementById('trBWRiftEnterMinigame').style.display = 'none';
 		}
 	}
-	
+
 	function saveFRox(){
 		var selectFRoxStage = document.getElementById('selectFRoxStage');
 		var selectFRoxWeapon = document.getElementById('selectFRoxWeapon');
@@ -10351,7 +10377,7 @@ function bodyJS(){
 		storageValue.fullHPDeactivate = (selectFRoxFullHPDeactivate.value == 'true');
 		window.sessionStorage.setItem('FRox', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsFRox(bAutoChangeStage){
 		if(isNullOrUndefined(bAutoChangeStage))
 			bAutoChangeStage = false;
@@ -10401,7 +10427,7 @@ function bodyJS(){
 	function onSelectWWRiftFaction(){
 		onInputMinRageChanged(document.getElementById('inputMinRage'));
 	}
-	
+
 	function onInputMinRageChanged(input){
 		var selectWWRiftFaction = document.getElementById('selectWWRiftFaction');
 		var nMin = (selectWWRiftFaction.value == 'MBW_45_48') ? 45 : input.min;
@@ -10486,7 +10512,7 @@ function bodyJS(){
 		}
 		window.sessionStorage.setItem('WWRift', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsWWRift(bAutoChangeRageLevel){
 		if(isNullOrUndefined(bAutoChangeRageLevel))
 			bAutoChangeRageLevel = false;
@@ -10572,7 +10598,7 @@ function bodyJS(){
 			document.getElementById('trWWRiftTrapSetup').style.display = 'table-row';
 		}
 	}
-	
+
 	function onSelectGESSDLoadCrate(){
 		saveGES();
 		initControlsGES();
@@ -10663,7 +10689,7 @@ function bodyJS(){
 		storageValue.nMinFuelNugget = parseInt(inputMinFuelNugget.value);
 		window.sessionStorage.setItem('GES', JSON.stringify(storageValue));
 	}
-	
+
 	function initControlsGES(bAutoChangePhase){
 		if(isNullOrUndefined(bAutoChangePhase))
 			bAutoChangePhase = false;
@@ -10752,7 +10778,7 @@ function bodyJS(){
 		inputMinRepellent.disabled = (selectGESRRRepellent.value == 'true') ? '' : 'disabled';
 		inputMinFuelNugget.disabled = (selectGESDCStokeEngine.value == 'true') ? '' : 'disabled';
 	}
-	
+
 	function showOrHideTr(algo){
 		var objTableRow = {
 			'All LG Area' : {
@@ -10812,7 +10838,7 @@ function bodyJS(){
 				init : function(data){initControlsGWH2016(data);}
 			},
 			'Bristle Woods Rift' : {
-				arr : ['trBWRiftSubLocation','trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial','trBWRiftEnterMinigame','trBWRiftActivatePocketWatch'],
+				arr : ['trBWRiftSubLocation','trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftMinTimeSand','trBWRiftMinRSC','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial','trBWRiftEnterMinigame','trBWRiftActivatePocketWatch'],
 				init : function(data){initControlsBWRift(data);}
 			},
 		};
