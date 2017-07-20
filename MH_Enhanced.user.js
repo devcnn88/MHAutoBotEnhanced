@@ -1260,7 +1260,7 @@ function bwRift(){
 		choosePortal : false,
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
-		minTimeSand : [60,40,999],
+		minTimeSand : [70,70,50,50,50,50,40,40,999],
 		minRSC : 0,
 		enterMinigameWCurse : false
 	};
@@ -1328,9 +1328,15 @@ function bwRift(){
 					if(!(objUser.status_effects.un == 'default' || objUser.status_effects.un.indexOf('remove') > -1) || 
 						!(objUser.status_effects.fr == 'default' || objUser.status_effects.fr.indexOf('remove') > -1) || 
 						!(objUser.status_effects.st == 'default' || objUser.status_effects.st.indexOf('remove') > -1))
-						nIndexBuffCurse = 2;
-					else if(objUser.status_effects.ng != 'default' || objUser.status_effects.ac != 'default' || objUser.status_effects.ex != 'default')
-						nIndexBuffCurse = 1;
+						nIndexBuffCurse = 8;
+					else{
+						if(objUser.status_effects.ng != 'default')
+							nIndexBuffCurse |= 0x04;
+						if(objUser.status_effects.ac != 'default')
+							nIndexBuffCurse |= 0x02;
+						if(objUser.status_effects.ex != 'default')
+							nIndexBuffCurse |= 0x01;
+					}
 					console.plog('Buff & Curse Index:', nIndexBuffCurse, 'Obj:', objUser.status_effects);
 					var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
 					console.plog('Time Sand Qty:',nTimeSand);
@@ -1361,7 +1367,7 @@ function bwRift(){
 					arrTemp = ['GUARD', 'FROZEN', 'INGRESS'];
 					for(i=0;i<arrTemp.length;i++){
 						nIndexTemp = objPortal.arrName.indexOf(arrTemp[i]);
-						if(nIndexTemp > -1 && nIndexBuffCurse == 2 && objBWRift.enterMinigameWCurse === false){
+						if(nIndexTemp > -1 && nIndexBuffCurse == 8 && objBWRift.enterMinigameWCurse === false){
 							arrIndices = getAllIndices(objPortal.arrName, arrTemp[i]);
 							for(j=0;j<arrIndices.length;j++)
 								objPortal.arrIndex[arrIndices[j]] = Number.MAX_SAFE_INTEGER;
@@ -5313,8 +5319,14 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Min Time Sand </b></a>';
 			preferenceHTMLStr += '<select id="selectBWRiftBuffCurse" style="width: 75px;" onchange="initControlsBWRift();">';
 			preferenceHTMLStr += '<option value="0">No Buff & No Curse</option>';
-			preferenceHTMLStr += '<option value="1">Buff & No Curse</option>';
-			preferenceHTMLStr += '<option value="2">Buff & Curse</option>';
+			preferenceHTMLStr += '<option value="1">Fourth Portal & No Curse</option>';
+			preferenceHTMLStr += '<option value="2">Acolyte Influence & No Curse</option>';
+			preferenceHTMLStr += '<option value="3">Acolyte Influence + Fourth Portal & No Curse</option>';
+			preferenceHTMLStr += '<option value="4">Paladin\'s Bane & No Curse</option>';
+			preferenceHTMLStr += '<option value="5">Paladin\'s Bane + Fourth Portal & No Curse</option>';
+			preferenceHTMLStr += '<option value="6">Paladin\'s Bane + Acolyte Influence & No Curse</option>';
+			preferenceHTMLStr += '<option value="7">All Buffs & No Curse</option>';
+			preferenceHTMLStr += '<option value="8">Buff(s) & Curse(s)</option>';
 			preferenceHTMLStr += '</select>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter AC';
@@ -7030,6 +7042,15 @@ function loadPreferenceSettingFromStorage() {
 				delete obj.remainingLootDeactivate;
 				bResave = true;
 			}
+			if(obj.minTimeSand.length != 9){
+				var arrTemp = new Array(9);
+				arrTemp[0] = obj.minTimeSand[0];
+				arrTemp[8] = obj.minTimeSand[2];
+				for(i=1;i<=7;i++)
+					arrTemp[i] = obj.minTimeSand[1];
+				obj.minTimeSand = arrTemp;
+				bResave = true;
+			}
 			if(bResave){
 				setStorage('BWRift', JSON.stringify(obj));
 				setSessionStorage('BWRift', JSON.stringify(obj));
@@ -8533,7 +8554,7 @@ function bodyJS(){
 		choosePortal : false,
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
-		minTimeSand : [60,40,999],
+		minTimeSand : [70,70,50,50,50,50,40,40,999],
 		minRSC : 0,
 		enterMinigameWCurse : false
 	};

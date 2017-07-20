@@ -404,8 +404,14 @@
 					<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Min Time Sand When</b></a>
 						<select id="selectBWRiftBuffCurse" style="width: 75px;" onchange="initControlsBWRift();">
 							<option value="0">No Buff & No Curse</option>
-							<option value="1">Buff & No Curse</option>
-							<option value="2">Buff & Curse</option>
+							<option value="1">Fourth Portal & No Curse</option>
+							<option value="2">Acolyte Influence & No Curse</option>
+							<option value="3">Acolyte Influence + Fourth Portal & No Curse</option>
+							<option value="4">Paladin's Bane & No Curse</option>
+							<option value="5">Paladin's Bane + Fourth Portal & No Curse</option>
+							<option value="6">Paladin's Bane + Acolyte Influence & No Curse</option>
+							<option value="7">All Buffs & No Curse</option>
+							<option value="8">Buff(s) & Curse(s)</option>
 						</select>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
 						<input type="number" id="inputMinTimeSand" min="0" max="99999" style="width:75px" value="50" onchange="onInputMinTimeSandChanged(this);">&nbsp;&nbsp;Before Enter AC
@@ -1577,7 +1583,7 @@
 		choosePortal : false,
 		choosePortalAfterCC : false,
 		priorities : ['SECURITY', 'FURNACE', 'PURSUER', 'ACOLYTE', 'LUCKY', 'HIDDEN', 'TIMEWARP', 'RUNIC', 'ANCIENT', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS', 'GEARWORKS'],
-		minTimeSand : [60,40,999],
+		minTimeSand : [70,70,50,50,50,50,40,40,999],
 		minRSC : 0,
 		enterMinigameWCurse : false
 	};
