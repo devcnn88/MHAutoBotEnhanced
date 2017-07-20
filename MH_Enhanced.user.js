@@ -1308,7 +1308,7 @@ function bwRift(){
 				arrName : new Array(classPortalContainer[0].children.length).fill(''),
 				arrIndex : new Array(classPortalContainer[0].children.length).fill(Number.MAX_SAFE_INTEGER)
 			};
-			var i;
+			var i,j;
 			for(i=0;i<objPortal.arrName.length;i++){
 				objPortal.arrName[i] = classPortalContainer[0].children[i].getElementsByClassName('riftBristleWoodsHUD-portal-name')[0].textContent;
 				strTestName = objPortal.arrName[i].toUpperCase();
@@ -1334,6 +1334,7 @@ function bwRift(){
 					console.plog('Buff & Curse Index:', nIndexBuffCurse, 'Obj:', objUser.status_effects);
 					var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
 					console.plog('Time Sand Qty:',nTimeSand);
+					var arrIndices = [];
 					var nIndexTemp = objPortal.arrName.indexOf('ACOLYTE');
 					if(nIndexTemp > -1){
 						var nRSCPot = objUser.items.runic_string_cheese_potion.quantity;
@@ -1342,20 +1343,29 @@ function bwRift(){
 						if(!Number.isInteger(nTotalRSC))
 							nTotalRSC = Number.MAX_SAFE_INTEGER;
 						console.plog('RSC Pot:', nRSCPot, 'RSC:', nRSC, 'Total RSC:', nTotalRSC);
-						if(nTotalRSC < objBWRift.minRSC || nTimeSand < objBWRift.minTimeSand[nIndexBuffCurse])
-							objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
+						if(nTotalRSC < objBWRift.minRSC || nTimeSand < objBWRift.minTimeSand[nIndexBuffCurse]){
+							arrIndices = getAllIndices(objPortal.arrName, 'ACOLYTE');
+							for(i=0;i<arrIndices.length;i++)
+								objPortal.arrIndex[arrIndices[i]] = Number.MAX_SAFE_INTEGER;
+						}
 					}
 					var arrTemp = ['TIMEWARP', 'GUARD'];
 					for(i=0;i<arrTemp.length;i++){
 						nIndexTemp = objPortal.arrName.indexOf(arrTemp[i]);
-						if(nIndexTemp > -1 && nTimeSand >= objBWRift.minTimeSand[nIndexBuffCurse])
-							objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
+						if(nIndexTemp > -1 && nTimeSand >= objBWRift.minTimeSand[nIndexBuffCurse]){
+							arrIndices = getAllIndices(objPortal.arrName, arrTemp[i]);
+							for(j=0;j<arrIndices.length;j++)
+								objPortal.arrIndex[arrIndices[j]] = Number.MAX_SAFE_INTEGER;
+						}
 					}
 					arrTemp = ['GUARD', 'FROZEN', 'INGRESS'];
 					for(i=0;i<arrTemp.length;i++){
 						nIndexTemp = objPortal.arrName.indexOf(arrTemp[i]);
-						if(nIndexTemp > -1 && nIndexBuffCurse == 2 && objBWRift.enterMinigameWCurse === false)
-							objPortal.arrIndex[nIndexTemp] = Number.MAX_SAFE_INTEGER;
+						if(nIndexTemp > -1 && nIndexBuffCurse == 2 && objBWRift.enterMinigameWCurse === false){
+							arrIndices = getAllIndices(objPortal.arrName, arrTemp[i]);
+							for(j=0;j<arrIndices.length;j++)
+								objPortal.arrIndex[arrIndices[j]] = Number.MAX_SAFE_INTEGER;
+						}
 					}
 					nIndexTemp = objPortal.arrName.indexOf('ENTER');
 					if(nIndexTemp > -1)
