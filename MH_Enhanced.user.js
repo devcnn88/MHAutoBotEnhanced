@@ -1324,7 +1324,9 @@ function bwRift(){
 			if(objBWRift.choosePortal){
 				if(nIndex === 0 || (nIndex > 0 && objUser.chamber_status == 'open' && objBWRift.choosePortalAfterCC)){
 					var nIndexBuffCurse = 0;
-					if(objUser.status_effects.un != 'default' || !(objUser.status_effects.fr == 'default' || objUser.status_effects.fr.indexOf('remove') > -1) || objUser.status_effects.st != 'default')
+					if(!(objUser.status_effects.un == 'default' || objUser.status_effects.un.indexOf('remove') > -1) || 
+						!(objUser.status_effects.fr == 'default' || objUser.status_effects.fr.indexOf('remove') > -1) || 
+						!(objUser.status_effects.st == 'default' || objUser.status_effects.st.indexOf('remove') > -1))
 						nIndexBuffCurse = 2;
 					else if(objUser.status_effects.ng != 'default' || objUser.status_effects.ac != 'default' || objUser.status_effects.ex != 'default')
 						nIndexBuffCurse = 1;
