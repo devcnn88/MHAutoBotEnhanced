@@ -1269,6 +1269,7 @@ function bwRift(){
 	var objUser = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftBristleWoods)'));
 	var nIndex = -1, nDelayQQ = 0;
 	var nLootRemaining = objUser.progress_remaining;
+	var nTimeSand = parseInt(objUser.items.rift_hourglass_sand_stat_item.quantity);
 	var strChamberName = objUser.chamber_name.split(' ')[0].toUpperCase();
 	var strTestName = objUser.chamber_name.toUpperCase();
 	if(strTestName.indexOf('LUCK') > -1)
@@ -1298,7 +1299,7 @@ function bwRift(){
 		else
 			nIndex = 0;
 	}
-	console.plog('Status:', objUser.chamber_status, 'Name:', objUser.chamber_name, 'Shortname:', strChamberName, 'Index:', nIndex, 'Remaining Loot:', nLootRemaining);
+	console.plog('Status:', objUser.chamber_status, 'Name:', objUser.chamber_name, 'Shortname:', strChamberName, 'Index:', nIndex, 'Remaining Loot:', nLootRemaining, 'Time Sand:', nTimeSand);
 	if(nIndex < 0)
 		return;
 	if(nIndex === 0 || objUser.chamber_status == 'open'){
@@ -1338,8 +1339,6 @@ function bwRift(){
 							nIndexBuffCurse |= 0x01;
 					}
 					console.plog('Buff & Curse Index:', nIndexBuffCurse, 'Obj:', objUser.status_effects);
-					var nTimeSand = objUser.items.rift_hourglass_sand_stat_item.quantity;
-					console.plog('Time Sand Qty:',nTimeSand);
 					var arrIndices = [];
 					var nIndexTemp = objPortal.arrName.indexOf('ACOLYTE');
 					if(nIndexTemp > -1){
