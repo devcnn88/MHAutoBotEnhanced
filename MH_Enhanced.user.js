@@ -10364,12 +10364,14 @@ function bodyJS(){
 			document.getElementById('trBWRiftPortalPriority').style.display = '';
 			document.getElementById('trBWRiftMinTimeSand').style.display = '';
 			document.getElementById('trBWRiftEnterMinigame').style.display = '';
+			document.getElementById('trBWRiftMinRSC').style.display = '';
 		}
 		else{
 			document.getElementById('trBWRiftChoosePortalAfterCC').style.display = 'none';
 			document.getElementById('trBWRiftPortalPriority').style.display = 'none';
 			document.getElementById('trBWRiftMinTimeSand').style.display = 'none';
 			document.getElementById('trBWRiftEnterMinigame').style.display = 'none';
+			document.getElementById('trBWRiftMinRSC').style.display = 'none';
 		}
 	}
 
