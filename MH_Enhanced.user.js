@@ -5340,7 +5340,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</tr>';
 
 			preferenceHTMLStr += '<tr id="trBWRiftEnterMinigame" style="display:none;">';
-			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Enter Minigame with Curse(s)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to enter minigame with curse(s)"><b>Enter Minigame with Curse(s)</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="selectBWRiftEnterWCurse" style="width: 75px;" onchange="saveBWRift();">';
 			preferenceHTMLStr += '<option value="false">False</option>';
