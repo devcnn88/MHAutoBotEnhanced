@@ -5056,7 +5056,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<td style="height:24px">';
 			preferenceHTMLStr += '<select id="viewKR">';
             preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var value = window.localStorage.getItem(document.getElementById(\'viewKR\').value); if(value.indexOf(\'data:image/png;base64,\') > -1 || value.indexOf(\'i.imgur.com\') > -1){ var win = window.open(value, \'_blank\'); if(win) win.focus(); else alert(\'Please allow popups for this site\'); }">';
+			preferenceHTMLStr += '<input type="button" id="buttonViewKR" value="View" onclick="var keyValue = document.getElementById(\'viewKR\').value;var value = window.localStorage.getItem(keyValue);if(value.indexOf(\'data:image/png;base64,\') > -1){var pom = document.createElement(\'a\');pom.setAttribute(\'href\', value);pom.setAttribute(\'download\', keyValue.split(\'~\')[2]+\'.png\');if(document.createEvent){var event = document.createEvent(\'MouseEvents\');event.initEvent(\'click\', true, true);pom.dispatchEvent(event);}else pom.click();}else if(value.indexOf(\'i.imgur.com\') > -1){var win = window.open(value, \'_blank\');if(win)win.focus();else alert(\'Please allow popups for this site\');}">';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
 
