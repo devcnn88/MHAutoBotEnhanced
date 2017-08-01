@@ -1948,7 +1948,7 @@ function wwrift(){
 		checkThenArm(null, 'bait', objWWRift.MBW.rage4548.bait[nIndex]);
 	}
 	else{
-		temp = objWWRift.order.indexOf(objWWRift.factionFocus);
+			temp = objWWRift.order.indexOf(objWWRift.factionFocus);
 		if(temp == -1)
 			return;
 		nIndex = Math.floor(objWWRift.rage[temp]/25);
@@ -7122,21 +7122,22 @@ function loadPreferenceSettingFromStorage() {
 				obj.minTimeSand = arrTemp;
 				bResave = true;
 			}
-			for(var prop in obj.fa){
-				if(obj.fa.hasOwnProperty(prop)){
-					while(obj.fa[prop].length < 16){
-						obj.fa[prop].push(obj.fa[prop][0]);
-						bResave = true;
-					}
-				}
-			}
-			var arrTemp = ['master', 'specialActivate', 'gw', 'al', 'rl', 'gb', 'ic', 'fa'];
-			for(i=0;i<arrTemp.length;i++){
-				if(obj.hasOwnProperty(arrTemp[i])){
-					for(var prop in obj[arrTemp[i]]){
-						if(obj[arrTemp[i]].hasOwnProperty(prop)){
-							obj[arrTemp[i]][prop] = obj[arrTemp[i]][prop].concat(obj[arrTemp[i]][prop]);
-							bResave = true;
+			var objTemp = {
+				arrTemp : ['master', 'specialActivate', 'gw', 'al', 'rl', 'gb', 'ic', 'fa'],
+				arrLength : [16, 16, 2, 2, 2, 7, 4, 16],
+			};
+			for(i=0;i<objTemp.arrTemp.length;i++){
+				if(obj.hasOwnProperty(objTemp.arrTemp[i])){
+					for(var prop in obj[objTemp.arrTemp[i]]){
+						if(obj[objTemp.arrTemp[i]].hasOwnProperty(prop)){
+							while(obj[objTemp.arrTemp[i]][prop].length < objTemp.arrLength[i]){
+								obj[objTemp.arrTemp[i]][prop].push(obj[objTemp.arrTemp[i]][prop][0]);
+								bResave = true;
+							}
+							if(obj[objTemp.arrTemp[i]][prop].length < (objTemp.arrLength[i] * 2)){
+								obj[objTemp.arrTemp[i]][prop] = obj[objTemp.arrTemp[i]][prop].concat(obj[objTemp.arrTemp[i]][prop]);
+								bResave = true;
+							}
 						}
 					}
 				}
