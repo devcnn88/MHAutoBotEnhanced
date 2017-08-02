@@ -1326,6 +1326,14 @@ function bwRift(){
 				arrIndex : new Array(classPortalContainer[0].children.length).fill(Number.MAX_SAFE_INTEGER)
 			};
 			var i,j;
+			var arrPriorities = (nIndexBuffCurse == 8) ? objBWRift.prioritiesCursed : objBWRift.priorities;
+			var nIndexCustom = -1;
+			for(i=0;i<arrPriorities.length;i++){
+				if(arrPriorities[i].indexOf('AL/RL') > -1){
+					nIndexCustom = i;
+					break;
+				}
+			}
 			for(i=0;i<objPortal.arrName.length;i++){
 				objPortal.arrName[i] = classPortalContainer[0].children[i].getElementsByClassName('riftBristleWoodsHUD-portal-name')[0].textContent;
 				strTestName = objPortal.arrName[i].toUpperCase();
@@ -1334,10 +1342,11 @@ function bwRift(){
 				else if(strTestName.indexOf('HIDDEN') > -1 || strTestName.indexOf('TREASUR') > -1)
 					objPortal.arrName[i] = 'HIDDEN';
 				objPortal.arrName[i] = objPortal.arrName[i].split(' ')[0].toUpperCase();
-				if(nIndexBuffCurse == 8)
-					objPortal.arrIndex[i] = objBWRift.prioritiesCursed.indexOf(objPortal.arrName[i]);
-				else
-					objPortal.arrIndex[i] = objBWRift.priorities.indexOf(objPortal.arrName[i]);
+				objPortal.arrIndex[i] = arrPriorities.indexOf(objPortal.arrName[i]);
+				if(nIndexCustom > -1 && (objPortal.arrName[i] == 'ANCIENT' ||  objPortal.arrName[i] == 'RUNIC')){
+					if(objPortal.arrIndex[i] < 0 || nIndexCustom < objPortal.arrIndex[i])
+						objPortal.arrIndex[i] = nIndexCustom;
+				}
 				if(objPortal.arrIndex[i] < 0)
 					objPortal.arrIndex[i] = Number.MAX_SAFE_INTEGER;
 			}
@@ -1346,11 +1355,11 @@ function bwRift(){
 				if(nIndex === 0 || (nIndex > 0 && objUser.chamber_status == 'open' && objBWRift.choosePortalAfterCC)){
 					var nIndexOld = nIndex;
 					var arrIndices = [];
+					var nRSCPot = parseInt(objUser.items.runic_string_cheese_potion.quantity);
+					var nRSC = parseInt(objUser.items.runic_string_cheese.quantity);
+					var nTotalRSC = nRSC+nRSCPot*2;
 					var nIndexTemp = objPortal.arrName.indexOf('ACOLYTE');
 					if(nIndexTemp > -1){
-						var nRSCPot = parseInt(objUser.items.runic_string_cheese_potion.quantity);
-						var nRSC = parseInt(objUser.items.runic_string_cheese.quantity);
-						var nTotalRSC = nRSC+nRSCPot*2;
 						if(!Number.isInteger(nTotalRSC))
 							nTotalRSC = Number.MAX_SAFE_INTEGER;
 						console.plog('RSC Pot:', nRSCPot, 'RSC:', nRSC, 'Total RSC:', nTotalRSC);
@@ -1381,6 +1390,24 @@ function bwRift(){
 							arrIndices = getAllIndices(objPortal.arrName, arrTemp[i]);
 							for(j=0;j<arrIndices.length;j++)
 								objPortal.arrIndex[arrIndices[j]] = Number.MAX_SAFE_INTEGER;
+						}
+					}
+					var arrAL = getAllIndices(objPortal.arrName, 'ANCIENT');
+					var arrRL = getAllIndices(objPortal.arrName, 'RUNIC');
+					if(arrAL.length > 0 && arrRL.length > 0 && nIndexCustom > -1){
+						var nASCPot = parseInt(objUser.items.ancient_string_cheese_potion.quantity);
+						var nASC = parseInt(objUser.items.ancient_string_cheese.quantity);
+						var nTotalASC = nASCPot + nASC;
+						if(arrPriorities[nIndexCustom].indexOf('MSC') > -1)
+							nTotalASC += nASCPot;
+						console.plog('ASC Pot:', nASCPot, 'ASC:', nASC, 'Total ASC:', nTotalASC, 'RSC Pot:', nRSCPot, 'RSC:', nRSC, 'Total RSC:', nTotalRSC);
+						if(nTotalASC < nTotalRSC){ // ancient first
+							for(j=0;j<arrRL.length;j++)
+								objPortal.arrIndex[arrRL[j]] = Number.MAX_SAFE_INTEGER;
+						}
+						else{ // runic first
+							for(j=0;j<arrAL.length;j++)
+								objPortal.arrIndex[arrAL[j]] = Number.MAX_SAFE_INTEGER;
 						}
 					}
 					nIndexTemp = objPortal.arrName.indexOf('ENTER');
@@ -5319,6 +5346,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="GEARWORKS">Gearworks</option>';
 			preferenceHTMLStr += '<option value="ANCIENT">Ancient Lab</option>';
 			preferenceHTMLStr += '<option value="RUNIC">Runic Laboratory</option>';
+			preferenceHTMLStr += '<option value="AL/RL_MSC">AL/RL (MSC)</option>';
+			preferenceHTMLStr += '<option value="AL/RL_BSC">AL/RL (BSC)</option>';
 			preferenceHTMLStr += '<option value="TIMEWARP">Timewarp Chamber</option>';
 			preferenceHTMLStr += '<option value="LUCKY">Lucky Tower</option>';
 			preferenceHTMLStr += '<option value="HIDDEN">Hidden Treasury</option>';
@@ -5351,6 +5380,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="GEARWORKS">Gearworks</option>';
 			preferenceHTMLStr += '<option value="ANCIENT">Ancient Lab</option>';
 			preferenceHTMLStr += '<option value="RUNIC">Runic Laboratory</option>';
+			preferenceHTMLStr += '<option value="AL/RL_MSC">AL/RL (MSC)</option>';
+			preferenceHTMLStr += '<option value="AL/RL_BSC">AL/RL (BSC)</option>';
 			preferenceHTMLStr += '<option value="TIMEWARP">Timewarp Chamber</option>';
 			preferenceHTMLStr += '<option value="LUCKY">Lucky Tower</option>';
 			preferenceHTMLStr += '<option value="HIDDEN">Hidden Treasury</option>';
