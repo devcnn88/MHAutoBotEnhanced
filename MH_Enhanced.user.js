@@ -1269,7 +1269,7 @@ function bwRift(){
 
 	var objBWRift = getStorageToObject('BWRift', objDefaultBWRift);
 	var objUser = JSON.parse(getPageVariable('JSON.stringify(user.quests.QuestRiftBristleWoods)'));
-	var nIndex = -1, nDelayQQ = 0;
+	var nIndex = -1;
 	var nLootRemaining = objUser.progress_remaining;
 	var nTimeSand = parseInt(objUser.items.rift_hourglass_sand_stat_item.quantity);
 	var strChamberName = objUser.chamber_name.split(' ')[0].toUpperCase();
@@ -1434,7 +1434,6 @@ function bwRift(){
 							strChamberName = objBWRift.order[nIndex];
 							fireEvent(classPortalContainer[0].children[nMinIndex], 'click');
 							window.setTimeout(function () { fireEvent(document.getElementsByClassName('mousehuntActionButton small')[1], 'click'); }, 1000);
-							nDelayQQ = 1500;
 							nLootRemaining = Number.MAX_SAFE_INTEGER;
 						}
 						else
@@ -1514,17 +1513,27 @@ function bwRift(){
 	var bPocketwatchActive = (classLootBooster.getAttribute('class').indexOf('selected') > -1);
 	var classButton = classLootBooster.getElementsByClassName('riftBristleWoodsHUD-portalEquipment-action')[0];
 	var bForce = false;
+	var bToggle = false;
 	if(objTemp.activate){
 		bForce = (objBWRift.specialActivate.forceDeactivate[nIndex] && nLootRemaining <= objBWRift.specialActivate.remainingLootDeactivate[nIndex]);
-		console.plog('QQ Activated:', bPocketwatchActive, 'Activate?:', objTemp.activate, 'Force:', bForce, 'Delay:', nDelayQQ);
 		if(bForce === bPocketwatchActive)
-			window.setTimeout(function () { fireEvent(classButton, 'click'); }, nDelayQQ);
+			bToggle = true;
 	}
 	else{
 		bForce = (objBWRift.specialActivate.forceActivate[nIndex] && nLootRemaining <= objBWRift.specialActivate.remainingLootActivate[nIndex]);
-		console.plog('QQ Activated:', bPocketwatchActive, 'Activate?:', objTemp.activate, 'Force:', bForce, 'Delay:', nDelayQQ);
 		if(bForce !== bPocketwatchActive)
-			window.setTimeout(function () { fireEvent(classButton, 'click'); }, nDelayQQ);
+			bToggle = true;
+	}
+	console.plog('QQ Activated:', bPocketwatchActive, 'Activate?:', objTemp.activate, 'Force:', bForce, 'Toggle:', bToggle);
+	if(bToggle){
+		var nRetry = 5;
+		var intervalPocket = setInterval( function () {
+			if (classLootBooster.getAttribute('class').indexOf('charmberEmpty') < 0 || --nRetry <= 0){
+				fireEvent(classButton, 'click');
+				clearInterval(intervalPocket);
+				intervalPocket = null;
+			}
+		}, 1000);
 	}
 }
 
