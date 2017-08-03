@@ -1305,16 +1305,16 @@ function bwRift(){
 	if(nIndex < 0)
 		return;
 	var nIndexBuffCurse = 0;
-	if(!(objUser.status_effects.un == 'default' || objUser.status_effects.un.indexOf('remove') > -1) || 
-		!(objUser.status_effects.fr == 'default' || objUser.status_effects.fr.indexOf('remove') > -1) || 
-		!(objUser.status_effects.st == 'default' || objUser.status_effects.st.indexOf('remove') > -1))
+	if(!(objUser.status_effects.un.indexOf('default') > -1 || objUser.status_effects.un.indexOf('remove') > -1) || 
+		!(objUser.status_effects.fr.indexOf('default') > -1 || objUser.status_effects.fr.indexOf('remove') > -1) || 
+		!(objUser.status_effects.st.indexOf('default') > -1 || objUser.status_effects.st.indexOf('remove') > -1))
 		nIndexBuffCurse = 8;
 	else{
-		if(objUser.status_effects.ng != 'default')
+		if(objUser.status_effects.ng.indexOf('default') < 0)
 			nIndexBuffCurse |= 0x04;
-		if(objUser.status_effects.ac != 'default')
+		if(objUser.status_effects.ac.indexOf('default') < 0)
 			nIndexBuffCurse |= 0x02;
-		if(objUser.status_effects.ex != 'default')
+		if(objUser.status_effects.ex.indexOf('default') < 0)
 			nIndexBuffCurse |= 0x01;
 	}
 	console.plog('Buff & Curse Index:', nIndexBuffCurse, 'Obj:', objUser.status_effects);
@@ -10413,9 +10413,9 @@ function bodyJS(){
 		var nIndex = -1;
 		var bCursed = false;
 		if(bAutoChangeChamber && !isNullOrUndefined(user) && user.location.indexOf('Bristle Woods Rift') > -1){
-			if(!(user.quests.QuestRiftBristleWoods.status_effects.un == 'default' || user.quests.QuestRiftBristleWoods.status_effects.un.indexOf('remove') > -1) || 
-				!(user.quests.QuestRiftBristleWoods.status_effects.fr == 'default' || user.quests.QuestRiftBristleWoods.status_effects.fr.indexOf('remove') > -1) || 
-				!(user.quests.QuestRiftBristleWoods.status_effects.st == 'default' || user.quests.QuestRiftBristleWoods.status_effects.st.indexOf('remove') > -1))
+			if(!(user.quests.QuestRiftBristleWoods.status_effects.un.indexOf('default') > -1 || user.quests.QuestRiftBristleWoods.status_effects.un.indexOf('remove') > -1) || 
+				!(user.quests.QuestRiftBristleWoods.status_effects.fr.indexOf('default') > -1 || user.quests.QuestRiftBristleWoods.status_effects.fr.indexOf('remove') > -1) || 
+				!(user.quests.QuestRiftBristleWoods.status_effects.st.indexOf('default') > -1 || user.quests.QuestRiftBristleWoods.status_effects.st.indexOf('remove') > -1))
 				bCursed = true;
 			var nRemaining = user.quests.QuestRiftBristleWoods.progress_remaining;
 			if(nRemaining > 0){
