@@ -10326,9 +10326,10 @@ function bodyJS(){
 		if(isNullOrUndefined(storageValue))
 			storageValue = JSON.stringify(objDefaultBWRift);
 		storageValue = JSON.parse(storageValue);
-		var arrTemp = selectBWRiftChamber.value.split('_');
-		var bCursed = (arrTemp.length > 1);
-		var nIndex = storageValue.order.indexOf(arrTemp[0]);
+		var nIndexCursed = selectBWRiftChamber.value.indexOf('_CURSED');
+		var bCursed = (nIndexCursed > -1);
+		var strChamberName = (bCursed) ? selectBWRiftChamber.value.substr(0,nIndexCursed) : selectBWRiftChamber.value;
+		var nIndex = storageValue.order.indexOf(strChamberName);
 		if(nIndex < 0)
 			nIndex = 0;
 		if(bCursed)
@@ -10343,30 +10344,30 @@ function bodyJS(){
 		storageValue.specialActivate.forceDeactivate[nIndex] = (selectBWRiftForceDeactiveQuantum.value == 'true');
 		storageValue.specialActivate.remainingLootDeactivate[nIndex] = parseInt(inputRemainingLootD.value);
 		var strTemp = '';
-		if(arrTemp[0] == 'GEARWORKS' || arrTemp[0] == 'ANCIENT' || arrTemp[0] == 'RUNIC'){
+		if(strChamberName == 'GEARWORKS' || strChamberName == 'ANCIENT' || strChamberName == 'RUNIC'){
 			nIndex = selectBWRiftCleaverStatus.selectedIndex;
 			if(bCursed)
 				nIndex += 2;
-			if(arrTemp[0] == 'GEARWORKS')
+			if(strChamberName == 'GEARWORKS')
 				strTemp = 'gw';
-			else if(arrTemp[0] == 'ANCIENT')
+			else if(strChamberName == 'ANCIENT')
 				strTemp = 'al';
 			else
 				strTemp = 'rl';
 		}
-		else if(arrTemp[0] == 'GUARD'){
+		else if(strChamberName == 'GUARD'){
 			nIndex = selectBWRiftAlertLvl.selectedIndex;
 			if(bCursed)
 				nIndex += 7;
 			strTemp = 'gb';
 		}
-		/*else if(arrTemp[0] == 'INGRESS'){
+		/*else if(strChamberName == 'INGRESS'){
 			nIndex = selectBWRiftFTC.selectedIndex;
 			if(bCursed)
 				nIndex += 4;
 			strTemp = 'ic';
 		}
-		else if(arrTemp[0] == 'FROZEN'){
+		else if(strChamberName == 'FROZEN'){
 			nIndex = selectBWRiftHunt.selectedIndex;
 			if(bCursed)
 				nIndex += 16;
@@ -10460,9 +10461,10 @@ function bodyJS(){
 			if(bCursed)
 				selectBWRiftChamber.value += '_CURSED';
 		}
-		var arrTemp = selectBWRiftChamber.value.split('_');
-		bCursed = (arrTemp.length > 1);
-		nIndex = storageValue.order.indexOf(arrTemp[0]);
+		var nIndexCursed = selectBWRiftChamber.value.indexOf('_CURSED');
+		bCursed = (nIndexCursed > -1);
+		var strChamberName = (bCursed) ? selectBWRiftChamber.value.substr(0,nIndexCursed) : selectBWRiftChamber.value;
+		nIndex = storageValue.order.indexOf(strChamberName);
 		if(nIndex < 0)
 			nIndex = 0;
 		if(bCursed)
@@ -10479,13 +10481,13 @@ function bodyJS(){
 		inputRemainingLootD.value = storageValue.specialActivate.remainingLootDeactivate[nIndex];
 		inputRemainingLootD.disabled = (selectBWRiftForceDeactiveQuantum.value == 'true') ? '' : 'disabled';
 		var strTemp = '';
-		if(arrTemp[0] == 'GEARWORKS' || arrTemp[0] == 'ANCIENT' || arrTemp[0] == 'RUNIC'){
+		if(strChamberName == 'GEARWORKS' || strChamberName == 'ANCIENT' || strChamberName == 'RUNIC'){
 			nIndex = selectBWRiftCleaverStatus.selectedIndex;
 			if(bCursed)
 				nIndex += 2;
-			if(arrTemp[0] == 'GEARWORKS')
+			if(strChamberName == 'GEARWORKS')
 				strTemp = 'gw';
-			else if(arrTemp[0] == 'ANCIENT')
+			else if(strChamberName == 'ANCIENT')
 				strTemp = 'al';
 			else
 				strTemp = 'rl';
@@ -10494,7 +10496,7 @@ function bodyJS(){
 			selectBWRiftFTC.style.display = 'none';
 			selectBWRiftHunt.style.display = 'none';
 		}
-		else if(arrTemp[0] == 'GUARD'){
+		else if(strChamberName == 'GUARD'){
 			nIndex = selectBWRiftAlertLvl.selectedIndex;
 			if(bCursed)
 				nIndex += 7;
@@ -10504,7 +10506,7 @@ function bodyJS(){
 			selectBWRiftFTC.style.display = 'none';
 			selectBWRiftHunt.style.display = 'none';
 		}
-		/*else if(arrTemp[0] == 'INGRESS'){
+		/*else if(strChamberName == 'INGRESS'){
 			nIndex = selectBWRiftFTC.selectedIndex;
 			if(bCursed)
 				nIndex += 4;
@@ -10513,7 +10515,7 @@ function bodyJS(){
 			selectBWRiftFTC.style.display = '';
 			selectBWRiftHunt.style.display = 'none';
 		}
-		else if(arrTemp[0] == 'FROZEN'){
+		else if(strChamberName == 'FROZEN'){
 			nIndex = selectBWRiftHunt.selectedIndex;
 			if(bCursed)
 				nIndex += 16;
