@@ -222,7 +222,8 @@ var objSCZone = {
 	ZONE_DANGER : 6,
 	ZONE_DANGER_PP : 7,
 	ZONE_OXYGEN : 8,
-	ZONE_BONUS : 9
+	ZONE_BONUS : 9,
+	ZONE_DANGER_PP_LOTA : 10
 };
 var bestSCBase = ['Minotaur Base','Fissure Base','Depth Charge Base'];
 
@@ -2414,7 +2415,7 @@ function SunkenCity(isAggro) {
 
 		checkThenArm(null, 'bait', 'SUPER');
 	}
-	else if (currentZone == objSCZone.ZONE_DANGER_PP){
+	else if (currentZone == objSCZone.ZONE_DANGER_PP || currentZone == objSCZone.ZONE_DANGER_PP_LOTA){
 		if (!isAggro){
 			// arm Empowered Anchor Charm
 			if (!isEACArmed && !isAggro){
@@ -2655,11 +2656,11 @@ function SCCustom() {
 		return;
 
 	var objDefaultSCCustom = {
-		zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
-		zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-		isHunt : new Array(10).fill(true),
-		bait : new Array(10).fill('Gouda'),
-		trinket : new Array(10).fill('None'),
+		zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS','ZONE_DANGER_PP_LOTA'],
+		zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+		isHunt : new Array(11).fill(true),
+		bait : new Array(11).fill('Gouda'),
+		trinket : new Array(11).fill('None'),
 		useSmartJet : false
 	};
 	var objSCCustom = getStorageToObject('SCCustom', objDefaultSCCustom);
@@ -2736,8 +2737,7 @@ function DisarmSCSpecialCharm(charmArmedName)
 function GetSunkenCityZone(zoneName)
 {
 	var returnZone = 0;
-	switch (zoneName)
-	{
+	switch (zoneName){
 		case 'Sand Dollar Sea Bar':
 		case 'Pearl Patch':
 		case 'Sunken Treasure':
@@ -2748,8 +2748,10 @@ function GetSunkenCityZone(zoneName)
 			returnZone = objSCZone.ZONE_DANGER;
 			break;
 		case 'Monster Trench':
-		case 'Lair of the Ancients':
 			returnZone = objSCZone.ZONE_DANGER_PP;
+			break;
+		case 'Lair of the Ancients':
+			returnZone = objSCZone.ZONE_DANGER_PP_LOTA;
 			break;
 		case 'Deep Oxygen Stream':
 		case 'Oxygen Stream':
@@ -6249,7 +6251,8 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="ZONE_BARNACLE">Barnacle</option>';
 			preferenceHTMLStr += '<option value="ZONE_TREASURE">Treasure</option>';
 			preferenceHTMLStr += '<option value="ZONE_DANGER">Danger</option>';
-			preferenceHTMLStr += '<option value="ZONE_DANGER_PP">Danger PP</option>';
+			preferenceHTMLStr += '<option value="ZONE_DANGER_PP">Danger PP MT</option>';
+			preferenceHTMLStr += '<option value="ZONE_DANGER_PP_LOTA">Danger PP LOTA</option>';
 			preferenceHTMLStr += '<option value="ZONE_OXYGEN">Oxygen</option>';
 			preferenceHTMLStr += '<option value="ZONE_BONUS">Bonus</option>';
             preferenceHTMLStr += '</select>';
@@ -6874,7 +6877,7 @@ function loadPreferenceSettingFromStorage() {
 			obj = JSON.parse(keyValue);
 			bResave = false;
 			var arrTempOri = ['NoSC', 'TT', 'EAC', 'scAnchorTreasure', 'scAnchorDanger', 'scAnchorUlti'];
-			var arrTempNew = ['None', 'Treasure Trawling Charm', 'Empowered Anchor', 'GAC_EAC', 'SAC_EAC', 'UAC_EAC'];
+			var arrTempNew = ['None', 'Treasure Trawling Charm', 'Empowered Anchor Charm', 'GAC_EAC', 'SAC_EAC', 'UAC_EAC'];
 			var nIndex = -1;
 			for(var prop in obj){
 				if(obj.hasOwnProperty(prop) && prop == 'trinket'){
@@ -6886,6 +6889,15 @@ function loadPreferenceSettingFromStorage() {
 						}
 					}
 				}
+			}
+			if(obj.zone.indexOf('ZONE_DANGER_PP_LOTA') < 0){
+				obj.zone = ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS','ZONE_DANGER_PP_LOTA'];
+				obj.zoneID = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+				nIndex = obj.zone.indexOf('ZONE_DANGER_PP');
+				obj.isHunt[10] = obj.isHunt[nIndex];
+				obj.bait[10] = obj.bait[nIndex];
+				obj.trinket[10] = obj.trinket[nIndex];
+				bResave = true;
 			}
 			if(bResave){
 				setStorage("SCCustom", JSON.stringify(obj));
@@ -9250,11 +9262,11 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('SCCustom');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultSCCustom = {
-				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
-				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-				isHunt : new Array(10).fill(true),
-				bait : new Array(10).fill('Gouda'),
-				trinket : new Array(10).fill('None'),
+				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS','ZONE_DANGER_PP_LOTA'],
+				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+				isHunt : new Array(11).fill(true),
+				bait : new Array(11).fill('Gouda'),
+				trinket : new Array(11).fill('None'),
 				useSmartJet : false
 			};
 			storageValue = JSON.stringify(objDefaultSCCustom);
@@ -9266,7 +9278,8 @@ function bodyJS(){
 			var objZone = {
 				'ZONE_TREASURE' : ['Sand Dollar Sea Bar', 'Pearl Patch', 'Sunken Treasure'],
 				'ZONE_DANGER' : ['Feeding Grounds', 'Carnivore Cove'],
-				'ZONE_DANGER_PP' : ['Monster Trench', 'Lair of the Ancients'],
+				'ZONE_DANGER_PP' : ['Monster Trench'],
+				'ZONE_DANGER_PP_LOTA' : ['Lair of the Ancients'],
 				'ZONE_OXYGEN' : ['Deep Oxygen Stream', 'Oxygen Stream'],
 				'ZONE_BONUS' : ['Magma Flow'],
 				'ZONE_CORAL' : ['Coral Reef', 'Coral Garden', 'Coral Castle'],
@@ -9303,11 +9316,11 @@ function bodyJS(){
 		var storageValue = window.sessionStorage.getItem('SCCustom');
 		if(isNullOrUndefined(storageValue)){
 			var objDefaultSCCustom = {
-				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
-				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-				isHunt : new Array(10).fill(true),
-				bait : new Array(10).fill('Gouda'),
-				trinket : new Array(10).fill('None'),
+				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS','ZONE_DANGER_PP_LOTA'],
+				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+				isHunt : new Array(11).fill(true),
+				bait : new Array(11).fill('Gouda'),
+				trinket : new Array(11).fill('None'),
 				useSmartJet : false
 			};
 			storageValue = JSON.stringify(objDefaultSCCustom);

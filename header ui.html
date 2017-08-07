@@ -1224,7 +1224,8 @@
 							<option value="ZONE_BARNACLE">Barnacle</option>
 							<option value="ZONE_TREASURE">Treasure</option>
 							<option value="ZONE_DANGER">Danger</option>
-							<option value="ZONE_DANGER_PP">Danger PP</option>
+							<option value="ZONE_DANGER_PP">Danger PP MT</option>
+							<option value="ZONE_DANGER_PP_LOTA">Danger PP LOTA</option>
 							<option value="ZONE_OXYGEN">Oxygen</option>
 							<option value="ZONE_BONUS">Bonus</option>
 						</select>
@@ -2201,11 +2202,11 @@
 		var storageValue = window.sessionStorage.getItem('SCCustom');
 		if (storageValue === null || storageValue === undefined){
 			var objSCCustomDefault = {
-				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
-				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-				isHunt : new Array(10).fill(true),
-				bait : new Array(10).fill('Gouda'),
-				trinket : new Array(10).fill('None'),
+				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS','ZONE_DANGER_PP_LOTA'],
+				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+				isHunt : new Array(11).fill(true),
+				bait : new Array(11).fill('Gouda'),
+				trinket : new Array(11).fill('None'),
 				useSmartJet : false
 			};
 			storageValue = JSON.stringify(objSCCustomDefault);
@@ -2231,11 +2232,11 @@
 		var storageValue = window.sessionStorage.getItem('SCCustom');
 		if (storageValue === null || storageValue === undefined){
 			var objSCCustomDefault = {
-				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS'],
-				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-				isHunt : new Array(10).fill(true),
-				bait : new Array(10).fill('Gouda'),
-				trinket : new Array(10).fill('None'),
+				zone : ['ZONE_NOT_DIVE','ZONE_DEFAULT','ZONE_CORAL','ZONE_SCALE','ZONE_BARNACLE','ZONE_TREASURE','ZONE_DANGER','ZONE_DANGER_PP','ZONE_OXYGEN','ZONE_BONUS','ZONE_DANGER_PP_LOTA'],
+				zoneID : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+				isHunt : new Array(11).fill(true),
+				bait : new Array(11).fill('Gouda'),
+				trinket : new Array(11).fill('None'),
 				useSmartJet : false
 			};
 			storageValue = JSON.stringify(objSCCustomDefault);
