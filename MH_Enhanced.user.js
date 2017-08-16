@@ -3129,7 +3129,7 @@ function fw(){
 		setStorage('FW', JSON.stringify(objFWAll));
 	var objFW = objFWAll['wave'+wave];
     if (wave == 4){
-		var nWardenLeft = parseInt(document.getElementsByClassName('population')[0].textContent);
+		var nWardenLeft = parseInt(document.getElementsByClassName('warpathHUD-wave wave_4')[0].getElementsByClassName('warpathHUD-wave-mouse-population')[0].textContent);
 		console.plog('Wave:', wave, 'Warden Left:', nWardenLeft);
 		if(Number.isNaN(nWardenLeft))
 			nWardenLeft = 12;
@@ -3142,7 +3142,7 @@ function fw(){
     }
 
 	checkThenArm(null, 'base', objFW.base);
-	objFW.streak = parseInt(document.getElementsByClassName('streak_quantity')[0].innerText);
+	objFW.streak = parseInt(document.getElementsByClassName('warpathHUD-streak-quantity')[0].innerText);
     console.plog('Wave:', wave, 'Streak:', objFW.streak);
 	if(Number.isNaN(objFW.streak) || objFW.streak < 0 || objFW.streak >= g_fwStreakLength)
 		return;
@@ -3154,12 +3154,12 @@ function fw(){
 	if(isNullOrUndefined(objFW.special[objFW.streak]))
 		objFW.special[objFW.streak] = 'None';
 
-	objFW.streakMouse = getPageVariable('user.viewing_atts.desert_warpath.streak.mouse_type');
+	objFW.streakMouse = getPageVariable('user.viewing_atts.desert_warpath.streak_type');
 	if(objFW.streakMouse.indexOf('desert_') > -1)
 		objFW.streakMouse = capitalizeFirstLetter(objFW.streakMouse.split('_')[1]);
 
     console.plog('Current streak mouse type:', objFW.streakMouse);
-	var population = document.getElementsByClassName('population');
+	var population = document.getElementsByClassName('warpathHUD-wave wave_' + wave.toString())[0].getElementsByClassName('warpathHUD-wave-mouse-population');
 	objFW.population = {
 		all : [],
 		normal : [],
@@ -6555,12 +6555,12 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
 			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
             preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectFWCharmType" onChange="saveFW();">';
+			preferenceHTMLStr += '<select id="selectFWCharmType" style="width: 75px" onChange="saveFW();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="Warpath">Warpath</option>';
 			preferenceHTMLStr += '<option value="Super Warpath">Super Warpath</option>';
             preferenceHTMLStr += '</select>';
-			preferenceHTMLStr += '<select id="selectFWSpecial" onChange="saveFW();">';
+			preferenceHTMLStr += '<select id="selectFWSpecial" style="width: 75px" onChange="saveFW();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
 			preferenceHTMLStr += '<option value="COMMANDER">Commander</option>';
 			preferenceHTMLStr += '<option value="GARGANTUA">Gargantua</option>';
@@ -9639,7 +9639,7 @@ function bodyJS(){
 				else
 					selectFWWave.value = user.viewing_atts.desert_warpath.wave;
 
-				var nStreak = parseInt(user.viewing_atts.desert_warpath.streak.quantity);
+				var nStreak = parseInt(user.viewing_atts.desert_warpath.streak_quantity);
 				if(Number.isInteger(nStreak)){
 					if(nStreak !== 0)
 						selectFWStreak.value = nStreak+1;
