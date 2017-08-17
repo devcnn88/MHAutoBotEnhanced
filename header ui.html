@@ -346,6 +346,74 @@
 						<input type="button" id="inputResetReload" title="Reset setting of current selected algo" value="Reset & Reload" onclick="onInputResetReload();">
 					</td>
 				</tr>
+				<tr id="trFGARSubLocation" style="display:none;">
+					<td style="height:24px; text-align:right;"><a><b>Sub-Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFGARSublocation" onchange="initControlsFGAR();">
+							<option value="FG">Forbidden Grove</option>
+							<option value="AR">Acolyte Realm</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trFGARTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current sub-location"><b>Trap Setup </b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectFGARWeapon" style="width: 75px;" onchange="saveFGAR();">
+						</select>
+						<select id="selectFGARBase" style="width: 75px;" onchange="saveFGAR();">
+						</select>
+						<select id="selectFGARTrinket" style="width: 75px;" onchange="saveFGAR();">
+							<option value="None">None</option>
+							<option value="Trinket 1">Trinket 1</option>
+							<option value="Trinket 2">Trinket 2</option>
+						</select>
+						<select id="selectFGARBait" style="width: 75px;" onchange="saveFGAR();">
+							<option value="None">None</option>
+							<option value="Runic Cheese">Runic</option>
+							<option value="Ancient Cheese">Ancient</option>
+							<option value="Brie Cheese">Brie</option>
+							<option value="Toxic Brie">Toxic Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SB+</option>
+							<option value="Toxic SUPER">Toxic SB+</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trBCJODSubLocation" style="display:none;">
+					<td style="height:24px; text-align:right;"><a><b>Sub-Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectBCJODSublocation" onchange="initControlsBCJOD();">
+							<option value="JOD">Jungle of Dread</option>
+							<option value="LOW">BC Low Tide</option>
+							<option value="MID">BC Mid Tide</option>
+							<option value="HIGH">BC High Tide</option>
+						</select>
+					</td>
+				</tr>
+				<tr id="trBCJODTrapSetup" style="display:none;">
+					<td style="height:24px; text-align:right;"><a title="Select trap setup based on current sub-location"><b>Trap Setup </b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
+					<td style="height:24px">
+						<select id="selectBCJODWeapon" style="width: 75px;" onchange="saveBCJOD();">
+						</select>
+						<select id="selectBCJODBase" style="width: 75px;" onchange="saveBCJOD();">
+						</select>
+						<select id="selectBCJODTrinket" style="width: 75px;" onchange="saveBCJOD();">
+							<option value="None">None</option>
+							<option value="Trinket 1">Trinket 1</option>
+							<option value="Trinket 2">Trinket 2</option>
+						</select>
+						<select id="selectBCJODBait" style="width: 75px;" onchange="saveBCJOD();">
+							<option value="None">None</option>
+							<option value="Brie Cheese">Brie</option>
+							<option value="Toxic Brie">Toxic Brie</option>
+							<option value="Gouda">Gouda</option>
+							<option value="SUPER">SB+</option>
+							<option value="Toxic SUPER">Toxic SB+</option>
+							<option value="Crescent">Crescent</option>
+							<option value="Moon">Moon</option>
+						</select>
+					</td>
+				</tr>
 				<tr id="trBWRiftAutoChoosePortal" style="display:none;">
 					<td style="height:24px; text-align:right;"><a title="Choose portal automatically"><b>Auto Choose Portal</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>
 					<td style="height:24px">
@@ -688,7 +756,7 @@
 						</select>
 						<select id="selectFRoxBait" style="width: 75px;" onchange="saveFRox();">
 							<option value="None">None</option>
-							<option value="Brie">Brie</option>
+							<option value="Brie Cheese">Brie</option>
 							<option value="Toxic Brie">Toxic Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SB+</option>
@@ -935,7 +1003,7 @@
 						</select>
 						<select id="selectIcebergBait" onchange="onSelectIcebergBait();">
 							<option value="None">None</option>
-							<option value="Brie">Brie</option>
+							<option value="Brie Cheese">Brie</option>
 							<option value="Toxic Brie">Toxic Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SB+</option>
@@ -978,7 +1046,7 @@
 						</select>
 						<select id="selectZTBait1st" onchange="onSelectZTBait();">
 							<option value="None">None</option>
-							<option value="Brie">Brie</option>
+							<option value="Brie Cheese">Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SB+</option>
 							<option value="Checkmate">Checkmate</option>
@@ -1009,7 +1077,7 @@
 						</select>
 						<select id="selectZTBait2nd" onchange="onSelectZTBait();">
 							<option value="None">None</option>
-							<option value="Brie">Brie</option>
+							<option value="Brie Cheese">Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SB+</option>
 							<option value="Checkmate">Checkmate</option>
@@ -1234,7 +1302,7 @@
 							<option value="false">Jet Through</option>
 						</select>
 						<select id="selectSCHuntBait" style="width:75px;" onchange="onSelectSCHuntBait();">
-							<option value="Brie">Brie</option>
+							<option value="Brie Cheese">Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SUPER|brie+</option>
 						</select>
@@ -1381,7 +1449,7 @@
 							<option value="Glowing Gruyere">GG</option>
 							<option value="SUPER">SB+</option>
 							<option value="Gouda">Gouda</option>
-							<option value="Brie">Brie</option>
+							<option value="Brie Cheese">Brie</option>
 						</select>&nbsp;&nbsp;
 						<select id="selectZokorTrinket" onchange="onSelectZokorTrinket();">
 						</select>
@@ -1433,7 +1501,7 @@
 						</select>
 						<select id="selectFW4TrapSetupBait" onchange="onSelectFW4TrapSetupBait();">
 							<option value="None">None</option>
-							<option value="Brie">Brie</option>
+							<option value="Brie Cheese">Brie</option>
 							<option value="Toxic Brie">Toxic Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SB+</option>
@@ -1476,7 +1544,7 @@
 							<option value="15">15</option>
 						</select>
 						<select id="selectFWCheese" onchange="onSelectFWCheeseChanged();">
-							<option value="Brie">Brie</option>
+							<option value="Brie Cheese">Brie</option>
 							<option value="Gouda">Gouda</option>
 							<option value="SUPER">SUPER|brie+</option>
 						</select>
@@ -1585,6 +1653,20 @@
 	</div>
 </div>
 <script type="text/javascript">
+	var objDefaultFGAR = {
+		order : ['FG','AR'],
+		weapon : new Array(2).fill(''),
+		base : new Array(2).fill(''),
+		trinket : new Array(2).fill(''),
+		bait : new Array(2).fill('')
+	};
+	var objDefaultBCJOD = {
+		order : ['JOD','LOW','MID','HIGH'],
+		weapon : new Array(4).fill(''),
+		base : new Array(4).fill(''),
+		trinket : new Array(4).fill(''),
+		bait : new Array(4).fill('')
+	};
 	var objDefaultBWRift = {
 		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED','LUCKY','HIDDEN'],
 		master : {
@@ -1929,7 +2011,7 @@
 		saveMapHunting();
 	}
 	
-	var arrKey = ['SCCustom','Labyrinth_','LGArea','eventLocation','FW_','BRCustom','SGZT','Zokor','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016','SpecialFeature','BWRift'];
+	var arrKey = ['SCCustom','Labyrinth_','LGArea','eventLocation','FW_','BRCustom','SGZT','Zokor','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016','SpecialFeature','BWRift','BC_JOD','FG_AR'];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -3194,6 +3276,80 @@
 		}
 	}
 
+	function saveFGAR(){
+		var selectFGARSublocation = document.getElementById('selectFGARSublocation');
+		var selectFGARWeapon = document.getElementById('selectFGARWeapon');
+		var selectFGARBase = document.getElementById('selectFGARBase');
+		var selectFGARTrinket = document.getElementById('selectFGARTrinket');
+		var selectFGARBait = document.getElementById('selectFGARBait');
+		var storageValue = window.sessionStorage.getItem('FG_AR');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultFGAR);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectFGARSublocation.value);
+		storageValue.weapon[nIndex] = selectFGARWeapon.value;
+		storageValue.base[nIndex] = selectFGARBase.value;
+		storageValue.trinket[nIndex] = selectFGARTrinket.value;
+		storageValue.bait[nIndex] = selectFGARBait.value;
+		window.sessionStorage.setItem('FG_AR', JSON.stringify(storageValue));
+	}
+	
+	function initControlsFGAR(bAutoChangeSublocation){
+		if(isNullOrUndefined(bAutoChangeSublocation))
+			bAutoChangeSublocation = false;
+		var selectFGARSublocation = document.getElementById('selectFGARSublocation');
+		var selectFGARWeapon = document.getElementById('selectFGARWeapon');
+		var selectFGARBase = document.getElementById('selectFGARBase');
+		var selectFGARTrinket = document.getElementById('selectFGARTrinket');
+		var selectFGARBait = document.getElementById('selectFGARBait');
+		var storageValue = window.sessionStorage.getItem('FG_AR');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultFGAR);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectFGARSublocation.value);
+		selectFGARWeapon.value = storageValue.weapon[nIndex];
+		selectFGARBase.value = storageValue.base[nIndex];
+		selectFGARTrinket.value = storageValue.trinket[nIndex];
+		selectFGARBait.value = storageValue.bait[nIndex];
+	}
+	
+	function saveBCJOD(){
+		var selectBCJODSublocation = document.getElementById('selectBCJODSublocation');
+		var selectBCJODWeapon = document.getElementById('selectBCJODWeapon');
+		var selectBCJODBase = document.getElementById('selectBCJODBase');
+		var selectBCJODTrinket = document.getElementById('selectBCJODTrinket');
+		var selectBCJODBait = document.getElementById('selectBCJODBait');
+		var storageValue = window.sessionStorage.getItem('BC_JOD');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultBCJOD);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectBCJODSublocation.value);
+		storageValue.weapon[nIndex] = selectBCJODWeapon.value;
+		storageValue.base[nIndex] = selectBCJODBase.value;
+		storageValue.trinket[nIndex] = selectBCJODTrinket.value;
+		storageValue.bait[nIndex] = selectBCJODBait.value;
+		window.sessionStorage.setItem('BC_JOD', JSON.stringify(storageValue));
+	}
+	
+	function initControlsBCJOD(bAutoChangeSublocation){
+		if(isNullOrUndefined(bAutoChangeSublocation))
+			bAutoChangeSublocation = false;
+		var selectBCJODSublocation = document.getElementById('selectBCJODSublocation');
+		var selectBCJODWeapon = document.getElementById('selectBCJODWeapon');
+		var selectBCJODBase = document.getElementById('selectBCJODBase');
+		var selectBCJODTrinket = document.getElementById('selectBCJODTrinket');
+		var selectBCJODBait = document.getElementById('selectBCJODBait');
+		var storageValue = window.sessionStorage.getItem('BC_JOD');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultBCJOD);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectBCJODSublocation.value);
+		selectBCJODWeapon.value = storageValue.weapon[nIndex];
+		selectBCJODBase.value = storageValue.base[nIndex];
+		selectBCJODTrinket.value = storageValue.trinket[nIndex];
+		selectBCJODBait.value = storageValue.bait[nIndex];
+	}
+	
 	function onSelectBWRiftForceActiveQuantum(){
 		saveBWRift();
 		initControlsBWRift();
@@ -4039,6 +4195,14 @@
 			'Bristle Woods Rift' : {
 				arr : ['trBWRiftSubLocation','trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftPortalPriorityCursed','trBWRiftMinTimeSand','trBWRiftMinRSC','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial','trBWRiftEnterMinigame','trBWRiftActivatePocketWatch'],
 				init : function(data){initControlsBWRift(data);}
+			},
+			'BC/JOD' : {
+				arr : ['trBCJODSubLocation', 'trBCJODTrapSetup'],
+				init : function(data){initControlsBCJOD(data);}
+			},
+			'FG/AR' : {
+				arr : ['trFGARSubLocation', 'trFGARTrapSetup'],
+				init : function(data){initControlsFGAR(data);}
 			},
 		};
 		var i, temp;

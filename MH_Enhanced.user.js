@@ -2331,11 +2331,22 @@ function getZTUnlockedMouse(nProgress){
 
 function balackCoveJOD(){
 	var curLoc = GetCurrentLocation();
-	if(curLoc.indexOf('Jungle') > -1){
-		checkThenArm(null, 'bait', 'Gouda');
-		checkThenArm('best', 'weapon', objBestTrap.weapon.shadow);
-	}
-	else if(curLoc.indexOf('Balack') > -1){
+	var bInJOD = (curLoc.indexOf('Jungle') > -1);
+	var bInBC = (curLoc.indexOf('Balack') > -1);
+	if(!(bInJOD || bInBC))
+		return;
+	var objDefaultBCJOD = {
+		order : ['JOD','LOW','MID','HIGH'],
+		weapon : new Array(4).fill(''),
+		base : new Array(4).fill(''),
+		trinket : new Array(4).fill(''),
+		bait : new Array(4).fill('')
+	};
+	var objBCJOD = getStorageToObject('BC_JOD', objDefaultBCJOD);
+	var nIndex = -1;
+	if(bInJOD)
+		nIndex = 0;
+	else{
 		var i = 0;
 		var objBC = {
 			arrTide : ['Low Rising', 'Mid Rising', 'High Rising', 'High Ebbing', 'Mid Ebbing', 'Low Ebbing'],
@@ -2365,19 +2376,40 @@ function balackCoveJOD(){
 		var nTideDist = objBC.arrAll.indexOf(tideNameNext) + nTideTotalLength - nIndexCurrentTide;
 		nTideDist = nTideDist % nTideTotalLength;
 		var nNextTideTime = nTideDist*nTideLength - nDiff%nTideLength;
-		console.plog('Current Tide:', objBC.arrAll[nIndexCurrentTide], 'Next Tide:', tideNameNext, 'In', timeFormat(nNextTideTime));
-		if(nNextTideTime <= nextActiveTime && tideNameNext.indexOf('High') > -1){ // total seconds left to next high tide less than next active time
-			checkThenArm(null, 'bait', 'Vanilla Stilton');
-		}
+		var strTempCurrent = tideNameCurrent.toUpperCase().split(' ')[0];
+		var strTempNext = tideNameNext.toUpperCase().split(' ')[0];
+		nIndex = objBCJOD.order.indexOf(strTempCurrent);
+		if(nNextTideTime <= nextActiveTime && strTempNext != strTempCurrent) // total seconds left to next tide less than next active time
+			nIndex = objBCJOD.order.indexOf(strTempNext);
+		console.plog('Current Tide:', objBC.arrAll[nIndexCurrentTide], 'Index:', nIndex, 'Next Tide:', tideNameNext, 'In', timeFormat(nNextTideTime));
+		if(nIndex < 0)
+			return;
 	}
+	checkThenArm(null, 'weapon', objBCJOD.weapon[nIndex]);
+	checkThenArm(null, 'base', objBCJOD.base[nIndex]);
+	checkThenArm(null, 'trinket', objBCJOD.trinket[nIndex]);
+	checkThenArm(null, 'bait', objBCJOD.bait[nIndex]);
 }
 
 function forbiddenGroveAR(){
 	var curLoc = GetCurrentLocation();
-	if(curLoc.indexOf('Acolyte Realm') > -1){
-		checkThenArm('best', 'weapon', objBestTrap.weapon.forgotten);
-		checkThenArm(null, 'bait', 'Runic Cheese');
-	}
+	var bInFG = (curLoc.indexOf('Forbidden Grove') > -1);
+	var bInAR = (curLoc.indexOf('Acolyte Realm') > -1);
+	if(!(bInFG || bInAR))
+		return;
+	var objDefaultFGAR = {
+		order : ['FG','AR'],
+		weapon : new Array(2).fill(''),
+		base : new Array(2).fill(''),
+		trinket : new Array(2).fill(''),
+		bait : new Array(2).fill('')
+	};
+	var objFGAR = getStorageToObject('FG_AR', objDefaultFGAR);
+	var nIndex = (bInFG) ? 0 : 1;
+	checkThenArm(null, 'weapon', objFGAR.weapon[nIndex]);
+	checkThenArm(null, 'base', objFGAR.base[nIndex]);
+	checkThenArm(null, 'trinket', objFGAR.trinket[nIndex]);
+	checkThenArm(null, 'bait', objFGAR.bait[nIndex]);
 }
 
 function SunkenCity(isAggro) {
@@ -5319,6 +5351,80 @@ function embedTimer(targetPage) {
             preferenceHTMLStr += '</td>';
             preferenceHTMLStr += '</tr>';
 
+			preferenceHTMLStr += '<tr id="trBCJODSubLocation" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Sub-Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBCJODSublocation" onchange="initControlsBCJOD();">';
+			preferenceHTMLStr += '<option value="JOD">Jungle of Dread</option>';
+			preferenceHTMLStr += '<option value="LOW">BC Low Tide</option>';
+			preferenceHTMLStr += '<option value="MID">BC Mid Tide</option>';
+			preferenceHTMLStr += '<option value="HIGH">BC High Tide</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trBCJODTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current sub-location"><b>Trap Setup </b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectBCJODWeapon" style="width: 75px;" onchange="saveBCJOD();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBCJODBase" style="width: 75px;" onchange="saveBCJOD();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBCJODTrinket" style="width: 75px;" onchange="saveBCJOD();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectBCJODBait" style="width: 75px;" onchange="saveBCJOD();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Vanilla Stilton Cheese">Vanilla Stilton Cheese</option>';
+			preferenceHTMLStr += '<option value="Vengeful Vanilla Stilton Cheese">Vengeful Vanilla Stilton Cheese</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
+			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
+			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
+			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
+			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
+			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
+			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trFGARSubLocation" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Sub-Location</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFGARSublocation" onchange="initControlsFGAR();">';
+			preferenceHTMLStr += '<option value="FG">Forbidden Grove</option>';
+			preferenceHTMLStr += '<option value="AR">Acolyte Realm</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
+			preferenceHTMLStr += '<tr id="trFGARTrapSetup" style="display:none;">';
+			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select trap setup based on current sub-location"><b>Trap Setup </b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
+			preferenceHTMLStr += '<td style="height:24px">';
+			preferenceHTMLStr += '<select id="selectFGARWeapon" style="width: 75px;" onchange="saveFGAR();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFGARBase" style="width: 75px;" onchange="saveFGAR();">';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFGARTrinket" style="width: 75px;" onchange="saveFGAR();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '<select id="selectFGARBait" style="width: 75px;" onchange="saveFGAR();">';
+			preferenceHTMLStr += '<option value="None">None</option>';
+			preferenceHTMLStr += '<option value="Runic Cheese">Runic Cheese</option>';
+			preferenceHTMLStr += '<option value="Ancient Cheese">Ancient Cheese</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
+			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
+			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
+			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
+			preferenceHTMLStr += '<option value="Toxic SUPER">Toxic SB+</option>';
+			preferenceHTMLStr += '<option value="Ghoulgonzola">Ghoulgonzola</option>';
+			preferenceHTMLStr += '<option value="Candy Corn">Candy Corn</option>';
+			preferenceHTMLStr += '<option value="ANY_HALLOWEEN">Ghoulgonzola/Candy Corn</option>';
+			preferenceHTMLStr += '</select>';
+			preferenceHTMLStr += '</td>';
+			preferenceHTMLStr += '</tr>';
+
 			preferenceHTMLStr += '<tr id="trBWRiftAutoChoosePortal" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Choose portal automatically"><b>Auto Choose Portal</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
 			preferenceHTMLStr += '<td style="height:24px">';
@@ -5406,7 +5512,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '</td>';
 			preferenceHTMLStr += '</tr>';
-			
+
 			preferenceHTMLStr += '<tr id="trBWRiftMinTimeSand" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select minimum time sand before entering Acolyte Chamber (AC)"><b>Min Time Sand </b></a>';
 			preferenceHTMLStr += '<select id="selectBWRiftBuffCurse" style="width: 75px;" onchange="initControlsBWRift();">';
@@ -5633,7 +5739,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '</select>';
 			preferenceHTMLStr += '<select id="selectFRoxBait" style="width: 75px;" onchange="saveFRox();">';
 			preferenceHTMLStr += '<option value="None">None</option>';
-			preferenceHTMLStr += '<option value="Brie">Brie</option>';
+			preferenceHTMLStr += '<option value="Brie Cheese">Brie</option>';
 			preferenceHTMLStr += '<option value="Toxic Brie">Toxic Brie</option>';
 			preferenceHTMLStr += '<option value="Gouda">Gouda</option>';
 			preferenceHTMLStr += '<option value="SUPER">SB+</option>';
@@ -5935,7 +6041,7 @@ function embedTimer(targetPage) {
 
 			preferenceHTMLStr += '<tr id="trIceberg" style="display:none;">';
 			preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a title="Select to trap setup based on current phase"><b>Trap Setup for</b></a>';
-			preferenceHTMLStr += '<select id="selectIcebergPhase" onchange="initControlsIceberg();">';
+			preferenceHTMLStr += '<select id="selectIcebergPhase" style="width: 75px" onchange="initControlsIceberg();">';
 			preferenceHTMLStr += '<option value="GENERAL">Iceberg General</option>';
 			preferenceHTMLStr += '<option value="TREACHEROUS">Treacherous Tunnels</option>';
 			preferenceHTMLStr += '<option value="BRUTAL">Brutal Bulwark</option>';
@@ -6696,9 +6802,9 @@ function embedTimer(targetPage) {
 
 			// insert trap list
 			var objSelectStr = {
-				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon'],
-				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase','selectBRTrapBase','selectWWRiftTrapBase','selectWWRiftMBWTrapBase'],
-				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESTrapTrinket','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket','selectGESTrapTrinket','selectBWRiftTrinket','selectBWRiftTrinketSpecial'],
+				weapon : ['selectWeapon','selectZTWeapon1st','selectZTWeapon2nd','selectBestTrapWeapon','selectFWTrapSetupWeapon','selectFW4TrapSetupWeapon','selectSGTrapWeapon','selectFRoxWeapon','selectGWHWeapon','selectBCJODWeapon','selectFGARWeapon'],
+				base : ['selectBase','selectLabyrinthOtherBase','selectZTBase1st','selectZTBase2nd','selectBestTrapBase','selectFWTrapSetupBase','selectFW4TrapSetupBase','selectLGTGBase','selectLCCCBase','selectSCBase', 'selectIcebergBase', 'selectGESTrapBase','selectSGTrapBase','selectFRoxBase','selectGWHBase','selectBRTrapBase','selectWWRiftTrapBase','selectWWRiftMBWTrapBase','selectBCJODBase','selectFGARBase'],
+				trinket : ['selectZokorTrinket','selectTrinket','selectZTTrinket1st','selectZTTrinket2nd','selectFRTrapTrinket','selectBRTrapTrinket','selectLGTGTrinket','selectLCCCTrinket','selectIcebergTrinket','selectWWRiftTrapTrinket','selectWWRiftMBWTrapTrinket','selectGESTrapTrinket','selectGESRRTrapTrinket','selectGESDCTrapTrinket','selectFW4TrapSetupTrinket','selectSGTrapTrinket','selectSCHuntTrinket','selectFRoxTrinket','selectGWHTrinket','selectGESTrapTrinket','selectBWRiftTrinket','selectBWRiftTrinketSpecial','selectBCJODTrinket','selectFGARTrinket'],
 				bait : ['selectBait','selectGWHBait']
 			};
 			var temp;
@@ -8637,6 +8743,20 @@ function refreshTrapList() {
 }
 
 function bodyJS(){
+	var objDefaultFGAR = {
+		order : ['FG','AR'],
+		weapon : new Array(2).fill(''),
+		base : new Array(2).fill(''),
+		trinket : new Array(2).fill(''),
+		bait : new Array(2).fill('')
+	};
+	var objDefaultBCJOD = {
+		order : ['JOD','LOW','MID','HIGH'],
+		weapon : new Array(4).fill(''),
+		base : new Array(4).fill(''),
+		trinket : new Array(4).fill(''),
+		bait : new Array(4).fill('')
+	};
 	var objDefaultBWRift = {
 		order : ['NONE','GEARWORKS','ANCIENT','RUNIC','TIMEWARP','GUARD','SECURITY','FROZEN','FURNACE','INGRESS','PURSUER','ACOLYTE_CHARGING','ACOLYTE_DRAINING','ACOLYTE_DRAINED','LUCKY','HIDDEN'],
 		master : {
@@ -9049,7 +9169,7 @@ function bodyJS(){
 		saveMapHunting();
 	}
 
-	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R','SpecialFeature','BWRift'];
+	var arrKey = ['SCCustom','Labyrinth','LGArea','eventLocation','FW','BRCustom','SGarden','Zokor','FRift','MapHunting','ZTower','BestTrap','Iceberg','WWRift','GES','FRox','GWH2016R','SpecialFeature','BWRift','BC_JOD','FG_AR'];
 	function setLocalToSession(){
 		var i, j, key;
 		for(i=0;i<window.localStorage.length;i++){
@@ -9080,23 +9200,25 @@ function bodyJS(){
 	}
 
 	function onInputResetReload(){
-		var eventAlgo = document.getElementById('eventAlgo');
+		var strValue = document.getElementById('eventAlgo').value;
 		var keyName;
-		if(eventAlgo.value == 'Burroughs Rift Custom') keyName = 'BRCustom';
-		else if(eventAlgo.value == 'All LG Area') keyName = 'LGArea';
-		else if(eventAlgo.value == 'SG') keyName = 'SGarden';
-		else if(eventAlgo.value == 'ZT') keyName = 'ZTower';
-		else if(eventAlgo.value == 'Sunken City Custom') keyName = 'SCCustom';
-		else if(eventAlgo.value == 'Labyrinth') keyName = 'Labyrinth';
-		else if(eventAlgo.value == 'Zokor') keyName = 'Zokor';
-		else if(eventAlgo.value == 'Fiery Warpath') keyName = 'FW';
-		else if(eventAlgo.value == 'Furoma Rift') keyName = 'FRift';
-		else if(eventAlgo.value == 'Iceberg') keyName = 'Iceberg';
-		else if(eventAlgo.value == 'WWRift') keyName = 'WWRift';
-		else if(eventAlgo.value == 'GES') keyName = 'GES';
-		else if(eventAlgo.value == 'Fort Rox') keyName = 'FRox';
-		else if(eventAlgo.value == 'GWH2016R') keyName = 'GWH2016R';
-		else if(eventAlgo.value == 'Bristle Woods Rift') keyName = 'BWRift';
+		if(strValue == 'Burroughs Rift Custom') keyName = 'BRCustom';
+		else if(strValue == 'All LG Area') keyName = 'LGArea';
+		else if(strValue == 'SG') keyName = 'SGarden';
+		else if(strValue == 'ZT') keyName = 'ZTower';
+		else if(strValue == 'Sunken City Custom') keyName = 'SCCustom';
+		else if(strValue == 'Labyrinth') keyName = 'Labyrinth';
+		else if(strValue == 'Zokor') keyName = 'Zokor';
+		else if(strValue == 'Fiery Warpath') keyName = 'FW';
+		else if(strValue == 'Furoma Rift') keyName = 'FRift';
+		else if(strValue == 'Iceberg') keyName = 'Iceberg';
+		else if(strValue == 'WWRift') keyName = 'WWRift';
+		else if(strValue == 'GES') keyName = 'GES';
+		else if(strValue == 'Fort Rox') keyName = 'FRox';
+		else if(strValue == 'GWH2016R') keyName = 'GWH2016R';
+		else if(strValue == 'Bristle Woods Rift') keyName = 'BWRift';
+		else if(strValue == 'BC/JOD') keyName = 'BC_JOD';
+		else if(strValue == 'FG/AR') keyName = 'FG_AR';
 
 		if(!isNullOrUndefined(keyName)){
 			window.sessionStorage.removeItem(keyName);
@@ -10254,6 +10376,86 @@ function bodyJS(){
 		}
 	}
 
+	function saveFGAR(){
+		var selectFGARSublocation = document.getElementById('selectFGARSublocation');
+		var selectFGARWeapon = document.getElementById('selectFGARWeapon');
+		var selectFGARBase = document.getElementById('selectFGARBase');
+		var selectFGARTrinket = document.getElementById('selectFGARTrinket');
+		var selectFGARBait = document.getElementById('selectFGARBait');
+		var storageValue = window.sessionStorage.getItem('FG_AR');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultFGAR);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectFGARSublocation.value);
+		storageValue.weapon[nIndex] = selectFGARWeapon.value;
+		storageValue.base[nIndex] = selectFGARBase.value;
+		storageValue.trinket[nIndex] = selectFGARTrinket.value;
+		storageValue.bait[nIndex] = selectFGARBait.value;
+		window.sessionStorage.setItem('FG_AR', JSON.stringify(storageValue));
+	}
+
+	function initControlsFGAR(bAutoChangeSublocation){
+		if(isNullOrUndefined(bAutoChangeSublocation))
+			bAutoChangeSublocation = false;
+		var selectFGARSublocation = document.getElementById('selectFGARSublocation');
+		var selectFGARWeapon = document.getElementById('selectFGARWeapon');
+		var selectFGARBase = document.getElementById('selectFGARBase');
+		var selectFGARTrinket = document.getElementById('selectFGARTrinket');
+		var selectFGARBait = document.getElementById('selectFGARBait');
+		var storageValue = window.sessionStorage.getItem('FG_AR');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultFGAR);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = -1;
+		if(bAutoChangeSublocation && !isNullOrUndefined(user))
+			selectFGARSublocation.value = (user.location.indexOf('Acolyte Realm') > -1) ? 'AR' : 'FG';
+		nIndex = storageValue.order.indexOf(selectFGARSublocation.value);
+		selectFGARWeapon.value = storageValue.weapon[nIndex];
+		selectFGARBase.value = storageValue.base[nIndex];
+		selectFGARTrinket.value = storageValue.trinket[nIndex];
+		selectFGARBait.value = storageValue.bait[nIndex];
+	}
+
+	function saveBCJOD(){
+		var selectBCJODSublocation = document.getElementById('selectBCJODSublocation');
+		var selectBCJODWeapon = document.getElementById('selectBCJODWeapon');
+		var selectBCJODBase = document.getElementById('selectBCJODBase');
+		var selectBCJODTrinket = document.getElementById('selectBCJODTrinket');
+		var selectBCJODBait = document.getElementById('selectBCJODBait');
+		var storageValue = window.sessionStorage.getItem('BC_JOD');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultBCJOD);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = storageValue.order.indexOf(selectBCJODSublocation.value);
+		storageValue.weapon[nIndex] = selectBCJODWeapon.value;
+		storageValue.base[nIndex] = selectBCJODBase.value;
+		storageValue.trinket[nIndex] = selectBCJODTrinket.value;
+		storageValue.bait[nIndex] = selectBCJODBait.value;
+		window.sessionStorage.setItem('BC_JOD', JSON.stringify(storageValue));
+	}
+
+	function initControlsBCJOD(bAutoChangeSublocation){
+		if(isNullOrUndefined(bAutoChangeSublocation))
+			bAutoChangeSublocation = false;
+		var selectBCJODSublocation = document.getElementById('selectBCJODSublocation');
+		var selectBCJODWeapon = document.getElementById('selectBCJODWeapon');
+		var selectBCJODBase = document.getElementById('selectBCJODBase');
+		var selectBCJODTrinket = document.getElementById('selectBCJODTrinket');
+		var selectBCJODBait = document.getElementById('selectBCJODBait');
+		var storageValue = window.sessionStorage.getItem('BC_JOD');
+		if(isNullOrUndefined(storageValue))
+			storageValue = JSON.stringify(objDefaultBCJOD);
+		storageValue = JSON.parse(storageValue);
+		var nIndex = -1;
+		if(bAutoChangeSublocation && !isNullOrUndefined(user))
+			selectBCJODSublocation.value = (user.location.indexOf('Balack\'s Cove') > -1) ? 'LOW' : 'JOD';
+		nIndex = storageValue.order.indexOf(selectBCJODSublocation.value);
+		selectBCJODWeapon.value = storageValue.weapon[nIndex];
+		selectBCJODBase.value = storageValue.base[nIndex];
+		selectBCJODTrinket.value = storageValue.trinket[nIndex];
+		selectBCJODBait.value = storageValue.bait[nIndex];
+	}
+
 	function onSelectBWRiftForceActiveQuantum(){
 		saveBWRift();
 		initControlsBWRift();
@@ -10288,7 +10490,7 @@ function bodyJS(){
 		saveBWRift();
 		initControlsBWRift();
 	}
-	
+
 	function onInputMinRSCChanged(input){
 		input.value = limitMinMax(input.value, input.min, input.max);
 		saveBWRift();
@@ -11068,6 +11270,14 @@ function bodyJS(){
 			'Bristle Woods Rift' : {
 				arr : ['trBWRiftSubLocation','trBWRiftMasterTrapSetup','trBWRiftAutoChoosePortal','trBWRiftPortalPriority','trBWRiftPortalPriorityCursed','trBWRiftMinTimeSand','trBWRiftMinRSC','trBWRiftDeactivatePocketWatch','trBWRiftChoosePortalAfterCC','trBWRiftTrapSetupSpecial','trBWRiftEnterMinigame','trBWRiftActivatePocketWatch'],
 				init : function(data){initControlsBWRift(data);}
+			},
+			'BC/JOD' : {
+				arr : ['trBCJODSubLocation', 'trBCJODTrapSetup'],
+				init : function(data){initControlsBCJOD(data);}
+			},
+			'FG/AR' : {
+				arr : ['trFGARSubLocation', 'trFGARTrapSetup'],
+				init : function(data){initControlsFGAR(data);}
 			},
 		};
 		var i, temp;
