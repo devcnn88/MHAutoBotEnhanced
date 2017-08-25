@@ -1529,7 +1529,7 @@ function bwRift(){
 	if(bToggle){
 		var nRetry = 5;
 		var intervalPocket = setInterval( function () {
-			if (classLootBooster.getAttribute('class').indexOf('charmberEmpty') < 0 || --nRetry <= 0){
+			if (classLootBooster.getAttribute('class').indexOf('chamberEmpty') < 0 || --nRetry <= 0){
 				fireEvent(classButton, 'click');
 				clearInterval(intervalPocket);
 				intervalPocket = null;
