@@ -4963,7 +4963,7 @@ function embedTimer(targetPage) {
             timerDivElement.appendChild(showPreferenceLinkDiv);
 
             var showPreferenceSpan = document.createElement('span');
-			var showPreferenceLinkStr = '<a id="showPreferenceLink" name="showPreferenceLink" onclick="\
+			var showPreferenceLinkStr = '<a id="showPreferenceLink" style="display:none" name="showPreferenceLink" onclick="\
 				if (document.getElementById(\'showPreferenceLink\').innerHTML == \'<b>[Hide Preference]</b>\'){\
 					document.getElementById(\'preferenceDiv\').style.display=\'none\';\
 					document.getElementById(\'showPreferenceLink\').innerHTML=\'<b>[Show Preference]</b>\';\
@@ -4986,15 +4986,15 @@ function embedTimer(targetPage) {
             showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
 
 			var restorePreferenceStr = '<input type="file" id="inputFiles" name="files" style="display:none;" onchange="handleFiles(this.files)"/>';
-			restorePreferenceStr += '<a id="idRestore" name="Restore" title="Click to restore preference" onclick="onIdRestoreClicked();">';
+			restorePreferenceStr += '<a id="idRestore" style="display:none" name="Restore" title="Click to restore preference" onclick="onIdRestoreClicked();">';
 			if(getSessionStorage('bRestart') != 'true')
 				restorePreferenceStr += '<b>[Restore]</b>';
 			else
 				restorePreferenceStr += '<b>Restart browser is required!</b>';
 			restorePreferenceStr += '</a>&nbsp;&nbsp;&nbsp;';
-			var getLogPreferenceStr = '<a id="idGetLogAndPreference" name="GetLogAndPreference" title="Click to get saved log & preference" onclick="onIdGetLogPreferenceClicked();">';
+			var getLogPreferenceStr = '<a id="idGetLogAndPreference" style="display:none" name="GetLogAndPreference" title="Click to get saved log & preference" onclick="onIdGetLogPreferenceClicked();">';
 			getLogPreferenceStr += '<b>[Get Log & Preference / Backup]</b></a>&nbsp;&nbsp;&nbsp;';
-			var clearTrapListStr = '<a id="clearTrapList" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="\
+			var clearTrapListStr = '<a id="clearTrapList" style="display:none" name="clearTrapList" title="Click to clear trap list from localStorage and trap list will be updated on the next arming by script" onclick="\
 				window.localStorage.removeItem(\'TrapListWeapon\');\
 				window.localStorage.removeItem(\'TrapListBase\');\
 				window.localStorage.removeItem(\'TrapListTrinket\');\
@@ -6826,6 +6826,10 @@ function embedTimer(targetPage) {
 					}
 				}
 			}
+			document.getElementById('idRestore').style.display = (targetPage) ? 'table-row' : 'none';
+			document.getElementById('idGetLogAndPreference').style.display = (targetPage) ? 'table-row' : 'none';
+			document.getElementById('clearTrapList').style.display = (targetPage) ? 'table-row' : 'none';
+			document.getElementById('showPreferenceLink').style.display = (targetPage) ? 'table-row' : 'none';
         }
         headerElement = null;
     }
