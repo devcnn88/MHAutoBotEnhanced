@@ -108,7 +108,7 @@ var maxSaveLog = 750;
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
 
 // // Display timer and message in page title. (true/false)
-var showTimerInTitle = true;
+var showTimerInTitle = false;
 
 // // Embed a timer in page to show next hunter horn timer, highly recommanded to turn on. (true/false)
 // // Note: You may not access some option like pause at invalid location if you turn this off.
@@ -374,8 +374,8 @@ var kingTimeElement;
 var lastKingRewardSumTimeElement;
 var optionElement;
 var travelElement;
-var strHornButton = 'hornbutton';
-var strCampButton = 'campbutton';
+var g_strHornButton = 'mousehuntHud-huntersHorn-container';
+var g_strCampButton = 'mousehuntHud-campButton';
 var isNewUI = false;
 var debugKR = false;
 
@@ -4497,7 +4497,7 @@ function getKingRewardStatus() {
 	var strValue = getPageVariable('user.has_puzzle');
 	console.plog('user.has_puzzle:', strValue);
 	return (strValue == 'true');
-	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('header');
+	var headerOrHud = (isNewUI) ? document.getElementById('mousehuntHud') : document.getElementById('envHeaderImg');
 	if (headerOrHud !== null) {
 		var textContentLowerCase = headerOrHud.textContent.toLowerCase();
 		if (textContentLowerCase.indexOf("king reward") > -1 ||
@@ -4668,7 +4668,7 @@ function action() {
         var isHornSounding = false;
 
         // check if the horn image is visible
-        var headerElement = document.getElementById('mousehuntHud').firstChild;
+        var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('envHeaderImg');
         if (headerElement) {
             var headerStatus = headerElement.getAttribute('class');
 			headerStatus = headerStatus.toLowerCase();
@@ -4714,7 +4714,7 @@ function countdownTimer() {
 			else{
 				// reload the page so that the sound can be play
 				// simulate mouse click on the camp button
-				fireEvent(document.getElementsByClassName(strCampButton)[0].firstChild, 'click');
+				fireEvent(document.getElementsByClassName(g_strCampButton)[0], 'click');
 			}
 
 			// reload the page if click on the camp button fail
@@ -4813,7 +4813,7 @@ function countdownTimer() {
 							"-");
 
 						// agressive mode should sound the horn whenever it is possible to do so.
-						var headerElement = document.getElementById('mousehuntHud').firstChild;
+						var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('envHeaderImg');
 						if (headerElement) {
 							var headerStatus = headerElement.getAttribute('class');
 							headerStatus = headerStatus.toLowerCase();
@@ -7593,7 +7593,7 @@ function soundHorn() {
 
     if (!aggressiveMode) {
         // safety mode, check the horn image is there or not before sound the horn
-        var headerElement = document.getElementById('mousehuntHud').firstChild;
+        var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('envHeaderImg');
         if (headerElement) {
             // need to make sure that the horn image is ready before we can click on it
             var headerStatus = headerElement.getAttribute('class');
@@ -7605,9 +7605,7 @@ function soundHorn() {
                 displayTimer("Blowing The Horn...", "Blowing The Horn...", "Blowing The Horn...");
 
                 // simulate mouse click on the horn
-                var hornElement = document.getElementsByClassName(strHornButton)[0].firstChild;
-                fireEvent(hornElement, 'click');
-                hornElement = null;
+                fireEvent(document.getElementsByClassName(g_strHornButton)[0].firstChild, 'click');
 
                 // clean up
                 headerElement = null;
@@ -7668,9 +7666,7 @@ function soundHorn() {
 				}
 				else{
 					// try to click on the horn
-					var hornElement = document.getElementsByClassName(strHornButton)[0].firstChild;
-					fireEvent(hornElement, 'click');
-					hornElement = null;
+					fireEvent(document.getElementsByClassName(g_strHornButton)[0].firstChild, 'click');
 
 					// clean up
 					headerElement = null;
@@ -7696,7 +7692,7 @@ function soundHorn() {
         // aggressive mode, ignore whatever horn image is there or not, just sound the horn!
 
         // simulate mouse click on the horn
-        fireEvent(document.getElementsByClassName(strHornButton)[0].firstChild, 'click');
+        fireEvent(document.getElementsByClassName(g_strHornButton)[0].firstChild, 'click');
 
         // double check if the horn was already sounded
         window.setTimeout(function () { afterSoundingHorn(); }, 3000);
@@ -7710,7 +7706,7 @@ function afterSoundingHorn(bLog) {
     }
     scriptNode = null;
 
-    var headerElement = document.getElementById('mousehuntHud').firstChild;
+    var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('envHeaderImg');
     if (headerElement) {
         // double check if the horn image is still visible after the script already sound it
         var headerStatus = headerElement.getAttribute('class');
@@ -7723,9 +7719,7 @@ function afterSoundingHorn(bLog) {
             displayTimer("Blowing The Horn Again...", "Blowing The Horn Again...", "Blowing The Horn Again...");
 
             // simulate mouse click on the horn
-            var hornElement = document.getElementsByClassName(strHornButton)[0].firstChild;
-            fireEvent(hornElement, 'click');
-            hornElement = null;
+            fireEvent(document.getElementsByClassName(g_strHornButton)[0].firstChild, 'click');
 
             // clean up
             headerElement = null;
@@ -7819,25 +7813,22 @@ function embedScript() {
     headerElement = null;
 
     // change the function call of horn
-	var MHContainer = document.getElementById('mousehuntContainer');
-	var testNewUI = MHContainer.getAttribute("class").includes("legacy")? 1: 0;
-	if (!isNullOrUndefined(testNewUI)) {
+	var nLength = document.getElementsByClassName('mousehuntHud-menu-item').length;
+	if(nLength==8){
 		// old UI
 		isNewUI = false;
-		strHornButton = 'mousehuntHud-huntersHorn-container';
-		strCampButton = 'mousehuntHud-campButton';
+		g_strCampButton = 'mousehuntHud-campButton';
 	}
 	else {
 		// new UI
 		isNewUI = true;
-		strHornButton = 'mousehuntHud-huntersHorn-container';
-        strCampButton = 'camp';
+        g_strCampButton = 'mousehuntHud-menu-item';
 		//alert("New UI might not work properly with this script. Use at your own risk");
 		document.getElementById('titleElement').innerHTML += " - <font color='red'><b>Pls use Classic UI (i.e. Non-FreshCoat Layout) for fully working features</b></font>";
 	}
 	setStorage('NewUI', isNewUI);
 
-	var hornButtonLink = document.getElementsByClassName(strHornButton)[0].firstChild;
+	var hornButtonLink = document.getElementsByClassName(g_strHornButton)[0].firstChild;
     var oriStr = hornButtonLink.getAttribute('onclick').toString();
     var index = oriStr.indexOf('return false;');
     var modStr = oriStr.substring(0, index) + 'soundedHorn();' + oriStr.substring(index);
@@ -7957,9 +7948,7 @@ function kingRewardCountdownTimer(interval, isReloadToSolve)
 			}
 			else{
 				// simulate mouse click on the camp button
-				var campElement = document.getElementsByClassName(strCampButton)[0].firstChild;
-				fireEvent(campElement, 'click');
-				campElement = null;
+				fireEvent(document.getElementsByClassName(g_strCampButton)[0], 'click');
 			}
 
 			// reload the page if click on the camp button fail
@@ -8174,9 +8163,7 @@ function trapCheck() {
     displayTimer("Checking The Trap...", "Checking trap now...", "Checking trap now...");
 
     // simulate mouse click on the camp button
-    var campElement = document.getElementsByClassName(strCampButton)[0].firstChild;
-    fireEvent(campElement, 'click');
-    campElement = null;
+    fireEvent(document.getElementsByClassName(g_strCampButton)[0], 'click');
 
     // reload the page if click on camp button fail
     // window.setTimeout(function () { reloadWithMessage("Fail to click on camp button. Reloading...", false); }, 5000);
