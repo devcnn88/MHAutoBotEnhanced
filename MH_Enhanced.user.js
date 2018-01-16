@@ -7567,7 +7567,7 @@ function soundHorn() {
 
     if (!aggressiveMode) {
         // safety mode, check the horn image is there or not before sound the horn
-        var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('header');
+        var headerElement = document.getElementById('mousehuntHud').firstChild;
         if (headerElement) {
             // need to make sure that the horn image is ready before we can click on it
             var headerStatus = headerElement.getAttribute('class');
@@ -7793,12 +7793,13 @@ function embedScript() {
     headerElement = null;
 
     // change the function call of horn
-	var testNewUI = document.getElementById('header');
+	var MHContainer = document.getElementById('mousehuntContainer');
+	var testNewUI = MHContainer.getAttribute("class").includes("legacy")? 1: 0;
 	if (!isNullOrUndefined(testNewUI)) {
 		// old UI
 		isNewUI = false;
-		strHornButton = 'hornbutton';
-		strCampButton = 'campbutton';
+		strHornButton = 'mousehuntHud-huntersHorn-container';
+		strCampButton = 'mousehuntHud-campButton';
 	}
 	else {
 		// new UI
