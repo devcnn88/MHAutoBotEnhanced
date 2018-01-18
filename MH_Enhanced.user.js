@@ -108,7 +108,7 @@ var maxSaveLog = 750;
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
 
 // // Display timer and message in page title. (true/false)
-var showTimerInTitle = false;
+var showTimerInTitle = true;
 
 // // Embed a timer in page to show next hunter horn timer, highly recommanded to turn on. (true/false)
 // // Note: You may not access some option like pause at invalid location if you turn this off.
@@ -7506,7 +7506,7 @@ function assignMissingDefault(obj, objDefault){
 
 function displayTimer(title, nextHornTime, checkTime) {
     if (showTimerInTitle) {
-        document.title = title;
+        document.title = title + " | "+ getPageVariable('user.firstname');
     }
 
     if (showTimerInPage) {
