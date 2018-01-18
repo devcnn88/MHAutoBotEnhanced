@@ -4643,7 +4643,7 @@ function action() {
         var isHornSounding = false;
 
         // check if the horn image is visible
-        var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('header');
+        var headerElement = document.getElementById('mousehuntHud').firstChild;
         if (headerElement) {
             var headerStatus = headerElement.getAttribute('class');
 			headerStatus = headerStatus.toLowerCase();
@@ -4788,7 +4788,7 @@ function countdownTimer() {
 							"-");
 
 						// agressive mode should sound the horn whenever it is possible to do so.
-						var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('header');
+						var headerElement = document.getElementById('mousehuntHud').firstChild;
 						if (headerElement) {
 							var headerStatus = headerElement.getAttribute('class');
 							headerStatus = headerStatus.toLowerCase();
@@ -7684,7 +7684,7 @@ function afterSoundingHorn(bLog) {
     }
     scriptNode = null;
 
-    var headerElement = (isNewUI) ? document.getElementById('mousehuntHud').firstChild : document.getElementById('header');
+    var headerElement = document.getElementById('mousehuntHud').firstChild;
     if (headerElement) {
         // double check if the horn image is still visible after the script already sound it
         var headerStatus = headerElement.getAttribute('class');
