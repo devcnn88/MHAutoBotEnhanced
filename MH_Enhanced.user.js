@@ -953,92 +953,94 @@ function specialFeature(caller){
 
 function eventLocationCheck(caller) {
     var selAlgo = getStorageToVariableStr("eventLocation", "None");
-	var temp = "";
+    var temp = "";
     switch (selAlgo){
         case 'Charge Egg 2015':
             checkCharge(12); break;
         case 'Charge Egg 2015(17)':
             checkCharge(17); break;
-		case 'Charge Egg 2016 Medium + High':
+        case 'Charge Egg 2016 Medium + High':
             checkCharge2016(chargeMedium); break;
         case 'Charge Egg 2016 High':
             checkCharge2016(chargeHigh); break;
-		case 'Burroughs Rift(Red)':
-			BurroughRift(true, 19, 20); break;
-		case 'Burroughs Rift(Green)':
-			BurroughRift(true, 6, 18); break;
-		case 'Burroughs Rift(Yellow)':
-			BurroughRift(true, 1, 5); break;
-		case 'Burroughs Rift Custom':
-			BRCustom(); break;
-		case 'Halloween 2016':
-			Halloween2016(); break;
-		case 'Iceberg':
-			iceberg(); break;
-		case 'WWRift':
-			wwrift(); break;
-		case 'GES':
-			ges(); break;
-		case 'GWH2016R':
-			gwh(); break;
-		case 'All LG Area':
-			var objLGTemplate = {
-				isAutoFill : false,
-				isAutoPour : false,
-				maxSaltCharged : 25,
-				base : {
-					before : '',
-					after : ''
-				},
-				trinket : {
-					before : '',
-					after : ''
-				},
-				bait : {
-					before : '',
-					after : ''
-				}
-			};
-			var objDefaultLG = {
-				LG : JSON.parse(JSON.stringify(objLGTemplate)),
-				TG : JSON.parse(JSON.stringify(objLGTemplate)),
-				LC : JSON.parse(JSON.stringify(objLGTemplate)),
-				CC : JSON.parse(JSON.stringify(objLGTemplate)),
-				SD : JSON.parse(JSON.stringify(objLGTemplate)),
-				SC : JSON.parse(JSON.stringify(objLGTemplate)),
-			};
-			temp = getStorageToObject("LGArea", objDefaultLG);
-			LGGeneral(temp);
-			break;
-		case 'SG':
-			seasonalGarden(); break;
-		case 'ZT':
-			zugzwangTower(); break;
-		case 'Sunken City':
-			SunkenCity(false); break;
-		case 'Sunken City Aggro':
-			SunkenCity(true); break;
-		case 'Sunken City Custom':
-			SCCustom(); break;
-		case 'Labyrinth':
-			labyrinth(); break;
-		case 'Zokor':
-			zokor(); break;
-		case 'Fiery Warpath':
-			fw(); break;
-		case 'Furoma Rift':
-			fRift(); break;
-		case 'BC/JOD':
-			balackCoveJOD(); break;
-		case 'FG/AR':
-			forbiddenGroveAR(); break;
-		case 'Bristle Woods Rift':
-			bwRift(); break;
-		case 'Fort Rox':
-			fortRox(); break;
-		case 'Test':
-			checkThenArm('any', 'bait', ['Gouda', 'Brie']);
-			break;
+        case 'Burroughs Rift(Red)':
+            BurroughRift(true, 19, 20); break;
+        case 'Burroughs Rift(Green)':
+            BurroughRift(true, 6, 18); break;
+        case 'Burroughs Rift(Yellow)':
+            BurroughRift(true, 1, 5); break;
+        case 'Burroughs Rift Custom':
+            BRCustom(); break;
+        case 'Halloween 2016':
+            Halloween2016(); break;
+        case 'Halloween 2018':
+            Halloween2018(); break;
+        case 'Iceberg':
+            iceberg(); break;
+        case 'WWRift':
+            wwrift(); break;
+        case 'GES':
+            ges(); break;
+        case 'GWH2016R':
+            gwh(); break;
+        case 'All LG Area':
+            var objLGTemplate = {
+                isAutoFill : false,
+                isAutoPour : false,
+                maxSaltCharged : 25,
+                base : {
+                    before : '',
+                    after : ''
+                },
+                trinket : {
+                    before : '',
+                    after : ''
+                },
+                bait : {
+                    before : '',
+                    after : ''
+                }
+            };
+            var objDefaultLG = {
+                LG : JSON.parse(JSON.stringify(objLGTemplate)),
+                TG : JSON.parse(JSON.stringify(objLGTemplate)),
+                LC : JSON.parse(JSON.stringify(objLGTemplate)),
+                CC : JSON.parse(JSON.stringify(objLGTemplate)),
+                SD : JSON.parse(JSON.stringify(objLGTemplate)),
+                SC : JSON.parse(JSON.stringify(objLGTemplate)),
+            };
+            temp = getStorageToObject("LGArea", objDefaultLG);
+            LGGeneral(temp);
+            break;
+        case 'SG':
+            seasonalGarden(); break;
+        case 'ZT':
+            zugzwangTower(); break;
+        case 'Sunken City':
+            SunkenCity(false); break;
+        case 'Sunken City Aggro':
+            SunkenCity(true); break;
+        case 'Sunken City Custom':
+            SCCustom(); break;
+        case 'Labyrinth':
+            labyrinth(); break;
+        case 'Zokor':
+            zokor(); break;
+        case 'Fiery Warpath':
+            fw(); break;
+        case 'Furoma Rift':
+            fRift(); break;
+        case 'BC/JOD':
+            balackCoveJOD(); break;
+        case 'FG/AR':
+            forbiddenGroveAR(); break;
+        case 'Bristle Woods Rift':
+            bwRift(); break;
+        case 'Fort Rox':
+            fortRox(); break;
+        case 'Test':
+            checkThenArm('any', 'bait', ['Gouda', 'Brie']);
+            break;
         default:
             break;
     }
@@ -1664,6 +1666,29 @@ function Halloween2016(){
 		}
 
 	}
+}
+
+function Halloween2018(){
+    var has_reward = (getPageVariable('user.quests.QuestHalloween2018.has_reward') == 'true')
+    , has_puzzle = (getPageVariable('user.has_puzzle') == 'true')
+    , $btn_reward = $(".halloweenHUD-campBanner-claimReward")
+    , $btn_cannon = $(".halloweenHUD-campBanner-cannonBall-button")
+    , int_handler = null;
+
+    if(!has_puzzle){
+        if(has_reward){
+            hg.views.HeadsUpDisplayHalloweenView.claimReward($btn_reward[0]);
+            int_handler = setInterval(
+                function(){
+                    if(!$btn_reward.hasClass("busy")){
+                        hg.views.HeadsUpDisplayHalloweenView.toggleCannon($btn_cannon[0]);
+                        clearInterval(int_handler);
+                    }
+                }, 300);
+
+
+        }
+    }
 }
 
 function ges(){
@@ -5337,6 +5362,7 @@ function embedTimer(targetPage) {
 			preferenceHTMLStr += '<option value="GES">Gnawnian Express Station</option>';
 			//preferenceHTMLStr += '<option value="GWH2016R">GWH 2016</option>';
 			preferenceHTMLStr += '<option value="Halloween 2016">Halloween 2016</option>';
+            preferenceHTMLStr += '<option value="Halloween 2018">Halloween 2018</option>';
 			preferenceHTMLStr += '<option value="Iceberg">Iceberg</option>';
 			preferenceHTMLStr += '<option value="Labyrinth">Labyrinth</option>';
 			preferenceHTMLStr += '<option value="SG">Seasonal Garden</option>';
